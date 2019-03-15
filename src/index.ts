@@ -4,4 +4,5 @@
  * Released under the MIT license
  */
 
+export * from './math';
 export * from './primitives';
