@@ -1,0 +1,35 @@
+{
+  "name": "@leosingleton/fim",
+  "version": "1.0.0-alpha.0",
+  "author": "Leo C. Singleton IV <leo@leosingleton.com>",
+  "description": "Fast Image Manipulation Library for JavaScript",
+  "homepage": "https://github.com/leosingleton/fim",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leosingleton/fim.git"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.3.1",
+    "jest-junit": "^6.3.0",
+    "ts-jest": "^24.0.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3"
+  },
+  "dependencies": {
+    "@leosingleton/commonlibs": "^1.0.0-alpha.6"
+  },
+  "scripts": {
+    "build": "npx webpack --mode=none",
+    "test": "npx jest"
+  },
+  "files": [
+    "build/dist/"
+  ],
+  "main": "build/dist/index.js",
+  "types": "build/dist/index.d.ts"
+}
