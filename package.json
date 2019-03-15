@@ -21,7 +21,7 @@
     "webpack-cli": "^3.2.3"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.0.0-alpha.6"
+    "@leosingleton/commonlibs": "^1.0.0-alpha.7"
   },
   "scripts": {
     "build": "npx webpack --mode=none",
