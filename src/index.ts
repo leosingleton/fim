@@ -4,4 +4,4 @@
  * Released under the MIT license
  */
 
-//export * from './collections';
+export * from './primitives';
