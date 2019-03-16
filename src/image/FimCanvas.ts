@@ -103,4 +103,30 @@ export class FimCanvas extends FimImage {
     
     this.opWithSrcDest(srcImage, op, 1, srcCoords, destCoords);
   }
+
+  /**
+   * Exports part of the image to an RGBA byte array
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @param w Width, in pixels
+   * @param h Height, in pixels
+   */
+  public getRgbaBytes(x: number, y: number, w: number, h: number): Uint8ClampedArray {
+    let result: Uint8ClampedArray;
+    using(new FimCanvasDrawingContext(this.canvasElement), ctx => {
+      result = ctx.context.getImageData(x, y, w, h).data;      
+    });
+    return result;
+  }
+
+  /**
+   * Returns the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @returns 4-byte Uint8Array containing RGBA values
+   */
+  public getPixel(x: number, y: number): FimColor {
+    let pixel = this.getRgbaBytes(x, y, 1, 1);
+    return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
+  }
 }
