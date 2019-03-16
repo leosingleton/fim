@@ -39,6 +39,11 @@ export class FimRect {
       (this.xLeft === rect.xLeft) && (this.yTop === rect.yTop);
   }
 
+  /** Returns whether two FimRect objects are the same width and height */
+  sameDimensions(rect: FimRect): boolean {
+    return (this.w === rect.w) && (this.h === rect.h);
+  }
+
   /** Returns the top-left corner as a point object */
   getTopLeft(): FimPoint {
     return new FimPoint(this.xLeft, this.yTop);

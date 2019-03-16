@@ -38,6 +38,16 @@ describe('FimRect', () => {
     expect(rect3.equals(rect2)).toBeFalsy();
   });
 
+  it('Compares sameDimensions', () => {
+    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    let rect2 = FimRect.fromXYWidthHeight(200, 300, 300, 400);
+    let rect3 = FimRect.fromXYWidthHeight(100, 200, 400, 300);
+    expect(rect1.sameDimensions(rect2)).toBeTruthy();
+    expect(rect2.sameDimensions(rect1)).toBeTruthy();
+    expect(rect1.sameDimensions(rect3)).toBeFalsy();
+    expect(rect3.sameDimensions(rect2)).toBeFalsy();
+  });
+
   it('Converts upright', () => {
     let rect = FimRect.fromPoints(new FimPoint(400, 600), new FimPoint(100, 200));
     validate1234(rect.toUpright());
