@@ -122,9 +122,6 @@ export class FimRgbaBuffer extends FimImage {
       let srcOffset = ((y + srcCoords.yTop) * srcImage.bufferWidth + srcCoords.xLeft) * 4;
       let destOffset = ((y + destCoords.yTop) * this.bufferWidth + destCoords.xLeft) * 4;
       destBuf.set(srcBuf.subarray(srcOffset, srcOffset + (destCoords.w * 4)), destOffset);
-      /*for (let n = 0; n < (destCoords.w * 4); n++) {
-        destBuf[destOffset++] = srcBuf[srcOffset++];
-      }*/
     }
   }
 

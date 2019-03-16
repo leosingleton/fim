@@ -94,7 +94,6 @@ describe('FimRgbaBuffer', () => {
     
           let origPixel = orig.getPixel(x, y);
           let cropPixel = crop.getPixel(x, y);
-          console.log(x, y);
     
           if (x < 100 || x >= 200 || y < 100 || y >= 200) {
             // All 0 values for pixels outside of the copied area
