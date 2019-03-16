@@ -39,6 +39,7 @@ describe('FimColor', () => {
     let color2 = FimColor.fromString('#ffffffff');
     let color3 = FimColor.fromString('#999');
     expect(color1.equals(color2)).toBeTruthy();
+    expect(color1.equals('#ffff')).toBeTruthy();
     expect(color2.equals(color1)).toBeTruthy();
     expect(color1.equals(color3)).toBeFalsy();
     expect(color2.equals(color3)).toBeFalsy();

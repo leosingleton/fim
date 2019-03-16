@@ -30,7 +30,11 @@ export class FimColor {
    * @param color Second color to compare
    * @returns True if equal; otherwise false
    */
-  public equals(color: FimColor): boolean {
+  public equals(color: FimColor | string): boolean {
+    if (typeof(color) === 'string') {
+      color = FimColor.fromString(color);
+    }
+
     return (this.r === color.r) && (this.g === color.g) && (this.b === color.b) && (this.a === color.a);
   }
 

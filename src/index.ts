@@ -4,5 +4,6 @@
  * Released under the MIT license
  */
 
+export * from './image';
 export * from './math';
 export * from './primitives';
