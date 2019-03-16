@@ -5,9 +5,9 @@
 import { GaussianKernel } from '../GaussianKernel';
 
 // Test cases calculated using http://dev.theomader.com/gaussian-kernel-calculator/
-describe("GaussianKernel", () => {
+describe('GaussianKernel', () => {
 
-  it("sigma=1 size=5", () => {
+  it('sigma=1 size=5', () => {
     let kernel = GaussianKernel.calculate(1, 5);
 
     expect(kernel.length).toBe(5);
@@ -18,7 +18,7 @@ describe("GaussianKernel", () => {
     expect(kernel[4]).toBeCloseTo(0.06136);
   });
 
-  it("sigma=2 size=7", () => {
+  it('sigma=2 size=7', () => {
     let kernel = GaussianKernel.calculate(2, 7);
 
     expect(kernel.length).toBe(7);
@@ -31,7 +31,7 @@ describe("GaussianKernel", () => {
     expect(kernel[6]).toBeCloseTo(0.071303);
   });
 
-  it("sigma=4 size=9", () => {
+  it('sigma=4 size=9', () => {
     let kernel = GaussianKernel.calculate(4, 9);
 
     expect(kernel.length).toBe(9);
@@ -46,7 +46,7 @@ describe("GaussianKernel", () => {
     expect(kernel[8]).toBeCloseTo(0.081812);
   });
 
-  it("quantize", () => {
+  it('quantize', () => {
     let kernel = [1, 2, 3, 4, 5];
     let n = GaussianKernel.quantize(kernel);
     expect(kernel[0]).toBeCloseTo(1/15);
@@ -56,7 +56,7 @@ describe("GaussianKernel", () => {
     expect(kernel[4]).toBeCloseTo(5/15);
   });
 
-  it("normalize", () => {
+  it('normalize', () => {
     let kernel = [1, 2, 3, 4, 5];
     let n = GaussianKernel.normalize(kernel);
     expect(kernel[0]).toBeCloseTo(1/15);
@@ -67,4 +67,3 @@ describe("GaussianKernel", () => {
   });
 
 });
-  

@@ -5,9 +5,9 @@
 import { FimPoint } from '../FimPoint';
 import { FimRect } from '../FimRect';
 
-describe("FimPoint", () => {
+describe('FimPoint', () => {
 
-  it("generates random points within a rectangle", () => {
+  it('Generates random points within a rectangle', () => {
     let rect = FimRect.fromCoordinates(200, 400, 600, 1000);
     let points = FimPoint.getRandomPoints(100, rect);
     for (let n = 0; n < 100; n++) {
@@ -19,7 +19,7 @@ describe("FimPoint", () => {
     }
   });
 
-  it("caches results", () => {
+  it('Caches results', () => {
     let rect = FimRect.fromCoordinates(100, 200, 300, 500);
     let points1 = FimPoint.getRandomPoints(200, rect);
     let points2 = FimPoint.getRandomPoints(100, rect); // Intentionally smaller than previous call
