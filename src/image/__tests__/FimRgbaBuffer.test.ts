@@ -1,3 +1,7 @@
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
+
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { SeededRandom, using } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
