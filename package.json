@@ -26,7 +26,7 @@
   },
   "scripts": {
     "build": "npx webpack --mode=none",
-    "test": "npx jest"
+    "test": "npx jest --config=jest.node.config.js --maxWorkers=2 && npx jest --config=jest.web.config.js"
   },
   "files": [
     "build/dist/"
