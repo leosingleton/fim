@@ -22,7 +22,7 @@ var config = {
     library: 'library',
     libraryTarget: 'umd',
     umdNamedDefine: true,
-    globalObject: '(self || this)'
+    globalObject: '(typeof self !== "undefined" ? self : this)'
   }
 };
 
