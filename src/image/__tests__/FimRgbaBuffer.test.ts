@@ -76,7 +76,7 @@ describe('FimRgbaBuffer', () => {
     let rand = new SeededRandom(0);
 
     // Create a buffer and fill it with random values
-    using(new FimRgbaBuffer(300, 300), orig => {
+    using (new FimRgbaBuffer(300, 300), orig => {
       let buffer = orig.getBuffer();
       for (let n = 0; n < buffer.length; n++) {
         buffer[n] = rand.nextInt() % 256;

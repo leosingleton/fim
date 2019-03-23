@@ -5,6 +5,7 @@
 import { FimCanvas } from '../FimCanvas';
 import { SeededRandom, using } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
+import { FimRgbaBuffer } from '../FimRgbaBuffer';
 
 describe('FimCanvas', () => {
 
@@ -72,21 +73,52 @@ describe('FimCanvas', () => {
     });
   });
 
+  it('Copies from FimRgbaBuffer', () => {
+    let rand = new SeededRandom(0);
+
+    // Create an RGBA buffer and fill it with random values
+    using (new FimRgbaBuffer(100, 100), orig => {
+      let buffer = orig.getBuffer();
+      for (let n = 0; n < buffer.length; n++) {
+        buffer[n] = rand.nextInt() % 256;
+      }
+
+      // Copy the RGBA buffer to an FimCanvas
+      using (new FimCanvas(100, 100), copy => {
+        copy.copyFromRgbaBuffer(orig);
+
+        // Ensure the two are the same
+        for (let n = 0; n < 100; n++) {
+          let x = rand.nextInt() % 100;
+          let y = rand.nextInt() % 100;
+
+          let origPixel = orig.getPixel(x, y);
+          let copyPixel = copy.getPixel(x, y);
+          expect(copyPixel).toEqual(origPixel);
+        }
+      });
+    });
+  });
+
   /*
   it('Copies with crop', () => {
     let rand = new SeededRandom(0);
 
     // Create a buffer and fill it with random values
-    using(new FimCanvas(300, 300), orig => {
-      let canvas = orig.getCanvas();
-      for (let n = 0; n < buffer.length; n++) {
-        buffer[n] = rand.nextInt() % 256;
-      }
+    using (new FimCanvas(300, 300), orig => {
+      // We can't directly write to a canvas, so use a temporary RGBA buffer
+      using (new FimRgbaBuffer(300, 300), temp => {
+        let buffer = temp.getBuffer();
+        for (let n = 0; n < buffer.length; n++) {
+          buffer[n] = rand.nextInt() % 256;
+        }
+        orig.copyFromRgbaBuffer(temp);
+      });
   
       // Copy the center 100x100 to another buffer
       using (new FimCanvas(300, 300, '#000'), crop => {
         let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
-        crop.copyFrom(orig, rect, rect);
+        crop.copyFromCanvas(orig, rect, rect);
     
         // Ensure the pixels were copied by sampling 100 random ones
         for (let n = 0; n < 100; n++) {
@@ -95,7 +127,6 @@ describe('FimCanvas', () => {
     
           let origPixel = orig.getPixel(x, y);
           let cropPixel = crop.getPixel(x, y);
-          console.log(x, y);
     
           if (x < 100 || x >= 200 || y < 100 || y >= 200) {
             // All 0 values for pixels outside of the copied area

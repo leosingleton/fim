@@ -95,13 +95,13 @@ export class FimCanvas extends FimImage {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    let op = 'source-over';
-    if (destCoords.equals(this.dimensions)) {
-      // copy is slightly faster than source-over
-      op = 'copy';
-    }
+    // copy is slightly faster than source-over
+    let op = destCoords.equals(this.dimensions) ? 'copy' : 'source-over';
+
+    // Enable image smoothing if we are rescaling the image
+    let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
     
-    this.opWithSrcDest(srcImage, op, 1, srcCoords, destCoords);
+    this.opWithSrcDest(srcImage, op, 1, srcCoords, destCoords, imageSmoothingEnabled);
   }
 
   /**
@@ -115,7 +115,25 @@ export class FimCanvas extends FimImage {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    throw new Error('Not implemented');
+    // Ensure width and height are the same for src and destination. We don't support rescaling.
+    if (!srcCoords.sameDimensions(destCoords)) {
+      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
+    }
+    
+    if (srcCoords.equals(srcImage.dimensions)) {
+      // Fast case: input is the entire RgbaBuffer
+      using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
+        let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
+        pixels.data.set(srcImage.getBuffer());
+        ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
+      });
+    } else {
+      // Slow case: input is a subset of the RgbaBuffer. Make a cropped RgbaBuffer and recurse.
+      using (new FimRgbaBuffer(srcCoords.w, srcCoords.h), buffer => {
+        buffer.copyFromRgbaBuffer(srcImage, srcCoords);
+        this.copyFromRgbaBuffer(buffer, buffer.dimensions, destCoords);
+      });
+    }
   }
 
   /**
@@ -127,7 +145,7 @@ export class FimCanvas extends FimImage {
    */
   public getRgbaBytes(x: number, y: number, w: number, h: number): Uint8ClampedArray {
     let result: Uint8ClampedArray;
-    using(new FimCanvasDrawingContext(this.canvasElement), ctx => {
+    using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
       result = ctx.context.getImageData(x, y, w, h).data;      
     });
     return result;
