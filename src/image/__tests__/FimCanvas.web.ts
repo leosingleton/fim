@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas } from '../FimCanvas';
-import { SeededRandom, using, usingAsync } from '@leosingleton/commonlibs';
+import { SeededRandom, using, usingAsync, DisposableSet } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 
@@ -81,7 +81,8 @@ describe('FimCanvas', () => {
     let rand = new SeededRandom(0);
 
     // Create an RGBA buffer and fill it with gradiant values
-    await usingAsync(new FimRgbaBuffer(100, 100), async src => {
+    await DisposableSet.usingAsync(async disposable => {
+      let src = disposable.addDisposable(new FimRgbaBuffer(100, 100));
       for (let x = 0; x < 100; x++) {
         for (let y = 0; y < 100; y++) {
           src.setPixel(x, y, FimColor.fromRGBABytes(x, y, 0, 255));
@@ -89,19 +90,18 @@ describe('FimCanvas', () => {
       }
 
       // Copy the RGBA buffer to an FimCanvas
-      await usingAsync(new FimCanvas(100, 100), async dest => {
-        await copy(dest, src);
+      let dest = disposable.addDisposable(new FimCanvas(100, 100));
+      await copy(dest, src);
 
-        // Ensure the two are the same
-        for (let n = 0; n < 100; n++) {
-          let x = rand.nextInt() % 100;
-          let y = rand.nextInt() % 100;
+      // Ensure the two are the same
+      for (let n = 0; n < 100; n++) {
+        let x = rand.nextInt() % 100;
+        let y = rand.nextInt() % 100;
 
-          let srcPixel = FimColor.fromRGBABytes(x, y, 0, 255);
-          let destPixel = dest.getPixel(x, y);
-          expect(destPixel).toEqual(srcPixel);
-        }
-      });
+        let srcPixel = FimColor.fromRGBABytes(x, y, 0, 255);
+        let destPixel = dest.getPixel(x, y);
+        expect(destPixel).toEqual(srcPixel);
+      }
     });        
   }
 
