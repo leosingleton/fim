@@ -27,6 +27,17 @@ describe('FimRgbaBuffer', () => {
     });
   });
 
+  it('Gets and sets pixel colors', () => {
+    let color1 = FimColor.fromString('#123');
+    let color2 = FimColor.fromString('#aaa');
+
+    using(new FimRgbaBuffer(640, 480, color1), buffer => {
+      buffer.setPixel(555, 123, color2);
+      expect(buffer.getPixel(134, 413)).toEqual(color1);
+      expect(buffer.getPixel(555, 123)).toEqual(color2);
+    });
+  });
+
   it('Copies full image', () => {
     let color1 = FimColor.fromString('#def');
     let color2 = FimColor.fromString('#1234');

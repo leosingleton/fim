@@ -134,11 +134,25 @@ export class FimRgbaBuffer extends FimImage {
    * Returns the value of one pixel
    * @param x X-offset, in pixels
    * @param y Y-offset, in pixels
-   * @returns 4-byte Uint8Array containing RGBA values
+   * @returns RGBA color value
    */
   public getPixel(x: number, y: number): FimColor {
     let offset = (y * this.w + x) * 4;
     return FimColor.fromRGBABytes(this.buffer[offset], this.buffer[offset + 1], this.buffer[offset + 2],
       this.buffer[offset + 3]);
+  }
+
+  /**
+   * Sets the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @param color RGBA color value
+   */
+  public setPixel(x: number, y: number, color: FimColor): void {
+    let offset = (y * this.w + x) * 4;
+    this.buffer[offset++] = color.r;
+    this.buffer[offset++] = color.g;
+    this.buffer[offset++] = color.b;
+    this.buffer[offset] = color.a;
   }
 }
