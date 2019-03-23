@@ -4,4 +4,7 @@
 
 export * from './FimGLCanvas';
 export * from './FimGLError';
+export * from './FimGLProgram';
+export * from './FimGLShader';
+export * from './FimGLTexture';
 export * from './IFimGLNotifications';

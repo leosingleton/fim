@@ -1,12 +1,12 @@
-// src/fim/GLProgram.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2019 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './GLCanvas';
-import { FimGLObject } from './GLObject';
-import { FimGLTexture } from './GLTexture';
-import { FimGLError, FimGLErrorCode } from './GLError';
-import { FimGLShader, FimGLVariableDefinition } from './GLShader';
+import { FimGLCanvas } from './FimGLCanvas';
+import { FimGLError, FimGLErrorCode } from './FimGLError';
+import { FimGLTexture } from './FimGLTexture';
+import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
+import { IFimGLNotifications } from './IFimGLNotifications';
 import { deepCopy } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
@@ -23,9 +23,9 @@ interface UniformDefinition extends FimGLVariableDefinition {
 /** Map of uniform values */
 type UniformDefinitionMap = { [name: string]: UniformDefinition };
 
-export class FimGLProgram implements FimGLObject {
+export class FimGLProgram implements IFimGLNotifications {
   constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
-    this.gl = canvas.getGLContext();
+    this.gl = canvas.gl;
 
     // Perform a deep copy in case the same GLSL file is used by multiple programs with different const or uniform
     // values. Callers need to be careful to modify the new versions, not the original, when initializing values.
