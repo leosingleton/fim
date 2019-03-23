@@ -8,12 +8,6 @@ import { FimRect, FimColor } from '../../primitives';
 
 describe('FimCanvas', () => {
 
-  it('Placeholder', () => {
-    // Jest requires at least one test
-    expect(1).toEqual(1);
-  });
-
-  /*
   it('Creates and disposes', () => {
     let b = new FimCanvas(640, 480);
     expect(b.getCanvas()).toBeDefined();
@@ -78,6 +72,7 @@ describe('FimCanvas', () => {
     });
   });
 
+  /*
   it('Copies with crop', () => {
     let rand = new SeededRandom(0);
 
