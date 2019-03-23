@@ -20,13 +20,13 @@ jobs:
       npm run build
     displayName: 'Compile Output'
 
-    - script: |
-        npm run test:node
-      displayName: 'Execute NodeJS Unit Tests'
+  - script: |
+      npm run test:node
+    displayName: 'Execute NodeJS Unit Tests'
 
-    - script: |
-        npm run test:web
-      displayName: 'Execute Web Unit Tests'
+  - script: |
+      npm run test:web
+    displayName: 'Execute Web Unit Tests'
 
   - task: PublishTestResults@2
     inputs:
