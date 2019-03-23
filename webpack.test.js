@@ -11,11 +11,15 @@ var config = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.glsl$/,
+        use: 'webpack-glsl-minify'
       }
     ]
   },
   resolve: {
-    extensions: [ '.ts' ]
+    extensions: [ '.glsl', '.ts' ]
   },
   output: {
     path: path.resolve(__dirname, 'build/test'),
