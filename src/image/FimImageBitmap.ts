@@ -15,7 +15,7 @@ export class FimImageBitmap implements IDisposable {
   }
 
   private constructor(bitmap: ImageBitmap) {
-    this.bitmap = bitmap;;
+    this.bitmap = bitmap;
   }
 
   /** The ImageBitmap */

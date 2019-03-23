@@ -42,7 +42,7 @@ export class FimRgbaBuffer extends FimImage {
 
   /** Fills the canvas with a solid color */
   public fill(color: FimColor | string): void {
-    if (typeof(color) === 'string') {
+    if (typeof color === 'string') {
       color = FimColor.fromString(color);
     }
 

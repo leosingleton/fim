@@ -19,14 +19,14 @@ export class FimCanvasDrawingContext implements IDisposable {
     ctx.globalAlpha = alpha;
     this.context = ctx;
 
-    // Diable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
+    // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
     // support it well...
     // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
     let ctxAny = ctx as any;
-    ctxAny.imageSmoothingEnabled = imageSmoothingEnabled;
-    ctxAny.mozImageSmoothingEnabled = imageSmoothingEnabled;
-    ctxAny.webkitImageSmoothingEnabled = imageSmoothingEnabled;
-    ctxAny.msImageSmoothingEnabled = imageSmoothingEnabled;
+    ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
   }
 
   /** The CanvasRenderingContext2D */

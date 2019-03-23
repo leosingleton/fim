@@ -168,14 +168,14 @@ export class FimCanvas extends FimImage {
     
     if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
       // Fast case: no cropping or rescaling
-      using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
+      using(new FimCanvasDrawingContext(this.canvasElement), ctx => {
         let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
         pixels.data.set(srcImage.getBuffer());
         ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
       });
     } else {  
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-      using (new FimCanvas(srcImage.w, srcImage.h), temp => {
+      using(new FimCanvas(srcImage.w, srcImage.h), temp => {
         temp.copyFromRgbaBuffer(srcImage);
         this.copyFromCanvas(temp, srcCoords, destCoords);
       });
