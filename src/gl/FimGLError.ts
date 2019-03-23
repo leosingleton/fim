@@ -1,6 +1,6 @@
-// src/fim/GLError.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
 /** Exception class thrown when a WebGL error occurs */
 export class FimGLError extends Error {
