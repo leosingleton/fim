@@ -4,5 +4,6 @@
 
 export const enum FimImageType {
   FimCanvas,
+  FimGreyscaleBuffer,
   FimRgbaBuffer
 }

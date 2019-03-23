@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 export * from './FimCanvas';
+export * from './FimGreyscaleBuffer';
 export * from './FimImage';
 export * from './FimImageType';
 export * from './FimRgbaBuffer';
