@@ -3,7 +3,7 @@ const path = require('path');
 var glob = require('glob');
 
 var config = {
-  entry: glob.sync('./src/**/__tests__/*.ts'),
+  entry: glob.sync('./src/**/__tests__/**/*.ts'),
   devtool: 'source-map',
   module: {
     rules: [
