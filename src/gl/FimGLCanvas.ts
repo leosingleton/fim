@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLNotifications } from './IFimGLNotifications';
+import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimCanvas } from '../image';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
@@ -46,7 +46,7 @@ export class FimGLCanvas extends FimCanvas {
     }, false);
   }
 
-  public registerObject(object: IFimGLNotifications): void {
+  public registerObject(object: IFimGLContextNotify): void {
     this.objects.push(object);
   }
 
@@ -151,7 +151,7 @@ export class FimGLCanvas extends FimCanvas {
     return caps;
   }
 
-  private objects: IFimGLNotifications[] = [];
+  private objects: IFimGLContextNotify[] = [];
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
 }

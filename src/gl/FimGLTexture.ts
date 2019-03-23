@@ -4,7 +4,7 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { IFimGLNotifications } from './IFimGLNotifications';
+import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimCanvas, FimRgbaBuffer } from '../image';
 
 export const enum FimGLTextureFlags {
@@ -33,7 +33,7 @@ export const enum FimGLTextureFlags {
   InputOnly = (1 << 4)
 }
 
-export class FimGLTexture implements IFimGLNotifications {
+export class FimGLTexture implements IFimGLContextNotify {
   constructor(glCanvas: FimGLCanvas, textureWidth?: number, textureHeight?: number, flags = FimGLTextureFlags.None) {
     glCanvas.registerObject(this);
     this.glCanvas = glCanvas;

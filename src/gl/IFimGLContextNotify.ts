@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 /** Interface for WebGL objects that receive notifications when the WebGL context is lost or restored */
-export interface IFimGLNotifications {
+export interface IFimGLContextNotify {
   /** WebGL context was lost */
   onContextLost(): void;
 

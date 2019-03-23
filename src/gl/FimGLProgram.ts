@@ -6,7 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { IFimGLNotifications } from './IFimGLNotifications';
+import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { deepCopy } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
@@ -23,7 +23,7 @@ interface UniformDefinition extends FimGLVariableDefinition {
 /** Map of uniform values */
 type UniformDefinitionMap = { [name: string]: UniformDefinition };
 
-export class FimGLProgram implements IFimGLNotifications {
+export class FimGLProgram implements IFimGLContextNotify {
   constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
     this.gl = canvas.gl;
 
