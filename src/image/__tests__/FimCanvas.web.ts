@@ -3,9 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas } from '../FimCanvas';
+import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { SeededRandom, using, usingAsync, DisposableSet } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
-import { FimRgbaBuffer } from '../FimRgbaBuffer';
+import { FimTestPatterns } from '../../test';
 
 describe('FimCanvas', () => {
 
@@ -128,13 +129,16 @@ describe('FimCanvas', () => {
     await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBuffer(src));
   });
 
-  /*
   it('Copies with crop', async () => {
     let rand = new SeededRandom(0);
 
     // Create a buffer and fill it with gradient values
     await usingAsync(new FimCanvas(300, 300), async orig => {
-      FimTestPatterns.render();
+      // For speed, fill an RGBA buffer then copy it to the canvas. FimCanvas.setPixel() is very slow.
+      await usingAsync(new FimRgbaBuffer(300, 300), async temp => {
+        FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
+        await orig.copyFromRgbaBuffer(temp);
+      });      
   
       // Copy the center 100x100 to another buffer
       using (new FimCanvas(300, 300, '#000'), crop => {
@@ -146,7 +150,6 @@ describe('FimCanvas', () => {
           let x = rand.nextInt() % 300;
           let y = rand.nextInt() % 300;
     
-          let origPixel = orig.getPixel(x, y);
           let cropPixel = crop.getPixel(x, y);
     
           if (x < 100 || x >= 200 || y < 100 || y >= 200) {
@@ -154,12 +157,11 @@ describe('FimCanvas', () => {
             expect(cropPixel).toEqual(FimColor.fromString('#000'));
           } else {
             // Copied area
-            expect(cropPixel).toEqual(origPixel);
+            expect(cropPixel).toEqual(FimTestPatterns.horizontalGradient(x, y));
           }
         }
       });
     });
   });
-  */
 
 });
