@@ -5,11 +5,12 @@
 import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
 import { FimCanvas } from './FimCanvas';
+import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
-/** An image consisting of 8-bit RGBA pixel data in a Uint8Array */
-export class FimRgbaBuffer extends FimImage {
+/** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
+export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param width Canvas width, in pixels
@@ -125,24 +126,12 @@ export class FimRgbaBuffer extends FimImage {
     }
   }
 
-  /**
-   * Returns the value of one pixel
-   * @param x X-offset, in pixels
-   * @param y Y-offset, in pixels
-   * @returns RGBA color value
-   */
   public getPixel(x: number, y: number): FimColor {
     let offset = (y * this.w + x) * 4;
     return FimColor.fromRGBABytes(this.buffer[offset], this.buffer[offset + 1], this.buffer[offset + 2],
       this.buffer[offset + 3]);
   }
 
-  /**
-   * Sets the value of one pixel
-   * @param x X-offset, in pixels
-   * @param y Y-offset, in pixels
-   * @param color RGBA color value
-   */
   public setPixel(x: number, y: number, color: FimColor): void {
     let offset = (y * this.w + x) * 4;
     this.buffer[offset++] = color.r;

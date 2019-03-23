@@ -5,11 +5,12 @@
 import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
 import { using, usingAsync, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
-export class FimCanvas extends FimImage {
+export class FimCanvas extends FimImage implements IFimGetSetPixel {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -224,14 +225,14 @@ export class FimCanvas extends FimImage {
     return result;
   }
 
-  /**
-   * Returns the value of one pixel
-   * @param x X-offset, in pixels
-   * @param y Y-offset, in pixels
-   * @returns 4-byte Uint8Array containing RGBA values
-   */
   public getPixel(x: number, y: number): FimColor {
     let pixel = this.getRgbaBytes(x, y, 1, 1);
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
+  }
+
+  public setPixel(x: number, y: number, color: FimColor): void {
+    using(new FimRgbaBuffer(1, 1, color), buffer => {
+      this.copyFromRgbaBuffer(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
+    });
   }
 }
