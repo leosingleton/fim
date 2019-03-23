@@ -8,11 +8,11 @@ export class FimCanvasDrawingContext implements IDisposable {
   /**
    * Constructs a drawing context
    * @param canvas HTMLCanvasElement
+   * @param imageSmoothingEnabled Enables image smoothing
    * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
    * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
-   * @param imageSmoothingEnabled Enables image smoothing
    */
-  public constructor(canvas: HTMLCanvasElement, operation = 'copy', alpha = 1, imageSmoothingEnabled = false) {
+  public constructor(canvas: HTMLCanvasElement, imageSmoothingEnabled = false, operation = 'copy', alpha = 1) {
     let ctx = canvas.getContext('2d');
     ctx.save();
     ctx.globalCompositeOperation = operation;

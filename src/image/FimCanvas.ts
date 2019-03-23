@@ -6,8 +6,9 @@ import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
 import { FimCanvasDrawingContext } from './FimCanvasDrawingContext';
 import { FimColor, FimRect } from '../primitives';
-import { using } from '@leosingleton/commonlibs';
+import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { FimImageBitmap } from './FimImageBitmap';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimImage {
@@ -61,7 +62,7 @@ export class FimCanvas extends FimImage {
    */
   private opWithSrcDest(inputCanvas: FimCanvas, operation: string, alpha: number, src: FimRect, dest: FimRect,
       imageSmoothingEnabled = false): void {
-    using(new FimCanvasDrawingContext(this.canvasElement, operation, alpha, imageSmoothingEnabled), ctx => {
+    using (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha), ctx => {
       ctx.context.drawImage(inputCanvas.canvasElement, src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
         dest.w, dest.h);
     });
@@ -69,7 +70,7 @@ export class FimCanvas extends FimImage {
 
   /** Boilerplate code for performing a canvas compositing operation with a solid color */
   private opWithColor(color: string, operation: string, alpha: number): void {
-    using(new FimCanvasDrawingContext(this.canvasElement, operation, alpha), ctx => {
+    using (new FimCanvasDrawingContext(this.canvasElement, false, operation, alpha), ctx => {
       ctx.context.fillStyle = color;
       ctx.context.fillRect(0, 0, this.dimensions.w, this.dimensions.h);  
     });
@@ -105,34 +106,48 @@ export class FimCanvas extends FimImage {
   }
 
   /**
-   * Copies image from a FimRgbaBuffer. Supports cropping, but not rescaling.
+   * Copies image from a FimRgbaBuffer. Supports both cropping and rescaling.
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public async copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    // Ensure width and height are the same for src and destination. We don't support rescaling.
-    if (!srcCoords.sameDimensions(destCoords)) {
-      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
-    }
-    
-    if (srcCoords.equals(srcImage.dimensions)) {
-      // Fast case: input is the entire RgbaBuffer
-      using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
-        let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
-        pixels.data.set(srcImage.getBuffer());
-        ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
-      });
+    // Enable image smoothing if we are rescaling the image
+    let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
+
+    // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
+    // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
+    // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit tests.
+    // However, createImageBitmap() is not yet supported on Safari or Edge.
+    if (typeof createImageBitmap !== 'undefined') {
+      usingAsync (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
+        let imageData = new ImageData(new Uint8ClampedArray(srcImage.getBuffer()), srcImage.dimensions.w,
+          srcImage.dimensions.h);
+        using (await FimImageBitmap.create(imageData), imageBitmap => {
+          ctx.context.drawImage(imageBitmap.bitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
+            destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
+        });
+      });  
     } else {
-      // Slow case: input is a subset of the RgbaBuffer. Make a cropped RgbaBuffer and recurse.
-      using (new FimRgbaBuffer(srcCoords.w, srcCoords.h), buffer => {
-        buffer.copyFromRgbaBuffer(srcImage, srcCoords);
-        this.copyFromRgbaBuffer(buffer, buffer.dimensions, destCoords);
-      });
+      // Slower code path for older browsers
+      if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
+        // Fast case: no cropping or rescaling
+        using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
+          let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
+          pixels.data.set(srcImage.getBuffer());
+          ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
+        });
+      } else {  
+        // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
+        using (new FimCanvas(srcImage.w, srcImage.h), temp => {
+          temp.copyFromRgbaBuffer(srcImage);
+          this.copyFromCanvas(temp, srcCoords, destCoords);
+        });
+      }
     }
   }
 
