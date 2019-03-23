@@ -166,8 +166,8 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
-    usingAsync(new DisposableSet(), async disposable => {
-      let ctx = disposable.addObject(this.createDrawingContext(imageSmoothingEnabled));
+    await DisposableSet.usingAsync(async disposable => {
+      let ctx = disposable.addDisposable(this.createDrawingContext(imageSmoothingEnabled));
 
       let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);      
       let imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());

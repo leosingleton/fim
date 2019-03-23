@@ -6,3 +6,5 @@ export * from './FimCanvas';
 export * from './FimImage';
 export * from './FimImageType';
 export * from './FimRgbaBuffer';
+export * from './IFimDimensions';
+export * from './IFimGetSetPixel';

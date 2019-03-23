@@ -4,13 +4,14 @@
 
 import { IDisposable } from '@leosingleton/commonlibs';
 import { FimImageType } from './FimImageType';
+import { IFimDimensions } from './IFimDimensions';
 import { FimRect } from '../primitives';
 
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
  * of the image itself may be changed with copyFrom() or other functions.
  */
-export abstract class FimImage implements IDisposable {
+export abstract class FimImage implements IDisposable, IFimDimensions {
   public constructor(width: number, height: number, bufferWidth?: number, bufferHeight?: number) {
     this.w = width;
     this.h = height;
@@ -24,13 +25,9 @@ export abstract class FimImage implements IDisposable {
   /** Returns a value from the FimImageType enum indicating the implementation of the class */
   public abstract readonly type: FimImageType;
 
-  /** Width of the image, in pixels */
+  // IFimDimensions implementation
   public readonly w: number;
-
-  /** Height of the image, in pixels */
   public readonly h: number;
-
-  /** Dimensions of the image, in pixels. The x/y coordinates are always zero. */
   public readonly dimensions: FimRect;
 
   /**
