@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas } from '../FimCanvas';
-import { SeededRandom, using } from '@leosingleton/commonlibs';
+import { SeededRandom, using, usingAsync } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 
@@ -73,19 +73,19 @@ describe('FimCanvas', () => {
     });
   });
 
-  it('Copies from FimRgbaBuffer', () => {
+  it('Copies from FimRgbaBuffer', async () => {
     let rand = new SeededRandom(0);
 
     // Create an RGBA buffer and fill it with random values
-    using (new FimRgbaBuffer(100, 100), orig => {
+    await usingAsync (new FimRgbaBuffer(100, 100), async orig => {
       let buffer = orig.getBuffer();
       for (let n = 0; n < buffer.length; n++) {
         buffer[n] = rand.nextInt() % 256;
       }
 
       // Copy the RGBA buffer to an FimCanvas
-      using (new FimCanvas(100, 100), copy => {
-        copy.copyFromRgbaBuffer(orig);
+      await usingAsync (new FimCanvas(100, 100), async copy => {
+        await copy.copyFromRgbaBuffer(orig);
 
         // Ensure the two are the same
         for (let n = 0; n < 100; n++) {

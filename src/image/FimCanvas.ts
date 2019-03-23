@@ -112,6 +112,29 @@ export class FimCanvas extends FimImage {
    * @param destCoords Coordinates of destination image to copy to
    */
   public async copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+    // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
+    // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
+    // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit tests.
+    // However, createImageBitmap() is not yet supported on Safari or Edge.
+    if (typeof createImageBitmap !== 'undefined') {
+      return this.copyFromRgbaBufferWithImageBitmap(srcImage, srcCoords, destCoords);
+    } else {
+      this.copyFromRgbaBufferWithPutImageData(srcImage, srcCoords, destCoords);
+    }
+  }
+
+  /**
+   * Copies image from a FimRgbaBuffer using createImageBitmap(). Supports both cropping and rescaling.
+   * 
+   * NOTE: This is generally faster than copyFromRgbaBufferWithPutImageData(), however it is not supported on all web
+   *    browsers. As of March 2019, Safari and Edge do not yet support it.
+   * 
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public async copyFromRgbaBufferWithImageBitmap(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+      Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -119,34 +142,43 @@ export class FimCanvas extends FimImage {
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
-    // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
-    // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
-    // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit tests.
-    // However, createImageBitmap() is not yet supported on Safari or Edge.
-    if (typeof createImageBitmap !== 'undefined') {
-      usingAsync (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
-        let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);
-        using (await FimImageBitmap.create(imageData), imageBitmap => {
-          ctx.context.drawImage(imageBitmap.bitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
-            destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
-        });
-      });  
-    } else {
-      // Slower code path for older browsers
-      if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
-        // Fast case: no cropping or rescaling
-        using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
-          let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
-          pixels.data.set(srcImage.getBuffer());
-          ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
-        });
-      } else {  
-        // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-        using (new FimCanvas(srcImage.w, srcImage.h), temp => {
-          temp.copyFromRgbaBuffer(srcImage);
-          this.copyFromCanvas(temp, srcCoords, destCoords);
-        });
-      }
+    usingAsync (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
+      let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);
+      using (await FimImageBitmap.create(imageData), imageBitmap => {
+        ctx.context.drawImage(imageBitmap.bitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
+          destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
+      });
+    });  
+  }
+
+  /**
+   * Copies image from a FimRgbaBuffer using putImageData(). Supports both cropping and rescaling.
+   * 
+   * NOTE: This method has good browser compatibility, however Chrome 72 has an issue where the pixel data gets
+   *    slightly changed by putImageData() and results in lower quality.
+   * 
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFromRgbaBufferWithPutImageData(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
+    
+    if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
+      // Fast case: no cropping or rescaling
+      using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
+        let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
+        pixels.data.set(srcImage.getBuffer());
+        ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
+      });
+    } else {  
+      // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
+      using (new FimCanvas(srcImage.w, srcImage.h), temp => {
+        temp.copyFromRgbaBuffer(srcImage);
+        this.copyFromCanvas(temp, srcCoords, destCoords);
+      });
     }
   }
 
