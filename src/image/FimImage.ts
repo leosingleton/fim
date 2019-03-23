@@ -52,4 +52,16 @@ export abstract class FimImage implements IDisposable {
   public readonly bufferDimensions: FimRect;
 
   public abstract dispose(): void;
+
+  /**
+   * Helper function called by copyFrom() functions to ensures the width and height are the same for source and
+   * destination. If not, it throws an error that rescaling is not supported.
+   * @param srcCoords Source coordinations
+   * @param destCoords Destination coordinates
+   */
+  protected throwOnRescale(srcCoords: FimRect, destCoords: FimRect): void {
+    if (!srcCoords.sameDimensions(destCoords)) {
+      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
+    }    
+  }
 }

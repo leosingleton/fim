@@ -74,10 +74,8 @@ export class FimRgbaBuffer extends FimImage {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    // Ensure width and height are the same for src and destination. We don't support rescaling.
-    if (!srcCoords.sameDimensions(destCoords)) {
-      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
-    }
+    // Rescaling is not supported
+    this.throwOnRescale(srcCoords, destCoords);
 
     if (destCoords.equals(this.dimensions)) {
       // Fast case: the destination is this entire image
@@ -109,10 +107,8 @@ export class FimRgbaBuffer extends FimImage {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    // Ensure width and height are the same for src and destination. We don't support rescaling.
-    if (!srcCoords.sameDimensions(destCoords)) {
-      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
-    }
+    // Rescaling is not supported
+    this.throwOnRescale(srcCoords, destCoords);
 
     // Optimization: If images have the same dimensions, just copy the entire byte array
     if (srcCoords.equals(destCoords) && srcImage.dimensions.equals(srcCoords) && this.dimensions.equals(destCoords)) {
