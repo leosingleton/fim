@@ -1,9 +1,9 @@
-// src/fim/GLCanvas.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
-import { FimCanvas } from './Canvas';
-import { FimGLObject } from './GLObject';
+import { IFimGLNotifications } from './IFimGLNotifications';
+import { FimCanvas } from '../image';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvas {
@@ -19,7 +19,7 @@ export class FimGLCanvas extends FimCanvas {
     this.renderQuality = quality;
 
     // Initialize WebGL
-    let canvas = this.getCanvas()
+    let canvas = this.canvasElement;
     this.gl = canvas.getContext('webgl');
     if (!this.gl) {
       throw new Error('WebGL not supported');
@@ -46,7 +46,7 @@ export class FimGLCanvas extends FimCanvas {
     }, false);
   }
 
-  public registerObject(object: FimGLObject): void {
+  public registerObject(object: IFimGLNotifications): void {
     this.objects.push(object);
   }
 
@@ -153,7 +153,7 @@ export class FimGLCanvas extends FimCanvas {
   }
 
   private gl: WebGLRenderingContext;
-  private objects: FimGLObject[] = [];
+  private objects: IFimGLNotifications[] = [];
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
 }

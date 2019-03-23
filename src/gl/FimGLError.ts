@@ -2,8 +2,6 @@
 // Fast Image Manipulation Library
 // Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
 
-import { FimGLCanvas } from './GLCanvas';
-
 /** Exception class thrown when a WebGL error occurs */
 export class FimGLError extends Error {
   constructor(code: FimGLErrorCode, message?: string) {

@@ -36,7 +36,7 @@ export class FimCanvas extends FimImage {
   public getCanvas(): HTMLCanvasElement {
     return this.canvasElement;
   }
-  private canvasElement: HTMLCanvasElement;
+  protected canvasElement: HTMLCanvasElement;
 
   public readonly type = FimImageType.FimCanvas;
 
