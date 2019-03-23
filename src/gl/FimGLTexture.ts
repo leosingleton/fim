@@ -1,12 +1,11 @@
-// src/fim/GLTexture.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './GLCanvas';
-import { FimGLObject } from './GLObject';
-import { FimReadOnlyCanvas } from './ReadOnlyCanvas';
-import { FimGLError } from './GLError';
-import { FimImageData } from './ImageData';
+import { FimGLCanvas } from './FimGLCanvas';
+import { FimGLError } from './FimGLError';
+import { IFimGLNotifications } from './IFimGLNotifications';
+import { FimCanvas, FimRgbaBuffer } from '../image';
 
 export const enum FimGLTextureFlags {
   /** Default value */
@@ -34,13 +33,13 @@ export const enum FimGLTextureFlags {
   InputOnly = (1 << 4)
 }
 
-export class FimGLTexture implements FimGLObject {
+export class FimGLTexture implements IFimGLNotifications {
   constructor(glCanvas: FimGLCanvas, textureWidth?: number, textureHeight?: number, flags = FimGLTextureFlags.None) {
     glCanvas.registerObject(this);
     this.glCanvas = glCanvas;
-    this.gl = glCanvas.getGLContext();
-    this.textureWidth = textureWidth ? textureWidth : glCanvas.getWidth();
-    this.textureHeight = textureHeight ? textureHeight : glCanvas.getHeight();
+    this.gl = glCanvas.gl;
+    this.textureWidth = textureWidth ? textureWidth : glCanvas.w;
+    this.textureHeight = textureHeight ? textureHeight : glCanvas.h;
     this.textureFlags = flags;
 
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Images from cameras may actually exceed
@@ -94,10 +93,10 @@ export class FimGLTexture implements FimGLObject {
     }
 
     if (this.inputCanvas) {
-      this.loadCanvas(this.inputCanvas);
+      this.copyFromCanvas(this.inputCanvas);
     }
-    if (this.inputData) {
-      this.loadRaw(this.inputData);
+    if (this.inputBuffer) {
+      this.copyFromRgbaBuffer(this.inputBuffer);
     }
   }
 
@@ -110,25 +109,25 @@ export class FimGLTexture implements FimGLObject {
     FimGLError.throwOnError(gl);
   }
 
-  public loadCanvas(inputCanvas: FimReadOnlyCanvas): void {
+  public copyFromCanvas(srcImage: FimCanvas): void {
     let gl = this.gl;
 
-    this.inputCanvas = inputCanvas;
+    this.inputCanvas = srcImage;
 
     this.bind(0);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, inputCanvas.getCanvasReadOnly());
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
   }
 
-  public loadRaw(inputData: Uint8Array): void {
+  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
 
-    this.inputData = inputData;
+    this.inputBuffer = srcImage;
 
     this.bind(0);
     let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
     gl.texImage2D(gl.TEXTURE_2D, 0, format, this.textureWidth, this.textureHeight, 0, format, gl.UNSIGNED_BYTE,
-      inputData);
+      srcImage.getBuffer());
     FimGLError.throwOnError(gl);
   }
 
@@ -173,36 +172,36 @@ export class FimGLTexture implements FimGLObject {
   private textureWidth: number;
   private textureHeight: number;
   private textureFlags: FimGLTextureFlags;
-  private inputCanvas: FimReadOnlyCanvas;
-  private inputData: Uint8Array;
+  private inputCanvas: FimCanvas;
+  private inputBuffer: FimRgbaBuffer;
 
   /**
-   * Creates a new WebGL texture from decompressed JPEG data
+   * Creates a new WebGL texture from an RGBA byte array
    * @param canvas WebGL context
-   * @param imageData Decompressed JPEG data
+   * @param srcImage RGBA byte array
    * @param extraFlags Additional flags. EightBit and InputOnly are always enabled for textures created via this
    *    function.
    */
-  public static createFromData(canvas: FimGLCanvas, imageData: FimImageData, extraFlags = FimGLTextureFlags.None):
-      FimGLTexture {
+  public static createFromRgbaBuffer(canvas: FimGLCanvas, srcImage: FimRgbaBuffer,
+      extraFlags = FimGLTextureFlags.None): FimGLTexture {
     let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly | extraFlags;
-    let texture = new FimGLTexture(canvas, imageData.imageWidth, imageData.imageHeight, flags);
-    texture.loadRaw(imageData.imageData);
+    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
+    texture.copyFromRgbaBuffer(srcImage);
     return texture;
   }
 
   /**
    * Creates a new WebGL texture from a canvas
    * @param canvas WebGL context
-   * @param image Canvas to load onto the texture
+   * @param srcImage Canvas to load onto the texture
    * @param extraFlags Additional flags. EightBit and InputOnly are always enabled for textures created via this
    *    function.
    */
-  public static createFromCanvas(canvas: FimGLCanvas, image: FimReadOnlyCanvas, extraFlags = FimGLTextureFlags.None):
+  public static createFromCanvas(canvas: FimGLCanvas, srcImage: FimCanvas, extraFlags = FimGLTextureFlags.None):
       FimGLTexture {
     let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly | extraFlags;
-    let texture = new FimGLTexture(canvas, image.getWidth(), image.getHeight(), flags);
-    texture.loadCanvas(image);
+    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
+    texture.copyFromCanvas(srcImage);
     return texture;
   }
 }

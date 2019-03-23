@@ -62,6 +62,17 @@ export abstract class FimImage implements IDisposable {
   protected throwOnRescale(srcCoords: FimRect, destCoords: FimRect): void {
     if (!srcCoords.sameDimensions(destCoords)) {
       throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
-    }    
+    }
+  }
+
+  /**
+   * Helper function called by copyFrom() functions that do not support crop or rescaling. Throws an error if the
+   * source image does not have the same dimensions as this image.
+   * @param srcImage Source image
+   */
+  protected throwOnMismatchedDimensions(srcImage: FimImage): void {
+    if (!this.dimensions.equals(srcImage.dimensions)) {
+      throw new Error('Crop and rescale not supported: ' + this.dimensions + ' ' + srcImage.dimensions);
+    }
   }
 }

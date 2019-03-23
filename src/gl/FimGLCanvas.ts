@@ -50,9 +50,8 @@ export class FimGLCanvas extends FimCanvas {
     this.objects.push(object);
   }
 
-  public getGLContext(): WebGLRenderingContext {
-    return this.gl;
-  }
+  /** WebGL rendering context */
+  public readonly gl: WebGLRenderingContext;
 
   /**
    * A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance.
@@ -152,7 +151,6 @@ export class FimGLCanvas extends FimCanvas {
     return caps;
   }
 
-  private gl: WebGLRenderingContext;
   private objects: IFimGLNotifications[] = [];
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
