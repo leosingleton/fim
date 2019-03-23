@@ -28,6 +28,17 @@ describe('FimCanvas', () => {
     });
   });
 
+  it('Gets and sets pixel colors', () => {
+    let color1 = FimColor.fromString('#123');
+    let color2 = FimColor.fromString('#aaa');
+
+    using(new FimCanvas(640, 480, color1), buffer => {
+      buffer.setPixel(555, 123, color2);
+      expect(buffer.getPixel(134, 413)).toEqual(color1);
+      expect(buffer.getPixel(555, 123)).toEqual(color2);
+    });
+  });
+
   it('Copies full image', () => {
     let color1 = FimColor.fromString('#def');
     let color2 = FimColor.fromString('#1234');
@@ -118,19 +129,12 @@ describe('FimCanvas', () => {
   });
 
   /*
-  it('Copies with crop', () => {
+  it('Copies with crop', async () => {
     let rand = new SeededRandom(0);
 
-    // Create a buffer and fill it with random values
-    using (new FimCanvas(300, 300), orig => {
-      // We can't directly write to a canvas, so use a temporary RGBA buffer
-      using (new FimRgbaBuffer(300, 300), temp => {
-        let buffer = temp.getBuffer();
-        for (let n = 0; n < buffer.length; n++) {
-          buffer[n] = rand.nextInt() % 256;
-        }
-        orig.copyFromRgbaBuffer(temp);
-      });
+    // Create a buffer and fill it with gradient values
+    await usingAsync(new FimCanvas(300, 300), async orig => {
+      FimTestPatterns.render();
   
       // Copy the center 100x100 to another buffer
       using (new FimCanvas(300, 300, '#000'), crop => {

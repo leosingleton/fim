@@ -221,7 +221,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
 
   public setPixel(x: number, y: number, color: FimColor): void {
     using(new FimRgbaBuffer(1, 1, color), buffer => {
-      this.copyFromRgbaBuffer(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      this.copyFromRgbaBufferWithPutImageData(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
 }
