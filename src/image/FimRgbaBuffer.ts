@@ -8,6 +8,7 @@ import { FimCanvas } from './FimCanvas';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
+import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
 export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
@@ -94,6 +95,36 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
       let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
       this.buffer = imgData.data;
     });
+  }
+
+  /**
+   * Copies image from a FimGreyscaleBuffer. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
+
+    // Rescaling is not supported
+    this.throwOnRescale(srcCoords, destCoords);
+
+    // Perform a copy of the image data
+    let srcBuf = srcImage.getBuffer();
+    let destBuf = this.buffer;
+    for (let y = 0; y < destCoords.h; y++) {
+      let srcOffset = (y + srcCoords.yTop) * srcImage.bufferWidth + srcCoords.xLeft;
+      let destOffset = ((y + destCoords.yTop) * this.bufferWidth + destCoords.xLeft) * 4;
+      for (let x = 0; x < destCoords.w; x++) {
+        let color = srcBuf[srcOffset++];
+        destBuf[destOffset++] = color;
+        destBuf[destOffset++] = color;
+        destBuf[destOffset++] = color;
+        destBuf[destOffset++] = 255;
+      }
+    }    
   }
 
   /**

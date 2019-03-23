@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimGreyscaleBuffer } from '../FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { SeededRandom, using, DisposableSet } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
@@ -118,6 +119,35 @@ describe('FimRgbaBuffer', () => {
           expect(cropPixel).toEqual(origPixel);
         }
       }
+    });
+  });
+
+  it('Copies from FimGreyscaleBuffer', () => {
+    DisposableSet.using(disposable => {
+      let dest = disposable.addDisposable(new FimRgbaBuffer(200, 200));
+      let src = disposable.addDisposable(new FimGreyscaleBuffer(100, 100));
+
+      // Top-left => 0x00
+      src.fill(0x00);
+      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+
+      // Top-right => 0x33
+      src.fill(0x33);
+      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+
+      // Bottom-left => 0x66
+      src.fill(0x66);
+      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+
+      // Bottom-right => 0x99
+      src.fill(0x99);
+      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+
+      // Check a pixel in each of the four quadrants for the expected color
+      expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#000'));
+      expect(dest.getPixel(150, 50)).toEqual(FimColor.fromString('#333'));
+      expect(dest.getPixel(50, 150)).toEqual(FimColor.fromString('#666'));
+      expect(dest.getPixel(150, 150)).toEqual(FimColor.fromString('#999'));
     });
   });
 
