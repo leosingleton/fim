@@ -167,12 +167,10 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
     usingAsync(new DisposableSet(), async disposable => {
-      let ctx = this.createDrawingContext(imageSmoothingEnabled);
-      disposable.addObject(ctx);
+      let ctx = disposable.addObject(this.createDrawingContext(imageSmoothingEnabled));
 
       let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);      
-      let imageBitmap = makeDisposable(await createImageBitmap(imageData), ib => ib.close());
-      disposable.addObject(imageBitmap);
+      let imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
 
       ctx.drawImage(imageBitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h, destCoords.xLeft,
         destCoords.yTop, destCoords.w, destCoords.h);
