@@ -132,35 +132,34 @@ describe('FimCanvas', () => {
   it('Copies with crop', async () => {
     let rand = new SeededRandom(0);
 
-    // Create a buffer and fill it with gradient values
-    await usingAsync(new FimCanvas(300, 300), async orig => {
-      // For speed, fill an RGBA buffer then copy it to the canvas. FimCanvas.setPixel() is very slow.
-      await usingAsync(new FimRgbaBuffer(300, 300), async temp => {
-        FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
-        await orig.copyFromRgbaBuffer(temp);
-      });      
+    await DisposableSet.usingAsync(async disposable => {
+      // Create a buffer and fill it with gradient values. For speed, fill an RGBA buffer then copy it to the canvas.
+      // FimCanvas.setPixel() is very slow.
+      let orig = disposable.addDisposable(new FimCanvas(300, 300));
+      let temp = disposable.addDisposable(new FimRgbaBuffer(300, 300));
+      FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
+      await orig.copyFromRgbaBuffer(temp);
   
       // Copy the center 100x100 to another buffer
-      using (new FimCanvas(300, 300, '#000'), crop => {
-        let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
-        crop.copyFromCanvas(orig, rect, rect);
-    
-        // Ensure the pixels were copied by sampling 100 random ones
-        for (let n = 0; n < 100; n++) {
-          let x = rand.nextInt() % 300;
-          let y = rand.nextInt() % 300;
-    
-          let cropPixel = crop.getPixel(x, y);
-    
-          if (x < 100 || x >= 200 || y < 100 || y >= 200) {
-            // All 0 values for pixels outside of the copied area
-            expect(cropPixel).toEqual(FimColor.fromString('#000'));
-          } else {
-            // Copied area
-            expect(cropPixel).toEqual(FimTestPatterns.horizontalGradient(x, y));
-          }
+      let crop = disposable.addDisposable(new FimCanvas(300, 300, '#000'));
+      let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
+      crop.copyFromCanvas(orig, rect, rect);
+  
+      // Ensure the pixels were copied by sampling 100 random ones
+      for (let n = 0; n < 100; n++) {
+        let x = rand.nextInt() % 300;
+        let y = rand.nextInt() % 300;
+  
+        let cropPixel = crop.getPixel(x, y);
+  
+        if (x < 100 || x >= 200 || y < 100 || y >= 200) {
+          // All 0 values for pixels outside of the copied area
+          expect(cropPixel).toEqual(FimColor.fromString('#000'));
+        } else {
+          // Copied area
+          expect(cropPixel).toEqual(FimTestPatterns.horizontalGradient(x, y));
         }
-      });
+      }
     });
   });
 
