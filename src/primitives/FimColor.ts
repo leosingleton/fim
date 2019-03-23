@@ -128,4 +128,13 @@ export class FimColor {
         throw new Error('Invalid: ' + color);
     }
   }
+
+  /** Uses the ITU-R BT.709 formula to calculate luminance from RGB */
+  public getLuminance(): number {
+    let value =
+      this.r * 0.2126 + // Red
+      this.g * 0.7152 + // Green
+      this.b * 0.0722;  // Blue
+    return Math.round(value / 255);
+  }
 }

@@ -49,4 +49,12 @@ describe('FimColor', () => {
     expect(color2.equals(color3)).toBeFalsy();
   });
 
+  it('Calculates luminance', () => {
+    let black = FimColor.fromString('#000');
+    let white = FimColor.fromString('#fff');
+    
+    expect(black.getLuminance()).toEqual(0);
+    expect(white.getLuminance()).toEqual(1);
+  })
+
 });
