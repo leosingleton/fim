@@ -19,7 +19,7 @@ export class FimRgbaBuffer extends FimImage {
    */
   constructor(width: number, height: number, initialColor?: FimColor | string) {
     super(width, height);
-    this.buffer = new Uint8Array(width * height * 4);
+    this.buffer = new Uint8ClampedArray(width * height * 4);
 
     if (initialColor) {
       this.fill(initialColor);
@@ -29,10 +29,10 @@ export class FimRgbaBuffer extends FimImage {
   public readonly type = FimImageType.FimRgbaBuffer;
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
-  public getBuffer(): Uint8Array {
+  public getBuffer(): Uint8ClampedArray {
     return this.buffer;
   }
-  private buffer: Uint8Array;
+  private buffer: Uint8ClampedArray;
   
   public dispose(): void {
     if (this.buffer) {
@@ -94,7 +94,7 @@ export class FimRgbaBuffer extends FimImage {
   private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
     using (new FimCanvasDrawingContext(srcImage.getCanvas()), ctx => {
       let imgData = ctx.context.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
-      this.buffer = new Uint8Array(imgData.data);
+      this.buffer = new Uint8ClampedArray(imgData.data);
     });
   }
 

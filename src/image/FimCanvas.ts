@@ -125,8 +125,7 @@ export class FimCanvas extends FimImage {
     // However, createImageBitmap() is not yet supported on Safari or Edge.
     if (typeof createImageBitmap !== 'undefined') {
       usingAsync (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
-        let imageData = new ImageData(new Uint8ClampedArray(srcImage.getBuffer()), srcImage.dimensions.w,
-          srcImage.dimensions.h);
+        let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);
         using (await FimImageBitmap.create(imageData), imageBitmap => {
           ctx.context.drawImage(imageBitmap.bitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
             destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
