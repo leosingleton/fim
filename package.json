@@ -33,7 +33,9 @@
   },
   "scripts": {
     "build": "npx webpack --mode=none",
-    "test": "npx jest --config=jest.node.config.js --maxWorkers=2 && npx webpack --mode=development --config=webpack.test.js && npx karma start"
+    "test": "npm run test:node && npm run test:web",
+    "test:node": "npx jest --config=jest.node.config.js --maxWorkers=2",
+    "test:web": "npx webpack --mode=development --config=webpack.test.js && npx karma start"
   },
   "files": [
     "build/dist/"
