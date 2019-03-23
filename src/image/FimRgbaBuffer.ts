@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage } from './FimImage';
-import { FimCanvasDrawingContext } from './FimCanvasDrawingContext';
 import { FimImageType } from './FimImageType';
 import { FimCanvas } from './FimCanvas';
 import { FimRect, FimColor } from '../primitives';
@@ -90,9 +89,9 @@ export class FimRgbaBuffer extends FimImage {
   }
 
   private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
-    using(new FimCanvasDrawingContext(srcImage.getCanvas()), ctx => {
-      let imgData = ctx.context.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
-      this.buffer = new Uint8ClampedArray(imgData.data);
+    using(srcImage.createDrawingContext(), ctx => {
+      let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
+      this.buffer = imgData.data;
     });
   }
 

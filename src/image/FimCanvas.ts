@@ -4,11 +4,9 @@
 
 import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
-import { FimCanvasDrawingContext } from './FimCanvasDrawingContext';
-import { FimColor, FimRect } from '../primitives';
-import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
-import { FimImageBitmap } from './FimImageBitmap';
+import { FimColor, FimRect } from '../primitives';
+import { using, usingAsync, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimImage {
@@ -57,22 +55,47 @@ export class FimCanvas extends FimImage {
   }
 
   /**
+   * Constructs a drawing context
+   * @param imageSmoothingEnabled Enables image smoothing
+   * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
+   * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
+   */
+  public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
+      CanvasRenderingContext2D & IDisposable {
+    let ctx = this.canvasElement.getContext('2d');
+    ctx.save();
+    ctx.globalCompositeOperation = operation;
+    ctx.globalAlpha = alpha;
+
+    // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
+    // support it well...
+    // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
+    let ctxAny = ctx as any;
+    ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
+
+    return makeDisposable(ctx, ctx => ctx.restore());
+  }
+
+  /**
    * Boilerplate code for performing a canvas compositing operation with two canvases. If input and output canvases
    * differ in size, the operation is scaled to fill the output canvas.
    */
   private opWithSrcDest(inputCanvas: FimCanvas, operation: string, alpha: number, src: FimRect, dest: FimRect,
       imageSmoothingEnabled = false): void {
-    using(new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha), ctx => {
-      ctx.context.drawImage(inputCanvas.canvasElement, src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
+    using(this.createDrawingContext(imageSmoothingEnabled, operation, alpha), ctx => {
+      ctx.drawImage(inputCanvas.canvasElement, src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
         dest.w, dest.h);
     });
   }
 
   /** Boilerplate code for performing a canvas compositing operation with a solid color */
   private opWithColor(color: string, operation: string, alpha: number): void {
-    using(new FimCanvasDrawingContext(this.canvasElement, false, operation, alpha), ctx => {
-      ctx.context.fillStyle = color;
-      ctx.context.fillRect(0, 0, this.dimensions.w, this.dimensions.h);  
+    using(this.createDrawingContext(false, operation, alpha), ctx => {
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, this.dimensions.w, this.dimensions.h);  
     });
   }
 
@@ -142,13 +165,17 @@ export class FimCanvas extends FimImage {
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
-    usingAsync(new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
-      let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);
-      using(await FimImageBitmap.create(imageData), imageBitmap => {
-        ctx.context.drawImage(imageBitmap.bitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
-          destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
-      });
-    });  
+    usingAsync(new DisposableSet(), async disposable => {
+      let ctx = this.createDrawingContext(imageSmoothingEnabled);
+      disposable.addObject(ctx);
+
+      let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);      
+      let imageBitmap = makeDisposable(await createImageBitmap(imageData), ib => ib.close());
+      disposable.addObject(imageBitmap);
+
+      ctx.drawImage(imageBitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h, destCoords.xLeft,
+        destCoords.yTop, destCoords.w, destCoords.h);
+    });
   }
 
   /**
@@ -168,10 +195,10 @@ export class FimCanvas extends FimImage {
     
     if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
       // Fast case: no cropping or rescaling
-      using(new FimCanvasDrawingContext(this.canvasElement), ctx => {
-        let pixels = ctx.context.createImageData(srcCoords.w, srcCoords.h);
+      using(this.createDrawingContext(), ctx => {
+        let pixels = ctx.createImageData(srcCoords.w, srcCoords.h);
         pixels.data.set(srcImage.getBuffer());
-        ctx.context.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
+        ctx.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
       });
     } else {  
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
@@ -191,8 +218,8 @@ export class FimCanvas extends FimImage {
    */
   public getRgbaBytes(x: number, y: number, w: number, h: number): Uint8ClampedArray {
     let result: Uint8ClampedArray;
-    using(new FimCanvasDrawingContext(this.canvasElement), ctx => {
-      result = ctx.context.getImageData(x, y, w, h).data;      
+    using(this.createDrawingContext(), ctx => {
+      result = ctx.getImageData(x, y, w, h).data;      
     });
     return result;
   }
