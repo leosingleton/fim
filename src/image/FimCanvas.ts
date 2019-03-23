@@ -62,7 +62,7 @@ export class FimCanvas extends FimImage {
    */
   private opWithSrcDest(inputCanvas: FimCanvas, operation: string, alpha: number, src: FimRect, dest: FimRect,
       imageSmoothingEnabled = false): void {
-    using (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha), ctx => {
+    using(new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha), ctx => {
       ctx.context.drawImage(inputCanvas.canvasElement, src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
         dest.w, dest.h);
     });
@@ -70,7 +70,7 @@ export class FimCanvas extends FimImage {
 
   /** Boilerplate code for performing a canvas compositing operation with a solid color */
   private opWithColor(color: string, operation: string, alpha: number): void {
-    using (new FimCanvasDrawingContext(this.canvasElement, false, operation, alpha), ctx => {
+    using(new FimCanvasDrawingContext(this.canvasElement, false, operation, alpha), ctx => {
       ctx.context.fillStyle = color;
       ctx.context.fillRect(0, 0, this.dimensions.w, this.dimensions.h);  
     });
@@ -142,9 +142,9 @@ export class FimCanvas extends FimImage {
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
-    usingAsync (new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
+    usingAsync(new FimCanvasDrawingContext(this.canvasElement, imageSmoothingEnabled), async ctx => {
       let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);
-      using (await FimImageBitmap.create(imageData), imageBitmap => {
+      using(await FimImageBitmap.create(imageData), imageBitmap => {
         ctx.context.drawImage(imageBitmap.bitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
           destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
       });
@@ -191,7 +191,7 @@ export class FimCanvas extends FimImage {
    */
   public getRgbaBytes(x: number, y: number, w: number, h: number): Uint8ClampedArray {
     let result: Uint8ClampedArray;
-    using (new FimCanvasDrawingContext(this.canvasElement), ctx => {
+    using(new FimCanvasDrawingContext(this.canvasElement), ctx => {
       result = ctx.context.getImageData(x, y, w, h).data;      
     });
     return result;

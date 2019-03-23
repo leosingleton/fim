@@ -84,7 +84,7 @@ export class FimRgbaBuffer extends FimImage {
       this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
       // Slow case: the destination is only a subset of the image. Use a temporary RGBA buffer.
-      using (new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
+      using(new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
         buffer.copyFromCanvasInternal(srcImage, srcCoords);
         this.copyFromRgbaBuffer(buffer, buffer.dimensions, destCoords);
       });
@@ -92,7 +92,7 @@ export class FimRgbaBuffer extends FimImage {
   }
 
   private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
-    using (new FimCanvasDrawingContext(srcImage.getCanvas()), ctx => {
+    using(new FimCanvasDrawingContext(srcImage.getCanvas()), ctx => {
       let imgData = ctx.context.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
       this.buffer = new Uint8ClampedArray(imgData.data);
     });
