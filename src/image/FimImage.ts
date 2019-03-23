@@ -51,33 +51,5 @@ export abstract class FimImage implements IDisposable {
    */
   public readonly bufferDimensions: FimRect;
 
-
-  /**
-   * Copies pixels from another image to this image. Note that not all image types can be copied to others. Refer to
-   * the docs for details.
-   * @param srcImage Source image
-   * @param srcCoords Source coordinates to copy from, in pixels
-   * @param destCoords Destination coordinates to copy to, in pixels
-   */
-  public copyFrom(srcImage: FimImage, srcCoords?: FimRect, destCoords?: FimRect): void {
-    if (!srcCoords) {
-      srcCoords = srcImage.dimensions;
-    }
-    if (!destCoords) {
-      destCoords = this.dimensions;
-    }
-
-    this.copyFromInternal(srcImage, srcCoords, destCoords);
-  }
-
-  /**
-   * Copies pixels from another image to this image. Note that not all image types can be copied to others. Refer to
-   * the docs for details.
-   * @param srcImage Source image
-   * @param srcCoords Source coordinates to copy from, in pixels
-   * @param destCoords Destination coordinates to copy to, in pixels
-   */
-  protected abstract copyFromInternal(srcImage: FimImage, srcCoords: FimRect, destCoords: FimRect): void;
-
   public abstract dispose(): void;
 }

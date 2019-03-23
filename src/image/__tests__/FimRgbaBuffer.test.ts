@@ -33,7 +33,7 @@ describe('FimRgbaBuffer', () => {
     using(new FimRgbaBuffer(640, 480, color1), src => {
       using(new FimRgbaBuffer(640, 480), dest => {
         // Copy src to dest
-        dest.copyFrom(src);
+        dest.copyFromRgbaBuffer(src);
 
         // Modify src
         src.fill(color2)
@@ -49,19 +49,19 @@ describe('FimRgbaBuffer', () => {
       using(new FimRgbaBuffer(100, 100), src => {
         // Top-left => red
         src.fill('#f00');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+        dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
         // Top-right => green
         src.fill('#0f0');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+        dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
         // Bottom-left => blue
         src.fill('#00f');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+        dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
         // Bottom-right => white
         src.fill('#fff');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+        dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
       });
 
       // Check a pixel in each of the four quadrants for the expected color
@@ -85,7 +85,7 @@ describe('FimRgbaBuffer', () => {
       // Copy the center 100x100 to another buffer
       using (new FimRgbaBuffer(300, 300, '#000'), crop => {
         let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
-        crop.copyFrom(orig, rect, rect);
+        crop.copyFromRgbaBuffer(orig, rect, rect);
     
         // Ensure the pixels were copied by sampling 100 random ones
         for (let n = 0; n < 100; n++) {

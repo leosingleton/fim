@@ -63,22 +63,17 @@ export class FimRgbaBuffer extends FimImage {
     }
   }
   
-  protected copyFromInternal(srcImage: FimImage, srcCoords: FimRect, destCoords: FimRect): void {
-    switch (srcImage.type) {
-      case FimImageType.FimCanvas:
-        this.copyFromFimCanvas(srcImage as FimCanvas, srcCoords, destCoords);
-        break;
+  /**
+   * Copies image from a FimCanvas. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFromCanvas(srcImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
 
-      case FimImageType.FimRgbaBuffer:
-        this.copyFromFimRgbaBuffer(srcImage as FimRgbaBuffer, srcCoords, destCoords);
-        break;
-
-      default:
-        throw new Error('Not supported: ' + srcImage.type);
-    }
-  }
-
-  private copyFromFimCanvas(srcImage: FimCanvas, srcCoords: FimRect, destCoords: FimRect): void {
     // Ensure width and height are the same for src and destination. We don't support rescaling.
     if (!srcCoords.sameDimensions(destCoords)) {
       throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
@@ -86,24 +81,34 @@ export class FimRgbaBuffer extends FimImage {
 
     if (destCoords.equals(this.dimensions)) {
       // Fast case: the destination is this entire image
-      this.copyFromFimCanvasInternal(srcImage, srcCoords);
+      this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
       // Slow case: the destination is only a subset of the image. Use a temporary RGBA buffer.
       using (new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
-        buffer.copyFromFimCanvasInternal(srcImage, srcCoords);
-        this.copyFromFimRgbaBuffer(buffer, buffer.dimensions, destCoords);
+        buffer.copyFromCanvasInternal(srcImage, srcCoords);
+        this.copyFromRgbaBuffer(buffer, buffer.dimensions, destCoords);
       });
     }
   }
 
-  private copyFromFimCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
+  private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
     using (new FimCanvasDrawingContext(srcImage.getCanvas()), ctx => {
       let imgData = ctx.context.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
       this.buffer = new Uint8Array(imgData.data);
     });
   }
 
-  private copyFromFimRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords: FimRect, destCoords: FimRect): void {
+  /**
+   * Copies image from another FimRgbaBuffer. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
+
     // Ensure width and height are the same for src and destination. We don't support rescaling.
     if (!srcCoords.sameDimensions(destCoords)) {
       throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);

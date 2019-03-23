@@ -33,7 +33,7 @@ describe('FimCanvas', () => {
     using(new FimCanvas(640, 480, color1), src => {
       using(new FimCanvas(640, 480), dest => {
         // Copy src to dest
-        dest.copyFrom(src);
+        dest.copyFromCanvas(src);
 
         // Modify src
         src.fill(color2)
@@ -49,19 +49,19 @@ describe('FimCanvas', () => {
       using(new FimCanvas(100, 100), src => {
         // Top-left => red
         src.fill('#f00');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+        dest.copyFromCanvas(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
         // Top-right => green
         src.fill('#0f0');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+        dest.copyFromCanvas(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
         // Bottom-left => blue
         src.fill('#00f');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+        dest.copyFromCanvas(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
         // Bottom-right => white
         src.fill('#fff');
-        dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+        dest.copyFromCanvas(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
       });
 
       // Check a pixel in each of the four quadrants for the expected color

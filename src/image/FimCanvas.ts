@@ -7,6 +7,7 @@ import { FimImageType } from './FimImageType';
 import { FimCanvasDrawingContext } from './FimCanvasDrawingContext';
 import { FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
+import { FimRgbaBuffer } from './FimRgbaBuffer';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimImage {
@@ -50,7 +51,7 @@ export class FimCanvas extends FimImage {
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {
     let dupe = new FimCanvas(this.dimensions.w, this.dimensions.h);
-    dupe.copyFrom(this, this.dimensions, this.dimensions);
+    dupe.copyFromCanvas(this, this.dimensions, this.dimensions);
     return dupe;
   }
 
@@ -83,18 +84,17 @@ export class FimCanvas extends FimImage {
     }
   }
 
-  protected copyFromInternal(srcImage: FimImage, srcCoords: FimRect, destCoords: FimRect): void {
-    switch (srcImage.type) {
-      case FimImageType.FimCanvas:
-        this.copyFromFimCanvas(srcImage as FimCanvas, srcCoords, destCoords);
-        break;
+  /**
+   * Copies image from another FimCanvas. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFromCanvas(srcImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
 
-      default:
-        throw new Error('Not supported: ' + srcImage.type);
-    }
-  }
-
-  private copyFromFimCanvas(srcImage: FimCanvas, srcCoords: FimRect, destCoords: FimRect): void {
     let op = 'source-over';
     if (destCoords.equals(this.dimensions)) {
       // copy is slightly faster than source-over
@@ -102,6 +102,20 @@ export class FimCanvas extends FimImage {
     }
     
     this.opWithSrcDest(srcImage, op, 1, srcCoords, destCoords);
+  }
+
+  /**
+   * Copies image from a FimRgbaBuffer. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
+
+    throw new Error('Not implemented');
   }
 
   /**
