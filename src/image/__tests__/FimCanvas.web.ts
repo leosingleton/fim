@@ -73,30 +73,51 @@ describe('FimCanvas', () => {
     });
   });
 
-  it('Copies from FimRgbaBuffer', async () => {
+  /**
+   * Generic test case for copying a FimRgbaBuffer to a FimCanvas
+   * @param copy Lambda function that performs the copy
+   * @param compare Lambda function to compare the source and destination pixels
+   */
+  async function copyFromRgbaBuffer(copy: (dest: FimCanvas, src: FimRgbaBuffer) => Promise<void>,
+      compare: (srcPixel: FimColor, destPixel: FimColor) => void): Promise<void> {
     let rand = new SeededRandom(0);
 
     // Create an RGBA buffer and fill it with random values
-    await usingAsync (new FimRgbaBuffer(100, 100), async orig => {
-      let buffer = orig.getBuffer();
+    await usingAsync(new FimRgbaBuffer(100, 100), async src => {
+      let buffer = src.getBuffer();
       for (let n = 0; n < buffer.length; n++) {
         buffer[n] = rand.nextInt() % 256;
       }
 
       // Copy the RGBA buffer to an FimCanvas
-      await usingAsync (new FimCanvas(100, 100), async copy => {
-        await copy.copyFromRgbaBuffer(orig);
+      await usingAsync(new FimCanvas(100, 100), async dest => {
+        await copy(dest, src);
 
         // Ensure the two are the same
         for (let n = 0; n < 100; n++) {
           let x = rand.nextInt() % 100;
           let y = rand.nextInt() % 100;
 
-          let origPixel = orig.getPixel(x, y);
-          let copyPixel = copy.getPixel(x, y);
-          expect(copyPixel).toEqual(origPixel);
+          let srcPixel = src.getPixel(x, y);
+          let destPixel = dest.getPixel(x, y);
+          compare(srcPixel, destPixel);
         }
       });
+    });        
+  }
+
+  it('Copies from FimRgbaBuffer with ImageBitmap', async () => {
+    await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBufferWithImageBitmap(src), (srcPixel, destPixel) => {
+      expect(destPixel).toEqual(srcPixel);
+    });
+  });
+
+  it('Copies from FimRgbaBuffer with PutImageData', async () => {
+    await copyFromRgbaBuffer(async (dest, src) => dest.copyFromRgbaBufferWithPutImageData(src), (srcPixel, destPixel) => {
+      expect(destPixel.r).toBeCloseTo(srcPixel.r, -1);
+      expect(destPixel.g).toBeCloseTo(srcPixel.g, -1);
+      expect(destPixel.b).toBeCloseTo(srcPixel.b, -1);
+      expect(destPixel.a).toBeCloseTo(srcPixel.a, -1);
     });
   });
 
