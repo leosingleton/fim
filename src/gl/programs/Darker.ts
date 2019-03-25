@@ -1,10 +1,10 @@
-// src/fim/GLDarker.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './GLCanvas';
-import { FimGLProgram } from './GLProgram';
-import { FimGLTexture } from './GLTexture';
+import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLProgram } from '../FimGLProgram';
+import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program to combine two textures and return the darker of the two */
 export class FimGLDarker extends FimGLProgram {

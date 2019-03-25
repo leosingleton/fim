@@ -1,10 +1,10 @@
-// src/fim/GLMatrixOperation1D.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './GLCanvas';
-import { FimGLProgram } from './GLProgram';
-import { FimGLTexture } from './GLTexture';
+import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLProgram } from '../FimGLProgram';
+import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLMatrixOperation1D extends FimGLProgram {
@@ -39,7 +39,7 @@ export class FimGLMatrixOperation1D extends FimGLProgram {
 
     // Make the first pass in the X direction
     uniforms.u_input.variableValue = this.inputTexture;
-    uniforms.u_inputSize.variableValue = [this.inputTexture.getWidth(), this.inputTexture.getHeight()];
+    uniforms.u_inputSize.variableValue = [this.inputTexture.w, this.inputTexture.h];
     uniforms.u_isX.variableValue = 1;
     uniforms.u_isY.variableValue = 0;
     super.execute(this.intermediateCanvas);

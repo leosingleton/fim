@@ -1,11 +1,11 @@
-// src/fim/GLImageStacking.ts
-// Fast Image Manipulation Library
-// Copyright 2016-2018 Leo C. Singleton IV <leo@leosingleton.com>
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './GLCanvas';
-import { FimGLCopy } from './GLCopy';
-import { FimGLProgram } from './GLProgram';
-import { FimGLTexture } from './GLTexture';
+import { FimGLCopy } from './Copy';
+import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLProgram } from '../FimGLProgram';
+import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program which stacks images to reduce noise */
 export class FimGLImageStacking extends FimGLProgram {
