@@ -6,6 +6,7 @@ import { FimGLProgramCopy } from './FimGLProgramCopy';
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
+import { using } from '@leosingleton/commonlibs';
 
 /** GL program which stacks images to reduce noise */
 export class FimGLProgramImageStacking extends FimGLProgram {
@@ -19,14 +20,10 @@ export class FimGLProgramImageStacking extends FimGLProgram {
     this.compileProgram();
 
     // Image stacking requires the previous result, so create a canvas to store it
-    this.oldCanvas = new FimGLTexture(canvas);
+    this.oldCanvas = this.disposable.addDisposable(new FimGLTexture(canvas));
     this.fragmentShader.uniforms.u_old.variableValue = this.oldCanvas;
 
-    // WebGL doesn't support using the same texture for both input and output, so create a temporary canvas
-    this.tempCanvas = new FimGLTexture(canvas);
-
-    this.copyProgram = new FimGLProgramCopy(canvas);
-    this.copyProgram.setInputs(this.tempCanvas);
+    this.copyProgram = this.disposable.addDisposable(new FimGLProgramCopy(canvas));
   }
 
   /**
@@ -41,17 +38,19 @@ export class FimGLProgramImageStacking extends FimGLProgram {
   }
 
   public execute(outputTexture?: FimGLTexture): void {
-    // Perform image stacking (temp = old + input)
-    super.execute(this.tempCanvas);
+    using(new FimGLTexture(this.glCanvas), temp => {
+      // Perform image stacking (temp = old + input)
+      super.execute(temp);
 
-    // Copy temp canvas to the old canvas
-    this.copyProgram.execute(this.oldCanvas);
+      // Copy temp canvas to the old canvas
+      this.copyProgram.setInputs(temp);
+      this.copyProgram.execute(this.oldCanvas);
 
-    // Copy temp canvas to the output
-    this.copyProgram.execute(outputTexture);
+      // Copy temp canvas to the output
+      this.copyProgram.execute(outputTexture);
+    });
   }
 
   private oldCanvas: FimGLTexture;
-  private tempCanvas: FimGLTexture;
   private copyProgram: FimGLProgramCopy;
 }

@@ -6,7 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { deepCopy, IDisposable } from '@leosingleton/commonlibs';
+import { deepCopy, IDisposable, DisposableSet, makeDisposable } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
 
@@ -38,6 +38,10 @@ export abstract class FimGLProgram implements IDisposable {
     this.glCanvas = canvas;
     this.gl = canvas.gl;
 
+    // Derived classes are likely to hold disposable objects, such as other programs or textures. To make it easy to
+    // clean up, they may use this DisposableSet to have resources automatically freed in dispose().
+    this.disposable = new DisposableSet();
+
     // Perform a deep copy in case the same GLSL file is used by multiple programs with different const or uniform
     // values. Callers need to be careful to modify the new versions, not the original, when initializing values.
     this.fragmentShader = deepCopy(fragmentShader);
@@ -59,7 +63,7 @@ export abstract class FimGLProgram implements IDisposable {
     let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
 
     // Create the program
-    let program = gl.createProgram();
+    let program = this.disposable.addNonDisposable(gl.createProgram(), p => gl.deleteProgram(p));
     FimGLError.throwOnError(gl);
     gl.attachShader(program, vertexShader);
     FimGLError.throwOnError(gl);
@@ -77,7 +81,7 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     // Create two triangles that map to the full canvas
-    this.positionBuffer = gl.createBuffer();
+    this.positionBuffer = this.disposable.addNonDisposable(gl.createBuffer(), buf => gl.deleteBuffer(buf));
     FimGLError.throwOnError(gl);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     FimGLError.throwOnError(gl);
@@ -157,19 +161,7 @@ export abstract class FimGLProgram implements IDisposable {
   }
 
   public dispose(): void {
-    let gl = this.gl;
-
-    if (this.positionBuffer) {
-      gl.deleteBuffer(this.positionBuffer);
-      this.positionBuffer = undefined;
-    }
-
-    if (this.program) {
-      gl.deleteProgram(this.program);
-      this.program = undefined;
-    }
-
-    this.gl = undefined;
+    this.disposable.dispose();
   }
 
   /**
@@ -264,10 +256,11 @@ export abstract class FimGLProgram implements IDisposable {
     FimGLError.throwOnError(gl);
   }
 
-  protected glCanvas: FimGLCanvas;
-  protected gl: WebGLRenderingContext;
-  protected fragmentShader: FimGLShader;
-  protected vertexShader: FimGLShader;
+  protected readonly glCanvas: FimGLCanvas;
+  protected readonly gl: WebGLRenderingContext;
+  protected readonly fragmentShader: FimGLShader;
+  protected readonly vertexShader: FimGLShader;
+  protected readonly disposable: DisposableSet;
   private program: WebGLProgram;
   private positionBuffer: WebGLBuffer;
   private positionAttributeLocation: number;
