@@ -5,7 +5,7 @@
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimRgbaBuffer } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimRgbaBuffer } from '../image';
 
 export const enum FimGLTextureFlags {
   /** Default value */
@@ -119,6 +119,18 @@ export class FimGLTexture implements IFimGLContextNotify {
     FimGLError.throwOnError(gl);
   }
 
+  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
+    let gl = this.gl;
+
+    //this.inputBuffer = srcImage;
+
+    this.bind(0);
+    let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, this.textureWidth, this.textureHeight, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
+      srcImage.getBuffer());
+    FimGLError.throwOnError(gl);
+  }
+
   public copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
 
@@ -126,7 +138,7 @@ export class FimGLTexture implements IFimGLContextNotify {
 
     this.bind(0);
     let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
-    gl.texImage2D(gl.TEXTURE_2D, 0, format, this.textureWidth, this.textureHeight, 0, format, gl.UNSIGNED_BYTE,
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.textureWidth, this.textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       srcImage.getBuffer());
     FimGLError.throwOnError(gl);
   }
@@ -174,6 +186,21 @@ export class FimGLTexture implements IFimGLContextNotify {
   private textureFlags: FimGLTextureFlags;
   private inputCanvas: FimCanvas;
   private inputBuffer: FimRgbaBuffer;
+
+  /**
+   * Creates a new WebGL texture from a greyscale byte array
+   * @param canvas WebGL context
+   * @param srcImage Greyscale byte array
+   * @param extraFlags Additional flags. EightBit, Greyscale, and InputOnly are always enabled for textures created via
+   *    this function.
+   */
+  public static createFromGreyscaleBuffer(canvas: FimGLCanvas, srcImage: FimGreyscaleBuffer,
+      extraFlags = FimGLTextureFlags.None): FimGLTexture {
+    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.Greyscale | FimGLTextureFlags.InputOnly | extraFlags;
+    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
+    texture.copyFromGreyscaleBuffer(srcImage);
+    return texture;
+  }
 
   /**
    * Creates a new WebGL texture from an RGBA byte array
