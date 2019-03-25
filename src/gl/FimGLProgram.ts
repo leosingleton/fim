@@ -35,6 +35,7 @@ type UniformDefinitionMap = { [name: string]: UniformDefinition };
  */
 export abstract class FimGLProgram implements IDisposable {
   constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
+    this.glCanvas = canvas;
     this.gl = canvas.gl;
 
     // Perform a deep copy in case the same GLSL file is used by multiple programs with different const or uniform
@@ -263,7 +264,8 @@ export abstract class FimGLProgram implements IDisposable {
     FimGLError.throwOnError(gl);
   }
 
-  private gl: WebGLRenderingContext;
+  protected glCanvas: FimGLCanvas;
+  protected gl: WebGLRenderingContext;
   protected fragmentShader: FimGLShader;
   protected vertexShader: FimGLShader;
   private program: WebGLProgram;

@@ -14,7 +14,6 @@ export class FimGLProgramMatrixOperation1DFast extends FimGLProgram {
     let fragmentShaderNoSkip = require('./glsl/MatrixOperation1D.glsl') as FimGLShader;
     let fragmentShader = skipPixels ? fragmentShaderSkip : fragmentShaderNoSkip;
     super(canvas, fragmentShader);
-    this.glCanvas = canvas;
 
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;
     this.fragmentShader.consts.KERNEL_SIZE.variableValue = [kernel.length];
@@ -22,7 +21,7 @@ export class FimGLProgramMatrixOperation1DFast extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInput(inputTexture: FimGLTexture): void {
+  public setInputs(inputTexture: FimGLTexture): void {
     this.inputTexture = inputTexture;
   }
 
@@ -46,6 +45,5 @@ export class FimGLProgramMatrixOperation1DFast extends FimGLProgram {
     tempCanvas.dispose();
   }
 
-  private glCanvas: FimGLCanvas;
   private inputTexture: FimGLTexture;
 }
