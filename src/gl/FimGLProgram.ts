@@ -22,7 +22,18 @@ interface UniformDefinition extends FimGLVariableDefinition {
 /** Map of uniform values */
 type UniformDefinitionMap = { [name: string]: UniformDefinition };
 
-export class FimGLProgram implements IDisposable {
+/**
+ * Abstract base class for implementing WebGL programs.
+ * 
+ * Derived classes should implement two functions:
+ * 
+ * 1. A constructor which loads the fragment shader from an embedded GLSL file. The constructor may also accept any
+ *    const values as parameters and initialize them. Finally, it should call compileProgram() to compile the shaders.
+ * 
+ * 2. A setInputs() method which initializes any uniform values. The caller should invoke this before calling
+ *    execute().
+ */
+export abstract class FimGLProgram implements IDisposable {
   constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
     this.gl = canvas.gl;
 
@@ -38,7 +49,8 @@ export class FimGLProgram implements IDisposable {
   /** Counter used to assign a unique texture unit to each texture */
   private textureCount = 0;
 
-  private compileProgram(): void {
+  /** Derived classes should call this function in their constructor after initializing any constants. */
+  protected compileProgram(): void {
     let gl = this.gl;
     
     // Compile the shaders
@@ -160,10 +172,11 @@ export class FimGLProgram implements IDisposable {
   }
 
   /**
-   * Derived classes should override this method and first set the uniform values in this.uniforms
+   * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
+   * FimGLProgram-derived classes.
    * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
    */
-  protected execute(outputTexture?: FimGLTexture): void {
+  public execute(outputTexture?: FimGLTexture): void {
     let gl = this.gl;
 
     // On the first call the execute(), compile the program

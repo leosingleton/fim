@@ -14,7 +14,9 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
 
     this.kernelSize = kernelSize;
     this.fragmentShader.consts.KERNEL_SIZE.variableValue = [kernelSize];
-    
+
+    this.compileProgram();
+
     // Execution requires two passes, so create an intermediate canvas
     this.intermediateCanvas = new FimGLTexture(canvas);
   }

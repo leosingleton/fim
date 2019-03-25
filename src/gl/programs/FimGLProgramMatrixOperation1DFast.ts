@@ -18,6 +18,8 @@ export class FimGLProgramMatrixOperation1DFast extends FimGLProgram {
 
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;
     this.fragmentShader.consts.KERNEL_SIZE.variableValue = [kernel.length];
+
+    this.compileProgram();
   }
 
   public setInput(inputTexture: FimGLTexture): void {

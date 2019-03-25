@@ -11,6 +11,7 @@ export class FimGLProgramCopy extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/Copy.glsl');
     super(canvas, fragmentShader);
+    this.compileProgram();
   }
 
   public setInputs(inputTexture: FimGLTexture): void {

@@ -11,6 +11,7 @@ export class FimGLProgramLinearTransform extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/LinearTransform.glsl');
     super(canvas, fragmentShader);
+    this.compileProgram();
   }
 
   public setInputs(inputTexture: FimGLTexture, m: number, b: number) {

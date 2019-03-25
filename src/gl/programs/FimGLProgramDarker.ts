@@ -11,6 +11,7 @@ export class FimGLProgramDarker extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/Darker.glsl');
     super(canvas, fragmentShader);
+    this.compileProgram();
   }
 
   public setInputs(input1: FimGLTexture, input2: FimGLTexture): void {

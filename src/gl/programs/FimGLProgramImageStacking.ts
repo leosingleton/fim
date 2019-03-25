@@ -16,6 +16,7 @@ export class FimGLProgramImageStacking extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/ImageStacking.glsl');
     super(canvas, fragmentShader);
+    this.compileProgram();
 
     // Image stacking requires the previous result, so create a canvas to store it
     this.oldCanvas = new FimGLTexture(canvas);
@@ -44,10 +45,10 @@ export class FimGLProgramImageStacking extends FimGLProgram {
     super.execute(this.tempCanvas);
 
     // Copy temp canvas to the old canvas
-    // TODO: this.copyProgram.execute(this.oldCanvas);
+    this.copyProgram.execute(this.oldCanvas);
 
     // Copy temp canvas to the output
-    // TODO: this.copyProgram.execute(outputTexture);
+    this.copyProgram.execute(outputTexture);
   }
 
   private oldCanvas: FimGLTexture;
