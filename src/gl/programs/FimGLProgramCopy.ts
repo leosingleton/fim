@@ -7,7 +7,7 @@ import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program to copy from one texture to another */
-export class FimGLCopy extends FimGLProgram {
+export class FimGLProgramCopy extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/Copy.glsl');
     super(canvas, fragmentShader);

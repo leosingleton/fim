@@ -7,7 +7,7 @@ import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program to apply a y = mx + b transformation */
-export class FimGLLinearTransform extends FimGLProgram {
+export class FimGLProgramLinearTransform extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/LinearTransform.glsl');
     super(canvas, fragmentShader);

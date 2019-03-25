@@ -8,7 +8,7 @@ import { FimGLTexture } from '../FimGLTexture';
 import { FimGLShader } from '../FimGLShader';
 
 /** GL program which creates a Gaussian blur (new, faster, implementation created in the whiteboard-webgl branch) */
-export class FimGLMatrixOperation1DFast extends FimGLProgram {
+export class FimGLProgramMatrixOperation1DFast extends FimGLProgram {
   constructor(canvas: FimGLCanvas, kernel: number[], skipPixels = false) {
     let fragmentShaderSkip = require('./glsl/MatrixOperation1DFast.glsl') as FimGLShader;
     let fragmentShaderNoSkip = require('./glsl/MatrixOperation1D.glsl') as FimGLShader;

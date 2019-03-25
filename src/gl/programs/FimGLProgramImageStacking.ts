@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCopy } from './Copy';
+import { FimGLProgramCopy } from './FimGLProgramCopy';
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program which stacks images to reduce noise */
-export class FimGLImageStacking extends FimGLProgram {
+export class FimGLProgramImageStacking extends FimGLProgram {
   /**
    * Constructor
    * @param canvas 
@@ -24,7 +24,7 @@ export class FimGLImageStacking extends FimGLProgram {
     // WebGL doesn't support using the same texture for both input and output, so create a temporary canvas
     this.tempCanvas = new FimGLTexture(canvas);
 
-    this.copyProgram = new FimGLCopy(canvas);
+    this.copyProgram = new FimGLProgramCopy(canvas);
     this.copyProgram.setInputs(this.tempCanvas);
   }
 
@@ -44,13 +44,13 @@ export class FimGLImageStacking extends FimGLProgram {
     super.execute(this.tempCanvas);
 
     // Copy temp canvas to the old canvas
-    this.copyProgram.execute(this.oldCanvas);
+    // TODO: this.copyProgram.execute(this.oldCanvas);
 
     // Copy temp canvas to the output
-    this.copyProgram.execute(outputTexture);
+    // TODO: this.copyProgram.execute(outputTexture);
   }
 
   private oldCanvas: FimGLTexture;
   private tempCanvas: FimGLTexture;
-  private copyProgram: FimGLCopy;
+  private copyProgram: FimGLProgramCopy;
 }

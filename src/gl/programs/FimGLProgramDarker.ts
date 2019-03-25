@@ -7,7 +7,7 @@ import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program to combine two textures and return the darker of the two */
-export class FimGLDarker extends FimGLProgram {
+export class FimGLProgramDarker extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/Darker.glsl');
     super(canvas, fragmentShader);

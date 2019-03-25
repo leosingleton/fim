@@ -7,7 +7,7 @@ import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
 
 /** GL program which creates a Gaussian blur */
-export class FimGLMatrixOperation1D extends FimGLProgram {
+export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   constructor(canvas: FimGLCanvas, kernelSize: number) {
     let fragmentShader = require('./glsl/MatrixOperation1D.glsl');
     super(canvas, fragmentShader);
