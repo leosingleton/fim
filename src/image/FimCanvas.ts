@@ -226,4 +226,35 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
       this.copyFromRgbaBufferWithPutImageData(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
+
+  /**
+   * Creates a FimCanvas from a JPEG file
+   * @param jpegFile JPEG file, loaded into a byte array
+   */
+  public static async createFromJpeg(jpegFile: Uint8Array): Promise<FimCanvas> {
+    return new Promise((resolve, reject) => {
+      // Create a Blob holding the binary data and load it onto an HTMLImageElement
+      let blob = new Blob([jpegFile], { type: 'image/jpeg' });
+      let url = (URL || webkitURL).createObjectURL(blob);
+      let img = new Image();
+      img.src = url;
+
+      // On success, copy the image to a FimCanvas and return it via the Promise
+      img.onload = () => {
+        let result = new FimCanvas(img.width, img.height);
+        using(result.createDrawingContext(), ctx => {
+          ctx.drawImage(img, 0, 0);
+        });
+
+        (URL || webkitURL).revokeObjectURL(url);
+        resolve(result);
+      };
+
+      // On error, return an exception via the Promise
+      img.onerror = err => {
+        (URL || webkitURL).revokeObjectURL(url);
+        reject(err);
+      };
+    });
+  }
 }
