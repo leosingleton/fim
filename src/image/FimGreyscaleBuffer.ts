@@ -23,7 +23,9 @@ export class FimGreyscaleBuffer extends FimImage {
     }
   }
 
-  public readonly type = FimImageType.FimGreyscaleBuffer;
+  public getType(): FimImageType {
+    return FimImageType.FimGreyscaleBuffer;
+  }
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {

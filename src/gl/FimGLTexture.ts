@@ -4,9 +4,9 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimGreyscaleBuffer, FimRgbaBuffer } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageType } from '../image';
 
+/** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
   /** Default value */
   None = 0,
@@ -33,30 +33,35 @@ export const enum FimGLTextureFlags {
   InputOnly = (1 << 4)
 }
 
-export class FimGLTexture implements IFimGLContextNotify {
-  constructor(glCanvas: FimGLCanvas, textureWidth?: number, textureHeight?: number, flags = FimGLTextureFlags.None) {
-    glCanvas.registerObject(this);
-    this.glCanvas = glCanvas;
-    this.gl = glCanvas.gl;
-    this.textureWidth = textureWidth ? textureWidth : glCanvas.w;
-    this.textureHeight = textureHeight ? textureHeight : glCanvas.h;
-    this.textureFlags = flags;
+/** Wrapper class for WebGL textures */
+export class FimGLTexture extends FimImage {
+  /**
+   * Creates a WebGL texture
+   * @param glCanvas FimGLCanvas to which this texture belongs
+   * @param width Texture width, in pixels
+   * @param height Texture height, in pixels
+   * @param flags See FimGLTextureFlags
+   */
+  constructor(glCanvas: FimGLCanvas, width? : number, height?: number, flags = FimGLTextureFlags.None) {
+    // Default values
+    width = width || glCanvas.w;
+    height = height || glCanvas.h;
 
-    // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Images from cameras may actually exceed
-    // WebGL's capabilities and need to be downscaled.
+    // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
+    // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = glCanvas.capabilities.maxTextureSize;
-    if (this.textureWidth > maxDimension || this.textureHeight > maxDimension) {
-      let scale = Math.min(maxDimension / this.textureWidth, maxDimension / this.textureHeight);
-      this.textureWidth = Math.floor(this.textureWidth * scale);
-      this.textureHeight = Math.floor(this.textureHeight * scale);
-      console.log('Limiting WebGL texture to ' + this.textureWidth + 'x' + this.textureHeight);
+    if (width > maxDimension || height > maxDimension) {
+      let scale = Math.min(maxDimension / width, maxDimension / height);
+      width = Math.floor(width * scale);
+      height = Math.floor(height * scale);
+      console.log('Limiting WebGL texture to ' + width + 'x' + height);
     }
 
-    this.onContextRestored();
-  }
+    super(width, height);
 
-  public onContextRestored(): void {
-    let gl = this.gl;
+    let gl = this.gl = glCanvas.gl;
+    this.glCanvas = glCanvas;
+    this.textureFlags = flags;
 
     // Create a texture
     this.texture = gl.createTexture();
@@ -81,7 +86,7 @@ export class FimGLTexture implements IFimGLContextNotify {
       let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
       let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
         this.glCanvas.getMaxTextureDepthValue();
-      gl.texImage2D(gl.TEXTURE_2D, 0, format, this.textureWidth, this.textureHeight, 0, format, colorDepth, null);
+      gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
       FimGLError.throwOnError(gl);
 
       this.fb = gl.createFramebuffer();
@@ -91,13 +96,10 @@ export class FimGLTexture implements IFimGLContextNotify {
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
       FimGLError.throwOnError(gl);
     }
+  }
 
-    if (this.inputCanvas) {
-      this.copyFromCanvas(this.inputCanvas);
-    }
-    if (this.inputBuffer) {
-      this.copyFromRgbaBuffer(this.inputBuffer);
-    }
+  public getType(): FimImageType {
+    return FimImageType.FimGLTexture;
   }
 
   public bind(textureUnit: number): void {
@@ -112,8 +114,6 @@ export class FimGLTexture implements IFimGLContextNotify {
   public copyFromCanvas(srcImage: FimCanvas): void {
     let gl = this.gl;
 
-    this.inputCanvas = srcImage;
-
     this.bind(0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
@@ -122,11 +122,9 @@ export class FimGLTexture implements IFimGLContextNotify {
   public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
     let gl = this.gl;
 
-    //this.inputBuffer = srcImage;
-
     this.bind(0);
     let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
-    gl.texImage2D(gl.TEXTURE_2D, 0, format, this.textureWidth, this.textureHeight, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       srcImage.getBuffer());
     FimGLError.throwOnError(gl);
   }
@@ -134,17 +132,11 @@ export class FimGLTexture implements IFimGLContextNotify {
   public copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
 
-    this.inputBuffer = srcImage;
-
     this.bind(0);
     let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.textureWidth, this.textureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       srcImage.getBuffer());
     FimGLError.throwOnError(gl);
-  }
-
-  public onContextLost(): void {
-    this.dispose();
   }
 
   public dispose(): void {
@@ -165,14 +157,6 @@ export class FimGLTexture implements IFimGLContextNotify {
     this.gl = undefined;
   }
 
-  public getWidth(): number {
-    return this.textureWidth;
-  }
-
-  public getHeight(): number {
-    return this.textureHeight;
-  }
-
   public getFramebuffer(): WebGLFramebuffer {
     return this.fb;
   }
@@ -181,11 +165,7 @@ export class FimGLTexture implements IFimGLContextNotify {
   private gl: WebGLRenderingContext;
   private texture: WebGLTexture;
   private fb: WebGLFramebuffer;
-  private textureWidth: number;
-  private textureHeight: number;
   private textureFlags: FimGLTextureFlags;
-  private inputCanvas: FimCanvas;
-  private inputBuffer: FimRgbaBuffer;
 
   /**
    * Creates a new WebGL texture from a greyscale byte array

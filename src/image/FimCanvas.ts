@@ -39,7 +39,9 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
   }
   protected canvasElement: HTMLCanvasElement;
 
-  public readonly type = FimImageType.FimCanvas;
+  public getType(): FimImageType {
+    return FimImageType.FimCanvas;
+  }
 
   public dispose(): void {
     if (this.canvasElement) {

@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimCanvas } from './FimCanvas';
+import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
-import { FimCanvas } from './FimCanvas';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
-import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
 export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
@@ -27,7 +27,9 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     }
   }
 
-  public readonly type = FimImageType.FimRgbaBuffer;
+  public getType(): FimImageType {
+    return FimImageType.FimRgbaBuffer;
+  }
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {

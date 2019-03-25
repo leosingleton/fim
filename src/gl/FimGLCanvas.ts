@@ -3,19 +3,19 @@
 // See LICENSE in the project root for license information.
 
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas } from '../image';
+import { FimCanvas, FimImageType } from '../image';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvas {
   /**
-   * Creates an invisible canvas in the DOM
-   * @param canvasWidth Width, in pixels
-   * @param canvasHeight Height, in pixels
+   * Creates an invisible canvas in the DOM that supports WebGL
+   * @param width Width, in pixels
+   * @param height Height, in pixels
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  constructor(canvasWidth: number, canvasHeight: number, quality = 1) {
-    super(canvasWidth, canvasHeight);
+  constructor(width: number, height: number, quality = 1) {
+    super(width, height);
     this.renderQuality = quality;
 
     // Initialize WebGL
@@ -44,6 +44,10 @@ export class FimGLCanvas extends FimCanvas {
       console.log('WebGL context restored');
       this.objects.forEach(o => o.onContextRestored());
     }, false);
+  }
+
+  public getType(): FimImageType {
+    return FimImageType.FimGLCanvas;
   }
 
   public registerObject(object: IFimGLContextNotify): void {

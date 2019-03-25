@@ -23,7 +23,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   }
 
   /** Returns a value from the FimImageType enum indicating the implementation of the class */
-  public abstract readonly type: FimImageType;
+  public abstract getType(): FimImageType;
 
   // IFimDimensions implementation
   public readonly w: number;

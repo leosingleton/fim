@@ -6,8 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { deepCopy } from '@leosingleton/commonlibs';
+import { deepCopy, IDisposable } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
 
@@ -23,7 +22,7 @@ interface UniformDefinition extends FimGLVariableDefinition {
 /** Map of uniform values */
 type UniformDefinitionMap = { [name: string]: UniformDefinition };
 
-export class FimGLProgram implements IFimGLContextNotify {
+export class FimGLProgram implements IDisposable {
   constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
     this.gl = canvas.gl;
 
@@ -31,8 +30,6 @@ export class FimGLProgram implements IFimGLContextNotify {
     // values. Callers need to be careful to modify the new versions, not the original, when initializing values.
     this.fragmentShader = deepCopy(fragmentShader);
     this.vertexShader = deepCopy(vertexShader);
-    
-    canvas.registerObject(this);
   }
 
   /** Uniforms used by the program */
@@ -162,7 +159,11 @@ export class FimGLProgram implements IFimGLContextNotify {
     this.gl = undefined;
   }
 
-  public execute(outputTexture?: FimGLTexture): void {
+  /**
+   * Derived classes should override this method and first set the uniform values in this.uniforms
+   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
+   */
+  protected execute(outputTexture?: FimGLTexture): void {
     let gl = this.gl;
 
     // On the first call the execute(), compile the program
@@ -175,7 +176,7 @@ export class FimGLProgram implements IFimGLContextNotify {
       // Use a framebuffer to render to a texture
       gl.bindFramebuffer(gl.FRAMEBUFFER, outputTexture.getFramebuffer());
       FimGLError.throwOnError(gl);
-      gl.viewport(0, 0, outputTexture.getWidth(), outputTexture.getHeight());
+      gl.viewport(0, 0, outputTexture.w, outputTexture.h);
       FimGLError.throwOnError(gl);
       flip = 1; // Don't flip the image
     } else {
@@ -247,16 +248,6 @@ export class FimGLProgram implements IFimGLContextNotify {
     // Render
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     FimGLError.throwOnError(gl);
-  }
-
-  public onContextLost(): void {
-    this.dispose();
-  }
-
-  public onContextRestored(): void {
-    if (!this.program) {
-      this.compileProgram();
-    }
   }
 
   private gl: WebGLRenderingContext;
