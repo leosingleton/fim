@@ -117,8 +117,8 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     let srcBuf = srcImage.getBuffer();
     let destBuf = this.buffer;
     for (let y = 0; y < destCoords.h; y++) {
-      let srcOffset = (y + srcCoords.yTop) * srcImage.bufferWidth + srcCoords.xLeft;
-      let destOffset = ((y + destCoords.yTop) * this.bufferWidth + destCoords.xLeft) * 4;
+      let srcOffset = (y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft;
+      let destOffset = ((y + destCoords.yTop) * this.w + destCoords.xLeft) * 4;
       for (let x = 0; x < destCoords.w; x++) {
         let color = srcBuf[srcOffset++];
         destBuf[destOffset++] = color;
@@ -153,8 +153,8 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     let srcBuf = srcImage.buffer;
     let destBuf = this.buffer;
     for (let y = 0; y < destCoords.h; y++) {
-      let srcOffset = ((y + srcCoords.yTop) * srcImage.bufferWidth + srcCoords.xLeft) * 4;
-      let destOffset = ((y + destCoords.yTop) * this.bufferWidth + destCoords.xLeft) * 4;
+      let srcOffset = ((y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft) * 4;
+      let destOffset = ((y + destCoords.yTop) * this.w + destCoords.xLeft) * 4;
       destBuf.set(srcBuf.subarray(srcOffset, srcOffset + (destCoords.w * 4)), destOffset);
     }
   }

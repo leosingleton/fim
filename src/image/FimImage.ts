@@ -16,10 +16,6 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
-    
-    this.bufferWidth = bufferWidth ? bufferWidth : width;
-    this.bufferHeight = bufferHeight ? bufferHeight : height;
-    this.bufferDimensions = FimRect.fromXYWidthHeight(0, 0, this.bufferWidth, this.bufferHeight);
   }
 
   /** Returns a value from the FimImageType enum indicating the implementation of the class */
@@ -29,24 +25,6 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly w: number;
   public readonly h: number;
   public readonly dimensions: FimRect;
-
-  /**
-   * Width of the backing buffer, in pixels. This may be larger than w if the implementation rounds to a larger image
-   * for performance, such as some GPUs which require a power-of-two dimension.
-   */
-  public readonly bufferWidth: number;
-
-  /**
-   * Height of the backing buffer, in pixels. This may be larger than h if the implementation rounds to a larger image
-   * for performance, such as some GPUs which require a power-of-two dimension.
-   */
-  public readonly bufferHeight: number;
-
-  /**
-   * Dimensions of the backing buffer, in pixels. This may be larger than dimensions if the implementation rounds to a
-   * larger image for performance, such as some GPUs which require a power-of-two dimension.
-   */
-  public readonly bufferDimensions: FimRect;
 
   public abstract dispose(): void;
 

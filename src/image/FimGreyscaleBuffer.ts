@@ -68,8 +68,8 @@ export class FimGreyscaleBuffer extends FimImage {
     let srcBuf = srcImage.buffer;
     let destBuf = this.buffer;
     for (let y = 0; y < destCoords.h; y++) {
-      let srcOffset = (y + srcCoords.yTop) * srcImage.bufferWidth + srcCoords.xLeft;
-      let destOffset = (y + destCoords.yTop) * this.bufferWidth + destCoords.xLeft;
+      let srcOffset = (y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft;
+      let destOffset = (y + destCoords.yTop) * this.w + destCoords.xLeft;
       destBuf.set(srcBuf.subarray(srcOffset, srcOffset + destCoords.w), destOffset);
     }
   }
