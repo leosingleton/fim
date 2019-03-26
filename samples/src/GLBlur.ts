@@ -36,7 +36,7 @@ export async function glBlur(canvasId: string): Promise<void> {
   function render(): void {
     console.log('Rendering frame');
 
-    // Vary the sigma from 0 to 10 every 10 seconds
+    // Vary the sigma from 0 to 2 every 10 seconds
     let time = clock.getElapsedMilliseconds() % 10000;
     let sigma = (time < 5000) ? time : (10000 - time);
     sigma *= 2 / 5000;
