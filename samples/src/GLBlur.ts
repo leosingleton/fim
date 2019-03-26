@@ -4,7 +4,7 @@
 
 import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel }
   from '../../build/dist/index.js';
-import { Stopwatch, using } from '@leosingleton/commonlibs';
+import { Stopwatch, TaskScheduler, usingAsync } from '@leosingleton/commonlibs';
 
 const kernelSize = 31;
 
@@ -33,7 +33,8 @@ export async function glBlur(canvasId: string): Promise<void> {
 
   // Animation loop
   let clock = Stopwatch.startNew();
-  function render(): void {
+  while (true) {
+    await TaskScheduler.yield();
     console.log('Rendering frame');
 
     // Vary the sigma from 0 to 2 every 10 seconds
@@ -44,28 +45,26 @@ export async function glBlur(canvasId: string): Promise<void> {
     // Build a Gaussian kernel with the desired sigma
     let kernel = GaussianKernel.calculate(sigma, kernelSize);
 
-    // Execute the blur program 5 times
-    using(new FimGLTexture(gl), temp => {
+    // Execute the blur program 5 times for a larger blur effect
+    await usingAsync(new FimGLTexture(gl), async temp => {
       // Use the input texture on the first run
       program.setInputs(texture, kernel);
       program.execute(temp);
 
       // Copy temp to temp on subsequent runs
+      await TaskScheduler.yield();
       program.setInputs(temp, kernel);
       for (let n = 0; n < 3; n++) {
         program.execute(temp);
       }
   
       // Copy to the output on the final run
+      await TaskScheduler.yield();
       program.execute();
     });
 
     // Copy the result to the screen
     let ctx = output.getContext('2d');
     ctx.drawImage(gl.getCanvas(), 0, 0);
-
-    // Render the next frame of the animation loop
-    requestAnimationFrame(render);
   }
-  requestAnimationFrame(render);
 }
