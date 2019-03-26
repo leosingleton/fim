@@ -3,6 +3,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var config = {
+  mode: 'development',
   entry: './src/index.ts',
   devtool: 'source-map',
   module: {
@@ -32,7 +33,8 @@ var config = {
   ],
   output: {
     path: path.resolve(__dirname, '../build/samples'),
-    filename: 'samples.js'
+    filename: 'samples.js',
+    library: 'Samples'
   }
 };
 

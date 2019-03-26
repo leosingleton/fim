@@ -2,4 +2,4 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-console.log('Hello World!');
+export * from './GLBlur';
