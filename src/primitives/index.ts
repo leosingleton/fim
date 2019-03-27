@@ -5,3 +5,4 @@
 export * from './FimColor';
 export * from './FimPoint';
 export * from './FimRect';
+export * from './IFimDimensions';

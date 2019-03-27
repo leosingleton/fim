@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRect } from '../primitives';
+import { FimRect } from './FimRect';
 
 /** Interface implemented by objects that expose their width and height */
 export interface IFimDimensions {

@@ -7,5 +7,4 @@ export * from './FimGreyscaleBuffer';
 export * from './FimImage';
 export * from './FimImageType';
 export * from './FimRgbaBuffer';
-export * from './IFimDimensions';
 export * from './IFimGetSetPixel';

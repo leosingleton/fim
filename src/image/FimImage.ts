@@ -4,8 +4,7 @@
 
 import { IDisposable } from '@leosingleton/commonlibs';
 import { FimImageType } from './FimImageType';
-import { IFimDimensions } from './IFimDimensions';
-import { FimRect } from '../primitives';
+import { FimRect, IFimDimensions } from '../primitives';
 
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
