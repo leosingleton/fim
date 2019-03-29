@@ -46,7 +46,7 @@ describe('ImageGrid', () => {
     expect(grid.tiles[0].outputTile).toEqual(FimRect.fromXYWidthHeight(0, 0, 500, 500));
   });
 
-  /*it('Calculates with overlap', () => {
+  it('Calculates with overlap', () => {
     // Break a 1000x1000 image into four 512x512, with 20 pixel overlap.
     //
     // This will leave 4 (1024 - 1000 - 20) pixels unused in each dimension, or more exactly, a 2 pixel border around
@@ -74,6 +74,6 @@ describe('ImageGrid', () => {
     expect(grid.tiles[1].outputTile).toEqual(FimRect.fromXYWidthHeight(10, 2, 500, 500));
     expect(grid.tiles[2].outputTile).toEqual(FimRect.fromXYWidthHeight(2, 10, 500, 500));
     expect(grid.tiles[3].outputTile).toEqual(FimRect.fromXYWidthHeight(10, 10, 500, 500));
-  });*/
+  });
 
 });
