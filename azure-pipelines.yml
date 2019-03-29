@@ -35,6 +35,12 @@ jobs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'build/results-*.xml'
 
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: 'build/coverage/node/cobertura-coverage.xml'
+      reportDirectory: 'build/coverage/node/'
+
   - script: |
       npm run samples
     displayName: 'Compile Sample Apps'
