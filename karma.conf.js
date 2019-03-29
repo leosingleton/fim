@@ -41,8 +41,8 @@ module.exports = function(config) {
     reporters: ['progress', 'junit'],
 
     junitReporter: {
-      outputDir: 'test-reports',
-      outputFile: 'results.xml',
+      outputDir: '../',
+      outputFile: 'results-web.xml',
       useBrowserName: false
     },
 
