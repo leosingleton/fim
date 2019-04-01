@@ -36,7 +36,7 @@
     "build": "npx webpack --mode=none",
     "samples": "cd samples && npx webpack",
     "test": "npm run test:node && npm run test:web",
-    "test:node": "npx jest --config=jest.node.config.js --maxWorkers=2",
+    "test:node": "npx jest --config=jest.node.config.js --maxWorkers=2 --coverage",
     "test:web": "npx webpack --mode=development --config=webpack.test.js && npx karma start",
     "test:web:debug": "npx webpack --mode=development --config=webpack.test.js && npx karma start --single-run=false"
   },
