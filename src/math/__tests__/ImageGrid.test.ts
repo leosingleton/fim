@@ -51,7 +51,7 @@ describe('ImageGrid', () => {
     //
     // This will leave 4 (1024 - 1000 - 20) pixels unused in each dimension, or more exactly, a 2 pixel border around
     // the outer edge.
-    let grid = new ImageGrid(1000, 1000, 512, 512);
+    let grid = new ImageGrid(1000, 1000, 512, 512, 20);
 
     expect(grid.tiles.length).toEqual(4);
 
