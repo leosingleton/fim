@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { ImageGrid } from '../ImageGrid';
-import { FimRect } from '../../primitives';
+import { FimRect, FimPoint } from '../../primitives';
 
 describe('ImageGrid', () => {
 
@@ -88,6 +88,37 @@ describe('ImageGrid', () => {
     // Break a 1024x256 image into two 512x512. Efficiency == 50%
     let grid3 = new ImageGrid(1024, 256, 512, 512);
     expect(grid3.getEfficiency()).toEqual(0.5);
+  });
+
+  it('Converts between full-size and tile coordinates without overlap', () => {
+    // Break a 1000x1000 image into four 500x500
+    let grid = new ImageGrid(1000, 1000, 500, 500);
+
+    // tile0 is the top-left quadrant
+    let tile0 = grid.tiles[0];
+    expect(tile0.inputFull).toEqual(FimRect.fromXYWidthHeight(0, 0, 500, 500));
+    expect(tile0.fullToTile(new FimPoint(100, 100))).toEqual(new FimPoint(100, 100));
+    expect(tile0.tileToFull(new FimPoint(100, 100))).toEqual(new FimPoint(100, 100));
+
+    // Try out-of-bounds, with and without bounds checking
+    expect(tile0.fullToTile(new FimPoint(100, 600), true)).toBeNull();
+    expect(tile0.tileToFull(new FimPoint(100, 600), true)).toEqual(new FimPoint(100, 600)); // Not out-of-bound on dest
+    expect(tile0.tileToFull(new FimPoint(100, 1600), true)).toBeNull();
+    expect(tile0.fullToTile(new FimPoint(100, 600))).toEqual(new FimPoint(100, 600));
+    expect(tile0.tileToFull(new FimPoint(100, 600))).toEqual(new FimPoint(100, 600));
+
+    // tile3 is the bottom-right quadrant
+    let tile3 = grid.tiles[3];
+    expect(tile3.inputFull).toEqual(FimRect.fromXYWidthHeight(500, 500, 500, 500));
+    expect(tile3.fullToTile(new FimPoint(600, 700))).toEqual(new FimPoint(100, 200));
+    expect(tile3.tileToFull(new FimPoint(100, 200))).toEqual(new FimPoint(600, 700));
+
+    // Try out-of-bounds, with and without bounds checking
+    expect(tile3.fullToTile(new FimPoint(100, 600), true)).toBeNull();
+    expect(tile3.tileToFull(new FimPoint(100, -100), true)).toEqual(new FimPoint(600, 400)); // Not out-of-bound on dst
+    expect(tile3.tileToFull(new FimPoint(100, -600), true)).toBeNull();
+    expect(tile3.fullToTile(new FimPoint(100, 600))).toEqual(new FimPoint(-400, 100));
+    expect(tile3.tileToFull(new FimPoint(-400, 100))).toEqual(new FimPoint(100, 600));
   });
 
 });

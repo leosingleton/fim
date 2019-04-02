@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRect, IFimDimensions } from '../primitives';
+import { FimPoint, FimRect, IFimDimensions } from '../primitives';
 
 /**
  * Performs calculations for splitting a large image into a grid of smaller tiles. Used to improve the overall
@@ -73,8 +73,8 @@ export class ImageGrid implements IFimDimensions {
 
     // Finally, calculate the individual tiles
     let halfOverlap = overlap / 2; // integer, because overlapPixels must be even
-    function getTile(srcX: number, srcY: number, isLeft: boolean, isTop: boolean, isRight: boolean, isBottom: boolean):
-        ImageGridTile {
+    function getTile(parent: ImageGrid, srcX: number, srcY: number, isLeft: boolean, isTop: boolean, isRight: boolean,
+        isBottom: boolean): ImageGridTile {
       // Calculate the input coordinates
       let inputFullX = srcX;
       let inputFullY = srcY;
@@ -125,7 +125,7 @@ export class ImageGrid implements IFimDimensions {
         outputHeight -= halfOverlap;
       }
 
-      return new ImageGridTile(tileWidth, tileHeight,
+      return new ImageGridTile(parent, tileWidth, tileHeight,
         FimRect.fromXYWidthHeight(inputFullX, inputFullY, inputWidth, inputHeight),
         FimRect.fromXYWidthHeight(inputTileX, inputTileY, inputWidth, inputHeight),
         FimRect.fromXYWidthHeight(outputTileX, outputTileY, outputWidth, outputHeight),
@@ -136,7 +136,7 @@ export class ImageGrid implements IFimDimensions {
     for (let tileY = 0; tileY < tilesV; tileY++) {
       let x = offsetX;
       for (let tileX = 0; tileX < tilesH; tileX++) {
-        tiles.push(getTile(x, y, tileX === 0, tileY === 0, tileX === (tilesH - 1), tileY === (tilesV - 1)));
+        tiles.push(getTile(this, x, y, tileX === 0, tileY === 0, tileX === (tilesH - 1), tileY === (tilesV - 1)));
         x += tileWidth - overlap;
       }
       y += tileHeight - overlap;
@@ -159,18 +159,20 @@ export class ImageGrid implements IFimDimensions {
   public readonly h: number;
   public readonly dimensions: FimRect;
 
+  /** Returns the tile coordinates that make up the grid */
   public readonly tiles: ImageGridTile[];
 }
 
 /** Holds the coordinates for a single tile in an ImageGrid */
 export class ImageGridTile {
-  public constructor(width: number, height: number, inputFull: FimRect, inputTile: FimRect, outputTile: FimRect,
-      outputFull: FimRect) {
+  public constructor(parent: ImageGrid, width: number, height: number, inputFull: FimRect, inputTile: FimRect,
+      outputTile: FimRect, outputFull: FimRect) {
     // Initialize the IFimDimensions variables
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
 
+    this.parent = parent;
     this.inputFull = inputFull;
     this.inputTile = inputTile;
     this.outputTile = outputTile;
@@ -182,6 +184,9 @@ export class ImageGridTile {
   public readonly h: number;
   public readonly dimensions: FimRect;
   
+  /** Parent ImageGrid to which this tile belongs */
+  public readonly parent: ImageGrid;
+
   /** When copying input data, the coordinates on the full-sized original image to copy from */
   public readonly inputFull: FimRect;
 
@@ -194,11 +199,43 @@ export class ImageGridTile {
   /** When copying output data, the coordinates on the full-sized destination image to copy to */
   public readonly outputFull: FimRect;
 
-  /*public sourceToTile(point: FimPoint): FimPoint {
+  /**
+   * Converts a coordinate on the full-size image to a coordinate on this tile.
+   * @param point Coordinate on full-size image
+   * @param checkBounds By default, the return value could be outside the bounds of the tile. If this value is set to
+   *    true, null will be returned instead of an out-of-bounds coordinate.
+   * @returns Coordinate on this tile
+   */
+  public fullToTile(point: FimPoint, checkBounds = false): FimPoint {
+    let x = point.x + this.inputTile.xLeft - this.inputFull.xLeft;
+    let y = point.y + this.inputTile.yTop - this.inputFull.yTop;
 
+    if (checkBounds) {
+      if (x < 0 || y < 0 || x >= this.w || y >= this.h) {
+        return null;
+      }
+    }
+
+    return new FimPoint(x, y);
   }
 
-  public tileToDest(point: FimPoint): FimPoint {
+  /**
+   * Converts a coordinate on this tile to a coordinate on the full-size image.
+   * @param point Coordinate on this tile
+   * @param checkBounds By default, the return value could be outside the bounds of the full-size image. If this value
+   *    is set to true, null will be returned instead of an out-of-bounds coordinate.
+   * @returns Coordinate on the full-size image
+   */
+  public tileToFull(point: FimPoint, checkBounds = false): FimPoint {
+    let x = point.x + this.outputFull.xLeft - this.outputTile.xLeft;
+    let y = point.y + this.outputFull.yTop - this.outputTile.yTop;
 
-  }*/
+    if (checkBounds) {
+      if (x < 0 || y < 0 || x >= this.parent.w || y >= this.parent.h) {
+        return null;
+      }
+    }
+
+    return new FimPoint(x, y);
+  }
 }
