@@ -13,7 +13,7 @@ describe('FimGLProgramCopy', () => {
 
   it('Copies canvas to texture to WebGL canvas', () => {
     DisposableSet.using(disposable => {
-      // Initialize the WebGL canvas, program, and a solid blue texture from canvas
+      // Initialize the WebGL canvas, program, and a solid green texture from canvas
       let canvas = disposable.addDisposable(new FimGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let orig = disposable.addDisposable(new FimCanvas(640, 480, '#1f2'));
@@ -23,7 +23,7 @@ describe('FimGLProgramCopy', () => {
       program.setInputs(texture);
       program.execute();
 
-      // Ensure the output WebGL canvas is now blue
+      // Ensure the output WebGL canvas is now green
       expect(canvas.getPixel(100, 100)).toEqual(FimColor.fromString('#1f2'));
     });
   });
