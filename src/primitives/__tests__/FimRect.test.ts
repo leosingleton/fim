@@ -57,4 +57,12 @@ describe('FimRect', () => {
     validate1234(rect.toUpright());
   });
 
+  it('Calculates area', () => {
+    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    expect(rect1.getArea()).toEqual(120000);
+
+    let rect2 = FimRect.fromXYWidthHeight(200, 300, 30, 40);
+    expect(rect2.getArea()).toEqual(1200);
+  })
+
 });

@@ -76,4 +76,18 @@ describe('ImageGrid', () => {
     expect(grid.tiles[3].outputTile).toEqual(FimRect.fromXYWidthHeight(10, 10, 500, 500));
   });
 
+  it('Calculates efficiency', () => {
+    // Break a 1000x1000 image into four 500x500. Efficiency == 100%
+    let grid1 = new ImageGrid(1000, 1000, 500, 500);
+    expect(grid1.getEfficiency()).toEqual(1);
+
+    // Break a 1024x512 image into two 512x512. Efficiency == 100%
+    let grid2 = new ImageGrid(1024, 512, 512, 512);
+    expect(grid2.getEfficiency()).toEqual(1);
+
+    // Break a 1024x256 image into two 512x512. Efficiency == 50%
+    let grid3 = new ImageGrid(1024, 256, 512, 512);
+    expect(grid3.getEfficiency()).toEqual(0.5);
+  });
+
 });

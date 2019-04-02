@@ -64,6 +64,11 @@ export class FimRect {
     );
   }
 
+  /** Returns the area of the rectangle, in pixels */
+  getArea(): number {
+    return this.w * this.h;
+  }
+
   static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
     return new FimRect(x, y, x + width, y + height, width, height);
   }

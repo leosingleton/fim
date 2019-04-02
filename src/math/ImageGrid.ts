@@ -125,7 +125,7 @@ export class ImageGrid implements IFimDimensions {
         outputHeight -= halfOverlap;
       }
 
-      return new ImageGridTile(
+      return new ImageGridTile(tileWidth, tileHeight,
         FimRect.fromXYWidthHeight(inputFullX, inputFullY, inputWidth, inputHeight),
         FimRect.fromXYWidthHeight(inputTileX, inputTileY, inputWidth, inputHeight),
         FimRect.fromXYWidthHeight(outputTileX, outputTileY, outputWidth, outputHeight),
@@ -144,6 +144,16 @@ export class ImageGrid implements IFimDimensions {
     this.tiles = tiles;
   }
 
+  /**
+   * Returns the efficiency of the grid, as a decimal from 0 to 1. The efficiency is defined as the area of the
+   * original image divided by the sum of the area of the tiles.
+   */
+  public getEfficiency(): number {
+    let t = this;
+    let i = t.tiles;
+    return t.dimensions.getArea() / (i.length * i[0].dimensions.getArea());
+  }
+
   // IFimDimensions implementation
   public readonly w: number;
   public readonly h: number;
@@ -154,13 +164,24 @@ export class ImageGrid implements IFimDimensions {
 
 /** Holds the coordinates for a single tile in an ImageGrid */
 export class ImageGridTile {
-  public constructor(inputFull: FimRect, inputTile: FimRect, outputTile: FimRect, outputFull: FimRect) {
+  public constructor(width: number, height: number, inputFull: FimRect, inputTile: FimRect, outputTile: FimRect,
+      outputFull: FimRect) {
+    // Initialize the IFimDimensions variables
+    this.w = width;
+    this.h = height;
+    this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+
     this.inputFull = inputFull;
     this.inputTile = inputTile;
     this.outputTile = outputTile;
     this.outputFull = outputFull;
   }
 
+  // IFimDimensions implementation
+  public readonly w: number;
+  public readonly h: number;
+  public readonly dimensions: FimRect;
+  
   /** When copying input data, the coordinates on the full-sized original image to copy from */
   public readonly inputFull: FimRect;
 
