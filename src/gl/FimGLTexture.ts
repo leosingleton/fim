@@ -125,7 +125,7 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
-      srcImage.getBuffer());
+      new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
   }
 
@@ -135,7 +135,7 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-      srcImage.getBuffer());
+      new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
   }
 

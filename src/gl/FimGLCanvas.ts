@@ -2,8 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimCanvas, FimImageType } from '../image';
+import { IDisposable } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvas {
@@ -158,6 +160,14 @@ export class FimGLCanvas extends FimCanvas {
   private objects: IFimGLContextNotify[] = [];
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
+
+  public createDrawingContext(imageSmoothingEnabled?: boolean, operation?: string, alpha?: number):
+      CanvasRenderingContext2D & IDisposable {
+    // Getting the 2D drawing context doesn't work (at least under Chrome) after using WebGL on a canvas. Prevent us
+    // from returning null. The workaround is for the caller to copy the FimGLCanvas to a FimCanvas first, then get a
+    // drawing context to the non-WebGL FimCanvas.
+    throw new FimGLError(FimGLErrorCode.InvalidOperation);
+  }
 }
 
 export interface FimGLCapabilities {

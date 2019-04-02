@@ -93,10 +93,28 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
 
   private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
-    using(srcImage.createDrawingContext(), ctx => {
-      let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
-      this.buffer = imgData.data;
-    });
+    switch (srcImage.getType()) {
+      case FimImageType.FimCanvas:
+        // Copy data from a normal HtmlCanvas
+        using(srcImage.createDrawingContext(), ctx => {
+          let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
+          this.buffer = imgData.data;
+        });
+        break;
+
+      case FimImageType.FimGLCanvas:
+        // We can't get a 2D drawing context directly to a WebGL canvas. Instead, copy the part we want first to a
+        // temporary canvas.
+        using(new FimCanvas(srcCoords.w, srcCoords.h), temp => {
+          temp.copyFromCanvas(srcImage, srcCoords);
+          this.copyFromCanvasInternal(temp, temp.dimensions); // Recurse
+        });
+        break;
+
+      default:
+        // Unknown srcImage type
+        throw new Error('Unknown');
+    }
   }
 
   /**
