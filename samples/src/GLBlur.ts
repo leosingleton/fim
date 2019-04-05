@@ -7,6 +7,7 @@ import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, Ga
 import { Stopwatch, TaskScheduler, usingAsync } from '@leosingleton/commonlibs';
 
 const kernelSize = 31;
+const reps = 5;
 
 export async function glBlur(canvasId: string): Promise<void> {
   console.log('Starting WebGL blur sample...');
@@ -33,9 +34,9 @@ export async function glBlur(canvasId: string): Promise<void> {
 
   // Animation loop
   let clock = Stopwatch.startNew();
+  let frameCount = 0;  
   while (true) {
     await TaskScheduler.yield();
-    console.log('Rendering frame');
 
     // Vary the sigma from 0 to 2 every 10 seconds
     let time = clock.getElapsedMilliseconds() % 10000;
@@ -54,7 +55,7 @@ export async function glBlur(canvasId: string): Promise<void> {
       // Copy temp to temp on subsequent runs
       await TaskScheduler.yield();
       program.setInputs(temp, kernel);
-      for (let n = 0; n < 3; n++) {
+      for (let n = 0; n < reps - 2; n++) {
         program.execute(temp);
       }
   
@@ -66,5 +67,7 @@ export async function glBlur(canvasId: string): Promise<void> {
     // Copy the result to the screen
     let ctx = output.getContext('2d');
     ctx.drawImage(gl.getCanvas(), 0, 0);
+
+    console.log('Rendered frame. FPS=' + (++frameCount * 1000 / clock.getElapsedMilliseconds()));
   }
 }

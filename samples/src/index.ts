@@ -3,3 +3,4 @@
 // See LICENSE in the project root for license information.
 
 export * from './GLBlur';
+export * from './GLBlurGrid';

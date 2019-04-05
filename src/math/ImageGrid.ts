@@ -24,9 +24,9 @@ export class ImageGrid implements IFimDimensions {
    */
   public constructor(width: number, height: number, tileWidth: number, tileHeight: number, overlap = 0,
       maxHorizontalTiles = 0, maxVerticalTiles = 0) {
-    // Validate input
+    // Ensure overlap is even. If not, round up.
     if (overlap % 2 !== 0) {
-      throw new Error('overlap not even');
+      overlap++;
     }
 
     // Initialize the IFimDimensions variables

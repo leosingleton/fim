@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Gaussian Blur using WebGL on 1024x1024 tiles</title>
+    <script src="samples.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <canvas id="output"></canvas>
+    <script>
+      window.onload = function() {
+        Samples.glBlurGrid('output');
+      }
+    </script>
+  </body>
+</html>
