@@ -20,7 +20,7 @@ var config = {
     ]
   },
   resolve: {
-    extensions: [ '.glsl', '.ts' ]
+    extensions: [ '.glsl', '.ts', '.js' ]
   },
   plugins: [
     new CopyWebpackPlugin([
