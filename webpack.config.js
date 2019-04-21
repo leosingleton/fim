@@ -20,6 +20,9 @@ var config = {
   resolve: {
     extensions: [ '.glsl', '.ts' ]
   },
+  externals: [
+    '@leosingleton/commonlibs'
+  ],
   output: {
     path: path.resolve(__dirname, 'build/dist'),
     filename: 'index.js',
