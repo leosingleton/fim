@@ -19,7 +19,7 @@ var config = {
     ]
   },
   resolve: {
-    extensions: [ '.glsl', '.ts', '.js' ]
+    extensions: [ '.glsl', '.ts' ]
   },
   output: {
     path: path.resolve(__dirname, 'build/test'),
