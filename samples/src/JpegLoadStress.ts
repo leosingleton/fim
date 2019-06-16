@@ -9,7 +9,7 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
   console.log('Starting JPEG load stress test...');
 
   // Load a sample JPEG image into a byte array
-  let url = '/test.jpg';
+  let url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
   let fetchResponse = await fetch(url, { method: 'GET' });
   let jpeg = await fetchResponse.arrayBuffer();
   
