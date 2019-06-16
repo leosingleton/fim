@@ -4,3 +4,4 @@
 
 export * from './GLBlur';
 export * from './GLBlurGrid';
+export * from './JpegLoadStress';
