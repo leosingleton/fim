@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ImageGrid } from '../ImageGrid';
+import { ImageGrid, ImageGridFlags } from '../ImageGrid';
 import { FimRect, FimPoint, FimColor } from '../../primitives';
 import { DisposableSet } from '@leosingleton/commonlibs';
 import { FimRgbaBuffer } from '../../image';
@@ -140,6 +140,11 @@ describe('ImageGrid', () => {
         }
       }
     });
+  });
+
+  it('Calculates with ZeroCenter flags', () => {
+    let grid = new ImageGrid(5313, 2988, 2048, 2048, 0, 0, 0, ImageGridFlags.ZeroCenterX | ImageGridFlags.ZeroCenterY);
+    expect(grid.tiles.length).toEqual(8);
   });
 
 });

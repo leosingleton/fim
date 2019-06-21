@@ -4,6 +4,18 @@
 
 import { FimPoint, FimRect, IFimDimensions } from '../primitives';
 
+/** Flags for the ImageGrid constructor */
+export const enum ImageGridFlags {
+  /** Default value */
+  None = 0,
+
+  /** Centers tiles so that X=0 is the boundary between two tiles on the horizontal axis */  
+  ZeroCenterX = (1 << 0),
+
+  /** Centers tiles so that Y=0 is the boundary between two tiles on the vertical axis */
+  ZeroCenterY = (1 << 1)
+}
+
 /**
  * Performs calculations for splitting a large image into a grid of smaller tiles. Used to improve the overall
  * responsiveness of an app by processing an individual tile at a time.
@@ -21,12 +33,27 @@ export class ImageGrid implements IFimDimensions {
    *    The image is centered and cropped to ensure we do not exceed the maximum number of tiles.
    * @param maxVerticalTiles Maximum number of tiles in the vertical direction. Zero is used to indicate no limit.
    *    The image is centered and cropped to ensure we do not exceed the maximum number of tiles.
+   * @param flags Optional flags from the ImageGridFlags enum
    */
   public constructor(width: number, height: number, tileWidth: number, tileHeight: number, overlap = 0,
-      maxHorizontalTiles = 0, maxVerticalTiles = 0) {
+      maxHorizontalTiles = 0, maxVerticalTiles = 0, flags = ImageGridFlags.None) {
     // Ensure overlap is even. If not, round up.
     if (overlap % 2 !== 0) {
       overlap++;
+    }
+
+    // Enforce constraints on the max tiles based on the flags to zero center
+    if (flags & ImageGridFlags.ZeroCenterX) {
+      if (maxHorizontalTiles === 1) {
+        throw new Error('maxHorizontalTiles');
+      }
+      maxHorizontalTiles += maxHorizontalTiles % 2; // Round up to an even number
+    }
+    if (flags & ImageGridFlags.ZeroCenterY) {
+      if (maxVerticalTiles === 1) {
+        throw new Error('maxVerticalTiles');
+      }
+      maxVerticalTiles += maxVerticalTiles % 2; // Round up to an even number
     }
 
     // Initialize the IFimDimensions variables
@@ -35,7 +62,7 @@ export class ImageGrid implements IFimDimensions {
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
 
     // First, calculate the number of tiles to use in each direction
-    function getTileCount(srcSize: number, tileSize: number, max: number): number {
+    function getTileCount(srcSize: number, tileSize: number, max: number, zeroCenter: boolean): number {
       // If we didn't support overlap, this would simply be solving for n:
       //                           tileSize * n >= srcSize
       //
@@ -52,13 +79,16 @@ export class ImageGrid implements IFimDimensions {
       //                                            tileSize - overlap
       let n = (srcSize - overlap) / (tileSize - overlap);
       n = Math.ceil(n);
+      if (zeroCenter) {
+        n += n % 2; // Round up to an even number
+      }
       if (max > 0) {
         n = Math.min(n, max);
       }
       return n;
     }
-    let tilesH = getTileCount(width, tileWidth, maxHorizontalTiles);
-    let tilesV = getTileCount(height, tileHeight, maxVerticalTiles);
+    let tilesH = getTileCount(width, tileWidth, maxHorizontalTiles, (flags & ImageGridFlags.ZeroCenterX) !== 0);
+    let tilesV = getTileCount(height, tileHeight, maxVerticalTiles, (flags & ImageGridFlags.ZeroCenterY) !== 0);
 
     // Next, calculate the size of the image represented by the tiles
     function getTotalTileSize(tileSize: number, tileCount: number): number {
