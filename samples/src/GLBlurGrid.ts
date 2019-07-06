@@ -61,8 +61,8 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
       await TaskScheduler.yield();
 
       // Load the input image onto the texture
-      input.copyFromCanvas(canvas, tile.inputFull, tile.inputTile);
-      texture.copyFromCanvas(input);
+      input.copyFrom(canvas, tile.inputFull, tile.inputTile);
+      texture.copyFrom(input);
 
       // Copy texture to texture on subsequent all but the last run
       program.setInputs(texture, kernel);
