@@ -4,7 +4,7 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageType } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind } from '../image';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -98,9 +98,7 @@ export class FimGLTexture extends FimImage {
     }
   }
 
-  public getType(): FimImageType {
-    return FimImageType.FimGLTexture;
-  }
+  public kind: FimImageKind.FimGLTexture;
 
   public bind(textureUnit: number): void {
     let gl = this.gl;

@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage } from './FimImage';
-import { FimImageType } from './FimImageType';
+import { FimImageKind } from './FimImageKind';
 import { FimRect } from '../primitives';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 
@@ -24,9 +24,7 @@ export class FimGreyscaleBuffer extends FimImage {
     }
   }
 
-  public getType(): FimImageType {
-    return FimImageType.FimGreyscaleBuffer;
-  }
+  public kind: FimImageKind.FimGreyscaleBuffer;
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {

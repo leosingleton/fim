@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-export const enum FimImageType {
+export const enum FimImageKind {
   FimCanvas,
   FimGLCanvas,
   FimGLTexture,

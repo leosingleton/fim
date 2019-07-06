@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage } from './FimImage';
-import { FimImageType } from './FimImageType';
+import { FimImageKind } from './FimImageKind';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
@@ -39,9 +39,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
   }
   protected canvasElement: HTMLCanvasElement;
 
-  public getType(): FimImageType {
-    return FimImageType.FimCanvas;
-  }
+  public kind: FimImageKind.FimCanvas;
 
   public dispose(): void {
     if (this.canvasElement) {

@@ -4,7 +4,7 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimImageType } from '../image';
+import { FimCanvas, FimImageKind } from '../image';
 import { IDisposable } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
@@ -48,9 +48,7 @@ export class FimGLCanvas extends FimCanvas {
     }, false);
   }
 
-  public getType(): FimImageType {
-    return FimImageType.FimGLCanvas;
-  }
+  public kind: FimImageKind.FimGLCanvas;
 
   public registerObject(object: IFimGLContextNotify): void {
     this.objects.push(object);

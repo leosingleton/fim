@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { IDisposable } from '@leosingleton/commonlibs';
-import { FimImageType } from './FimImageType';
+import { FimImageKind } from './FimImageKind';
 import { FimRect, IFimDimensions } from '../primitives';
 
 /**
@@ -17,8 +17,8 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
   }
 
-  /** Returns a value from the FimImageType enum indicating the implementation of the class */
-  public abstract getType(): FimImageType;
+  /** Returns a value from the FimImageKind enum indicating the implementation of the class */
+  public abstract kind: FimImageKind;
 
   // IFimDimensions implementation
   public readonly w: number;
