@@ -8,11 +8,12 @@ import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
 import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
-import { IFimCopyFromCanvas, IFimCopyFromRgbaBuffer, IFimCopyFromRgbaBufferAsync } from './IFimCopyInterfaces';
+import { IFimCopyFromCanvas, IFimCopyFromRgbaBuffer, IFimCopyFromRgbaBufferAsync, IFimCopyToCanvas,
+  IFimCopyToRgbaBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimImage implements IFimGetSetPixel, IFimCopyFromCanvas, IFimCopyFromRgbaBuffer,
-    IFimCopyFromRgbaBufferAsync {
+    IFimCopyFromRgbaBufferAsync, IFimCopyToCanvas, IFimCopyToRgbaBuffer {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -211,6 +212,26 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel, IFimCopyFrom
         this.copyFromCanvas(temp, srcCoords, destCoords);
       });
     }
+  }
+
+  /**
+   * Copies image to another FimCanvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToCanvas(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromCanvas(this, srcCoords, destCoords);
+  }
+
+    /**
+   * Copies image to a FimRgbaBuffer. Supports cropping, but not rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromCanvas(this, srcCoords, destCoords);
   }
 
   public getPixel(x: number, y: number): FimColor {

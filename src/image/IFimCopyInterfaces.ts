@@ -22,3 +22,19 @@ export interface IFimCopyFromRgbaBuffer {
 export interface IFimCopyFromRgbaBufferAsync {
   copyFromRgbaBufferAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): Promise<void>;
 }
+
+export interface IFimCopyToCanvas {
+  copyToCanvas(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void;
+}
+
+export interface IFimCopyToCanvasAsync {
+  copyToCanvasAsync(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void>;
+}
+
+export interface IFimCopyToGreyscaleBuffer {
+  copyToGreyscaleBuffer(destImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+}
+
+export interface IFimCopyToRgbaBuffer {
+  copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+}

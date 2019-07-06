@@ -9,11 +9,12 @@ import { FimImageType } from './FimImageType';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
-import { IFimCopyFromGreyscaleBuffer, IFimCopyFromRgbaBuffer } from './IFimCopyInterfaces';
+import { IFimCopyFromGreyscaleBuffer, IFimCopyFromRgbaBuffer, IFimCopyToCanvas, IFimCopyToCanvasAsync,
+  IFimCopyToRgbaBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
 export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel, IFimCopyFromGreyscaleBuffer,
-    IFimCopyFromRgbaBuffer {
+    IFimCopyFromRgbaBuffer, IFimCopyToCanvas, IFimCopyToCanvasAsync, IFimCopyToRgbaBuffer {
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param width Canvas width, in pixels
@@ -177,6 +178,37 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel, IFimCopy
       let destOffset = ((y + destCoords.yTop) * this.w + destCoords.xLeft) * 4;
       destBuf.set(srcBuf.subarray(srcOffset, srcOffset + (destCoords.w * 4)), destOffset);
     }
+  }
+
+  /**
+   * Copies image to a FimCanvas. Supports both cropping and rescaling.
+   * Note that the async version of this function is faster on most web browsers!
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToCanvas(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromRgbaBuffer(this, srcCoords, destCoords);
+  }
+
+  /**
+   * Copies image to a FimCanvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToCanvasAsync(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+    return destImage.copyFromRgbaBufferAsync(this, srcCoords, destCoords);
+  }
+
+  /**
+   * Copies image to another FimRgbaBuffer. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromRgbaBuffer(this, srcCoords, destCoords);
   }
 
   public getPixel(x: number, y: number): FimColor {

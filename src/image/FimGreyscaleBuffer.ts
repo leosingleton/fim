@@ -5,10 +5,12 @@
 import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
 import { FimRect } from '../primitives';
-import { IFimCopyFromGreyscaleBuffer } from './IFimCopyInterfaces';
+import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { IFimCopyFromGreyscaleBuffer, IFimCopyToGreyscaleBuffer, IFimCopyToRgbaBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
-export class FimGreyscaleBuffer extends FimImage implements IFimCopyFromGreyscaleBuffer {
+export class FimGreyscaleBuffer extends FimImage implements IFimCopyFromGreyscaleBuffer, IFimCopyToGreyscaleBuffer,
+    IFimCopyToRgbaBuffer {
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
    * @param width Canvas width, in pixels
@@ -73,6 +75,26 @@ export class FimGreyscaleBuffer extends FimImage implements IFimCopyFromGreyscal
       let destOffset = (y + destCoords.yTop) * this.w + destCoords.xLeft;
       destBuf.set(srcBuf.subarray(srcOffset, srcOffset + destCoords.w), destOffset);
     }
+  }
+
+  /**
+   * Copies image to another FimGreyscaleBuffer. Supports cropping, but not rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToGreyscaleBuffer(destImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromGreyscaleBuffer(this, srcCoords, destCoords);
+  }
+
+  /**
+   * Copies image to a FimRgbaBuffer. Supports cropping, but not rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromGreyscaleBuffer(this, srcCoords, destCoords);
   }
 
   public getPixel(x: number, y: number): number {
