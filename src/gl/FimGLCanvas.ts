@@ -4,7 +4,7 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer } from '../image';
+import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer } from '../image';
 import { FimColor, FimRect } from '../primitives';
 import { IDisposable, using } from '@leosingleton/commonlibs';
 
@@ -166,6 +166,23 @@ export class FimGLCanvas extends FimCanvasBase {
     // from returning null. The workaround is for the caller to copy the FimGLCanvas to a FimCanvas first, then get a
     // drawing context to the non-WebGL FimCanvas.
     throw new FimGLError(FimGLErrorCode.InvalidOperation);
+  }
+
+  /** Creates a new FimCanvas which is a duplicate of this one */
+  public duplicate(): FimCanvas {
+    let dupe = new FimCanvas(this.dimensions.w, this.dimensions.h);
+    dupe.copyFrom(this, this.dimensions, this.dimensions);
+    return dupe;
+  }
+
+  /**
+   * Copies image to another FimCanvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToCanvas(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
   }
 
   /**

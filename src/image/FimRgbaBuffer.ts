@@ -105,7 +105,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
         // We can't get a 2D drawing context directly to a WebGL canvas. Instead, copy the part we want first to a
         // temporary canvas.
         using(new FimCanvas(srcCoords.w, srcCoords.h), temp => {
-          temp.copyFromCanvas(srcImage, srcCoords);
+          temp.copyFrom(srcImage, srcCoords);
           this.copyFromCanvasInternal(temp, temp.dimensions); // Recurse
         });
         break;
@@ -184,7 +184,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    * @param destCoords Coordinates of destination image to copy to
    */
   public copyToCanvas(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFromRgbaBuffer(this, srcCoords, destCoords);
+    destImage.copyFrom(this, srcCoords, destCoords);
   }
 
   /**
@@ -194,7 +194,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    * @param destCoords Coordinates of destination image to copy to
    */
   public copyToCanvasAsync(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
-    return destImage.copyFromRgbaBufferAsync(this, srcCoords, destCoords);
+    return destImage.copyFromAsync(this, srcCoords, destCoords);
   }
 
   /**
