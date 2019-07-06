@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { IDisposable } from '@leosingleton/commonlibs';
+import { FimImageKind } from './FimImageKind';
 import { FimRect, IFimDimensions } from '../primitives';
 
 /**
@@ -10,14 +11,14 @@ import { FimRect, IFimDimensions } from '../primitives';
  * of the image itself may be changed with copyFrom() or other functions.
  */
 export abstract class FimImage implements IDisposable, IFimDimensions {
+  /** Returns a value from the FimImageKind string union indicating the implementation of the class */
+  public abstract readonly kind: FimImageKind;
+
   public constructor(width: number, height: number) {
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
   }
-
-  /** Returns a value from the FimImageKind enum indicating the implementation of the class */
-  public abstract readonly kind: string;
 
   // IFimDimensions implementation
   public readonly w: number;

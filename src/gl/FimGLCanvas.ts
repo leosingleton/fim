@@ -4,12 +4,14 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvasBase, FimImageKind, FimRgbaBuffer } from '../image';
+import { FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer } from '../image';
 import { FimColor, FimRect } from '../primitives';
 import { IDisposable, using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase {
+  public readonly kind = FimImageKindGLCanvas;
+
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
@@ -48,8 +50,6 @@ export class FimGLCanvas extends FimCanvasBase {
       this.objects.forEach(o => o.onContextRestored());
     }, false);
   }
-
-  public readonly kind = FimImageKind.FimGLCanvas;
 
   public registerObject(object: IFimGLContextNotify): void {
     this.objects.push(object);

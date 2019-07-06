@@ -5,7 +5,7 @@
 import { FimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
-import { FimImageKind } from './FimImageKind';
+import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer } from './FimImageKind';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimGLCanvas } from '../gl';
 import { FimRect, FimColor } from '../primitives';
@@ -13,6 +13,8 @@ import { using } from '@leosingleton/commonlibs';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
 export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
+  public readonly kind = FimImageKindRgbaBuffer;
+
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param width Canvas width, in pixels
@@ -27,8 +29,6 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
       this.fill(initialColor);
     }
   }
-
-  public readonly kind = FimImageKind.FimRgbaBuffer;
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {
@@ -93,7 +93,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
 
   private copyFromCanvasInternal(srcImage: FimCanvas | FimGLCanvas, srcCoords: FimRect): void {
     switch (srcImage.kind) {
-      case FimImageKind.FimCanvas:
+      case FimImageKindCanvas:
         // Copy data from a normal HtmlCanvas
         using(srcImage.createDrawingContext(), ctx => {
           let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
@@ -101,7 +101,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
         });
         break;
 
-      case FimImageKind.FimGLCanvas:
+      case FimImageKindGLCanvas:
         // We can't get a 2D drawing context directly to a WebGL canvas. Instead, copy the part we want first to a
         // temporary canvas.
         using(new FimCanvas(srcCoords.w, srcCoords.h), temp => {

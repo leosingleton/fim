@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvasBase } from './FimCanvasBase';
-import { FimImageKind } from './FimImageKind';
+import { FimImageKindCanvas } from './FimImageKind';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
@@ -11,6 +11,8 @@ import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
+  public readonly kind = FimImageKindCanvas;
+
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -24,8 +26,6 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
       this.fill(initialColor);
     }
   }
-
-  public readonly kind = FimImageKind.FimCanvas;
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {

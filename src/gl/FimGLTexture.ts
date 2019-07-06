@@ -4,7 +4,7 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture } from '../image';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -35,6 +35,8 @@ export const enum FimGLTextureFlags {
 
 /** Wrapper class for WebGL textures */
 export class FimGLTexture extends FimImage {
+  public readonly kind: FimImageKind;
+
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -58,7 +60,7 @@ export class FimGLTexture extends FimImage {
     }
 
     super(width, height);
-    this.kind = FimImageKind.FimGLTexture;
+    this.kind = FimImageKindGLTexture;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -98,8 +100,6 @@ export class FimGLTexture extends FimImage {
       FimGLError.throwOnError(gl);
     }
   }
-
-  public readonly kind: string;
 
   public bind(textureUnit: number): void {
     let gl = this.gl;
