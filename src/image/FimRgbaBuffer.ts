@@ -9,12 +9,9 @@ import { FimImageType } from './FimImageType';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
-import { IFimCopyFromGreyscaleBuffer, IFimCopyFromRgbaBuffer, IFimCopyToCanvas, IFimCopyToCanvasAsync,
-  IFimCopyToRgbaBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
-export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel, IFimCopyFromGreyscaleBuffer,
-    IFimCopyFromRgbaBuffer, IFimCopyToCanvas, IFimCopyToCanvasAsync, IFimCopyToRgbaBuffer {
+export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param width Canvas width, in pixels

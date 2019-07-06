@@ -8,12 +8,9 @@ import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
 import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
-import { IFimCopyFromCanvas, IFimCopyFromRgbaBuffer, IFimCopyFromRgbaBufferAsync, IFimCopyToCanvas,
-  IFimCopyToRgbaBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
-export class FimCanvas extends FimImage implements IFimGetSetPixel, IFimCopyFromCanvas, IFimCopyFromRgbaBuffer,
-    IFimCopyFromRgbaBufferAsync, IFimCopyToCanvas, IFimCopyToRgbaBuffer {
+export class FimCanvas extends FimImage implements IFimGetSetPixel {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels

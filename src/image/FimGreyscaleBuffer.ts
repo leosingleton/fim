@@ -6,11 +6,9 @@ import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
 import { FimRect } from '../primitives';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
-import { IFimCopyFromGreyscaleBuffer, IFimCopyToGreyscaleBuffer, IFimCopyToRgbaBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
-export class FimGreyscaleBuffer extends FimImage implements IFimCopyFromGreyscaleBuffer, IFimCopyToGreyscaleBuffer,
-    IFimCopyToRgbaBuffer {
+export class FimGreyscaleBuffer extends FimImage {
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
    * @param width Canvas width, in pixels
