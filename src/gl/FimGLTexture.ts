@@ -4,7 +4,8 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture, FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
+  FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
 import { FimRect } from '../primitives';
 
 /** Flags for FimGLTexture creation */
@@ -128,16 +129,16 @@ export class FimGLTexture extends FimImage {
     switch (srcImage.kind) {
       case FimImageKindCanvas:
       case FimImageKindGLCanvas:
-        this.copyFromCanvas(srcImage);
-        break;
+        return this.copyFromCanvas(srcImage);
 
       case FimImageKindGreyscaleBuffer:
-        this.copyFromGreyscaleBuffer(srcImage);
-        break;
+        return this.copyFromGreyscaleBuffer(srcImage);
 
       case FimImageKindRgbaBuffer:
-        this.copyFromRgbaBuffer(srcImage);
-        break;
+        return this.copyFromRgbaBuffer(srcImage);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
     }
   }
   

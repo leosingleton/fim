@@ -4,7 +4,7 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer } from '../image';
+import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer, FimImageKindCanvas, FimImageKindRgbaBuffer } from '../image';
 import { FimColor, FimRect } from '../primitives';
 import { IDisposable, using } from '@leosingleton/commonlibs';
 
@@ -184,7 +184,7 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
 

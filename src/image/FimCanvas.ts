@@ -103,12 +103,13 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     switch (srcImage.kind) {
       case FimImageKindCanvas:
       case FimImageKindGLCanvas:
-        this.copyFromCanvas(srcImage, srcCoords, destCoords);
-        break;
+        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
 
       case FimImageKindRgbaBuffer:
-        this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
-        break;
+        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
     }
   }
 
@@ -123,8 +124,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     switch (srcImage.kind) {
       case FimImageKindCanvas:
       case FimImageKindGLCanvas:
-        this.copyFromCanvas(srcImage, srcCoords, destCoords);
-        break;
+        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
 
       case FimImageKindRgbaBuffer:
         // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
@@ -133,10 +133,11 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
         // tests. However, createImageBitmap() is not yet supported on Safari or Edge.
         if (typeof createImageBitmap !== 'undefined') {
           return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
-        } else {
-          this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
         }
-        break;
+        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
     }
   }
 

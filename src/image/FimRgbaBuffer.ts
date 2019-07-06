@@ -5,7 +5,8 @@
 import { FimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
-import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer, FimImageKindGreyscaleBuffer } from './FimImageKind';
+import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer,
+  FimImageKindGreyscaleBuffer } from './FimImageKind';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimGLCanvas } from '../gl';
 import { FimRect, FimColor } from '../primitives';
@@ -76,16 +77,16 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     switch (srcImage.kind) {
       case FimImageKindCanvas:
       case FimImageKindGLCanvas:
-        this.copyFromCanvas(srcImage, srcCoords, destCoords);
-        break;
+        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
 
       case FimImageKindGreyscaleBuffer:
-        this.copyFromGreyscaleBuffer(srcImage, srcCoords, destCoords);
-        break;
+        return this.copyFromGreyscaleBuffer(srcImage, srcCoords, destCoords);
 
       case FimImageKindRgbaBuffer:
-        this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
-        break;
+        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
     }
   }
 
@@ -135,8 +136,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
         break;
 
       default:
-        // Unknown srcImage type
-        throw new Error('Unknown');
+        this.throwOnInvalidImageKind(srcImage);
     }
   }
 
@@ -201,34 +201,41 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
 
   /**
-   * Copies image to a FimCanvas. Supports both cropping and rescaling.
-   * Note that the async version of this function is faster on most web browsers!
+   * Copies image to another.
+   * 
+   * FimCanvas supports both cropping and rescaling, however FimRgbaBuffer supports only cropping.
+   * 
+   * Note that for FimCanvas destinations, the copyToAsync() version of this function is faster on most web browsers!
+   * 
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyToCanvas(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
 
   /**
-   * Copies image to a FimCanvas. Supports both cropping and rescaling.
+   * Copies image to another.
+   * 
+   * FimCanvas supports both cropping and rescaling, however FimRgbaBuffer supports only cropping.
+   * 
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyToCanvasAsync(destImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
-    return destImage.copyFromAsync(this, srcCoords, destCoords);
-  }
+  public async copyToAsync(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+      Promise<void> {
+    switch (destImage.kind) {
+      case FimImageKindCanvas:
+        return destImage.copyFromAsync(this, srcCoords, destCoords);
 
-  /**
-   * Copies image to another FimRgbaBuffer. Supports cropping, but not rescaling.
-   * @param srcImage Source image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
-  public copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFromRgbaBuffer(this, srcCoords, destCoords);
+      case FimImageKindRgbaBuffer:
+        return destImage.copyFrom(this, srcCoords, destCoords);
+
+      default:
+        this.throwOnInvalidImageKind(destImage);
+    }
   }
 
   public getPixel(x: number, y: number): FimColor {

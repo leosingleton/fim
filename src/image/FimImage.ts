@@ -49,4 +49,13 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
       throw new Error('Crop and rescale not supported: ' + this.dimensions + ' ' + srcImage.dimensions);
     }
   }
+
+  /**
+   * Helper function called by functions that use union types and encounter an invalid FimImage type. This uses
+   * TypeScript's never type to generate compile-time warnings for unhandled types.
+   * @param fimImage Invalid FimImage object
+   */
+  protected throwOnInvalidImageKind(fimImage: never): never {
+    throw new Error('Invalid kind: ' + fimImage);
+  }
 }
