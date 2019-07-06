@@ -5,9 +5,10 @@
 import { FimImage } from './FimImage';
 import { FimImageType } from './FimImageType';
 import { FimRect } from '../primitives';
+import { IFimCopyFromGreyscaleBuffer } from './IFimCopyInterfaces';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
-export class FimGreyscaleBuffer extends FimImage {
+export class FimGreyscaleBuffer extends FimImage implements IFimCopyFromGreyscaleBuffer {
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
    * @param width Canvas width, in pixels

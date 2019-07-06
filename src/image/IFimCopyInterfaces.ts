@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas } from './FimCanvas';
+import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { FimRect } from '../primitives/FimRect';
 
@@ -10,8 +11,12 @@ export interface IFimCopyFromCanvas {
   copyFromCanvas(srcImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void;
 }
 
+export interface IFimCopyFromGreyscaleBuffer {
+  copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+}
+
 export interface IFimCopyFromRgbaBuffer {
-  copyFromRgbaBufferAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+  copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
 }
 
 export interface IFimCopyFromRgbaBufferAsync {
