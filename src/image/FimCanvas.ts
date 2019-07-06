@@ -7,10 +7,12 @@ import { FimImageType } from './FimImageType';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
-import { using, usingAsync, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { IFimCopyFromCanvas, IFimCopyFromRgbaBuffer, IFimCopyFromRgbaBufferAsync } from './IFimCopyInterfaces';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
-export class FimCanvas extends FimImage implements IFimGetSetPixel {
+export class FimCanvas extends FimImage implements IFimGetSetPixel, IFimCopyFromCanvas, IFimCopyFromRgbaBuffer,
+    IFimCopyFromRgbaBufferAsync {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -137,15 +139,16 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public async copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+  public async copyFromRgbaBufferAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+      Promise<void> {
     // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
     // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
     // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit tests.
     // However, createImageBitmap() is not yet supported on Safari or Edge.
     if (typeof createImageBitmap !== 'undefined') {
-      return this.copyFromRgbaBufferWithImageBitmap(srcImage, srcCoords, destCoords);
+      return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
     } else {
-      this.copyFromRgbaBufferWithPutImageData(srcImage, srcCoords, destCoords);
+      this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
     }
   }
 
@@ -159,8 +162,8 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public async copyFromRgbaBufferWithImageBitmap(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
-      Promise<void> {
+  public async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
+      FimRect): Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -189,7 +192,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromRgbaBufferWithPutImageData(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -201,7 +204,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
         pixels.data.set(srcImage.getBuffer());
         ctx.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
       });
-    } else {  
+    } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
       using(new FimCanvas(srcImage.w, srcImage.h), temp => {
         temp.copyFromRgbaBuffer(srcImage);
@@ -223,7 +226,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
 
   public setPixel(x: number, y: number, color: FimColor): void {
     using(new FimRgbaBuffer(1, 1, color), buffer => {
-      this.copyFromRgbaBufferWithPutImageData(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      this.copyFromRgbaBuffer(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
 

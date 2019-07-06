@@ -118,15 +118,15 @@ describe('FimCanvas', () => {
   }
 
   it('Copies from FimRgbaBuffer with ImageBitmap', async () => {
-    await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBufferWithImageBitmap(src));
+    await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBufferWithImageBitmapAsync(src));
   });
 
   it('Copies from FimRgbaBuffer with PutImageData', async () => {
-    await copyFromRgbaBuffer(async (dest, src) => dest.copyFromRgbaBufferWithPutImageData(src));
+    await copyFromRgbaBuffer(async (dest, src) => dest.copyFromRgbaBuffer(src));
   });
 
   it('Copies from FimRgbaBuffer with browser detection', async () => {
-    await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBuffer(src));
+    await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBufferAsync(src));
   });
 
   it('Copies with crop', async () => {
