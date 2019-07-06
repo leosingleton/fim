@@ -4,7 +4,7 @@
 
 import { FimImage } from './FimImage';
 
-/** An image consisting of an invisible HTML canvas on the DOM */
+/** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
 export abstract class FimCanvasBase extends FimImage {
   /**
    * Creates an invisible canvas in the DOM
