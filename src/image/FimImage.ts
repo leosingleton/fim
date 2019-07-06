@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { IDisposable } from '@leosingleton/commonlibs';
-import { FimImageType } from './FimImageType';
+import { FimImageKind } from './FimImageKind';
 import { FimRect, IFimDimensions } from '../primitives';
 
 /**
@@ -11,14 +11,14 @@ import { FimRect, IFimDimensions } from '../primitives';
  * of the image itself may be changed with copyFrom() or other functions.
  */
 export abstract class FimImage implements IDisposable, IFimDimensions {
-  public constructor(width: number, height: number, bufferWidth?: number, bufferHeight?: number) {
+  /** Returns a value from the FimImageKind string union indicating the implementation of the class */
+  public abstract readonly kind: FimImageKind;
+
+  public constructor(width: number, height: number) {
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
   }
-
-  /** Returns a value from the FimImageType enum indicating the implementation of the class */
-  public abstract getType(): FimImageType;
 
   // IFimDimensions implementation
   public readonly w: number;
@@ -48,5 +48,14 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
     if (!this.dimensions.equals(srcImage.dimensions)) {
       throw new Error('Crop and rescale not supported: ' + this.dimensions + ' ' + srcImage.dimensions);
     }
+  }
+
+  /**
+   * Helper function called by functions that use union types and encounter an invalid FimImage type. This uses
+   * TypeScript's never type to generate compile-time warnings for unhandled types.
+   * @param fimImage Invalid FimImage object
+   */
+  protected throwOnInvalidImageKind(fimImage: never): never {
+    throw new Error('Invalid kind: ' + fimImage);
   }
 }

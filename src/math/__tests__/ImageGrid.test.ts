@@ -130,7 +130,7 @@ describe('ImageGrid', () => {
 
       let grid = new ImageGrid(output.w, output.h, redTile.w, redTile.h, 12);
       grid.tiles.forEach(tile => {
-        output.copyFromRgbaBuffer(redTile, tile.outputTile, tile.outputFull);
+        output.copyFrom(redTile, tile.outputTile, tile.outputFull);
       });
 
       let red = FimColor.fromString('#f00');

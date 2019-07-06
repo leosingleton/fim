@@ -4,7 +4,9 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageType } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
+  FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
+import { FimRect } from '../primitives';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -35,6 +37,8 @@ export const enum FimGLTextureFlags {
 
 /** Wrapper class for WebGL textures */
 export class FimGLTexture extends FimImage {
+  public readonly kind: FimImageKind;
+
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -58,6 +62,7 @@ export class FimGLTexture extends FimImage {
     }
 
     super(width, height);
+    this.kind = FimImageKindGLTexture;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -98,10 +103,6 @@ export class FimGLTexture extends FimImage {
     }
   }
 
-  public getType(): FimImageType {
-    return FimImageType.FimGLTexture;
-  }
-
   public bind(textureUnit: number): void {
     let gl = this.gl;
 
@@ -111,7 +112,37 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  public copyFromCanvas(srcImage: FimCanvas): void {
+  /**
+   * Copies image from another. Neither cropping nor rescaling is supported.
+   * @param srcImage Source image
+   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   */
+  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
+    // actually used.
+    if (srcCoords || destCoords) {
+      throw new Error('Coords not supported');
+    }
+
+    switch (srcImage.kind) {
+      case FimImageKindCanvas:
+      case FimImageKindGLCanvas:
+        return this.copyFromCanvas(srcImage);
+
+      case FimImageKindGreyscaleBuffer:
+        return this.copyFromGreyscaleBuffer(srcImage);
+
+      case FimImageKindRgbaBuffer:
+        return this.copyFromRgbaBuffer(srcImage);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
+    }
+  }
+  
+  private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas): void {
     let gl = this.gl;
 
     this.bind(0);
@@ -119,7 +150,7 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
+  private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
     let gl = this.gl;
 
     this.bind(0);
@@ -129,7 +160,7 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
+  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
 
     this.bind(0);
@@ -168,47 +199,25 @@ export class FimGLTexture extends FimImage {
   private textureFlags: FimGLTextureFlags;
 
   /**
-   * Creates a new WebGL texture from a greyscale byte array
+   * Creates a new WebGL texture from another image
    * @param canvas WebGL context
-   * @param srcImage Greyscale byte array
-   * @param extraFlags Additional flags. EightBit, Greyscale, and InputOnly are always enabled for textures created via
-   *    this function.
+   * @param srcImage Source image
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function. EightBit
+   *    and/or Greyscale may also be automatically set depending on the type of srcImage.
    */
-  public static createFromGreyscaleBuffer(canvas: FimGLCanvas, srcImage: FimGreyscaleBuffer,
+  public static createFrom(canvas: FimGLCanvas, srcImage: FimGreyscaleBuffer | FimRgbaBuffer | FimCanvas | FimGLCanvas,
       extraFlags = FimGLTextureFlags.None): FimGLTexture {
-    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.Greyscale | FimGLTextureFlags.InputOnly | extraFlags;
-    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
-    texture.copyFromGreyscaleBuffer(srcImage);
-    return texture;
-  }
+    // Calculate flags with defaults and extras
+    let flags = FimGLTextureFlags.InputOnly | extraFlags;
+    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+      flags |= FimGLTextureFlags.Greyscale;
+    }
+    if (srcImage.kind !== FimImageKindGLCanvas) {
+      flags |= FimGLTextureFlags.EightBit;
+    }
 
-  /**
-   * Creates a new WebGL texture from an RGBA byte array
-   * @param canvas WebGL context
-   * @param srcImage RGBA byte array
-   * @param extraFlags Additional flags. EightBit and InputOnly are always enabled for textures created via this
-   *    function.
-   */
-  public static createFromRgbaBuffer(canvas: FimGLCanvas, srcImage: FimRgbaBuffer,
-      extraFlags = FimGLTextureFlags.None): FimGLTexture {
-    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly | extraFlags;
     let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
-    texture.copyFromRgbaBuffer(srcImage);
-    return texture;
-  }
-
-  /**
-   * Creates a new WebGL texture from a canvas
-   * @param canvas WebGL context
-   * @param srcImage Canvas to load onto the texture
-   * @param extraFlags Additional flags. EightBit and InputOnly are always enabled for textures created via this
-   *    function.
-   */
-  public static createFromCanvas(canvas: FimGLCanvas, srcImage: FimCanvas, extraFlags = FimGLTextureFlags.None):
-      FimGLTexture {
-    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly | extraFlags;
-    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
-    texture.copyFromCanvas(srcImage);
+    texture.copyFrom(srcImage);
     return texture;
   }
 }

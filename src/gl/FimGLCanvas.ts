@@ -4,11 +4,14 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimImageType } from '../image';
-import { IDisposable } from '@leosingleton/commonlibs';
+import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer, FimImageKindCanvas, FimImageKindRgbaBuffer } from '../image';
+import { FimColor, FimRect } from '../primitives';
+import { IDisposable, using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
-export class FimGLCanvas extends FimCanvas {
+export class FimGLCanvas extends FimCanvasBase {
+  public readonly kind = FimImageKindGLCanvas;
+
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
@@ -46,10 +49,6 @@ export class FimGLCanvas extends FimCanvas {
       console.log('WebGL context restored');
       this.objects.forEach(o => o.onContextRestored());
     }, false);
-  }
-
-  public getType(): FimImageType {
-    return FimImageType.FimGLCanvas;
   }
 
   public registerObject(object: IFimGLContextNotify): void {
@@ -167,6 +166,37 @@ export class FimGLCanvas extends FimCanvas {
     // from returning null. The workaround is for the caller to copy the FimGLCanvas to a FimCanvas first, then get a
     // drawing context to the non-WebGL FimCanvas.
     throw new FimGLError(FimGLErrorCode.InvalidOperation);
+  }
+
+  /** Creates a new FimCanvas which is a duplicate of this one */
+  public duplicate(): FimCanvas {
+    let dupe = new FimCanvas(this.dimensions.w, this.dimensions.h);
+    dupe.copyFrom(this, this.dimensions, this.dimensions);
+    return dupe;
+  }
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas supports both cropping and rescaling, while FimRgbaBuffer only supports cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
+  }
+
+  public getPixel(x: number, y: number): FimColor {
+    let pixel: Uint8ClampedArray;
+
+    using(new FimRgbaBuffer(1, 1), buffer => {
+      buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      pixel = buffer.getBuffer();
+    });
+
+    return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
 }
 

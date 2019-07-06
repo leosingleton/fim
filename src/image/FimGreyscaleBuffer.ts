@@ -3,11 +3,14 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage } from './FimImage';
-import { FimImageType } from './FimImageType';
+import { FimImageKindGreyscaleBuffer } from './FimImageKind';
 import { FimRect } from '../primitives';
+import { FimRgbaBuffer } from './FimRgbaBuffer';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
 export class FimGreyscaleBuffer extends FimImage {
+  public readonly kind = FimImageKindGreyscaleBuffer;
+
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
    * @param width Canvas width, in pixels
@@ -21,10 +24,6 @@ export class FimGreyscaleBuffer extends FimImage {
     if (initialColor) {
       this.fill(initialColor);
     }
-  }
-
-  public getType(): FimImageType {
-    return FimImageType.FimGreyscaleBuffer;
   }
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
@@ -50,7 +49,7 @@ export class FimGreyscaleBuffer extends FimImage {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFrom(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -74,6 +73,16 @@ export class FimGreyscaleBuffer extends FimImage {
     }
   }
 
+  /**
+   * Copies image to another. Supports cropping, but not rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyTo(destImage: FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
+  }
+  
   public getPixel(x: number, y: number): number {
     return this.buffer[y * this.w + x];
   }

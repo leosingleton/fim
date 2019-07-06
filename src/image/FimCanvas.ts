@@ -2,15 +2,18 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimImage } from './FimImage';
-import { FimImageType } from './FimImageType';
+import { FimCanvasBase } from './FimCanvasBase';
+import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer } from './FimImageKind';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimColor, FimRect } from '../primitives';
-import { using, usingAsync, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { FimGLCanvas } from '../gl';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
-export class FimCanvas extends FimImage implements IFimGetSetPixel {
+export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
+  public readonly kind = FimImageKindCanvas;
+
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -20,33 +23,8 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
   public constructor(width: number, height: number, initialColor?: FimColor | string) {
     super(width, height);
 
-    // Create a hidden canvas
-    let canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.display = 'none';
-    document.body.appendChild(canvas);
-    this.canvasElement = canvas;
-
     if (initialColor) {
       this.fill(initialColor);
-    }
-  }
-
-  /** Returns the underlying HTMLCanvasElement */
-  public getCanvas(): HTMLCanvasElement {
-    return this.canvasElement;
-  }
-  protected canvasElement: HTMLCanvasElement;
-
-  public getType(): FimImageType {
-    return FimImageType.FimCanvas;
-  }
-
-  public dispose(): void {
-    if (this.canvasElement) {
-      document.body.removeChild(this.canvasElement);
-      delete this.canvasElement;
     }
   }
 
@@ -86,10 +64,10 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
    * Boilerplate code for performing a canvas compositing operation with two canvases. If input and output canvases
    * differ in size, the operation is scaled to fill the output canvas.
    */
-  private opWithSrcDest(inputCanvas: FimCanvas, operation: string, alpha: number, src: FimRect, dest: FimRect,
+  private opWithSrcDest(inputCanvas: FimCanvasBase, operation: string, alpha: number, src: FimRect, dest: FimRect,
       imageSmoothingEnabled = false): void {
     using(this.createDrawingContext(imageSmoothingEnabled, operation, alpha), ctx => {
-      ctx.drawImage(inputCanvas.canvasElement, src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
+      ctx.drawImage(inputCanvas.getCanvas(), src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
         dest.w, dest.h);
     });
   }
@@ -112,12 +90,58 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
   }
 
   /**
-   * Copies image from another FimCanvas. Supports both cropping and rescaling.
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * 
+   * Note that for FimRgbaBuffer inputs, the Async version of this function may be significantly faster on some web
+   * browsers.
+   * 
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromCanvas(srcImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    switch (srcImage.kind) {
+      case FimImageKindCanvas:
+      case FimImageKindGLCanvas:
+        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
+
+      case FimImageKindRgbaBuffer:
+        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
+    }
+  }
+
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public async copyFromAsync(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): Promise<void> {
+    switch (srcImage.kind) {
+      case FimImageKindCanvas:
+      case FimImageKindGLCanvas:
+        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
+
+      case FimImageKindRgbaBuffer:
+        // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
+        // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
+        // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit
+        // tests. However, createImageBitmap() is not yet supported on Safari or Edge.
+        if (typeof createImageBitmap !== 'undefined') {
+          return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
+        }
+        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+
+      default:
+        this.throwOnInvalidImageKind(srcImage);
+    }
+  }
+
+  private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -132,24 +156,6 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
   }
 
   /**
-   * Copies image from a FimRgbaBuffer. Supports both cropping and rescaling.
-   * @param srcImage Source image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
-  public async copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
-    // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
-    // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
-    // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit tests.
-    // However, createImageBitmap() is not yet supported on Safari or Edge.
-    if (typeof createImageBitmap !== 'undefined') {
-      return this.copyFromRgbaBufferWithImageBitmap(srcImage, srcCoords, destCoords);
-    } else {
-      this.copyFromRgbaBufferWithPutImageData(srcImage, srcCoords, destCoords);
-    }
-  }
-
-  /**
    * Copies image from a FimRgbaBuffer using createImageBitmap(). Supports both cropping and rescaling.
    * 
    * NOTE: This is generally faster than copyFromRgbaBufferWithPutImageData(), however it is not supported on all web
@@ -159,8 +165,8 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public async copyFromRgbaBufferWithImageBitmap(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
-      Promise<void> {
+  private async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
+      FimRect): Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -189,7 +195,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromRgbaBufferWithPutImageData(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -201,7 +207,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
         pixels.data.set(srcImage.getBuffer());
         ctx.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
       });
-    } else {  
+    } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
       using(new FimCanvas(srcImage.w, srcImage.h), temp => {
         temp.copyFromRgbaBuffer(srcImage);
@@ -210,11 +216,25 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
     }
   }
 
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas destinations support both cropping and rescaling, while FimRgbaBuffer destinations only support
+   * cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
+  }
+
   public getPixel(x: number, y: number): FimColor {
     let pixel: Uint8ClampedArray;
 
     using(new FimRgbaBuffer(1, 1), buffer => {
-      buffer.copyFromCanvas(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();
     });
 
@@ -223,7 +243,7 @@ export class FimCanvas extends FimImage implements IFimGetSetPixel {
 
   public setPixel(x: number, y: number, color: FimColor): void {
     using(new FimRgbaBuffer(1, 1, color), buffer => {
-      this.copyFromRgbaBufferWithPutImageData(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      this.copyFromRgbaBuffer(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
 
