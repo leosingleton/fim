@@ -49,7 +49,7 @@ export class FimGreyscaleBuffer extends FimImage {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFrom(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -74,25 +74,15 @@ export class FimGreyscaleBuffer extends FimImage {
   }
 
   /**
-   * Copies image to another FimGreyscaleBuffer. Supports cropping, but not rescaling.
+   * Copies image to another. Supports cropping, but not rescaling.
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyToGreyscaleBuffer(destImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFromGreyscaleBuffer(this, srcCoords, destCoords);
+  public copyTo(destImage: FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
   }
-
-  /**
-   * Copies image to a FimRgbaBuffer. Supports cropping, but not rescaling.
-   * @param destImage Destination image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
-  public copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFromGreyscaleBuffer(this, srcCoords, destCoords);
-  }
-
+  
   public getPixel(x: number, y: number): number {
     return this.buffer[y * this.w + x];
   }

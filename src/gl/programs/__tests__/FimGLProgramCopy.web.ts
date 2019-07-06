@@ -45,7 +45,7 @@ describe('FimGLProgramCopy', () => {
 
       // For additional test coverage, copy the output to an RGBA buffer and ensure it is also red
       let out = disposable.addDisposable(new FimRgbaBuffer(640, 480));
-      out.copyFromCanvas(canvas);
+      out.copyFrom(canvas);
       expect(canvas.getPixel(200, 300)).toEqual(FimColor.fromString('#f31'));
     });
   });

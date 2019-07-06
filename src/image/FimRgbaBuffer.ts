@@ -5,7 +5,7 @@
 import { FimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
-import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer } from './FimImageKind';
+import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer, FimImageKindGreyscaleBuffer } from './FimImageKind';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimGLCanvas } from '../gl';
 import { FimRect, FimColor } from '../primitives';
@@ -66,12 +66,36 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
   
   /**
+   * Copies image from another. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    switch (srcImage.kind) {
+      case FimImageKindCanvas:
+      case FimImageKindGLCanvas:
+        this.copyFromCanvas(srcImage, srcCoords, destCoords);
+        break;
+
+      case FimImageKindGreyscaleBuffer:
+        this.copyFromGreyscaleBuffer(srcImage, srcCoords, destCoords);
+        break;
+
+      case FimImageKindRgbaBuffer:
+        this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+        break;
+    }
+  }
+
+  /**
    * Copies image from a FimCanvas. Supports cropping, but not rescaling.
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -122,7 +146,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -152,7 +176,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;

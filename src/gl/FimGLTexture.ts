@@ -4,7 +4,8 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture } from '../image';
+import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture, FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
+import { FimRect } from '../primitives';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -110,7 +111,37 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  public copyFromCanvas(srcImage: FimCanvas): void {
+  /**
+   * Copies image from another. Neither cropping nor rescaling is supported.
+   * @param srcImage Source image
+   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   */
+  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
+    // actually used.
+    if (srcCoords || destCoords) {
+      throw new Error('Coords not supported');
+    }
+
+    switch (srcImage.kind) {
+      case FimImageKindCanvas:
+      case FimImageKindGLCanvas:
+        this.copyFromCanvas(srcImage);
+        break;
+
+      case FimImageKindGreyscaleBuffer:
+        this.copyFromGreyscaleBuffer(srcImage);
+        break;
+
+      case FimImageKindRgbaBuffer:
+        this.copyFromRgbaBuffer(srcImage);
+        break;
+    }
+  }
+  
+  private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas): void {
     let gl = this.gl;
 
     this.bind(0);
@@ -118,7 +149,7 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  public copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
+  private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
     let gl = this.gl;
 
     this.bind(0);
@@ -128,7 +159,7 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  public copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
+  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
 
     this.bind(0);

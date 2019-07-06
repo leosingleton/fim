@@ -48,7 +48,7 @@ describe('FimRgbaBuffer', () => {
       let dest = disposable.addDisposable(new FimRgbaBuffer(640, 480));
 
       // Copy src to dest
-      dest.copyFromRgbaBuffer(src);
+      dest.copyFrom(src);
 
       // Modify src
       src.fill(color2)
@@ -65,19 +65,19 @@ describe('FimRgbaBuffer', () => {
 
       // Top-left => red
       src.fill('#f00');
-      dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
       // Top-right => green
       src.fill('#0f0');
-      dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
       // Bottom-left => blue
       src.fill('#00f');
-      dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
       // Bottom-right => white
       src.fill('#fff');
-      dest.copyFromRgbaBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
 
       // Check a pixel in each of the four quadrants for the expected color
       expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#f00'));
@@ -101,7 +101,7 @@ describe('FimRgbaBuffer', () => {
       // Copy the center 100x100 to another buffer
       let crop = disposable.addDisposable(new FimRgbaBuffer(300, 300, '#000'));
       let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
-      crop.copyFromRgbaBuffer(orig, rect, rect);
+      crop.copyFrom(orig, rect, rect);
   
       // Ensure the pixels were copied by sampling 100 random ones
       for (let n = 0; n < 100; n++) {
@@ -129,19 +129,19 @@ describe('FimRgbaBuffer', () => {
 
       // Top-left => 0x00
       src.fill(0x00);
-      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
       // Top-right => 0x33
       src.fill(0x33);
-      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
       // Bottom-left => 0x66
       src.fill(0x66);
-      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
       // Bottom-right => 0x99
       src.fill(0x99);
-      dest.copyFromGreyscaleBuffer(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
 
       // Check a pixel in each of the four quadrants for the expected color
       expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#000'));
