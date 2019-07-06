@@ -27,7 +27,7 @@ export async function glBlur(canvasId: string): Promise<void> {
 
   // Create a WebGL canvas and texture containing the sample image
   let gl = new FimGLCanvas(canvas.w, canvas.h);
-  let texture = FimGLTexture.createFromCanvas(gl, canvas);
+  let texture = FimGLTexture.createFrom(gl, canvas);
 
   // Create a WebGL program to perform Gaussian blurs
   let program = new FimGLProgramMatrixOperation1D(gl, kernelSize);
