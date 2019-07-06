@@ -4,11 +4,12 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimImageKind } from '../image';
-import { IDisposable } from '@leosingleton/commonlibs';
+import { FimCanvasBase, FimImageKind, FimRgbaBuffer } from '../image';
+import { FimColor, FimRect } from '../primitives';
+import { IDisposable, using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
-export class FimGLCanvas extends FimCanvas {
+export class FimGLCanvas extends FimCanvasBase {
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
@@ -48,7 +49,7 @@ export class FimGLCanvas extends FimCanvas {
     }, false);
   }
 
-  public kind: FimImageKind.FimGLCanvas;
+  public readonly kind = FimImageKind.FimGLCanvas;
 
   public registerObject(object: IFimGLContextNotify): void {
     this.objects.push(object);
@@ -165,6 +166,27 @@ export class FimGLCanvas extends FimCanvas {
     // from returning null. The workaround is for the caller to copy the FimGLCanvas to a FimCanvas first, then get a
     // drawing context to the non-WebGL FimCanvas.
     throw new FimGLError(FimGLErrorCode.InvalidOperation);
+  }
+
+  /**
+   * Copies image to a FimRgbaBuffer. Supports cropping, but not rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyToRgbaBuffer(destImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFromCanvas(this, srcCoords, destCoords);
+  }
+
+  public getPixel(x: number, y: number): FimColor {
+    let pixel: Uint8ClampedArray;
+
+    using(new FimRgbaBuffer(1, 1), buffer => {
+      buffer.copyFromCanvas(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      pixel = buffer.getBuffer();
+    });
+
+    return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
 }
 

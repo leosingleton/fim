@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { IDisposable } from '@leosingleton/commonlibs';
-import { FimImageKind } from './FimImageKind';
 import { FimRect, IFimDimensions } from '../primitives';
 
 /**
@@ -18,7 +17,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   }
 
   /** Returns a value from the FimImageKind enum indicating the implementation of the class */
-  public abstract kind: FimImageKind;
+  public abstract readonly kind: string;
 
   // IFimDimensions implementation
   public readonly w: number;

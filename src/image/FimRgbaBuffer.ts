@@ -7,6 +7,7 @@ import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
 import { FimImageKind } from './FimImageKind';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { FimGLCanvas } from '../gl';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
@@ -27,7 +28,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     }
   }
 
-  public kind: FimImageKind.FimRgbaBuffer;
+  public readonly kind = FimImageKind.FimRgbaBuffer;
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {
@@ -70,7 +71,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFromCanvas(srcImage: FimCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
@@ -90,7 +91,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     }
   }
 
-  private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
+  private copyFromCanvasInternal(srcImage: FimCanvas | FimGLCanvas, srcCoords: FimRect): void {
     switch (srcImage.kind) {
       case FimImageKind.FimCanvas:
         // Copy data from a normal HtmlCanvas

@@ -58,6 +58,7 @@ export class FimGLTexture extends FimImage {
     }
 
     super(width, height);
+    this.kind = FimImageKind.FimGLTexture;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -98,7 +99,7 @@ export class FimGLTexture extends FimImage {
     }
   }
 
-  public kind: FimImageKind.FimGLTexture;
+  public readonly kind: string;
 
   public bind(textureUnit: number): void {
     let gl = this.gl;
