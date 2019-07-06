@@ -17,7 +17,7 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(new FimGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let orig = disposable.addDisposable(new FimCanvas(640, 480, '#1f2'));
-      let texture = disposable.addDisposable(FimGLTexture.createFromCanvas(canvas, orig));
+      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, orig));
 
       // Copy the texture
       program.setInputs(texture);
@@ -34,7 +34,7 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(new FimGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let buffer = disposable.addDisposable(new FimRgbaBuffer(640, 480, '#f31'));
-      let texture = disposable.addDisposable(FimGLTexture.createFromRgbaBuffer(canvas, buffer));
+      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer));
 
       // Copy the texture
       program.setInputs(texture);
@@ -56,7 +56,7 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(new FimGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let buffer = disposable.addDisposable(new FimGreyscaleBuffer(640, 480, 128));
-      let texture = disposable.addDisposable(FimGLTexture.createFromGreyscaleBuffer(canvas, buffer));
+      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer));
 
       // Copy the texture
       program.setInputs(texture);

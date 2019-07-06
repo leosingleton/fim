@@ -198,47 +198,25 @@ export class FimGLTexture extends FimImage {
   private textureFlags: FimGLTextureFlags;
 
   /**
-   * Creates a new WebGL texture from a greyscale byte array
+   * Creates a new WebGL texture from another image
    * @param canvas WebGL context
-   * @param srcImage Greyscale byte array
-   * @param extraFlags Additional flags. EightBit, Greyscale, and InputOnly are always enabled for textures created via
-   *    this function.
+   * @param srcImage Source image
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function. EightBit
+   *    and/or Greyscale may also be automatically set depending on the type of srcImage.
    */
-  public static createFromGreyscaleBuffer(canvas: FimGLCanvas, srcImage: FimGreyscaleBuffer,
+  public static createFrom(canvas: FimGLCanvas, srcImage: FimGreyscaleBuffer | FimRgbaBuffer | FimCanvas | FimGLCanvas,
       extraFlags = FimGLTextureFlags.None): FimGLTexture {
-    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.Greyscale | FimGLTextureFlags.InputOnly | extraFlags;
-    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
-    texture.copyFromGreyscaleBuffer(srcImage);
-    return texture;
-  }
+    // Calculate flags with defaults and extras
+    let flags = FimGLTextureFlags.InputOnly | extraFlags;
+    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+      flags |= FimGLTextureFlags.Greyscale;
+    }
+    if (srcImage.kind !== FimImageKindGLCanvas) {
+      flags |= FimGLTextureFlags.EightBit;
+    }
 
-  /**
-   * Creates a new WebGL texture from an RGBA byte array
-   * @param canvas WebGL context
-   * @param srcImage RGBA byte array
-   * @param extraFlags Additional flags. EightBit and InputOnly are always enabled for textures created via this
-   *    function.
-   */
-  public static createFromRgbaBuffer(canvas: FimGLCanvas, srcImage: FimRgbaBuffer,
-      extraFlags = FimGLTextureFlags.None): FimGLTexture {
-    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly | extraFlags;
     let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
-    texture.copyFromRgbaBuffer(srcImage);
-    return texture;
-  }
-
-  /**
-   * Creates a new WebGL texture from a canvas
-   * @param canvas WebGL context
-   * @param srcImage Canvas to load onto the texture
-   * @param extraFlags Additional flags. EightBit and InputOnly are always enabled for textures created via this
-   *    function.
-   */
-  public static createFromCanvas(canvas: FimGLCanvas, srcImage: FimCanvas, extraFlags = FimGLTextureFlags.None):
-      FimGLTexture {
-    let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly | extraFlags;
-    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
-    texture.copyFromCanvas(srcImage);
+    texture.copyFrom(srcImage);
     return texture;
   }
 }

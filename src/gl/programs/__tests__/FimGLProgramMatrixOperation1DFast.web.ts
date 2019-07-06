@@ -21,8 +21,7 @@ describe('FimGLProgramMatrixOperation1D', () => {
       let canvas = disposable.addDisposable(new FimGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramMatrixOperation1DFast(canvas, kernel.length));
       let orig = disposable.addDisposable(new FimCanvas(640, 480, '#21f'));
-      let texture = disposable.addDisposable(FimGLTexture.createFromCanvas(canvas, orig,
-        FimGLTextureFlags.LinearSampling));
+      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, orig, FimGLTextureFlags.LinearSampling));
 
       // Blur the texture
       program.setInputs(texture, kernel);
