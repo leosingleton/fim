@@ -11,7 +11,7 @@ import { FimRect, IFimDimensions } from '../primitives';
  * of the image itself may be changed with copyFrom() or other functions.
  */
 export abstract class FimImage implements IDisposable, IFimDimensions {
-  public constructor(width: number, height: number, bufferWidth?: number, bufferHeight?: number) {
+  public constructor(width: number, height: number) {
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
