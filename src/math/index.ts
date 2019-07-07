@@ -4,3 +4,4 @@
 
 export * from './GaussianKernel';
 export * from './ImageGrid';
+export * from './Transform2D';
