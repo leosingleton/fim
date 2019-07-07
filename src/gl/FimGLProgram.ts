@@ -6,6 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
+import { Transform2D } from '../math';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
@@ -168,11 +169,10 @@ export abstract class FimGLProgram implements IDisposable {
    * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
    * FimGLProgram-derived classes.
    * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
-   * @param vertexMatrix Optional 3x3 matrix used to manipulate vertices. The matrix is specified as an array of
-   *    size 9. For details on creating scale, translation, and rotation operations, see:
-   *    https://webglfundamentals.org/webgl/lessons/webgl-2d-matrices.html
+   * @param vertexMatrix Optional 3x3 matrix used to manipulate vertices. The Transform2D class can help to create the
+   *    vertex transformation matrices.
    */
-  public execute(outputTexture?: FimGLTexture, vertexMatrix?: number[]): void {
+  public execute(outputTexture?: FimGLTexture, vertexMatrix?: Transform2D | number[]): void {
     let gl = this.gl;
 
     // On the first call the execute(), compile the program
@@ -180,19 +180,8 @@ export abstract class FimGLProgram implements IDisposable {
       this.compileProgram();
     }
 
-    if (vertexMatrix) {
-      if (vertexMatrix.length !== 9) {
-        // Expected a 3x3 matrix
-        throw new Error('Invalid matrix ' + vertexMatrix.length);
-      }
-    } else {
-      // Default matrix
-      if (outputTexture) {
-        vertexMatrix = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // Don't flip the image
-      } else {
-        vertexMatrix = [1, 0, 0, 0, -1, 0, 0, 0, 1]; // Flip the final image
-      }
-    }
+    // Create the vertex matrix. The default parameter to the constructor creates an indentity matrix.
+    let matrix = new Transform2D(vertexMatrix);
 
     if (outputTexture) {
       // Use a framebuffer to render to a texture
@@ -206,11 +195,12 @@ export abstract class FimGLProgram implements IDisposable {
       FimGLError.throwOnError(gl);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       FimGLError.throwOnError(gl);
+      matrix.scale(1, -1); // Flip the final image
     }
 
     let vertexMatrixUniform = this.vertexShader.uniforms.uVertexMatrix;
     if (vertexMatrixUniform) {
-      vertexMatrixUniform.variableValue = vertexMatrix;
+      vertexMatrixUniform.variableValue = matrix.value;
     }
 
     gl.useProgram(this.program);
