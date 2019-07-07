@@ -66,6 +66,25 @@ export class Transform2D {
     this.transform([1, 0, tx, 0, 1, ty, 0, 0, 1]);
   }
 
+  /**
+   * Rotates coordinates by the desired angle
+   * @param angle Angle, in radians
+   */
+  public rotate(angle: number): void {
+    let s = Math.sin(angle);
+    let c = Math.cos(angle);
+    this.transform([c, s, 0, -s, c, 0, 0, 0, 1]);
+  }
+
+  /**
+   * Scales coordinates in the X- and Y-direction
+   * @param sx X-scale (1 = unchanged)
+   * @param sy Y-scale (1 = unchanged)
+   */
+  public scale(sx: number, sy: number): void {
+    this.transform([sx, 0, 0, 0, sy, 0, 0, 0, 1]);
+  }
+
   private static acceptMatrixOrArray(value: Transform2D | number[]): number[] {
     let result = (value instanceof Transform2D) ? value.value : value;
     if (result.length !== 9) {

@@ -36,8 +36,26 @@ describe('Transform2D', () => {
     let mat = new Transform2D();
     mat.translate(-4, 3);
     point = mat.transformPoint(point);
-    expect(point.x).toEqual(8);
-    expect(point.y).toEqual(26);
+    expect(point.x).toBeCloseTo(8, 8);
+    expect(point.y).toBeCloseTo(26, 8);
+  });
+
+  it('Rotates points', () => {
+    let point = new FimPoint(12, 23);
+    let mat = new Transform2D();
+    mat.rotate(Math.PI / 2);
+    point = mat.transformPoint(point);
+    expect(point.x).toBeCloseTo(23, 8);
+    expect(point.y).toBeCloseTo(-12, 8);
+  });
+
+  it('Scales points', () => {
+    let point = new FimPoint(12, 23);
+    let mat = new Transform2D();
+    mat.scale(2, 0.5);
+    point = mat.transformPoint(point);
+    expect(point.x).toBeCloseTo(24, 8);
+    expect(point.y).toBeCloseTo(11.5, 8);
   });
 
 });
