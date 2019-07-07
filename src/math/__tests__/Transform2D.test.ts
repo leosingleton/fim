@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Transform2D } from '../Transform2D';
+import { FimPoint } from '../../primitives';
 
 describe('Transform2D', () => {
 
@@ -23,4 +24,20 @@ describe('Transform2D', () => {
 
     expect(mat2.value).toEqual(mat1);
   });
+
+  it('Leaves points unchanged by the identity matrix', () => {
+    let point = new FimPoint(12, 23);
+    let mat = new Transform2D();
+    expect(mat.transformPoint(point)).toEqual(point);
+  });
+
+  it('Translates points', () => {
+    let point = new FimPoint(12, 23);
+    let mat = new Transform2D();
+    mat.translate(-4, 3);
+    point = mat.transformPoint(point);
+    expect(point.x).toEqual(8);
+    expect(point.y).toEqual(26);
+  });
+
 });

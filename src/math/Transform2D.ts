@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimPoint } from '../primitives';
+
 /**
  * Computes transformation matrices for vertexes in a 2-dimensional space,
  * 
@@ -24,7 +26,19 @@ export class Transform2D {
   public value: number[];
 
   /**
+   * Transforms a point using this transformation matrix
+   * @param point Input X/Y coordinates
+   * @returns Transformed X/Y coordinates
+   */
+  public transformPoint(point: FimPoint): FimPoint {
+    return new FimPoint(
+      point.x * this.value[0] + point.y * this.value[1] + this.value[2],
+      point.x * this.value[3] + point.y * this.value[4] + this.value[5]);
+  }
+
+  /**
    * Applies another transformation using matrix multiplication
+   * @param matrix Another 3x3 transformation matrix
    */
   public transform(matrix: Transform2D | number[]): void {
     let left = Transform2D.acceptMatrixOrArray(matrix);
@@ -41,6 +55,15 @@ export class Transform2D {
       left[1 /*2,1*/] * right[6 /*1,3*/] + left[4 /*2,2*/] * right[7 /*2,3*/] + left[7 /*2,3*/] * right[8 /*3,3*/],
       left[2 /*3,1*/] * right[6 /*1,3*/] + left[5 /*3,2*/] * right[7 /*2,3*/] + left[8 /*3,3*/] * right[8 /*3,3*/]
     ];
+  }
+
+  /**
+   * Applies an X/Y translation
+   * @param tx X offset (-1 to 1)
+   * @param ty Y offset (-1 to 1)
+   */
+  public translate(tx: number, ty: number): void {
+    this.transform([1, 0, tx, 0, 1, ty, 0, 0, 1]);
   }
 
   private static acceptMatrixOrArray(value: Transform2D | number[]): number[] {
