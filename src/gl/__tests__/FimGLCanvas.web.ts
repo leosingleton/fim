@@ -3,6 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLTexture } from '../FimGLTexture';
+import { FimGLProgramCopy } from '../programs';
+import { FimCanvas } from '../../image';
+import { FimColor } from '../../primitives';
+import { FimTestImages } from '../../test';
+import { DisposableSet } from '@leosingleton/commonlibs';
 
 describe('FimGLCanvas', () => {
 
@@ -16,6 +22,33 @@ describe('FimGLCanvas', () => {
     // Double-dispose
     b.dispose();
     expect(b.getCanvas()).toBeUndefined();
+  });
+
+  it('Renders a JPEG texture', async () => {
+    DisposableSet.usingAsync(async disposable => {
+      // Initialize the WebGL canvas, program, and a texture loaded from a JPEG image
+      let canvas = disposable.addDisposable(new FimGLCanvas(128, 128));
+      let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
+      let jpeg = FimTestImages.fourSquaresJpeg();
+      let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
+      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer));
+
+      // Copy the texture
+      program.setInputs(texture);
+      program.execute();
+
+      function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
+        expect(actual.r).toBeCloseTo(expected.r, -0.5);
+        expect(actual.g).toBeCloseTo(expected.g, -0.5);
+        expect(actual.b).toBeCloseTo(expected.b, -0.5);  
+        expect(actual.a).toBeCloseTo(expected.a, -0.5);  
+      }
+
+      expectToBeCloseTo(canvas.getPixel(32, 32), FimColor.fromString('#f00'));
+      expectToBeCloseTo(canvas.getPixel(96, 32), FimColor.fromString('#0f0'));
+      expectToBeCloseTo(canvas.getPixel(32, 96), FimColor.fromString('#00f'));
+      expectToBeCloseTo(canvas.getPixel(96, 96), FimColor.fromString('#000'));
+    });
   });
 
 });
