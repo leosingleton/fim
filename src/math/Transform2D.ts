@@ -32,8 +32,8 @@ export class Transform2D {
    */
   public transformPoint(point: FimPoint): FimPoint {
     return new FimPoint(
-      point.x * this.value[0] + point.y * this.value[1] + this.value[2],
-      point.x * this.value[3] + point.y * this.value[4] + this.value[5]);
+      point.x * this.value[0] + point.y * this.value[3] + this.value[6],
+      point.x * this.value[1] + point.y * this.value[4] + this.value[7]);
   }
 
   /**
@@ -63,7 +63,8 @@ export class Transform2D {
    * @param ty Y offset (-1 to 1)
    */
   public translate(tx: number, ty: number): void {
-    this.transform([1, 0, tx, 0, 1, ty, 0, 0, 1]);
+    //this.transform([1, 0, tx, 0, 1, ty, 0, 0, 1]);
+    this.transform([1, 0, 0, 0, 1, 0, tx, ty, 1]);
   }
 
   /**

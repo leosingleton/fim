@@ -45,8 +45,8 @@ describe('Transform2D', () => {
     let mat = new Transform2D();
     mat.rotate(Math.PI / 2);
     point = mat.transformPoint(point);
-    expect(point.x).toBeCloseTo(23, 8);
-    expect(point.y).toBeCloseTo(-12, 8);
+    expect(point.x).toBeCloseTo(-23, 8);
+    expect(point.y).toBeCloseTo(12, 8);
   });
 
   it('Scales points', () => {
