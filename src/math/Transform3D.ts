@@ -5,7 +5,9 @@
 import { Transform2D } from './Transform2D';
 
 /**
- * Computes transformation matrices for vertexes in a 3-dimensional space,
+ * Computes transformation matrices for vertexes in a 3-dimensional space.
+ * 
+ * For details, see: https://webglfundamentals.org/webgl/lessons/webgl-3d-orthographic.html
  */
 export class Transform3D {
   public constructor(matrix?: Transform2D | Transform3D | number[]) {

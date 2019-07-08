@@ -5,7 +5,7 @@
 import { FimPoint } from '../primitives';
 
 /**
- * Computes transformation matrices for vertexes in a 2-dimensional space,
+ * Computes transformation matrices for vertexes in a 2-dimensional space.
  * 
  * For details, see: https://webglfundamentals.org/webgl/lessons/webgl-2d-matrices.html
  */
