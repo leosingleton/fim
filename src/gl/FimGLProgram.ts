@@ -6,7 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { Transform2D } from '../math';
+import { Transform2D, Transform3D } from '../math';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
@@ -169,10 +169,10 @@ export abstract class FimGLProgram implements IDisposable {
    * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
    * FimGLProgram-derived classes.
    * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
-   * @param vertexMatrix Optional 3x3 matrix used to manipulate vertices. The Transform2D class can help to create the
-   *    vertex transformation matrices.
+   * @param vertexMatrix Optional 3x3 or 4x4 matrix used to manipulate vertices. The Transform2D and Transform3D
+   *    classes can help to create the vertex transformation matrices.
    */
-  public execute(outputTexture?: FimGLTexture, vertexMatrix?: Transform2D | number[]): void {
+  public execute(outputTexture?: FimGLTexture, vertexMatrix?: Transform2D | Transform3D | number[]): void {
     let gl = this.gl;
 
     // On the first call the execute(), compile the program
@@ -180,8 +180,15 @@ export abstract class FimGLProgram implements IDisposable {
       this.compileProgram();
     }
 
-    // Create the vertex matrix. The default parameter to the constructor creates an indentity matrix.
-    let matrix = new Transform2D(vertexMatrix);
+    // Create the vertex matrix
+    let matrix = new Transform3D();
+    if (!outputTexture) {
+      // Flip the final image on the Y-axis
+      matrix.scale(1, -1, 1);
+    }
+    if (vertexMatrix) {
+      matrix.transform(vertexMatrix);
+    }
 
     if (outputTexture) {
       // Use a framebuffer to render to a texture
@@ -195,7 +202,6 @@ export abstract class FimGLProgram implements IDisposable {
       FimGLError.throwOnError(gl);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       FimGLError.throwOnError(gl);
-      matrix.scale(1, -1); // Flip the final image
     }
 
     let vertexMatrixUniform = this.vertexShader.uniforms.uVertexMatrix;

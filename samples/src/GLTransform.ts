@@ -64,7 +64,8 @@ export async function glTransform(canvasId: string): Promise<void> {
       ty = -0.5;
     }
 
-    // Calculate the vertex transformation matrix
+    // Calculate the vertex transformation matrix. Note that the operations are applied in reverse order due to the way
+    // matrix multiplication works. Translate, then rotate, then scale.
     let matrix = new Transform2D();
     matrix.scale(scale, scale);
     matrix.rotate(angle);

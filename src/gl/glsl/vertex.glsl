@@ -7,7 +7,7 @@
 // We're doing 2D graphics on full-frame canvases, so all programs use the same vertex shader. Nothing special,
 // just maps coordinates from (0, 0) to (1, 1).
 attribute vec2 aPos;
-uniform mat3 uVertexMatrix;
+uniform mat4 uVertexMatrix;
 varying vec2 vCoord;
 
 // Workaround for a bug in the GLSL compiler. We normally mangle uniform names, but uniforms in the vertex shader can
@@ -23,7 +23,7 @@ void main() {
   vec2 clipSpace = zeroToTwo - 1.0;
 
   // gl_Position is a special variable a vertex shader is responsible for setting
-  gl_Position = vec4((uVertexMatrix * vec3(clipSpace, 1)).xy, 0, 1);
+  gl_Position = uVertexMatrix * vec4(clipSpace, 0.0, 1.0);
 
   // Pass the texCoord to the fragment shader. The GPU will interpolate this value between points.
   vCoord = aPos;
