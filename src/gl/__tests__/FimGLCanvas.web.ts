@@ -38,16 +38,25 @@ describe('FimGLCanvas', () => {
       program.execute();
 
       function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
-        expect(actual.r).toBeCloseTo(expected.r, -0.5);
-        expect(actual.g).toBeCloseTo(expected.g, -0.5);
-        expect(actual.b).toBeCloseTo(expected.b, -0.5);  
-        expect(actual.a).toBeCloseTo(expected.a, -0.5);  
+        expect(actual.r).toBeCloseTo(expected.r, -1);
+        expect(actual.g).toBeCloseTo(expected.g, -1);
+        expect(actual.b).toBeCloseTo(expected.b, -1);  
+        expect(actual.a).toBeCloseTo(expected.a, -1);  
       }
 
+      // We intentionally avoid one pixel from each edge, as the color is a bit off due to JPEG compression
+      expectToBeCloseTo(canvas.getPixel(1, 1), FimColor.fromString('#f00'));
       expectToBeCloseTo(canvas.getPixel(32, 32), FimColor.fromString('#f00'));
+      expectToBeCloseTo(canvas.getPixel(62, 62), FimColor.fromString('#f00'));
       expectToBeCloseTo(canvas.getPixel(96, 32), FimColor.fromString('#0f0'));
+      expectToBeCloseTo(canvas.getPixel(126, 0), FimColor.fromString('#0f0'));
+      expectToBeCloseTo(canvas.getPixel(126, 62), FimColor.fromString('#0f0'));
+      expectToBeCloseTo(canvas.getPixel(1, 126), FimColor.fromString('#00f'));
       expectToBeCloseTo(canvas.getPixel(32, 96), FimColor.fromString('#00f'));
+      expectToBeCloseTo(canvas.getPixel(62, 65), FimColor.fromString('#00f'));
+      expectToBeCloseTo(canvas.getPixel(65, 65), FimColor.fromString('#000'));
       expectToBeCloseTo(canvas.getPixel(96, 96), FimColor.fromString('#000'));
+      expectToBeCloseTo(canvas.getPixel(126, 126), FimColor.fromString('#000'));
     });
   });
 
