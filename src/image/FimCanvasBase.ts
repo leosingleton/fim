@@ -2,7 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
+import { FimColor } from '../primitives';
 
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
 export abstract class FimCanvasBase extends FimImage {
@@ -35,4 +37,10 @@ export abstract class FimCanvasBase extends FimImage {
       delete this.canvasElement;
     }
   }
+
+  /** Creates a new FimCanvas which is a duplicate of this one */
+  public abstract duplicate(): FimCanvas;
+
+  /** Fills the canvas with a solid color */
+  public abstract fill(color: FimColor | string): void;
 }
