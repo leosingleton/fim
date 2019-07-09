@@ -160,19 +160,20 @@ export class FimGLCanvas extends FimCanvasBase {
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
 
-  public createDrawingContext(imageSmoothingEnabled?: boolean, operation?: string, alpha?: number):
-      CanvasRenderingContext2D & IDisposable {
-    // Getting the 2D drawing context doesn't work (at least under Chrome) after using WebGL on a canvas. Prevent us
-    // from returning null. The workaround is for the caller to copy the FimGLCanvas to a FimCanvas first, then get a
-    // drawing context to the non-WebGL FimCanvas.
-    throw new FimGLError(FimGLErrorCode.InvalidOperation);
-  }
-
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {
     let dupe = new FimCanvas(this.dimensions.w, this.dimensions.h);
     dupe.copyFrom(this, this.dimensions, this.dimensions);
     return dupe;
+  }
+
+  /** Fills the canvas with a solid color */
+  public fill(color: FimColor | string): void {
+    let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    let gl = this.gl;
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+    gl.clear(gl.COLOR_BUFFER_BIT);
   }
 
   /**

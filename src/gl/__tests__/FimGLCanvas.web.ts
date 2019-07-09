@@ -8,7 +8,14 @@ import { FimGLProgramCopy } from '../programs';
 import { FimCanvas } from '../../image';
 import { FimColor } from '../../primitives';
 import { FimTestImages } from '../../test';
-import { DisposableSet } from '@leosingleton/commonlibs';
+import { DisposableSet, using } from '@leosingleton/commonlibs';
+
+function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
+  expect(actual.r).toBeCloseTo(expected.r, -1);
+  expect(actual.g).toBeCloseTo(expected.g, -1);
+  expect(actual.b).toBeCloseTo(expected.b, -1);  
+  expect(actual.a).toBeCloseTo(expected.a, -1);  
+}
 
 describe('FimGLCanvas', () => {
 
@@ -24,6 +31,13 @@ describe('FimGLCanvas', () => {
     expect(b.getCanvas()).toBeUndefined();
   });
 
+  it('Fills with a solid color', () => {
+    using(new FimGLCanvas(640, 480), c => {
+      c.fill('#f00');
+      expectToBeCloseTo(c.getPixel(300, 200), FimColor.fromString('#f00'));
+    });
+  });
+
   it('Renders a JPEG texture', async () => {
     DisposableSet.usingAsync(async disposable => {
       // Initialize the WebGL canvas, program, and a texture loaded from a JPEG image
@@ -36,13 +50,6 @@ describe('FimGLCanvas', () => {
       // Copy the texture
       program.setInputs(texture);
       program.execute();
-
-      function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
-        expect(actual.r).toBeCloseTo(expected.r, -1);
-        expect(actual.g).toBeCloseTo(expected.g, -1);
-        expect(actual.b).toBeCloseTo(expected.b, -1);  
-        expect(actual.a).toBeCloseTo(expected.a, -1);  
-      }
 
       // We intentionally avoid one pixel from each edge, as the color is a bit off due to JPEG compression
       expectToBeCloseTo(canvas.getPixel(1, 1), FimColor.fromString('#f00'));

@@ -71,6 +71,9 @@ export async function glTransform(canvasId: string): Promise<void> {
     matrix.rotate(angle);
     matrix.translate(tx, ty);
 
+    // Clear any existing image on the WebGL canvas
+    gl.fill('#000');
+
     program.setInputs(texture);
     program.execute(null, matrix);
 
