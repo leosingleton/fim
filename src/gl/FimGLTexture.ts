@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from './FimGLCanvas';
-import { FimGLError } from './FimGLError';
+import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
   FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
 import { FimRect } from '../primitives';
@@ -25,7 +25,10 @@ export const enum FimGLTextureFlags {
   /** By default, we use nearest sampling. This uses linear instead. */
   LinearSampling = (1 << 2),
 
-  /** By default, we clamp the pixels at the edge. This causes us to repeat the image instead. */
+  /**
+   * By default, we clamp the pixels at the edge. This causes us to repeat the image instead.
+   * NOTE: Only available on square power-of-two textures!
+   */
   Repeat = (1 << 3),
 
   /**
@@ -74,6 +77,12 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     
     // Set the parameters so we can render any size image
+    if (this.textureFlags & FimGLTextureFlags.Repeat) {
+      if (!this.isSquarePot()) {
+        // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
+        throw new FimGLError(FimGLErrorCode.InvalidValue, 'Repeat');
+      }
+    }
     let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
     FimGLError.throwOnError(gl);
@@ -190,6 +199,14 @@ export class FimGLTexture extends FimImage {
 
   public getFramebuffer(): WebGLFramebuffer {
     return this.fb;
+  }
+
+  /**
+   * Returns whether the dimensions of this texture are a square power-of-two. Certain WebGL features, like texture
+   * wrapping, are only available on textures with square power-of-two dimensions.
+   */
+  public isSquarePot(): boolean {
+    return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
 
   private glCanvas: FimGLCanvas;
