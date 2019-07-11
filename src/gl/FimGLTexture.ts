@@ -203,6 +203,10 @@ export class FimGLTexture extends FimImage {
   }
 
   public getFramebuffer(): WebGLFramebuffer {
+    if (this.textureFlags & FimGLTextureFlags.InputOnly) {
+      // Cannot write to an input only texture
+      throw new FimGLError(FimGLErrorCode.AppError, 'InputOnly');
+    }
     return this.fb;
   }
 
