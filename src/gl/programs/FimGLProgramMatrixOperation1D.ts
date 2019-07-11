@@ -7,6 +7,7 @@ import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
 import { FimGLTexture } from '../FimGLTexture';
 import { using } from '@leosingleton/commonlibs';
+import { FimGLError, FimGLErrorCode } from '../FimGLError';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLProgramMatrixOperation1D extends FimGLProgram {
@@ -27,7 +28,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     this.inputTexture = inputTexture;
 
     if (kernel.length != this.kernelSize) {
-      throw new Error('Expected kernel of size ' + this.kernelSize);
+      throw new FimGLError(FimGLErrorCode.AppError, `Expected kernel of size ${this.kernelSize}`);
     }
 
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;

@@ -27,7 +27,7 @@ export class FimGLCanvas extends FimCanvasBase {
     let canvas = this.canvasElement;
     this.gl = canvas.getContext('webgl');
     if (!this.gl) {
-      throw new Error('WebGL not supported');
+      throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
 
     // Read the browser capabilities

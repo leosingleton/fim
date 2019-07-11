@@ -61,7 +61,7 @@ export class FimGLTexture extends FimImage {
       let scale = Math.min(maxDimension / width, maxDimension / height);
       width = Math.floor(width * scale);
       height = Math.floor(height * scale);
-      console.log('Limiting WebGL texture to ' + width + 'x' + height);
+      console.log(`Limiting WebGL texture to ${width}x${height}`);
     }
 
     super(width, height);
@@ -131,7 +131,7 @@ export class FimGLTexture extends FimImage {
     // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
     // actually used.
     if (srcCoords || destCoords) {
-      throw new Error('Coords not supported');
+      throw new FimGLError(FimGLErrorCode.AppError, 'Coords not supported');
     }
 
     switch (srcImage.kind) {

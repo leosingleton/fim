@@ -59,7 +59,9 @@ export const enum FimGLErrorCode {
   ContextLost = 'ContextLost',
   CompileError = 'CompileError',
   LinkError = 'LinkError',
-  UnknownUniform = 'UnknownUniform',
+
+  /** Special error code thrown when the browser does not support WebGL */
+  NoWebGL = 'NoWebGL',
 
   /**
    * Special error code for non-WebGL errors. Indicates that the application has a bug and is calling the FIM library

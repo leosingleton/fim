@@ -129,7 +129,7 @@ export abstract class FimGLProgram implements IDisposable {
           value += '.';
         }
       } else {
-        throw new FimGLError(FimGLErrorCode.CompileError, 'Unsupported const type ' + c.variableType);
+        throw new FimGLError(FimGLErrorCode.CompileError, `Unsupported const type ${c.variableType}`);
       }
       code = code.replace(c.variableName, value);
     }
@@ -218,7 +218,8 @@ export abstract class FimGLProgram implements IDisposable {
 
       // Error on uniforms which do not have any value assigned. This is a bug in our code.
       if (uniform.variableValue == undefined) { // == => null or undefined
-        throw new Error(uniform.variableType + ' ' + uniform.variableName + '=' + uniform.variableValue);
+        throw new FimGLError(FimGLErrorCode.AppError,
+          `${uniform.variableType} ${uniform.variableName}=${uniform.variableValue}`);
       }
 
       if (uniform.variableType.indexOf('sampler') !== -1) {
@@ -257,7 +258,7 @@ export abstract class FimGLProgram implements IDisposable {
           case 'mat3':      this.gl.uniformMatrix3fv(uniform.uniformLocation, false, valueArray); break;
           case 'mat4':      this.gl.uniformMatrix4fv(uniform.uniformLocation, false, valueArray); break;
           default:
-            throw new Error('Unsupported type ' + uniform.variableType);
+            throw new FimGLError(FimGLErrorCode.AppError, `${uniform.variableType} unsupported`);
         }
       }
       FimGLError.throwOnError(gl);
