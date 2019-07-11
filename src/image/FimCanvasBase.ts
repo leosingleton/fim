@@ -43,4 +43,26 @@ export abstract class FimCanvasBase extends FimImage {
 
   /** Fills the canvas with a solid color */
   public abstract fill(color: FimColor | string): void;
+
+  /**
+   * Exports the canvas to a JPEG file
+   * @param quality JPEG quality, 0 to 1
+   * @returns Blob containing JPEG data
+   */
+  public async toJpegBlob(quality = 0.95): Promise<Blob> {
+    return new Promise<Blob>(resolve => {
+      this.canvasElement.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+    });
+  }
+
+  /**
+   * Exports the canvas to a JPEG file
+   * @param quality JPEG quality, 0 to 1
+   * @returns Array containing JPEG data
+   */
+  public async toJpeg(quality = 0.95): Promise<Uint8Array> {
+    let blob = await this.toJpegBlob(quality);
+    let buffer = await new Response(blob).arrayBuffer();
+    return new Uint8Array(buffer);
+  }
 }

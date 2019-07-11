@@ -4,7 +4,7 @@
 
 import { FimCanvas } from '../FimCanvas';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
-import { SeededRandom, using, DisposableSet } from '@leosingleton/commonlibs';
+import { DisposableSet, SeededRandom, using, usingAsync } from '@leosingleton/commonlibs';
 import { FimRect, FimColor } from '../../primitives';
 import { FimTestPatterns, FimTestImages } from '../../test';
 
@@ -183,6 +183,18 @@ describe('FimCanvas', () => {
       expectToBeCloseTo(canvas.getPixel(96, 32), FimColor.fromString('#0f0'));
       expectToBeCloseTo(canvas.getPixel(32, 96), FimColor.fromString('#00f'));
       expectToBeCloseTo(canvas.getPixel(96, 96), FimColor.fromString('#000'));
+    });
+  });
+
+  it('Encodes JPEGs', async () => {
+    usingAsync(new FimCanvas(320, 320, '#f00'), async canvas => {
+      // Write to JPEG
+      let jpeg = await canvas.toJpeg();
+
+      // JPEG magic number is FF D8 FF
+      expect(jpeg[0]).toBe(0xff);
+      expect(jpeg[1]).toBe(0xd8);
+      expect(jpeg[2]).toBe(0xff);
     });
   });
 
