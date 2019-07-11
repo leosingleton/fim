@@ -51,7 +51,7 @@ export module FimTestPatterns {
         let found = srcImage.getPixel(x, y);
         if (!found.equals(expected)) {
           if (throwOnError) {
-            throw Error('(' + x + ',' + y + ') expected: ' + expected + ' found: ' + found);
+            throw Error(`(${x},${y}) expected: ${expected} found: ${found}`);
           }
           return false;
         }

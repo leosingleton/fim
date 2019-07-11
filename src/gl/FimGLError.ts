@@ -40,7 +40,7 @@ export class FimGLError extends Error {
         throw new FimGLError(FimGLErrorCode.ContextLost);
 
       default:
-        throw new FimGLError(FimGLErrorCode.UnknownError, 'Code ' +  errCode);
+        throw new FimGLError(FimGLErrorCode.UnknownError, `Code ${errCode}`);
     }
   }
 }

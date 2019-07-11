@@ -35,7 +35,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    */
   protected throwOnRescale(srcCoords: FimRect, destCoords: FimRect): void {
     if (!srcCoords.sameDimensions(destCoords)) {
-      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
+      throw new Error(`Rescale not supported: ${srcCoords} ${destCoords}`);
     }
   }
 
@@ -46,7 +46,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    */
   protected throwOnMismatchedDimensions(srcImage: FimImage): void {
     if (!this.dimensions.equals(srcImage.dimensions)) {
-      throw new Error('Crop and rescale not supported: ' + this.dimensions + ' ' + srcImage.dimensions);
+      throw new Error(`Crop and rescale not supported: ${this.dimensions} ${srcImage.dimensions}`);
     }
   }
 
@@ -56,6 +56,6 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * @param fimImage Invalid FimImage object
    */
   protected throwOnInvalidImageKind(fimImage: never): never {
-    throw new Error('Invalid kind: ' + fimImage);
+    throw new Error(`Invalid kind: ${fimImage}`);
   }
 }

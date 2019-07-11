@@ -129,7 +129,7 @@ export class Transform3D {
         o[6], o[7],    0, o[8]
       ];
     } else if (result.length !== 16) {
-      throw new Error('Invalid length ' + result.length);
+      throw new Error(`Invalid length ${result.length}`);
     }
 
     return result;

@@ -28,7 +28,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
   // Determine the tile size from the query string. Default is 2048x2048.
   let qs = parseQueryString();
   let tileSize = qs['size'] ? parseInt(qs['size']) : 2048;
-  console.log('Tile size: ' + tileSize + 'x' + tileSize);
+  console.log(`Tile size: ${tileSize}x${tileSize}`);
 
   // Create a WebGL canvas and program to perform Gaussian blurs. We'll process everything as 2048x2048 tiles,
   // regardless of the input and output dimensions.
@@ -39,7 +39,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
   let grid = new ImageGrid(canvas.w, canvas.h, gl.w, gl.h, kernelSize * reps);
   let input = new FimCanvas(gl.w, gl.h);
   let texture = new FimGLTexture(gl, gl.w, gl.h);
-  console.log('Tiles=' + grid.tiles.length + ' Efficiency=' + grid.getEfficiency());
+  console.log(`Tiles=${grid.tiles.length} Efficiency=${grid.getEfficiency()}`);
 
   // Animation loop
   let clock = Stopwatch.startNew();
@@ -81,6 +81,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
         tile.outputFull.xLeft, tile.outputFull.yTop, tile.outputFull.w, tile.outputFull.h);
     }
 
-    console.log('Rendered frame. FPS=' + (++frameCount * 1000 / clock.getElapsedMilliseconds()));
+    let fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
+    console.log(`Rendered frame. FPS=${fps}`);
   }
 }
