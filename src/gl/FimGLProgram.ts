@@ -224,6 +224,13 @@ export abstract class FimGLProgram implements IDisposable {
       if (uniform.variableType.indexOf('sampler') !== -1) {
         // Special case for textures. Bind the texture to the texture unit.
         let t = uniform.variableValue as FimGLTexture;
+
+        if (!t.hasImage) {
+          // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going to
+          // work, and WebGL returns a confusing non square power-of-two error if we allow the code to continue.
+          throw new FimGLError(FimGLErrorCode.AppError, 'BindEmptyTexture');
+        }
+        
         t.bind(uniform.textureUnit);
 
         // Set the uniform to the texture unit
@@ -267,6 +274,11 @@ export abstract class FimGLProgram implements IDisposable {
     // Render
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     FimGLError.throwOnError(gl);
+
+    if (outputTexture) {
+      // The texture now has an image. Set the boolean so it may be used as an input texture in the future.
+      outputTexture.hasImage = true;
+    }
   }
 
   protected readonly glCanvas: FimGLCanvas;

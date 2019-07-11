@@ -66,6 +66,7 @@ export class FimGLTexture extends FimImage {
 
     super(width, height);
     this.kind = FimImageKindGLTexture;
+    this.hasImage = false;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -77,11 +78,9 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     
     // Set the parameters so we can render any size image
-    if (this.textureFlags & FimGLTextureFlags.Repeat) {
-      if (!this.isSquarePot()) {
-        // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
-        throw new FimGLError(FimGLErrorCode.InvalidValue, 'Repeat');
-      }
+    if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
+      // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
+      throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
     }
     let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
@@ -157,6 +156,8 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
   }
 
   private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
@@ -167,6 +168,8 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
   }
 
   private copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
@@ -177,6 +180,8 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
   }
 
   public dispose(): void {
@@ -208,6 +213,12 @@ export class FimGLTexture extends FimImage {
   public isSquarePot(): boolean {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
+
+  /**
+   * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
+   * texture as the output of a FimGLProgram.
+   */
+  public hasImage: boolean;
 
   private glCanvas: FimGLCanvas;
   private gl: WebGLRenderingContext;
