@@ -26,7 +26,7 @@ jobs:
     continueOnError: true
 
   - script: |
-      npm run test:web:all
+      npm run test:web
     displayName: 'Execute Web Unit Tests'
     continueOnError: true
 
