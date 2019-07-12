@@ -55,7 +55,7 @@ export async function texImage2DPerformance(): Promise<void> {
         t.copyFrom(srcImage);
       });
     }    
-    let message = `Created 100 ${width}x${height} textures in ${timer.getElapsedMilliseconds()} ms`;  
+    let message = `Create and texImage2D 100 ${width}x${height} textures in ${timer.getElapsedMilliseconds()} ms`;
 
     // Render to the WebGL canvas for debugging. This is hidden, but can be seen in the browser's debugging tools if
     // you step through and enable the CSS visible property.
@@ -80,7 +80,7 @@ export async function texImage2DPerformance(): Promise<void> {
       for (let n = 0; n < 100; n++) {
         t.copyFrom(srcImage);
       }
-      let message = `Copied (reusing texture) 100 ${width}x${height} textures in ${timer.getElapsedMilliseconds()} ms`;
+      let message = `texImage2D 100 ${width}x${height} textures in ${timer.getElapsedMilliseconds()} ms`;
 
       using(new FimGLProgramCopy(gl), copy => {
         copy.setInputs(t);
@@ -105,7 +105,7 @@ export async function texImage2DPerformance(): Promise<void> {
         for (let n = 0; n < 100; n++) {
           t.copyFrom(buffer);
         }
-        let message = `Copied (reusing texture) 100 ${width}x${height} buffers in ${timer.getElapsedMilliseconds()} ms`;
+        let message = `texImage2D 100 ${width}x${height} textures from buffers in ${timer.getElapsedMilliseconds()} ms`;
   
         using(new FimGLProgramCopy(gl), copy => {
           copy.setInputs(t);
