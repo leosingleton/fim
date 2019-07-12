@@ -70,4 +70,8 @@ function spec(useOffscreenCanvas: boolean) {
 }
 
 describe('FimGLCanvas(OffScreenCanvas=false)', spec(false));
-describe('FimGLCanvas(OffScreenCanvas=true)', spec(true));
+
+// Only run OffscreenCanvas tests on browsers that support it
+if (FimGLCanvas.supportsOffscreenCanvas) {
+  describe('FimGLCanvas(OffScreenCanvas=true)', spec(true));
+}

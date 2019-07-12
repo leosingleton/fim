@@ -201,4 +201,8 @@ function spec(useOffscreenCanvas: boolean) {
 }
 
 describe('FimCanvas(OffscreenCanvas=false)', spec(false));
-describe('FimCanvas(OffscreenCanvas=true)', spec(true));
+
+// Only run OffscreenCanvas tests on browsers that support it
+if (FimCanvas.supportsOffscreenCanvas) {
+  describe('FimCanvas(OffscreenCanvas=true)', spec(true));
+}
