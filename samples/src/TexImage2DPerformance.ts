@@ -120,4 +120,49 @@ export async function texImage2DPerformance(): Promise<void> {
   await testCopyFromBuffer(srcImage.w, srcImage.h, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
   await testCopyFromBuffer(2048, 2048, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
   await testCopyFromBuffer(4096, 4096, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+
+  async function testCopyOfTexture(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
+    await usingAsync(new FimGLTexture(gl, width, height), async t => {
+      t.copyFrom(srcImage);
+
+      let timer = Stopwatch.startNew();
+      using(new FimGLProgramCopy(gl), copy => {
+        for (let n = 0; n < 100; n++) {
+          copy.setInputs(t);
+          copy.execute();
+        }
+      });
+      let message = `Copied 100 ${width}x${height} textures in ${timer.getElapsedMilliseconds()} ms`;
+
+      await displayResult(message);
+    });
+  }
+
+  await testCopyOfTexture(srcImage.w, srcImage.h, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+  await testCopyOfTexture(2048, 2048, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+  await testCopyOfTexture(4096, 4096, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+
+  async function testCopyFromGL(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
+    await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
+      t.copyFrom(srcImage);
+      using(new FimGLProgramCopy(gl), copy => {
+        copy.setInputs(t);
+        copy.execute();
+      });
+
+      let timer = Stopwatch.startNew();
+      using(new FimCanvas(width, height), output => {
+        for (let n = 0; n < 100; n++) {
+          output.copyFrom(gl);
+        }
+      });
+      let message = `Copied 100 canvases from ${width}x${height} GL canvases in ${timer.getElapsedMilliseconds()} ms`;
+
+      await displayResult(message);
+    });
+  }
+
+  await testCopyFromGL(srcImage.w, srcImage.h, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+  await testCopyFromGL(2048, 2048, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+  await testCopyFromGL(4096, 4096, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
 }
