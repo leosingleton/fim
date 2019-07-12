@@ -6,34 +6,58 @@ import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
 import { FimColor } from '../primitives';
 
+// OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
+// @nomangle OffscreenCanvas convertToBlob
+declare class OffscreenCanvas extends EventTarget {
+  constructor(width: number, height: number);
+  width: number;
+  height: number;
+  getContext(contextType: '2d', contextAttributes?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D;
+  getContext(contextType: 'webgl', contextAttributes?: WebGLContextAttributes): WebGLRenderingContext;
+  convertToBlob(options: any): Promise<Blob>;
+}
+
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
 export abstract class FimCanvasBase extends FimImage {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
+   * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
+   *    workers.
    */
-  public constructor(width: number, height: number) {
+  public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas) {
     super(width, height);
 
-    // Create a hidden canvas
-    let canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.display = 'none';
-    document.body.appendChild(canvas);
-    this.canvasElement = canvas;
+    if (useOffscreenCanvas) {
+      // Use Chrome's OffscreenCanvas object
+      if (!FimCanvasBase.supportsOffscreenCanvas) {
+        // The browser does not support OffscreenCanvas
+        throw new Error('No OffScreenCanvas');
+      }
+      this.canvasElement = new OffscreenCanvas(width, height);
+    } else {
+      // Create a hidden canvas
+      let canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.display = 'none';
+      document.body.appendChild(canvas);
+      this.canvasElement = canvas;
+    }
   }
 
-  /** Returns the underlying HTMLCanvasElement */
+  /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
   public getCanvas(): HTMLCanvasElement {
-    return this.canvasElement;
+    return this.canvasElement as HTMLCanvasElement;
   }
-  protected canvasElement: HTMLCanvasElement;
+  protected canvasElement: HTMLCanvasElement | OffscreenCanvas;
 
   public dispose(): void {
     if (this.canvasElement) {
-      document.body.removeChild(this.canvasElement);
+      if (this.canvasElement instanceof HTMLCanvasElement) {
+        document.body.removeChild(this.canvasElement);
+      }
       delete this.canvasElement;
     }
   }
@@ -50,9 +74,14 @@ export abstract class FimCanvasBase extends FimImage {
    * @returns Blob containing JPEG data
    */
   public async toJpegBlob(quality = 0.95): Promise<Blob> {
-    return new Promise<Blob>(resolve => {
-      this.canvasElement.toBlob(blob => resolve(blob), 'image/jpeg', quality);
-    });
+    if (this.canvasElement instanceof HTMLCanvasElement) {
+      let canvas = this.canvasElement;
+      return new Promise<Blob>(resolve => {
+        canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+      });
+    } else {
+      return this.canvasElement.convertToBlob({ type: 'image/jpeg', quality: 0.95 });
+    }
   }
 
   /**
@@ -65,4 +94,7 @@ export abstract class FimCanvasBase extends FimImage {
     let buffer = await new Response(blob).arrayBuffer();
     return new Uint8Array(buffer);
   }
+
+  /** Determines whether the current browser supports offscreen canvases */
+  public static readonly supportsOffscreenCanvas = (typeof OffscreenCanvas !== 'undefined');
 }

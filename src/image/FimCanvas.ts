@@ -19,9 +19,13 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
+   * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
+   *    workers. Check FimCanvasBase.supportsOffscreenCanvas to determine whether the web browser supports the
+   *    OffscreenCanvas feature.
    */
-  public constructor(width: number, height: number, initialColor?: FimColor | string) {
-    super(width, height);
+  public constructor(width: number, height: number, initialColor?: FimColor | string,
+      useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas) {
+    super(width, height, useOffscreenCanvas);
 
     if (initialColor) {
       this.fill(initialColor);
@@ -251,7 +255,8 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * Creates a FimCanvas from a JPEG file
    * @param jpegFile JPEG file, loaded into a byte array
    */
-  public static async createFromJpeg(jpegFile: Uint8Array): Promise<FimCanvas> {
+  public static async createFromJpeg(jpegFile: Uint8Array, useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas):
+      Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
       // Create a Blob holding the binary data and load it onto an HTMLImageElement
       let blob = new Blob([jpegFile], { type: 'image/jpeg' });
@@ -261,7 +266,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
-        let result = new FimCanvas(img.width, img.height);
+        let result = new FimCanvas(img.width, img.height, undefined, useOffscreenCanvas);
         using(result.createDrawingContext(), ctx => {
           ctx.drawImage(img, 0, 0);
         });
