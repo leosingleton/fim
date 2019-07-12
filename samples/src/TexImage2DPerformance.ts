@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimGLProgramCopy } from '../../build/dist/index.js';
+import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimGLProgramCopy,
+  FimRgbaBuffer } from '../../build/dist/index.js';
 import { DisposableSet, Stopwatch, TaskScheduler, using, usingAsync } from '@leosingleton/commonlibs';
 
 export async function texImage2DPerformance(): Promise<void> {
@@ -93,4 +94,30 @@ export async function texImage2DPerformance(): Promise<void> {
   await testCopy(srcImage.w, srcImage.h, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
   await testCopy(2048, 2048, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
   await testCopy(4096, 4096, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+
+  async function testCopyFromBuffer(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
+    usingAsync(new FimRgbaBuffer(srcImage.w, srcImage.h), async buffer => {
+      // Copy the source image to a buffer
+      buffer.copyFrom(srcImage);
+
+      let timer = Stopwatch.startNew();
+      await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
+        for (let n = 0; n < 100; n++) {
+          t.copyFrom(buffer);
+        }
+        let message = `Copied (reusing texture) 100 ${width}x${height} buffers in ${timer.getElapsedMilliseconds()} ms`;
+  
+        using(new FimGLProgramCopy(gl), copy => {
+          copy.setInputs(t);
+          copy.execute();
+        });
+
+        await displayResult(message);
+      });
+    });
+  }
+
+  await testCopyFromBuffer(srcImage.w, srcImage.h, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+  await testCopyFromBuffer(2048, 2048, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
+  await testCopyFromBuffer(4096, 4096, FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly);
 }
