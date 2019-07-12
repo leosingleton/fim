@@ -24,7 +24,8 @@ export abstract class FimCanvasBase extends FimImage {
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
-   *    workers.
+   *    workers. Check FimCanvasBase.supportsOffscreenCanvas to determine whether the web browser supports the
+   *    OffscreenCanvas feature.
    */
   public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas) {
     super(width, height);
