@@ -27,7 +27,7 @@ export async function perfGLCopyProgram(): Promise<void> {
         })
 
         // Render output
-        await renderOutput(gl, message);
+        await renderOutput(gl, message, undefined, 512, 512);
       });
     }
 
