@@ -34,6 +34,10 @@ export async function loadTestImage(): Promise<FimCanvas> {
  */
 export function perfTest(description: string, test: () => void, minIterations = 10, maxIterations = 1000,
     executionTime = 1000): string {
+  // Run one iteration without counting it to not bias the results if there is any compiling or optimizations that
+  // occur on the first execution.
+  test();
+
   let iterations = 0;
   let time = 0;
   let timer = Stopwatch.startNew();
@@ -60,6 +64,10 @@ export function perfTest(description: string, test: () => void, minIterations = 
  */
 export async function perfTestAsync(description: string, test: () => Promise<void>, minIterations = 10,
     maxIterations = 1000, executionTime = 1000): Promise<string> {
+  // Run one iteration without counting it to not bias the results if there is any compiling or optimizations that
+  // occur on the first execution.
+  await test();
+
   let iterations = 0;
   let time = 0;
   let timer = Stopwatch.startNew();
