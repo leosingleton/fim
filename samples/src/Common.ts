@@ -44,7 +44,7 @@ export function perfTest(description: string, test: () => void, minIterations = 
   } while (iterations < maxIterations && (iterations < minIterations || time < executionTime));
   
   let avg = time / iterations;
-  let fps = 1 / avg;
+  let fps = 1000 / avg;
   return `${description}\nAverage: ${avg} ms (${fps} FPS)\nIterations: ${iterations}`;
 }
 
@@ -70,7 +70,7 @@ export async function perfTestAsync(description: string, test: () => Promise<voi
   } while (iterations < maxIterations && (iterations < minIterations || time < executionTime));
   
   let avg = time / iterations;
-  let fps = 1 / avg;
+  let fps = 1000 / avg;
   return `${description}\nAverage: ${avg} ms (${fps} FPS)\nIterations: ${iterations}`;
 }
 
