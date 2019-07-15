@@ -45,7 +45,7 @@ export function perfTest(description: string, test: () => void, minIterations = 
   
   let avg = time / iterations;
   let fps = 1000 / avg;
-  return `${description}\nAverage: ${avg} ms (${fps} FPS)\nIterations: ${iterations}`;
+  return `${description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${iterations}`;
 }
 
 /**
@@ -71,7 +71,7 @@ export async function perfTestAsync(description: string, test: () => Promise<voi
   
   let avg = time / iterations;
   let fps = 1000 / avg;
-  return `${description}\nAverage: ${avg} ms (${fps} FPS)\nIterations: ${iterations}`;
+  return `${description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${iterations}`;
 }
 
 /**
