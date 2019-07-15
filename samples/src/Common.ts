@@ -71,7 +71,7 @@ export async function perfTestAsync(description: string, test: () => Promise<voi
   
   let avg = time / iterations;
   let fps = 1 / avg;
-  return `${description}\r\nAverage: ${avg} ms (${fps} FPS)\r\nIterations: ${iterations}`;
+  return `${description}\nAverage: ${avg} ms (${fps} FPS)\nIterations: ${iterations}`;
 }
 
 /**
@@ -109,7 +109,14 @@ export async function renderOutput(canvas: FimCanvasBase, message?: string, domC
     ctx.globalCompositeOperation = 'difference';
     ctx.globalAlpha = 1;
     ctx.fillStyle = '#fff';
-    ctx.fillText(message, 8, 8);
+
+    // Handle multi-line strings. fillText() ignores newlines and carriage returns.
+    let y = 16;
+    message.split('\n').forEach(line => {
+      ctx.fillText(line, 8, y);
+      y += 8;
+    });
+
     ctx.restore();
   }
   
