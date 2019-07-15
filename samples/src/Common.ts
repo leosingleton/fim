@@ -101,7 +101,7 @@ export async function renderOutput(canvas: FimCanvasBase, message?: string, domC
 
   // Copy the input canvas to the DOM one
   let ctx = output.getContext('2d');
-  ctx.drawImage(canvas.getCanvas(), 0, 0);
+  ctx.drawImage(canvas.getCanvas(), 0, 0, width, height);
 
   // Overlay text
   if (message) {
