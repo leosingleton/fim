@@ -22,6 +22,52 @@ export async function loadTestImage(): Promise<FimCanvas> {
   return FimCanvas.createFromJpeg(jpeg);
 }
 
+class PerformanceTester {
+  public description: string;
+  public test: () => void;
+  public testAsync: () => Promise<void>;
+  public minIterations: number;
+  public maxIterations: number;
+  public executionTime: number;
+
+  public run(): string {
+    this.init();
+    do {
+      this.test();
+    } while (this.shouldContinue());
+    return this.result();
+  }
+
+  public async runAsync(): Promise<string> {
+    this.init();
+    do {
+      await this.testAsync();
+    } while (this.shouldContinue());
+    return this.result();
+  }
+
+  private iterations = 0;
+  private time = 0;
+  private timer: Stopwatch;
+
+  private init(): void {
+    this.timer = Stopwatch.startNew();
+  }
+
+  private shouldContinue(): boolean {
+    this.iterations++;
+    this.time = this.timer.getElapsedMilliseconds();
+    return (this.iterations < this.maxIterations && (this.iterations < this.minIterations ||
+      this.time < this.executionTime));
+  }
+
+  private result(): string {
+    let avg = this.time / this.iterations;
+    let fps = 1000 / avg;
+    return `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${this.iterations}`;
+  }
+}
+
 /**
  * Measures the performance of an operation
  * @param description Description of the operation
@@ -34,22 +80,13 @@ export async function loadTestImage(): Promise<FimCanvas> {
  */
 export function perfTest(description: string, test: () => void, minIterations = 10, maxIterations = 1000,
     executionTime = 1000): string {
-  // Run one iteration without counting it to not bias the results if there is any compiling or optimizations that
-  // occur on the first execution.
-  test();
-
-  let iterations = 0;
-  let time = 0;
-  let timer = Stopwatch.startNew();
-  do {
-    test();
-    iterations++;
-    time = timer.getElapsedMilliseconds();
-  } while (iterations < maxIterations && (iterations < minIterations || time < executionTime));
-  
-  let avg = time / iterations;
-  let fps = 1000 / avg;
-  return `${description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${iterations}`;
+  let p = new PerformanceTester();
+  p.description = description;
+  p.test = test;
+  p.minIterations = minIterations;
+  p.maxIterations = maxIterations;
+  p.executionTime = executionTime;
+  return p.run();
 }
 
 /**
@@ -62,24 +99,15 @@ export function perfTest(description: string, test: () => void, minIterations = 
  *    of iterations is in the min/max range.
  * @returns String with a message containing the results
  */
-export async function perfTestAsync(description: string, test: () => Promise<void>, minIterations = 10,
+export function perfTestAsync(description: string, test: () => Promise<void>, minIterations = 10,
     maxIterations = 1000, executionTime = 1000): Promise<string> {
-  // Run one iteration without counting it to not bias the results if there is any compiling or optimizations that
-  // occur on the first execution.
-  await test();
-
-  let iterations = 0;
-  let time = 0;
-  let timer = Stopwatch.startNew();
-  do {
-    await test();
-    iterations++;
-    time = timer.getElapsedMilliseconds();
-  } while (iterations < maxIterations && (iterations < minIterations || time < executionTime));
-  
-  let avg = time / iterations;
-  let fps = 1000 / avg;
-  return `${description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${iterations}`;
+  let p = new PerformanceTester();
+  p.description = description;
+  p.testAsync = test;
+  p.minIterations = minIterations;
+  p.maxIterations = maxIterations;
+  p.executionTime = executionTime;
+  return p.runAsync();
 }
 
 /**
