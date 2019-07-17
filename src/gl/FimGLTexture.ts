@@ -6,7 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
   FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
-import { FimRect } from '../primitives';
+import { FimRect, rescale, createDimensions } from '../primitives';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -58,9 +58,9 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = glCanvas.capabilities.maxTextureSize;
     if (width > maxDimension || height > maxDimension) {
-      let scale = Math.min(maxDimension / width, maxDimension / height);
-      width = Math.floor(width * scale);
-      height = Math.floor(height * scale);
+      let newDimensions = rescale(width, height, maxDimension);
+      width = newDimensions.w;
+      height = newDimensions.h;
       console.log(`Limiting WebGL texture to ${width}x${height}`);
     }
 

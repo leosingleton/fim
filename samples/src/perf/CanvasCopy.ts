@@ -26,7 +26,7 @@ export async function perfCanvasCopy(): Promise<void> {
         })
 
         // Render output
-        await renderOutput(gl, message, undefined, 512, 512);
+        await renderOutput(gl, message, 360);
       });
     }
 

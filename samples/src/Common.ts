@@ -149,15 +149,17 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  * Renders output the the screen
  * @param canvas Canvas to render
  * @param message Text to overlay onto the image
+ * @param maxDimension Maximum dimension of the output canvas, in pixels. If unspecified, the output is unscaled from
+ *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
- * @param width Width of the output canvas. Defaults to the width of the input canvas.
- * @param height Height of the oputput canvas. Defaults to the height of the input canvas.
  */
-export async function renderOutput(canvas: FimCanvasBase, message?: string, domCanvasId?: string, width?: number,
-    height?: number): Promise<void> {
-  // Default parameters
-  width = width || canvas.w;
-  height = height || canvas.h;
+export async function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
+    domCanvasId?: string): Promise<void> {
+  // Calculate width and height
+  let outputDimensions = canvas.dimensions;
+  if (maxDimension) {
+    outputDimensions = outputDimensions.rescale(maxDimension);
+  }
 
   // Get the output canvas and scale it to the desired size
   let output: HTMLCanvasElement;
@@ -167,12 +169,12 @@ export async function renderOutput(canvas: FimCanvasBase, message?: string, domC
     output = document.createElement('canvas');
     document.body.appendChild(output);
   }
-  output.width = width;
-  output.height = height;
+  output.width = outputDimensions.w;
+  output.height = outputDimensions.h;
 
   // Copy the input canvas to the DOM one
   let ctx = output.getContext('2d');
-  ctx.drawImage(canvas.getCanvas(), 0, 0, width, height);
+  ctx.drawImage(canvas.getCanvas(), 0, 0, outputDimensions.w, outputDimensions.h);
 
   // Overlay text
   if (message) {

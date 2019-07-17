@@ -27,7 +27,7 @@ export async function perfTexImage2D(): Promise<void> {
       await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
         t.copyFrom(srcImage);
         textureToCanvas(gl, t);
-        await renderOutput(gl, message);
+        await renderOutput(gl, message, 360);
       });
     }
 
@@ -49,7 +49,7 @@ export async function perfTexImage2D(): Promise<void> {
 
         // Render output
         textureToCanvas(gl, t);
-        await renderOutput(gl, message);
+        await renderOutput(gl, message, 360);
       });
     }
 
@@ -75,7 +75,7 @@ export async function perfTexImage2D(): Promise<void> {
 
           // Render output
           textureToCanvas(gl, t);
-          await renderOutput(gl, message);
+          await renderOutput(gl, message, 360);
         });
       });
     }
