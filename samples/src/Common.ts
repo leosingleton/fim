@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimCanvasBase, FimGLCanvas, FimGLProgramCopy, FimGLTexture } from '../../build/dist/index.js';
+import { FimCanvas, FimCanvasBase, FimGLCanvas, FimGLProgramCopy, FimGLTexture,
+  FimRect } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, parseQueryString, using } from '@leosingleton/commonlibs';
 
 let qs = parseQueryString();
@@ -175,6 +176,25 @@ export async function renderOutput(canvas: FimCanvasBase, message?: string, maxD
   // Copy the input canvas to the DOM one
   let ctx = output.getContext('2d');
   ctx.drawImage(canvas.getCanvas(), 0, 0, outputDimensions.w, outputDimensions.h);
+
+  // If we rescaled the output, show a full-resolution detail in the bottom-right corner
+  if (maxDimension) {
+    // Calculate the output rectangle
+    let outputLeft = Math.floor(outputDimensions.w / 2);
+    let outputTop = Math.floor(outputDimensions.h / 2);
+    let outputRect = FimRect.fromCoordinates(outputLeft, outputTop,
+      outputDimensions.xRight, outputDimensions.yBottom);
+
+    // Calculate the input rectangle
+    let inputLeft = Math.floor(Math.abs(canvas.w - outputRect.w) / 2);
+    let inputTop = Math.floor(Math.abs(canvas.h - outputRect.h) / 2);
+    let inputRect = FimRect.fromXYWidthHeight(inputLeft, inputTop, outputRect.w, outputRect.h);
+
+    // Draw the detail view
+    ctx.drawImage(canvas.getCanvas(),
+      inputRect.xLeft, inputRect.yTop, inputRect.w, inputRect.h,
+      outputRect.xLeft, outputRect.yTop, outputRect.w, outputRect.h);
+  }
 
   // Overlay text
   if (message) {
