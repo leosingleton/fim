@@ -12,7 +12,7 @@ export async function perfGLCopyProgram(): Promise<void> {
     // Test case to copy from various sized textures and canvases
     //
     async function testCopyProgram(canvasWidth: number, canvasHeight: number, textureWidth: number,
-        textureHeight: number, linearSampling: boolean, suppressOutput = false): Promise<void> {
+        textureHeight: number, linearSampling: boolean): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
         let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly;
         flags |= linearSampling ? FimGLTextureFlags.LinearSampling : 0;
@@ -30,16 +30,13 @@ export async function perfGLCopyProgram(): Promise<void> {
           program.execute();
         })
 
-        if (!suppressOutput) {
-          // Render output
-          await renderOutput(gl, message, undefined, 512, 512);
-        }
+        // Render output
+        await renderOutput(gl, message, undefined, 512, 512);
       });
     }
 
     // We do a dummy run first, as the first run is significantly slower. We're creating a new texture and program each
     // time, so probably not the texture cache. However, there's definitely some optimization on subsequent runs.
-    await testCopyProgram(4096, 4096, 4096, 4096, false, true);
     await testCopyProgram(srcImage.w, srcImage.h, srcImage.w, srcImage.h, false);
     await testCopyProgram(srcImage.w, srcImage.h, 2048, 2048, false);
     await testCopyProgram(srcImage.w, srcImage.h, 4096, 4096, false);
@@ -51,7 +48,6 @@ export async function perfGLCopyProgram(): Promise<void> {
     await testCopyProgram(4096, 4096, 4096, 4096, false);
 
     // Repeat the same cases, but with linear sampling
-    await testCopyProgram(4096, 4096, 4096, 4096, true, true);
     await testCopyProgram(srcImage.w, srcImage.h, srcImage.w, srcImage.h, true);
     await testCopyProgram(srcImage.w, srcImage.h, 2048, 2048, true);
     await testCopyProgram(srcImage.w, srcImage.h, 4096, 4096, true);

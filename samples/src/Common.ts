@@ -26,9 +26,9 @@ class PerformanceTester {
   public description: string;
   public test: () => void;
   public testAsync: () => Promise<void>;
-  public minIterations: number;
-  public maxIterations: number;
-  public executionTime: number;
+  public blockCount: number;
+  public iterationsPerBlock: number;
+  public discardPercentage: number;
 
   public run(): string {
     this.init();
@@ -46,25 +46,56 @@ class PerformanceTester {
     return this.result();
   }
 
-  private iterations = 0;
-  private time = 0;
+  private values: number[];
+  private iterationsSinceLastBlock: number;
+  private lastBlockEndTimestamp: number;
   private timer: Stopwatch;
 
   private init(): void {
+    this.values = [];
+    this.iterationsSinceLastBlock = 0;
+    this.lastBlockEndTimestamp = 0;
     this.timer = Stopwatch.startNew();
   }
 
   private shouldContinue(): boolean {
-    this.iterations++;
-    this.time = this.timer.getElapsedMilliseconds();
-    return (this.iterations < this.maxIterations && (this.iterations < this.minIterations ||
-      this.time < this.executionTime));
+    // If we have not yet reached the number of iterations per block, continue
+    let iterations = ++this.iterationsSinceLastBlock;
+    if (iterations < this.iterationsPerBlock) {
+      return true;
+    }
+
+    // Record the block
+    let time = this.timer.getElapsedMilliseconds();
+    let values = this.values;
+    values.push(time - this.lastBlockEndTimestamp);
+    this.iterationsSinceLastBlock = 0;
+    this.lastBlockEndTimestamp = time;
+
+    // Continue until we have reached the desired number of blocks
+    return (values.length < this.blockCount);
   }
 
   private result(): string {
-    let avg = this.time / this.iterations;
+    // Sort the blocks by execution time
+    let values = this.values;
+    let iterationsPerBlock = this.iterationsPerBlock;
+    let originalCount = values.length * iterationsPerBlock;
+    values.sort();
+
+    // Calculate the number of blocks to keep. Keep the ones in the middle.
+    let keep = Math.ceil(values.length * (1 - this.discardPercentage));
+    let skip = Math.floor(keep / 2);
+    values = values.slice(skip, skip + keep);
+
+    // Calculate the average iteration time of the remaining blocks
+    let sum = 0;
+    values.forEach(value => sum += value);
+    let avg = sum / (keep * iterationsPerBlock);
+
+    // Format output string
     let fps = 1000 / avg;
-    return `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${this.iterations}`;
+    return `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${originalCount}`;
   }
 }
 
@@ -72,20 +103,22 @@ class PerformanceTester {
  * Measures the performance of an operation
  * @param description Description of the operation
  * @param test Lambda function to test
- * @param minIterations Minimum number of iterations to run
- * @param maxIterations Maximum number of iterations to run
- * @param executionTime Desired execution time in milliseconds. We will stop testing at this time as long as the number
- *    of iterations is in the min/max range.
+ * @param blockCount Number of execution blocks to measure. We repeat the test this number of times to discard the
+ *    highest and lowest values.
+ * @param iterationsPerBlock Number of times to execute the test within each block. Timers in JavaScript only have
+ *    an accuracy of 1 ms or so, therefore it's best to repeat until each block takes 20 ms or more.
+ * @param discardPercentage Percentage of iteration blocks to discard (0.0 to 1.0). We drop the highest and lowest and
+ *    return the average of the remaining blocks.
  * @returns String with a message containing the results
  */
-export function perfTest(description: string, test: () => void, minIterations = 10, maxIterations = 1000,
-    executionTime = 1000): string {
+export function perfTest(description: string, test: () => void, blockCount = 10, iterationsPerBlock = 50,
+    discardPercentage = 0.5): string {
   let p = new PerformanceTester();
   p.description = description;
   p.test = test;
-  p.minIterations = minIterations;
-  p.maxIterations = maxIterations;
-  p.executionTime = executionTime;
+  p.blockCount = blockCount;
+  p.iterationsPerBlock = iterationsPerBlock;
+  p.discardPercentage = discardPercentage;
   return p.run();
 }
 
@@ -93,20 +126,22 @@ export function perfTest(description: string, test: () => void, minIterations = 
  * Measures the performance of an async operation
  * @param description Description of the operation
  * @param test Async lambda function to test
- * @param minIterations Minimum number of iterations to run
- * @param maxIterations Maximum number of iterations to run
- * @param executionTime Desired execution time in milliseconds. We will stop testing at this time as long as the number
- *    of iterations is in the min/max range.
+ * @param blockCount Number of execution blocks to measure. We repeat the test this number of times to discard the
+ *    highest and lowest values.
+ * @param iterationsPerBlock Number of times to execute the test within each block. Timers in JavaScript only have
+ *    an accuracy of 1 ms or so, therefore it's best to repeat until each block takes 20 ms or more.
+ * @param discardPercentage Percentage of iteration blocks to discard (0.0 to 1.0). We drop the highest and lowest and
+ *    return the average of the remaining blocks.
  * @returns String with a message containing the results
  */
-export function perfTestAsync(description: string, test: () => Promise<void>, minIterations = 10,
-    maxIterations = 1000, executionTime = 1000): Promise<string> {
+export function perfTestAsync(description: string, test: () => Promise<void>, blockCount = 10,
+    iterationsPerBlock = 50, discardPercentage = 0.5): Promise<string> {
   let p = new PerformanceTester();
   p.description = description;
   p.testAsync = test;
-  p.minIterations = minIterations;
-  p.maxIterations = maxIterations;
-  p.executionTime = executionTime;
+  p.blockCount = blockCount;
+  p.iterationsPerBlock = iterationsPerBlock;
+  p.discardPercentage = discardPercentage;
   return p.runAsync();
 }
 
