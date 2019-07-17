@@ -17,6 +17,7 @@ describe('IFimDimensions', () => {
     let d2 = rescale(640, 480, 512);
     expect(d2.w).toEqual(512);
     expect(d2.h).toEqual(384);
+    expect(d2.dimensions.getArea()).toEqual(512 * 384);
   });
 
   it('Upscales dimensions', () => {
@@ -24,6 +25,7 @@ describe('IFimDimensions', () => {
     let d2 = rescaleDimensions(d, 4096);
     expect(d2.w).toEqual(2304);
     expect(d2.h).toEqual(4096);
+    expect(d2.dimensions.getArea()).toEqual(2304 * 4096);
   });
 
 });
