@@ -9,6 +9,40 @@ import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 export async function perfCanvasCopy(): Promise<void> {
   usingAsync(await loadTestImage(), async srcImage => {
     //
+    // Test case to copy 2D canvas to 2D canvas
+    //
+    async function test2DCopy(outputWidth: number, outputHeight: number, inputWidth: number, inputHeight: number):
+        Promise<void> {
+      await DisposableSet.usingAsync(async disposable => {
+        // Rescale the input image
+        let input = disposable.addDisposable(new FimCanvas(inputWidth, inputHeight));
+        input.copyFrom(srcImage);
+
+        // Create the output canvas
+        let canvas = disposable.addDisposable(new FimCanvas(outputWidth, outputHeight));
+
+        // Run performance test
+        let d = `Copy ${inputWidth}x${inputHeight} 2D canvas to ${outputWidth}x${outputHeight} 2D canvas`;
+        let message = perfTest(d, () => {
+          canvas.copyFrom(input);
+        })
+
+        // Render output
+        await renderOutput(canvas, message, 360);
+      });
+    }
+
+    await test2DCopy(srcImage.w, srcImage.h, srcImage.w, srcImage.h);
+    await test2DCopy(srcImage.w, srcImage.h, 2048, 2048);
+    await test2DCopy(srcImage.w, srcImage.h, 4096, 4096);
+    await test2DCopy(2048, 2048, srcImage.w, srcImage.h);
+    await test2DCopy(2048, 2048, 2048, 2048);
+    await test2DCopy(2048, 2048, 4096, 4096);
+    await test2DCopy(4096, 4096, srcImage.w, srcImage.h);
+    await test2DCopy(4096, 4096, 2048, 2048);
+    await test2DCopy(4096, 4096, 4096, 4096);
+
+    //
     // Test case to copy WebGL canvas to 2D canvas
     //
     async function testGLCopy(width: number, height: number): Promise<void> {
