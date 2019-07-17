@@ -69,6 +69,19 @@ export class FimRect {
     return this.w * this.h;
   }
 
+  /**
+   * Rescales this rectangle, preserving aspect ratio
+   * @param maxDimension Maximum value of either width or height
+   * @returns Downscaled rectangle with the same aspect ratio as the original and xLeft/yTop. Note that the dimensions
+   *    are rounded to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
+   */
+  rescale(maxDimension: number): FimRect {
+    let scale = Math.min(maxDimension / this.w, maxDimension / this.h);
+    let width = Math.floor(this.w * scale);
+    let height = Math.floor(this.h * scale);
+    return FimRect.fromXYWidthHeight(this.xLeft, this.yTop, width, height);
+  }
+
   static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
     return new FimRect(x, y, x + width, y + height, width, height);
   }
