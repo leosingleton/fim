@@ -12,10 +12,11 @@ export async function perfGLCopyProgram(): Promise<void> {
     // Test case to copy from various sized textures and canvases
     //
     async function testCopyProgram(canvasWidth: number, canvasHeight: number, textureWidth: number,
-        textureHeight: number, linearSampling: boolean): Promise<void> {
+        textureHeight: number, linearSampling: boolean, inputOnly = true): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
-        let flags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly;
+        let flags = FimGLTextureFlags.EightBit;
         flags |= linearSampling ? FimGLTextureFlags.LinearSampling : 0;
+        flags |= inputOnly ? FimGLTextureFlags.InputOnly : 0;
         
         let gl = disposable.addDisposable(new FimGLCanvas(canvasWidth, canvasHeight));
         let t = disposable.addDisposable(new FimGLTexture(gl, textureWidth, textureHeight, flags));
@@ -23,8 +24,8 @@ export async function perfGLCopyProgram(): Promise<void> {
         let program = disposable.addDisposable(new FimGLProgramCopy(gl));
 
         // Run performance test
-        let d = `Copy ${textureWidth}x${textureHeight} texture to ${canvasWidth}x${canvasHeight} WebGL canvas ` +
-          `(Sampling=${linearSampling ? 'Linear' : 'Nearest'})`;
+        let d = `Copy ${textureWidth}x${textureHeight} texture to ${canvasWidth}x${canvasHeight} WebGL canvas\n` +
+          `(Sampling=${linearSampling ? 'Linear' : 'Nearest'}, InputOnly=${inputOnly})`;
         let message = perfTest(d, () => {
           program.setInputs(t);
           program.execute();
@@ -57,5 +58,10 @@ export async function perfGLCopyProgram(): Promise<void> {
     await testCopyProgram(4096, 4096, srcImage.w, srcImage.h, true);
     await testCopyProgram(4096, 4096, 2048, 2048, true);
     await testCopyProgram(4096, 4096, 4096, 4096, true);
+
+    // Repeat the first few test cases, with a non-InputOnly texture
+    await testCopyProgram(srcImage.w, srcImage.h, srcImage.w, srcImage.h, false, false);
+    await testCopyProgram(srcImage.w, srcImage.h, 2048, 2048, false, false);
+    await testCopyProgram(srcImage.w, srcImage.h, 4096, 4096, false, false);
   });
 }

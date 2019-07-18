@@ -40,10 +40,14 @@ export async function perfTexImage2D(): Promise<void> {
     //
     // Test case to test texImage2D reusing the same texture
     //
-    async function testTex(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
+    async function testTex(width: number, height: number, inputOnly: boolean): Promise<void> {
+      let flags = FimGLTextureFlags.EightBit;
+      flags |= inputOnly ? FimGLTextureFlags.InputOnly : 0;
+
       await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
         // Run performance test
-        let message = perfTest(`texImage2D ${width}x${height} textures (reuse textures)`, () => {
+        let message = perfTest(`texImage2D ${width}x${height} textures\n` +
+            `(reuse textures, InputOnly=${inputOnly})`, () => {
           t.copyFrom(srcImage);
         });
 
@@ -53,10 +57,15 @@ export async function perfTexImage2D(): Promise<void> {
       });
     }
 
-    let texFlags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly;
-    await testTex(srcImage.w, srcImage.h, texFlags);
-    await testTex(2048, 2048, texFlags);
-    await testTex(4096, 4096, texFlags);
+    // Test with a read/write texture
+    await testTex(srcImage.w, srcImage.h, false);
+    await testTex(2048, 2048, false);
+    await testTex(4096, 4096, false);
+
+    // Test with an InputOnly texture
+    await testTex(srcImage.w, srcImage.h, true);
+    await testTex(2048, 2048, true);
+    await testTex(4096, 4096, true);
 
 
     //
