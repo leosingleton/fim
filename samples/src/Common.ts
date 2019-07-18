@@ -29,7 +29,7 @@ class PerformanceTester {
   public test: () => void;
   public testAsync: () => Promise<void>;
   public blockCount: number;
-  public iterationsPerBlock: number;
+  public timePerBlock: number;
   public discardPercentage: number;
 
   public run(): string {
@@ -48,12 +48,14 @@ class PerformanceTester {
     return this.result();
   }
 
+  private iterationsPerBlock: number;
   private values: number[];
   private iterationsSinceLastBlock: number;
   private lastBlockEndTimestamp: number;
   private timer: Stopwatch;
 
   private init(): void {
+    this.iterationsPerBlock = 0;
     this.values = [];
     this.iterationsSinceLastBlock = 0;
     this.lastBlockEndTimestamp = 0;
@@ -61,10 +63,22 @@ class PerformanceTester {
   }
 
   private shouldContinue(): boolean {
-    // If we have not yet reached the number of iterations per block, continue
+    // On the first block, we haven't yet calculated the number of iterations per block. Instead, we keep executing
+    // until we reach a specific time.
     let iterations = ++this.iterationsSinceLastBlock;
-    if (iterations < this.iterationsPerBlock) {
-      return true;
+    if (this.iterationsPerBlock === 0) {
+      let time = this.timer.getElapsedMilliseconds();
+      if (time < this.timePerBlock) {
+        return true;
+      }
+
+      // We have completed the first block
+      this.iterationsPerBlock = iterations;
+    } else {
+      // If we have not yet reached the number of iterations per block, continue
+      if (iterations < this.iterationsPerBlock) {
+        return true;
+      }
     }
 
     // Record the block
@@ -107,19 +121,20 @@ class PerformanceTester {
  * @param test Lambda function to test
  * @param blockCount Number of execution blocks to measure. We repeat the test this number of times to discard the
  *    highest and lowest values.
- * @param iterationsPerBlock Number of times to execute the test within each block. Timers in JavaScript only have
- *    an accuracy of 1 ms or so, therefore it's best to repeat until each block takes 20 ms or more.
+ * @param timePerBlock Time, in milliseconds, that a block should last. On the first run, we measure the number of
+ *    iterations it takes to reach this time and repeat that number of iterations. This value should be at least 10 ms
+ *    or greater, as the timers in web browsers are only accurate to 1 ms or so.
  * @param discardPercentage Percentage of iteration blocks to discard (0.0 to 1.0). We drop the highest and lowest and
  *    return the average of the remaining blocks.
  * @returns String with a message containing the results
  */
-export function perfTest(description: string, test: () => void, blockCount = 10, iterationsPerBlock = 50,
+export function perfTest(description: string, test: () => void, blockCount = 10, timePerBlock = 50,
     discardPercentage = 0.5): string {
   let p = new PerformanceTester();
   p.description = description;
   p.test = test;
   p.blockCount = blockCount;
-  p.iterationsPerBlock = iterationsPerBlock;
+  p.timePerBlock = timePerBlock;
   p.discardPercentage = discardPercentage;
   return p.run();
 }
@@ -130,19 +145,20 @@ export function perfTest(description: string, test: () => void, blockCount = 10,
  * @param test Async lambda function to test
  * @param blockCount Number of execution blocks to measure. We repeat the test this number of times to discard the
  *    highest and lowest values.
- * @param iterationsPerBlock Number of times to execute the test within each block. Timers in JavaScript only have
- *    an accuracy of 1 ms or so, therefore it's best to repeat until each block takes 20 ms or more.
+ * @param timePerBlock Time, in milliseconds, that a block should last. On the first run, we measure the number of
+ *    iterations it takes to reach this time and repeat that number of iterations. This value should be at least 10 ms
+ *    or greater, as the timers in web browsers are only accurate to 1 ms or so.
  * @param discardPercentage Percentage of iteration blocks to discard (0.0 to 1.0). We drop the highest and lowest and
  *    return the average of the remaining blocks.
  * @returns String with a message containing the results
  */
-export function perfTestAsync(description: string, test: () => Promise<void>, blockCount = 10,
-    iterationsPerBlock = 50, discardPercentage = 0.5): Promise<string> {
+export function perfTestAsync(description: string, test: () => Promise<void>, blockCount = 10, timePerBlock = 50,
+    discardPercentage = 0.5): Promise<string> {
   let p = new PerformanceTester();
   p.description = description;
   p.testAsync = test;
   p.blockCount = blockCount;
-  p.iterationsPerBlock = iterationsPerBlock;
+  p.timePerBlock = timePerBlock;
   p.discardPercentage = discardPercentage;
   return p.runAsync();
 }
