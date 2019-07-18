@@ -5,6 +5,7 @@
 import { FimCanvas, FimCanvasBase, FimGLCanvas, FimGLProgramCopy, FimGLTexture,
   FimRect } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, parseQueryString, using } from '@leosingleton/commonlibs';
+import $ from 'jquery';
 
 let qs = parseQueryString();
 
@@ -224,3 +225,13 @@ export function textureToCanvas(gl: FimGLCanvas, texture: FimGLTexture): void {
     program.execute();
   });
 }
+
+// Write GPU details to the screen if there is a <div id="gpu">
+$(() => {
+  let gpuDiv = $('#gpu');
+  if (gpuDiv) {
+    using(new FimGLCanvas(320, 320), gl => {
+      gpuDiv.text(JSON.stringify(gl.capabilities, null, 4));
+    });
+  }  
+});
