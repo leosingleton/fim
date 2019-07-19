@@ -251,3 +251,60 @@ $(() => {
     });
   }  
 });
+
+
+//
+// Unhandled Exception Handling
+//
+
+/** To catch errors before the page load event, we queue them here */
+let errorQueue: string[] = [];
+let isLoaded = false;
+
+// Register an error handler to catch unhandled exceptions
+window.onerror = (event, source, lineno, colno, error) => {
+  // Convert the error to a string
+  let errorStr: string;
+  if (error) {
+    errorStr = `Error: ${error.message}\n${error.stack}`;
+  } else {
+    let eventStr = JSON.stringify(event, null, 4);
+    errorStr = `Error: ${eventStr}\n  at ${source}:${lineno}:${colno}`;
+  }
+
+  writeError(errorStr);
+};
+
+// With promises, this one normally fires instead
+window.addEventListener('unhandledrejection', event => {
+  // Convert the error to a string
+  let reason = event.reason;
+  let errorStr: string;
+  if (reason instanceof Error) {
+    errorStr = `Unhandled Promise Rejection: ${reason.message}\n${reason.stack}`;
+  } else {
+    errorStr = `Unhandled Promise Rejection: ${reason.toString()}`;
+  }
+  
+  writeError(errorStr);
+});
+
+// On page load, display any errors that occurred earlier
+$(() => {
+  isLoaded = true;
+  errorQueue.forEach(writeError);
+});
+
+function writeError(error: string): void {
+  if (!isLoaded) {
+    errorQueue.push(error);
+    return;
+  }
+
+  // Append the error to <div id="errors">
+  let div = $('#errors');
+  if (div) {
+    div.text(div.text() + '\n' + error);
+    div.show(); // Unhide if display: none
+  }
+}
