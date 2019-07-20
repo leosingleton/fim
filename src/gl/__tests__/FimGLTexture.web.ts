@@ -18,39 +18,7 @@ function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
 }
 
 describe('FimGLTexture', () => {
-  it('Downscales square oversized textures', async () => {
-    await DisposableSet.usingAsync(async disposable => {
-      let gl = disposable.addDisposable(new FimGLCanvas(480, 480));
-      
-      // Find a texture size bigger than the GPU can support and create a texture of that size
-      let textureSize = gl.capabilities.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize));
-      expect(texture.downscaled).toBeTruthy();
-      expect(texture.w).toBe(gl.capabilities.maxTextureSize);
-      expect(texture.h).toBe(gl.capabilities.maxTextureSize);
-      expect(texture.originalDimensions.w).toBe(textureSize);
-      expect(texture.originalDimensions.h).toBe(textureSize);
-
-      // Create a test image bigger than the GPU can support and load it onto the texture
-      let jpeg = FimTestImages.fourSquaresJpeg();
-      let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
-      let srcImage = disposable.addDisposable(new FimCanvas(textureSize + 200, textureSize + 200));
-      srcImage.copyFrom(buffer);
-
-      // Render the texture to the WebGL canvas
-      let program = disposable.addDisposable(new FimGLProgramCopy(gl));
-      program.setInputs(texture);
-      program.execute();
-
-      // Check a few pixels to ensure the texture rendered correctly
-      expectToBeCloseTo(gl.getPixel(120, 120), FimColor.fromString('#f00'));
-      expectToBeCloseTo(gl.getPixel(360, 120), FimColor.fromString('#0f0'));
-      expectToBeCloseTo(gl.getPixel(120, 360), FimColor.fromString('#00f'));
-      expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
-    });
-  });
-
-  it('Downscales non-square oversized textures', async () => {
+  it('Downscales oversized textures', async () => {
     await DisposableSet.usingAsync(async disposable => {
       let gl = disposable.addDisposable(new FimGLCanvas(480, 240));
       
