@@ -26,9 +26,12 @@ export abstract class FimCanvasBase extends FimImage {
    * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
    *    workers. Check FimCanvasBase.supportsOffscreenCanvas to determine whether the web browser supports the
    *    OffscreenCanvas feature.
+   * @param maxDimension WebGL framebuffers have maximum sizes, which can be as low as 2048x2048. If the canvas width
+   *    or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas) {
-    super(width, height);
+  public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas,
+      maxDimension = 0) {
+    super(width, height, maxDimension);
 
     if (useOffscreenCanvas) {
       // Use Chrome's OffscreenCanvas object

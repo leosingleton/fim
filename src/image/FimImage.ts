@@ -14,7 +14,16 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   /** Returns a value from the FimImageKind string union indicating the implementation of the class */
   public abstract readonly kind: FimImageKind;
 
+  /**
+   * Constructor
+   * @param width Image width, in pixels
+   * @param height Image height, in pixels
+   * @param maxDimension Image implementations, particularly in WebGL, may have maximum supported dimensions. If the
+   *    requested width or height exceeds this, the image will be automatically downscaled.
+   */
   public constructor(width: number, height: number, maxDimension = 0) {
+    this.originalDimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.
     this.downscaled = false;
@@ -37,6 +46,9 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
 
   /** Set if the dimensions of the image have been downscaled from those requested in the constructor */
   public readonly downscaled: boolean;
+
+  /** Contains the original requested dimensions if the image was downscaled from those requested in the constructor */
+  public readonly originalDimensions: FimRect;
 
   public abstract dispose(): void;
 
