@@ -4,7 +4,7 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer, FimImageKindCanvas, FimImageKindRgbaBuffer } from '../image';
+import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer } from '../image';
 import { FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
@@ -30,13 +30,6 @@ export class FimGLCanvas extends FimCanvasBase {
 
     // Initialize WebGL
     let canvas = this.canvasElement;
-    this.gl = canvas.getContext('webgl');
-    if (!this.gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL);
-    }
-
-    // Read the browser capabilities
-    this.capabilities = this.readCapabilities();
 
     canvas.addEventListener('webglcontextlost', event => {
       console.log('Lost WebGL context');
@@ -54,6 +47,14 @@ export class FimGLCanvas extends FimCanvasBase {
       console.log('WebGL context restored');
       this.objects.forEach(o => o.onContextRestored());
     }, false);
+
+    this.gl = canvas.getContext('webgl');
+    if (!this.gl) {
+      throw new FimGLError(FimGLErrorCode.NoWebGL);
+    }
+
+    // Read the browser capabilities
+    this.capabilities = this.readCapabilities();
 
     if (initialColor) {
       this.fill(initialColor);
