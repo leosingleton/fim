@@ -129,7 +129,7 @@ export abstract class FimGLProgram implements IDisposable {
           value += '.';
         }
       } else {
-        throw new FimGLError(FimGLErrorCode.CompileError, 'Unsupported const type ' + c.variableType);
+        throw new FimGLError(FimGLErrorCode.CompileError, `Unsupported const type ${c.variableType}`);
       }
       code = code.replace(c.variableName, value);
     }
@@ -218,12 +218,20 @@ export abstract class FimGLProgram implements IDisposable {
 
       // Error on uniforms which do not have any value assigned. This is a bug in our code.
       if (uniform.variableValue == undefined) { // == => null or undefined
-        throw new Error(uniform.variableType + ' ' + uniform.variableName + '=' + uniform.variableValue);
+        throw new FimGLError(FimGLErrorCode.AppError,
+          `${uniform.variableType} ${uniform.variableName}=${uniform.variableValue}`);
       }
 
       if (uniform.variableType.indexOf('sampler') !== -1) {
         // Special case for textures. Bind the texture to the texture unit.
         let t = uniform.variableValue as FimGLTexture;
+
+        if (!t.hasImage) {
+          // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going to
+          // work, and WebGL returns a confusing non square power-of-two error if we allow the code to continue.
+          throw new FimGLError(FimGLErrorCode.AppError, 'BindEmptyTexture');
+        }
+        
         t.bind(uniform.textureUnit);
 
         // Set the uniform to the texture unit
@@ -250,7 +258,7 @@ export abstract class FimGLProgram implements IDisposable {
           case 'mat3':      this.gl.uniformMatrix3fv(uniform.uniformLocation, false, valueArray); break;
           case 'mat4':      this.gl.uniformMatrix4fv(uniform.uniformLocation, false, valueArray); break;
           default:
-            throw new Error('Unsupported type ' + uniform.variableType);
+            throw new FimGLError(FimGLErrorCode.AppError, `${uniform.variableType} unsupported`);
         }
       }
       FimGLError.throwOnError(gl);
@@ -267,6 +275,11 @@ export abstract class FimGLProgram implements IDisposable {
     // Render
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     FimGLError.throwOnError(gl);
+
+    if (outputTexture) {
+      // The texture now has an image. Set the boolean so it may be used as an input texture in the future.
+      outputTexture.hasImage = true;
+    }
   }
 
   protected readonly glCanvas: FimGLCanvas;

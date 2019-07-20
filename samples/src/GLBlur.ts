@@ -68,6 +68,7 @@ export async function glBlur(canvasId: string): Promise<void> {
     let ctx = output.getContext('2d');
     ctx.drawImage(gl.getCanvas(), 0, 0);
 
-    console.log('Rendered frame. FPS=' + (++frameCount * 1000 / clock.getElapsedMilliseconds()));
+    let fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
+    console.log(`Rendered frame. FPS=${fps}`);
   }
 }

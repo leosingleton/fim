@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Performance tests for WebGL copy program</title>
+    <script src="../samples.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <script>
+      window.onload = function() {
+        Samples.perfGLCopyProgram();
+      }
+    </script>
+    <div>
+      This page may take a few seconds to load depending on browser and GPU performance...
+    </div>
+
+    <div>
+      <h3>Performance a WebGL shader to copy a texture at various resolutions</h3>
+      <h4>Texture dimensions on X-axis; Canvas dimensions on Y-axis</h4>
+      <table>
+        <tr>
+          <th></th>
+          <th>2048x2048</th>
+          <th>WxH</th>
+          <th>4096x4096</th>
+        </tr>
+        <tr>
+          <th>2048x2048</th>
+          <td class="near-22-22"></td>
+          <td class="near-22-wh"></td>
+          <td class="near-22-44"></td>
+        </tr>
+        <tr>
+          <th>WxH</th>
+          <td class="near-wh-22"></td>
+          <td class="near-wh-wh"></td>
+          <td class="near-wh-44"></td>
+        </tr>
+        <tr>
+          <th>4096x4096</th>
+          <td class="near-44-22"></td>
+          <td class="near-44-wh"></td>
+          <td class="near-44-44"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Performance of nearest sampling versus linear</h3>
+      <table>
+        <tr>
+          <th></th>
+          <th>Nearest</th>
+          <th>Linear</th>
+        </tr>
+        <tr>
+          <th>2048x2048 to 2048x2048</th>
+          <td class="near-22-22"></td>
+          <td class="linear-22-22"></td>
+        </tr>
+        <tr>
+          <th>2048x2048 to WxH</th>
+          <td class="near-wh-22"></td>
+          <td class="linear-wh-22"></td>
+        </tr>
+        <tr>
+          <th>2048x2048 to 4096x4096</th>
+          <td class="near-44-22"></td>
+          <td class="linear-44-22"></td>
+        </tr>
+        <tr>
+          <th>WxH to 2048x2048</th>
+          <td class="near-22-wh"></td>
+          <td class="linear-22-wh"></td>
+        </tr>
+        <tr>
+          <th>WxH to WxH</th>
+          <td class="near-wh-wh"></td>
+          <td class="linear-wh-wh"></td>
+        </tr>
+        <tr>
+          <th>WxH to 4096x4096</th>
+          <td class="near-44-wh"></td>
+          <td class="linear-44-wh"></td>
+        </tr>
+        <tr>
+          <th>4096x4096 to 2048x2048</th>
+          <td class="near-22-44"></td>
+          <td class="linear-22-44"></td>
+        </tr>
+        <tr>
+          <th>4096x4096 to WxH</th>
+          <td class="near-wh-44"></td>
+          <td class="linear-wh-44"></td>
+        </tr>
+        <tr>
+          <th>4096x4096 to 4096x4096</th>
+          <td class="near-44-44"></td>
+          <td class="linear-44-44"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Input-Only versus Non-Input-Only</h3>
+      <table>
+        <tr>
+          <th></th>
+          <th>Input-Only</th>
+          <th>Non-Input-Only</th>
+        </tr>
+        <tr>
+          <th>2048x2048 to WxH</th>
+          <td class="near-wh-22"></td>
+          <td class="nonio-wh-22"></td>
+        </tr>
+        <tr>
+          <th>WxH to WxH</th>
+          <td class="near-wh-wh"></td>
+          <td class="nonio-wh-wh"></td>
+        </tr>
+        <tr>
+          <th>4096x4096 to WxH</th>
+          <td class="near-wh-22"></td>
+          <td class="nonio-wh-44"></td>
+        </tr>
+      </table>
+    </div>  
+
+    <div id="gpu" style="white-space: pre;"></div>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+  </body>
+</html>

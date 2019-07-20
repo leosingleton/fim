@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Performance tests for texImage2D</title>
+    <script src="../samples.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <script>
+      window.onload = function() {
+        Samples.perfTexImage2D();
+      }
+    </script>
+    <div>
+      This page may take a few seconds to load depending on browser and GPU performance...
+    </div>
+
+    <div>
+      <h3>texImage2D() with/without creating and disposing textures</h3>
+      <table>
+        <tr>
+          <th></th>
+          <th>Create/Dispose</th>
+          <th>Reuse Texture</th>
+        </tr>
+        <tr>
+          <th>2048x2048 to WxH</th>
+          <td class="ctd-22"></td>
+          <td class="t-22"></td>
+        </tr>
+        <tr>
+          <th>WxH to WxH</th>
+          <td class="ctd-wh"></td>
+          <td class="t-wh"></td>
+        </tr>
+        <tr>
+          <th>4096x4096 to WxH</th>
+          <td class="ctd-44"></td>
+          <td class="t-44"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="gpu" style="white-space: pre;"></div>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+  </body>
+</html>

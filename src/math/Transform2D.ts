@@ -88,7 +88,7 @@ export class Transform2D {
   private static acceptMatrixOrArray(value: Transform2D | number[]): number[] {
     let result = (value instanceof Transform2D) ? value.value : value;
     if (result.length !== 9) {
-      throw new Error('Invalid length ' + result.length);
+      throw new Error(`Invalid length ${result.length}`);
     }
 
     return result;

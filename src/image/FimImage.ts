@@ -4,7 +4,7 @@
 
 import { IDisposable } from '@leosingleton/commonlibs';
 import { FimImageKind } from './FimImageKind';
-import { FimRect, IFimDimensions } from '../primitives';
+import { FimRect, IFimDimensions, rescale } from '../primitives';
 
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
@@ -14,7 +14,26 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   /** Returns a value from the FimImageKind string union indicating the implementation of the class */
   public abstract readonly kind: FimImageKind;
 
-  public constructor(width: number, height: number) {
+  /**
+   * Constructor
+   * @param width Image width, in pixels
+   * @param height Image height, in pixels
+   * @param maxDimension Image implementations, particularly in WebGL, may have maximum supported dimensions. If the
+   *    requested width or height exceeds this, the image will be automatically downscaled.
+   */
+  public constructor(width: number, height: number, maxDimension = 0) {
+    // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
+    // automatically downscale the requested resolution.
+    this.downscaled = false;
+    this.downscaleRatio = 1;
+    if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
+      let newDimensions = rescale(width, height, maxDimension);
+      this.downscaleRatio = width / newDimensions.w;
+      width = newDimensions.w;
+      height = newDimensions.h;
+      this.downscaled = true;
+    }
+
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
@@ -24,6 +43,12 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly w: number;
   public readonly h: number;
   public readonly dimensions: FimRect;
+
+  /** Set if the dimensions of the image have been downscaled from those requested in the constructor */
+  public readonly downscaled: boolean;
+
+  /** Ratio of original resolution to downscaled resolution. 1 if the dimensions have not been downscaled. */
+  public readonly downscaleRatio: number;
 
   public abstract dispose(): void;
 
@@ -35,7 +60,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    */
   protected throwOnRescale(srcCoords: FimRect, destCoords: FimRect): void {
     if (!srcCoords.sameDimensions(destCoords)) {
-      throw new Error('Rescale not supported: ' + srcCoords + ' ' + destCoords);
+      throw new Error(`Rescale not supported: ${srcCoords} ${destCoords}`);
     }
   }
 
@@ -46,7 +71,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    */
   protected throwOnMismatchedDimensions(srcImage: FimImage): void {
     if (!this.dimensions.equals(srcImage.dimensions)) {
-      throw new Error('Crop and rescale not supported: ' + this.dimensions + ' ' + srcImage.dimensions);
+      throw new Error(`Crop and rescale not supported: ${this.dimensions} ${srcImage.dimensions}`);
     }
   }
 
@@ -56,6 +81,6 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * @param fimImage Invalid FimImage object
    */
   protected throwOnInvalidImageKind(fimImage: never): never {
-    throw new Error('Invalid kind: ' + fimImage);
+    throw new Error(`Invalid kind: ${fimImage}`);
   }
 }

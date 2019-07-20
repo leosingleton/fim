@@ -69,7 +69,7 @@ export class GaussianKernel {
    */
   static calculate(sigma: number, kernelSize: number, samples = 100, quantize = true): number[] {
     // Cache kernels once they are calculated, as we frequently reuse the same ones, and they are expensive to compute
-    let kernelName = sigma + ':' + kernelSize + ':' + samples + ':' + (quantize ? 'Q' : '-');
+    let kernelName = `${sigma}:${kernelSize}:${samples}:${quantize ? 'Q' : '-'}`;
     let kernel = this.kernelCache[kernelName];
     if (kernel) {
       return kernel;
@@ -77,7 +77,7 @@ export class GaussianKernel {
 
     // Ensure kernelSize is odd and large enough
     if (kernelSize % 2 !== 1 || kernelSize < 3) {
-      throw new Error('Invalid kernel size ' + kernelSize);
+      throw new Error(`Invalid kernel size ${kernelSize}`);
     }
     let halfKernelSize = Math.floor(kernelSize / 2);
 

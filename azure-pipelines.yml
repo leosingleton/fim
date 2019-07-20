@@ -1,6 +1,6 @@
 jobs:
 - job: Build
-  timeoutInMinutes: 3
+  timeoutInMinutes: 5
   cancelTimeoutInMinutes: 2
 
   pool:

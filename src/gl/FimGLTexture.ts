@@ -3,10 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from './FimGLCanvas';
-import { FimGLError } from './FimGLError';
+import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
   FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
 import { FimRect } from '../primitives';
+import { using } from '@leosingleton/commonlibs';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -25,7 +26,10 @@ export const enum FimGLTextureFlags {
   /** By default, we use nearest sampling. This uses linear instead. */
   LinearSampling = (1 << 2),
 
-  /** By default, we clamp the pixels at the edge. This causes us to repeat the image instead. */
+  /**
+   * By default, we clamp the pixels at the edge. This causes us to repeat the image instead.
+   * NOTE: Only available on square power-of-two textures!
+   */
   Repeat = (1 << 3),
 
   /**
@@ -54,15 +58,12 @@ export class FimGLTexture extends FimImage {
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = glCanvas.capabilities.maxTextureSize;
-    if (width > maxDimension || height > maxDimension) {
-      let scale = Math.min(maxDimension / width, maxDimension / height);
-      width = Math.floor(width * scale);
-      height = Math.floor(height * scale);
-      console.log('Limiting WebGL texture to ' + width + 'x' + height);
-    }
+    super(width, height, maxDimension);
+    width = this.w;
+    height = this.h;
 
-    super(width, height);
     this.kind = FimImageKindGLTexture;
+    this.hasImage = false;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -74,6 +75,10 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     
     // Set the parameters so we can render any size image
+    if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
+      // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
+      throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
+    }
     let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
     FimGLError.throwOnError(gl);
@@ -123,7 +128,15 @@ export class FimGLTexture extends FimImage {
     // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
     // actually used.
     if (srcCoords || destCoords) {
-      throw new Error('Coords not supported');
+      throw new FimGLError(FimGLErrorCode.AppError, 'Coords not supported');
+    }
+
+    // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
+    // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
+    // downscale larger images for WebGL.
+    let maxDimension = this.glCanvas.capabilities.maxTextureSize;
+    if (srcImage.w > maxDimension || srcImage.h > maxDimension) {
+      return this.copyFromWithDownscale(srcImage);
     }
 
     switch (srcImage.kind) {
@@ -148,6 +161,8 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
   }
 
   private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
@@ -158,6 +173,8 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
   }
 
   private copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
@@ -168,6 +185,29 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
+  }
+
+  private copyFromWithDownscale(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer): void {
+    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+      // This code path needs to be optimized, but it will likely rarely, if ever, get used. FimGreyscaleBuffer
+      // doesn't support resizing, nor does FimCanvas support copyFrom() a FimGreyscaleBuffer. So, we do multiple
+      // steps:
+      //  1. FimGreyscaleBuffer => FimRgbaBuffer
+      //  2. FimRgbaBuffer => Downscale => FimCanvas (using the slower, non-async version)
+      //  3. FimCanvas => FimTexture
+      using(new FimRgbaBuffer(srcImage.w, srcImage.h), temp => {
+        temp.copyFrom(srcImage);
+        this.copyFrom(temp);
+      });
+    } else {
+      // For all other object types, downscale to a FimCanvas of the target texture dimensions
+      using(new FimCanvas(this.w, this.h), temp => {
+        temp.copyFrom(srcImage);
+        this.copyFrom(temp);
+      });
+    }
   }
 
   public dispose(): void {
@@ -189,8 +229,26 @@ export class FimGLTexture extends FimImage {
   }
 
   public getFramebuffer(): WebGLFramebuffer {
+    if (this.textureFlags & FimGLTextureFlags.InputOnly) {
+      // Cannot write to an input only texture
+      throw new FimGLError(FimGLErrorCode.AppError, 'InputOnly');
+    }
     return this.fb;
   }
+
+  /**
+   * Returns whether the dimensions of this texture are a square power-of-two. Certain WebGL features, like texture
+   * wrapping, are only available on textures with square power-of-two dimensions.
+   */
+  public isSquarePot(): boolean {
+    return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
+  }
+
+  /**
+   * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
+   * texture as the output of a FimGLProgram.
+   */
+  public hasImage: boolean;
 
   private glCanvas: FimGLCanvas;
   private gl: WebGLRenderingContext;

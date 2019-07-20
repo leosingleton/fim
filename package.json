@@ -13,14 +13,18 @@
   "devDependencies": {
     "@types/jasmine": "^3.3.13",
     "@types/jest": "^24.0.15",
+    "@types/jquery": "^3.3.30",
     "@types/node": "^12.6.2",
     "copy-webpack-plugin": "^5.0.3",
     "glob": "^7.1.4",
     "jasmine-core": "^3.4.0",
     "jest": "^24.8.0",
     "jest-junit": "^6.4.0",
+    "jquery": "^3.4.1",
     "karma": "^4.2.0",
     "karma-chrome-launcher": "^3.0.0",
+    "karma-edge-launcher": "^0.4.2",
+    "karma-firefox-launcher": "^1.1.0",
     "karma-jasmine": "^2.0.1",
     "karma-junit-reporter": "^1.2.0",
     "ts-jest": "^24.0.2",
@@ -37,9 +41,11 @@
     "build": "npx webpack --mode=none",
     "samples": "cd samples && npx webpack",
     "test": "npm run test:node && npm run test:web",
+    "test:all": "npm run test:node && npm run test:web:all",
     "test:node": "npx jest --config=jest.node.config.js --maxWorkers=2 --coverage",
     "test:web": "npx webpack --mode=development --config=webpack.test.js && npx karma start",
-    "test:web:debug": "npx webpack --mode=development --config=webpack.test.js && npx karma start --single-run=false --browsers Chrome"
+    "test:web:debug": "npx webpack --mode=development --config=webpack.test.js && npx karma start --single-run=false --browsers Chrome",
+    "test:web:all": "npx webpack --mode=development --config=webpack.test.js && npx karma start --browsers ChromeHeadless,Edge,Firefox"
   },
   "files": [
     "build/dist/"

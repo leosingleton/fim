@@ -31,8 +31,7 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
     await TaskScheduler.yield();
 
     // Write the status
-    let status = 'Decoded ' + (++frameCount) + ' JPEGs. Average = ' +
-      Math.floor(totalTime / frameCount) + ' ms';
+    let status = `Decoded ${++frameCount} JPEGs. Average = ${Math.floor(totalTime / frameCount)} ms`;
     console.log(status);
     using(canvas.createDrawingContext(false, 'difference', 1), ctx => {
       ctx.fillStyle = '#fff';

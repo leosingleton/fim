@@ -6,7 +6,7 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer, FimImageKindCanvas, FimImageKindRgbaBuffer } from '../image';
 import { FimColor, FimRect } from '../primitives';
-import { IDisposable, using } from '@leosingleton/commonlibs';
+import { using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase {
@@ -16,18 +16,23 @@ export class FimGLCanvas extends FimCanvasBase {
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
    * @param height Height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this color.
+   * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
+   *    workers. Check FimCanvasBase.supportsOffscreenCanvas to determine whether the web browser supports the
+   *    OffscreenCanvas feature.
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  constructor(width: number, height: number, quality = 1) {
-    super(width, height);
+  constructor(width: number, height: number, initialColor?: FimColor | string,
+      useOffscreenCanvas = FimGLCanvas.supportsOffscreenCanvas, quality = 1) {
+    super(width, height, useOffscreenCanvas);
     this.renderQuality = quality;
 
     // Initialize WebGL
     let canvas = this.canvasElement;
     this.gl = canvas.getContext('webgl');
     if (!this.gl) {
-      throw new Error('WebGL not supported');
+      throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
 
     // Read the browser capabilities
@@ -49,6 +54,10 @@ export class FimGLCanvas extends FimCanvasBase {
       console.log('WebGL context restored');
       this.objects.forEach(o => o.onContextRestored());
     }, false);
+
+    if (initialColor) {
+      this.fill(initialColor);
+    }
   }
 
   public registerObject(object: IFimGLContextNotify): void {

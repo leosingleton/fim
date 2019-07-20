@@ -24,7 +24,7 @@ export class FimPoint {
   public static getRandomPoints(samples: number, rect: FimRect): FimPoint[] {
     // Since we're reading the same pixels over and over, there's no point in recalculating random values each time.
     // Cache them, since the coordinates will be the same for all canvases of the same dimensions.
-    let dimensions = rect.xLeft + '.' + rect.xRight + '.' + rect.yTop + '.' + rect.yBottom;
+    let dimensions = `${rect.xLeft}.${rect.xRight}.${rect.yTop}.${rect.yBottom}`;
     let pointArray = FimPoint.randomPointCache[dimensions];
 
     if (!pointArray || pointArray.length < samples) {
