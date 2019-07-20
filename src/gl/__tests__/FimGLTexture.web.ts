@@ -36,6 +36,7 @@ describe('FimGLTexture', () => {
       let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
       let srcImage = disposable.addDisposable(new FimCanvas(textureSize, textureSize / 2));
       srcImage.copyFrom(buffer);
+      texture.copyFrom(srcImage);
 
       // Render the texture to the WebGL canvas
       let program = disposable.addDisposable(new FimGLProgramCopy(gl));

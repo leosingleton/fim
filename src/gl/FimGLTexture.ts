@@ -59,6 +59,9 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = glCanvas.capabilities.maxTextureSize;
     super(width, height, maxDimension);
+    width = this.w;
+    height = this.h;
+
     this.kind = FimImageKindGLTexture;
     this.hasImage = false;
 
