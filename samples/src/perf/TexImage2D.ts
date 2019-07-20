@@ -17,7 +17,7 @@ export async function perfTexImage2D(): Promise<void> {
     //
     async function testCreateTexDispose(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
       // Run performance test
-      let message = perfTest(`Create, texImage2D, and dispose ${width}x${height} textures`, () => {
+      let results = perfTest(`Create, texImage2D, and dispose ${width}x${height} textures`, () => {
         using(new FimGLTexture(gl, width, height, flags), t => {
           t.copyFrom(srcImage);
         });
@@ -27,7 +27,7 @@ export async function perfTexImage2D(): Promise<void> {
       await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
         t.copyFrom(srcImage);
         textureToCanvas(gl, t);
-        await renderOutput(gl, message, 360);
+        await renderOutput(gl, results.message, 360);
       });
     }
 
@@ -46,14 +46,14 @@ export async function perfTexImage2D(): Promise<void> {
 
       await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
         // Run performance test
-        let message = perfTest(`texImage2D ${width}x${height} textures\n` +
+        let results = perfTest(`texImage2D ${width}x${height} textures\n` +
             `(reuse textures, InputOnly=${inputOnly})`, () => {
           t.copyFrom(srcImage);
         });
 
         // Render output
         textureToCanvas(gl, t);
-        await renderOutput(gl, message, 360);
+        await renderOutput(gl, results.message, 360);
       });
     }
 
@@ -78,13 +78,13 @@ export async function perfTexImage2D(): Promise<void> {
 
         await usingAsync(new FimGLTexture(gl, width, height, flags), async t => {
           // Run performance test
-          let message = perfTest(`texImage2D ${width}x${height} textures from FimRgbaBuffer (reuse textures)`, () => {
+          let results = perfTest(`texImage2D ${width}x${height} textures from FimRgbaBuffer (reuse textures)`, () => {
             t.copyFrom(buffer);
           });
 
           // Render output
           textureToCanvas(gl, t);
-          await renderOutput(gl, message, 360);
+          await renderOutput(gl, results.message, 360);
         });
       });
     }

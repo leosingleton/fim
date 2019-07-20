@@ -23,12 +23,12 @@ export async function perfCanvasCopy(): Promise<void> {
 
         // Run performance test
         let d = `Copy ${inputWidth}x${inputHeight} 2D canvas to ${outputWidth}x${outputHeight} 2D canvas`;
-        let message = perfTest(d, () => {
+        let results = perfTest(d, () => {
           canvas.copyFrom(input);
         })
 
         // Render output
-        await renderOutput(canvas, message, 360);
+        await renderOutput(canvas, results.message, 360);
       });
     }
 
@@ -55,12 +55,12 @@ export async function perfCanvasCopy(): Promise<void> {
 
         // Run performance test
         let d = `Copy ${width}x${height} WebGL canvas to 2D canvas`;
-        let message = perfTest(d, () => {
+        let results = perfTest(d, () => {
           canvas.copyFrom(gl);
         })
 
         // Render output
-        await renderOutput(gl, message, 360);
+        await renderOutput(gl, results.message, 360);
       });
     }
 

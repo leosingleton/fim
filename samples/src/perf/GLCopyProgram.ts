@@ -26,13 +26,13 @@ export async function perfGLCopyProgram(): Promise<void> {
         // Run performance test
         let d = `Copy ${textureWidth}x${textureHeight} texture to ${canvasWidth}x${canvasHeight} WebGL canvas\n` +
           `(Sampling=${linearSampling ? 'Linear' : 'Nearest'}, InputOnly=${inputOnly})`;
-        let message = perfTest(d, () => {
+        let results = perfTest(d, () => {
           program.setInputs(t);
           program.execute();
         })
 
         // Render output
-        await renderOutput(gl, message, 360);
+        await renderOutput(gl, results.message, 360);
       });
     }
 

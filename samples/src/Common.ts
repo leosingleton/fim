@@ -24,6 +24,21 @@ export async function loadTestImage(): Promise<FimCanvas> {
   return FimCanvas.createFromJpeg(jpeg);
 }
 
+/** Performance testing results */
+export interface IPerformanceResults {
+  /** Average execution time, in milliseconds */
+  avg: number;
+
+  /** Average execution time, in frames per second */
+  fps: number;
+
+  /** Number of iterations executed */
+  iterations: number;
+
+  /** Description of the test case and results */
+  message: string;
+}
+
 class PerformanceTester {
   public description: string;
   public test: () => void;
@@ -32,7 +47,7 @@ class PerformanceTester {
   public timePerBlock: number;
   public discardPercentage: number;
 
-  public run(): string {
+  public run(): IPerformanceResults {
     this.init();
     do {
       this.test();
@@ -40,7 +55,7 @@ class PerformanceTester {
     return this.result();
   }
 
-  public async runAsync(): Promise<string> {
+  public async runAsync(): Promise<IPerformanceResults> {
     this.init();
     do {
       await this.testAsync();
@@ -92,7 +107,7 @@ class PerformanceTester {
     return (values.length < this.blockCount);
   }
 
-  private result(): string {
+  private result(): IPerformanceResults {
     // Sort the blocks by execution time
     let values = this.values;
     let iterationsPerBlock = this.iterationsPerBlock;
@@ -111,7 +126,15 @@ class PerformanceTester {
 
     // Format output string
     let fps = 1000 / avg;
-    return `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\nIterations: ${originalCount}`;
+    let msg = `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\n` +
+      `Iterations: ${originalCount}`;
+
+    return {
+      iterations: originalCount,
+      avg: avg,
+      fps: fps,
+      message: msg
+    };
   }
 }
 
@@ -126,10 +149,10 @@ class PerformanceTester {
  *    or greater, as the timers in web browsers are only accurate to 1 ms or so.
  * @param discardPercentage Percentage of iteration blocks to discard (0.0 to 1.0). We drop the highest and lowest and
  *    return the average of the remaining blocks.
- * @returns String with a message containing the results
+ * @returns Performance results
  */
 export function perfTest(description: string, test: () => void, blockCount = 10, timePerBlock = 50,
-    discardPercentage = 0.5): string {
+    discardPercentage = 0.5): IPerformanceResults {
   let p = new PerformanceTester();
   p.description = description;
   p.test = test;
@@ -150,10 +173,10 @@ export function perfTest(description: string, test: () => void, blockCount = 10,
  *    or greater, as the timers in web browsers are only accurate to 1 ms or so.
  * @param discardPercentage Percentage of iteration blocks to discard (0.0 to 1.0). We drop the highest and lowest and
  *    return the average of the remaining blocks.
- * @returns String with a message containing the results
+ * @returns Performance results
  */
 export function perfTestAsync(description: string, test: () => Promise<void>, blockCount = 10, timePerBlock = 50,
-    discardPercentage = 0.5): Promise<string> {
+    discardPercentage = 0.5): Promise<IPerformanceResults> {
   let p = new PerformanceTester();
   p.description = description;
   p.testAsync = test;
