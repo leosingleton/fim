@@ -283,7 +283,7 @@ export function recordPerformanceValue(id: string, results: IPerformanceResults,
   performanceValues[id] = results;
 
   // Update the element
-  let element = $(`#${id}`);
+  let element = $(`.${id}`);
   if (element) {
     element.text(results.avg.toFixed(2));
   }
