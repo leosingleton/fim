@@ -4,7 +4,7 @@
 
 import { IDisposable } from '@leosingleton/commonlibs';
 import { FimImageKind } from './FimImageKind';
-import { FimRect, IFimDimensions } from '../primitives';
+import { FimRect, IFimDimensions, rescale } from '../primitives';
 
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
@@ -14,7 +14,17 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   /** Returns a value from the FimImageKind string union indicating the implementation of the class */
   public abstract readonly kind: FimImageKind;
 
-  public constructor(width: number, height: number) {
+  public constructor(width: number, height: number, maxDimension = 0) {
+    // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
+    // automatically downscale the requested resolution.
+    this.downscaled = false;
+    if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
+      let newDimensions = rescale(width, height, maxDimension);
+      width = newDimensions.w;
+      height = newDimensions.h;
+      this.downscaled = true;
+    }
+
     this.w = width;
     this.h = height;
     this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
@@ -24,6 +34,9 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly w: number;
   public readonly h: number;
   public readonly dimensions: FimRect;
+
+  /** Set if the dimensions of the image have been downscaled from those requested in the constructor */
+  public readonly downscaled: boolean;
 
   public abstract dispose(): void;
 

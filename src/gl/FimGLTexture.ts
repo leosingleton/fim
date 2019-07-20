@@ -6,7 +6,8 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
   FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
-import { FimRect, rescale, createDimensions } from '../primitives';
+import { FimRect } from '../primitives';
+import { using } from '@leosingleton/commonlibs';
 
 /** Flags for FimGLTexture creation */
 export const enum FimGLTextureFlags {
@@ -57,14 +58,7 @@ export class FimGLTexture extends FimImage {
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = glCanvas.capabilities.maxTextureSize;
-    if (width > maxDimension || height > maxDimension) {
-      let newDimensions = rescale(width, height, maxDimension);
-      width = newDimensions.w;
-      height = newDimensions.h;
-      console.log(`Limiting WebGL texture to ${width}x${height}`);
-    }
-
-    super(width, height);
+    super(width, height, maxDimension);
     this.kind = FimImageKindGLTexture;
     this.hasImage = false;
 
@@ -134,6 +128,14 @@ export class FimGLTexture extends FimImage {
       throw new FimGLError(FimGLErrorCode.AppError, 'Coords not supported');
     }
 
+    // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
+    // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
+    // downscale larger images for WebGL.
+    let maxDimension = this.glCanvas.capabilities.maxTextureSize;
+    if (srcImage.w > maxDimension || srcImage.h > maxDimension) {
+      return this.copyFromWithDownscale(srcImage);
+    }
+
     switch (srcImage.kind) {
       case FimImageKindCanvas:
       case FimImageKindGLCanvas:
@@ -182,6 +184,27 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
 
     this.hasImage = true;
+  }
+
+  private copyFromWithDownscale(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer): void {
+    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+      // This code path needs to be optimized, but it will likely rarely, if ever, get used. FimGreyscaleBuffer
+      // doesn't support resizing, nor does FimCanvas support copyFrom() a FimGreyscaleBuffer. So, we do multiple
+      // steps:
+      //  1. FimGreyscaleBuffer => FimRgbaBuffer
+      //  2. FimRgbaBuffer => Downscale => FimCanvas (using the slower, non-async version)
+      //  3. FimCanvas => FimTexture
+      using(new FimRgbaBuffer(srcImage.w, srcImage.h), temp => {
+        temp.copyFrom(srcImage);
+        this.copyFrom(temp);
+      });
+    } else {
+      // For all other object types, downscale to a FimCanvas of the target texture dimensions
+      using(new FimCanvas(this.w, this.h), temp => {
+        temp.copyFrom(srcImage);
+        this.copyFrom(temp);
+      });
+    }
   }
 
   public dispose(): void {
