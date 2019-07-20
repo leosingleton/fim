@@ -265,6 +265,35 @@ export function textureToCanvas(gl: FimGLCanvas, texture: FimGLTexture): void {
   });
 }
 
+/** Hash table of performance results */
+export type PerformanceResultsSet = {[id: string]: IPerformanceResults}; 
+
+let performanceValues: PerformanceResultsSet = {};
+
+/**
+ * Writes the performance results to the page
+ * @param id ID of the <div> or <td> element to set its contents
+ * @param results Performance results
+ * @param updateTotals Optional function to call to update additional summary data on the page. This function is
+ *    provided a hash table of all performance results so far as input
+ */
+export function recordPerformanceValue(id: string, results: IPerformanceResults,
+    updateTotals?: (all: PerformanceResultsSet) => void): void {
+  // Add the results to the hash table
+  performanceValues[id] = results;
+
+  // Update the element
+  let element = $(`#${id}`);
+  if (element) {
+    element.text(results.avg.toFixed(2));
+  }
+
+  // Update summary data
+  if (updateTotals) {
+    updateTotals(performanceValues);
+  }
+}
+
 // Write GPU details to the screen if there is a <div id="gpu">
 $(() => {
   let gpuDiv = $('#gpu');

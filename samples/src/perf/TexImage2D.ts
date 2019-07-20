@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loadTestImage, perfTest, renderOutput, textureToCanvas } from '../Common';
+import { loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerformanceValue } from '../Common';
 import { FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimRgbaBuffer } from '../../../build/dist/index.js';
 import { DisposableSet, using, usingAsync } from '@leosingleton/commonlibs';
 
@@ -15,7 +15,8 @@ export async function perfTexImage2D(): Promise<void> {
     //
     // Test case to create and dispose textures
     //
-    async function testCreateTexDispose(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
+    async function testCreateTexDispose(id: string, width: number, height: number, flags: FimGLTextureFlags):
+        Promise<void> {
       // Run performance test
       let results = perfTest(`Create, texImage2D, and dispose ${width}x${height} textures`, () => {
         using(new FimGLTexture(gl, width, height, flags), t => {
@@ -28,19 +29,20 @@ export async function perfTexImage2D(): Promise<void> {
         t.copyFrom(srcImage);
         textureToCanvas(gl, t);
         await renderOutput(gl, results.message, 360);
+        recordPerformanceValue(id, results);
       });
     }
 
     let createTexDisposeFlags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly;
-    await testCreateTexDispose(srcImage.w, srcImage.h, createTexDisposeFlags);
-    await testCreateTexDispose(2048, 2048, createTexDisposeFlags);
-    await testCreateTexDispose(4096, 4096, createTexDisposeFlags);
+    await testCreateTexDispose('ctd-wh', srcImage.w, srcImage.h, createTexDisposeFlags);
+    await testCreateTexDispose('ctd-22', 2048, 2048, createTexDisposeFlags);
+    await testCreateTexDispose('ctd-44', 4096, 4096, createTexDisposeFlags);
 
 
     //
     // Test case to test texImage2D reusing the same texture
     //
-    async function testTex(width: number, height: number, inputOnly: boolean): Promise<void> {
+    async function testTex(id: string, width: number, height: number, inputOnly: boolean): Promise<void> {
       let flags = FimGLTextureFlags.EightBit;
       flags |= inputOnly ? FimGLTextureFlags.InputOnly : 0;
 
@@ -54,24 +56,26 @@ export async function perfTexImage2D(): Promise<void> {
         // Render output
         textureToCanvas(gl, t);
         await renderOutput(gl, results.message, 360);
+        recordPerformanceValue(id, results);
       });
     }
 
     // Test with a read/write texture
-    await testTex(srcImage.w, srcImage.h, false);
-    await testTex(2048, 2048, false);
-    await testTex(4096, 4096, false);
+    await testTex('t-wh', srcImage.w, srcImage.h, false);
+    await testTex('t-22', 2048, 2048, false);
+    await testTex('t-44', 4096, 4096, false);
 
     // Test with an InputOnly texture
-    await testTex(srcImage.w, srcImage.h, true);
-    await testTex(2048, 2048, true);
-    await testTex(4096, 4096, true);
+    await testTex('tio-wh', srcImage.w, srcImage.h, true);
+    await testTex('tio-22', 2048, 2048, true);
+    await testTex('tio-44', 4096, 4096, true);
 
 
     //
     // Test case to test texImage2D from a FimRgbaBuffer (reuse textures)
     //
-    async function testTexFromBuffer(width: number, height: number, flags: FimGLTextureFlags): Promise<void> {
+    async function testTexFromBuffer(id: string, width: number, height: number, flags: FimGLTextureFlags):
+        Promise<void> {
       usingAsync(new FimRgbaBuffer(srcImage.w, srcImage.h), async buffer => {
         // Copy the source image to a buffer
         buffer.copyFrom(srcImage);
@@ -85,13 +89,14 @@ export async function perfTexImage2D(): Promise<void> {
           // Render output
           textureToCanvas(gl, t);
           await renderOutput(gl, results.message, 360);
+          recordPerformanceValue(id, results);
         });
       });
     }
 
     let texFromBufferFlags = FimGLTextureFlags.EightBit | FimGLTextureFlags.InputOnly;
-    await testTexFromBuffer(srcImage.w, srcImage.h, texFromBufferFlags);
-    await testTexFromBuffer(2048, 2048, texFromBufferFlags);
-    await testTexFromBuffer(4096, 4096, texFromBufferFlags);
+    await testTexFromBuffer('buf-wh', srcImage.w, srcImage.h, texFromBufferFlags);
+    await testTexFromBuffer('buf-22', 2048, 2048, texFromBufferFlags);
+    await testTexFromBuffer('buf-44', 4096, 4096, texFromBufferFlags);
   });
 }
