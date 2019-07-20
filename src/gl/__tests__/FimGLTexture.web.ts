@@ -28,8 +28,7 @@ describe('FimGLTexture', () => {
       expect(texture.downscaled).toBeTruthy();
       expect(texture.w).toBe(gl.capabilities.maxTextureSize);
       expect(texture.h).toBe(gl.capabilities.maxTextureSize / 2);
-      expect(texture.originalDimensions.w).toBe(textureSize);
-      expect(texture.originalDimensions.h).toBe(textureSize / 2);
+      expect(texture.downscaleRatio).toBe(textureSize / gl.capabilities.maxTextureSize);
 
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
