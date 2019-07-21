@@ -38,7 +38,11 @@ export class FimGLCanvas extends FimCanvasBase {
       maxDimension = 2048;
     }
 
+    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
     super(width, height, useOffscreenCanvas, maxDimension);
+    width = this.w;
+    height = this.h;
+
     this.renderQuality = quality;
     this.objects = [];
 

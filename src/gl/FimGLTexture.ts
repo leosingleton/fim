@@ -59,6 +59,8 @@ export class FimGLTexture extends FimImage {
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
+
+    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
     super(width, height, maxDimension);
     width = this.w;
     height = this.h;
