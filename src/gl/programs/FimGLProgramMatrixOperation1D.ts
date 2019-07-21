@@ -24,8 +24,9 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   /** Size of the kernel */
   public readonly kernelSize: number;
 
-  public setInputs(inputTexture: FimGLTexture, kernel: number[]): void {
+  public setInputs(inputTexture: FimGLTexture, kernel: number[], tempTexture?: FimGLTexture): void {
     this.inputTexture = inputTexture;
+    this.tempTexture = tempTexture;
 
     if (kernel.length != this.kernelSize) {
       throw new FimGLError(FimGLErrorCode.AppError, `Expected kernel of size ${this.kernelSize}`);
@@ -35,23 +36,38 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   }
 
   public execute(outputTexture?: FimGLTexture): void {
+    if (this.tempTexture) {
+      this.executeInternal(this.tempTexture, outputTexture);
+    } else {
+      // If no temporary texture was specified, create one
+      let inputTexture = this.inputTexture;
+      let width = Math.min(outputTexture.w, inputTexture.w);
+      let height = Math.min(outputTexture.h, inputTexture.h);
+      let flags = inputTexture.flags;
+
+      using(new FimGLTexture(this.glCanvas, width, height, flags), temp => {
+        this.executeInternal(temp, outputTexture);
+      });
+    }
+  }
+
+  private executeInternal(tempTexture: FimGLTexture, outputTexture?: FimGLTexture): void {
     let uniforms = this.fragmentShader.uniforms;
 
-    using(new FimGLTexture(this.glCanvas), intermediateCanvas => {
-      // Make the first pass in the X direction
-      uniforms.u_input.variableValue = this.inputTexture;
-      uniforms.u_inputSize.variableValue = [this.inputTexture.w, this.inputTexture.h];
-      uniforms.u_isX.variableValue = 1;
-      uniforms.u_isY.variableValue = 0;
-      super.execute(intermediateCanvas);
+    // Make the first pass in the X direction
+    uniforms.u_input.variableValue = this.inputTexture;
+    uniforms.u_inputSize.variableValue = [this.inputTexture.w, this.inputTexture.h];
+    uniforms.u_isX.variableValue = 1;
+    uniforms.u_isY.variableValue = 0;
+    super.execute(tempTexture);
 
-      // Make the second pass in the Y direction
-      uniforms.u_input.variableValue = intermediateCanvas;
-      uniforms.u_isX.variableValue = 0;
-      uniforms.u_isY.variableValue = 1;
-      super.execute(outputTexture);
-    });
+    // Make the second pass in the Y direction
+    uniforms.u_input.variableValue = tempTexture;
+    uniforms.u_isX.variableValue = 0;
+    uniforms.u_isY.variableValue = 1;
+    super.execute(outputTexture);
   }
 
   private inputTexture: FimGLTexture;
+  private tempTexture?: FimGLTexture;
 }

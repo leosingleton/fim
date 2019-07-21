@@ -65,6 +65,7 @@ export class FimGLTexture extends FimImage {
     width = this.w;
     height = this.h;
 
+    this.flags = flags;
     this.hasImage = false;
 
     let gl = this.gl = glCanvas.gl;
@@ -109,6 +110,8 @@ export class FimGLTexture extends FimImage {
       FimGLError.throwOnError(gl);
     }
   }
+
+  public readonly flags: FimGLTextureFlags;
 
   public bind(textureUnit: number): void {
     let gl = this.gl;
