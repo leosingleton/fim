@@ -5,7 +5,7 @@
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
-import { FimGLTexture } from '../FimGLTexture';
+import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { using } from '@leosingleton/commonlibs';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 
@@ -36,16 +36,18 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   }
 
   public execute(outputTexture?: FimGLTexture): void {
+    let gl = this.glCanvas;
+
     if (this.tempTexture) {
       this.executeInternal(this.tempTexture, outputTexture);
     } else {
       // If no temporary texture was specified, create one
       let inputTexture = this.inputTexture;
-      let width = Math.min(outputTexture.w, inputTexture.w);
-      let height = Math.min(outputTexture.h, inputTexture.h);
-      let flags = inputTexture.flags;
+      let width = Math.min(outputTexture ? outputTexture.w : gl.w, inputTexture.w);
+      let height = Math.min(outputTexture ? outputTexture.h : gl.h, inputTexture.h);
+      let flags = inputTexture.flags & ~FimGLTextureFlags.InputOnly;
 
-      using(new FimGLTexture(this.glCanvas, width, height, flags), temp => {
+      using(new FimGLTexture(gl, width, height, flags), temp => {
         this.executeInternal(temp, outputTexture);
       });
     }
