@@ -73,16 +73,16 @@ function spec(useOffscreenCanvas: boolean) {
         // Find a canvas size bigger than the GPU can support and create a canvas of that size
         let caps = FimGLCapabilities.getCapabilities();
         let canvasSize = caps.maxRenderBufferSize + 1000;
-        let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 2, undefined, useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 8, undefined, useOffscreenCanvas));
         expect(gl.downscaled).toBeTruthy();
         expect(gl.w).toBe(caps.maxRenderBufferSize);
-        expect(gl.h).toBe(caps.maxRenderBufferSize / 2);
+        expect(gl.h).toBe(caps.maxRenderBufferSize / 8);
         expect(gl.downscaleRatio).toBe(canvasSize / caps.maxRenderBufferSize);
         expect(gl.getCanvas().width).toBe(gl.w);
         expect(gl.getCanvas().height).toBe(gl.h);
 
         // Create a test image the original size of the canvas
-        let texture = disposable.addDisposable(new FimGLTexture(gl, canvasSize, canvasSize / 2));
+        let texture = disposable.addDisposable(new FimGLTexture(gl, canvasSize, canvasSize / 8));
         let jpeg = FimTestImages.fourSquaresJpeg();
         let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
         texture.copyFrom(buffer);
@@ -95,8 +95,8 @@ function spec(useOffscreenCanvas: boolean) {
         // Check a few pixels to ensure the texture rendered correctly
         let left = canvasSize / 4;
         let right = canvasSize * 3 / 4;
-        let top = canvasSize / 8;
-        let bottom = canvasSize * 3 / 8;
+        let top = canvasSize / 32;
+        let bottom = canvasSize * 3 / 32;
         expectToBeCloseTo(gl.getPixel(left, top), FimColor.fromString('#f00'));
         expectToBeCloseTo(gl.getPixel(right, top), FimColor.fromString('#0f0'));
         expectToBeCloseTo(gl.getPixel(left, bottom), FimColor.fromString('#00f'));

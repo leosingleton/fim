@@ -26,16 +26,16 @@ describe('FimGLTexture', () => {
       // Find a texture size bigger than the GPU can support and create a texture of that size
       let caps = FimGLCapabilities.getCapabilities();
       let textureSize = caps.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 2));
+      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8));
       expect(texture.downscaled).toBeTruthy();
       expect(texture.w).toBe(caps.maxTextureSize);
-      expect(texture.h).toBe(caps.maxTextureSize / 2);
+      expect(texture.h).toBe(caps.maxTextureSize / 8);
       expect(texture.downscaleRatio).toBe(textureSize / caps.maxTextureSize);
 
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
       let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
-      let srcImage = disposable.addDisposable(new FimCanvas(textureSize, textureSize / 2));
+      let srcImage = disposable.addDisposable(new FimCanvas(textureSize, textureSize / 8));
       srcImage.copyFrom(buffer);
       texture.copyFrom(srcImage);
 
