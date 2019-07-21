@@ -15,6 +15,7 @@ All tests show performance of texImage2D() from a 4096x4096 canvas:
 | iPhone XR        | Apple GPU                    | Chrome     |  16.5 ms |  16.3 ms |
 | iPhone SE        | Apple A9 GPU                 | Safari     |  34.7 ms |  34.6 ms |
 | 2019 MacBook Pro | Intel Iris Plus Graphics 655 | Safari 12  |  30.3 ms |  29.6 ms |
+| iPad Air 2       | Apple A8X GPU                | Safari     |  64.8 ms |  54.0 ms |
 | 2012 MacBook Air | Intel HD Graphics 4000       | Safari 12  |  60.8 ms |  61.8 ms |
 | Windows 10 PC    | Intel HD Graphics 630        | Firefox 61 |  88.6 ms |  71.8 ms |
 | Windows 10 PC    | Intel HD Graphics 630        | Chrome 75  | 118.6 ms | 105.5 ms |
