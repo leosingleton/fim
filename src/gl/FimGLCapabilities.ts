@@ -56,7 +56,7 @@ export class FimGLCapabilities {
       this.maxRenderBufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
       this.maxTextureImageUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
       this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-      this.extensions = gl.getSupportedExtensions();
+      this.extensions = gl.getSupportedExtensions().sort();
 
       let dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
       if (dbgRenderInfo) {
