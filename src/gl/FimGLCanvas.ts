@@ -53,9 +53,6 @@ export class FimGLCanvas extends FimCanvasBase {
       throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
 
-    // Read the browser capabilities
-    this.capabilities = this.readCapabilities();
-
     if (initialColor) {
       this.fill(initialColor);
     }
@@ -137,35 +134,6 @@ export class FimGLCanvas extends FimCanvasBase {
     return ext;
   }
 
-  /**
-   * Returns the WebGL capabilities of the current browser
-   */
-  public readonly capabilities: FimGLCapabilities;
-
-  private readCapabilities(): FimGLCapabilities {
-    let gl = this.gl;
-    let caps = {
-      glVersion: gl.getParameter(gl.VERSION),
-      shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
-      vendor: gl.getParameter(gl.VENDOR),
-      renderer: gl.getParameter(gl.RENDERER),
-      unmaskedVendor: '',
-      unmaskedRenderer: '',
-      maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
-      maxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
-      maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-      extensions: gl.getSupportedExtensions()
-    };
-
-    let dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
-    if (dbgRenderInfo) {
-      caps.unmaskedVendor = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
-      caps.unmaskedRenderer = gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL);
-    }
-
-    return caps;
-  }
-
   private objects: IFimGLContextNotify[] = [];
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
@@ -209,17 +177,4 @@ export class FimGLCanvas extends FimCanvasBase {
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
-}
-
-export interface FimGLCapabilities {
-  glVersion: string,
-  shadingLanguageVersion: string,
-  vendor: string,
-  renderer: string,
-  unmaskedVendor: string,
-  unmaskedRenderer: string,
-  maxRenderBufferSize: number,
-  maxTextureImageUnits: number,
-  maxTextureSize: number,
-  extensions: string[]
 }

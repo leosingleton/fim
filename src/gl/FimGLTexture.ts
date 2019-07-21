@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from './FimGLCanvas';
+import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
   FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
@@ -57,7 +58,7 @@ export class FimGLTexture extends FimImage {
 
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
-    let maxDimension = glCanvas.capabilities.maxTextureSize;
+    let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
     super(width, height, maxDimension);
     width = this.w;
     height = this.h;
@@ -134,7 +135,7 @@ export class FimGLTexture extends FimImage {
     // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
-    let maxDimension = this.glCanvas.capabilities.maxTextureSize;
+    let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
     if (srcImage.w > maxDimension || srcImage.h > maxDimension) {
       return this.copyFromWithDownscale(srcImage);
     }
