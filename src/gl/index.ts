@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 export * from './FimGLCanvas';
+export * from './FimGLCapabilities';
 export * from './FimGLError';
 export * from './FimGLProgram';
 export * from './FimGLShader';
