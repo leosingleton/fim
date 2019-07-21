@@ -5,8 +5,10 @@
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
-  FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
+import { FimCanvas } from '../image/FimCanvas';
+import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
+import { FimImage } from '../image/FimImage';
+import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
@@ -42,8 +44,6 @@ export const enum FimGLTextureFlags {
 
 /** Wrapper class for WebGL textures */
 export class FimGLTexture extends FimImage {
-  public readonly kind: FimImageKind;
-
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -63,7 +63,6 @@ export class FimGLTexture extends FimImage {
     width = this.w;
     height = this.h;
 
-    this.kind = FimImageKindGLTexture;
     this.hasImage = false;
 
     let gl = this.gl = glCanvas.gl;
@@ -140,19 +139,14 @@ export class FimGLTexture extends FimImage {
       return this.copyFromWithDownscale(srcImage);
     }
 
-    switch (srcImage.kind) {
-      case FimImageKindCanvas:
-      case FimImageKindGLCanvas:
-        return this.copyFromCanvas(srcImage);
-
-      case FimImageKindGreyscaleBuffer:
-        return this.copyFromGreyscaleBuffer(srcImage);
-
-      case FimImageKindRgbaBuffer:
-        return this.copyFromRgbaBuffer(srcImage);
-
-      default:
-        this.throwOnInvalidImageKind(srcImage);
+    if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
+      this.copyFromCanvas(srcImage);
+    } else if (srcImage instanceof FimGreyscaleBuffer) {
+      this.copyFromGreyscaleBuffer(srcImage);
+    } else if (srcImage instanceof FimRgbaBuffer) {
+      this.copyFromRgbaBuffer(srcImage);
+    } else {
+      this.throwOnInvalidImageKind(srcImage);
     }
   }
   
@@ -191,7 +185,7 @@ export class FimGLTexture extends FimImage {
   }
 
   private copyFromWithDownscale(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer): void {
-    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+    if (srcImage instanceof FimGreyscaleBuffer) {
       // This code path needs to be optimized, but it will likely rarely, if ever, get used. FimGreyscaleBuffer
       // doesn't support resizing, nor does FimCanvas support copyFrom() a FimGreyscaleBuffer. So, we do multiple
       // steps:
@@ -268,10 +262,10 @@ export class FimGLTexture extends FimImage {
       extraFlags = FimGLTextureFlags.None): FimGLTexture {
     // Calculate flags with defaults and extras
     let flags = FimGLTextureFlags.InputOnly | extraFlags;
-    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+    if (srcImage instanceof FimGreyscaleBuffer) {
       flags |= FimGLTextureFlags.Greyscale;
     }
-    if (srcImage.kind !== FimImageKindGLCanvas) {
+    if (!(srcImage instanceof FimGLCanvas)) {
       flags |= FimGLTextureFlags.EightBit;
     }
 

@@ -2,18 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IDisposable } from '@leosingleton/commonlibs';
-import { FimImageKind } from './FimImageKind';
 import { FimRect, IFimDimensions, rescale } from '../primitives';
+import { IDisposable } from '@leosingleton/commonlibs';
 
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
  * of the image itself may be changed with copyFrom() or other functions.
  */
 export abstract class FimImage implements IDisposable, IFimDimensions {
-  /** Returns a value from the FimImageKind string union indicating the implementation of the class */
-  public abstract readonly kind: FimImageKind;
-
   /**
    * Constructor
    * @param width Image width, in pixels

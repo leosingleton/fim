@@ -5,17 +5,13 @@
 import { FimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
-import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer,
-  FimImageKindGreyscaleBuffer } from './FimImageKind';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
-import { FimGLCanvas } from '../gl';
+import { FimGLCanvas } from '../gl/FimGLCanvas';
 import { FimRect, FimColor } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
 export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
-  public readonly kind = FimImageKindRgbaBuffer;
-
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param width Canvas width, in pixels
@@ -74,19 +70,14 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    */
   public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
-    switch (srcImage.kind) {
-      case FimImageKindCanvas:
-      case FimImageKindGLCanvas:
-        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
-
-      case FimImageKindGreyscaleBuffer:
-        return this.copyFromGreyscaleBuffer(srcImage, srcCoords, destCoords);
-
-      case FimImageKindRgbaBuffer:
-        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
-
-      default:
-        this.throwOnInvalidImageKind(srcImage);
+    if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
+      this.copyFromCanvas(srcImage, srcCoords, destCoords);
+    } else if (srcImage instanceof FimGreyscaleBuffer) {
+      this.copyFromGreyscaleBuffer(srcImage, srcCoords, destCoords);
+    } else if (srcImage instanceof FimRgbaBuffer) {
+      this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+    } else {
+      this.throwOnInvalidImageKind(srcImage);
     }
   }
 
@@ -117,26 +108,21 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
 
   private copyFromCanvasInternal(srcImage: FimCanvas | FimGLCanvas, srcCoords: FimRect): void {
-    switch (srcImage.kind) {
-      case FimImageKindCanvas:
-        // Copy data from a normal HtmlCanvas
-        using(srcImage.createDrawingContext(), ctx => {
-          let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
-          this.buffer = imgData.data;
-        });
-        break;
-
-      case FimImageKindGLCanvas:
-        // We can't get a 2D drawing context directly to a WebGL canvas. Instead, copy the part we want first to a
-        // temporary canvas.
-        using(new FimCanvas(srcCoords.w, srcCoords.h), temp => {
-          temp.copyFrom(srcImage, srcCoords);
-          this.copyFromCanvasInternal(temp, temp.dimensions); // Recurse
-        });
-        break;
-
-      default:
-        this.throwOnInvalidImageKind(srcImage);
+    if (srcImage instanceof FimCanvas) {
+      // Copy data from a normal HtmlCanvas
+      using(srcImage.createDrawingContext(), ctx => {
+        let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
+        this.buffer = imgData.data;
+      });
+    } else if (srcImage instanceof FimGLCanvas) {
+      // We can't get a 2D drawing context directly to a WebGL canvas. Instead, copy the part we want first to a
+      // temporary canvas.
+      using(new FimCanvas(srcCoords.w, srcCoords.h), temp => {
+        temp.copyFrom(srcImage, srcCoords);
+        this.copyFromCanvasInternal(temp, temp.dimensions); // Recurse
+      });
+    } else {
+      this.throwOnInvalidImageKind(srcImage);
     }
   }
 
@@ -226,15 +212,12 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    */
   public async copyToAsync(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
       Promise<void> {
-    switch (destImage.kind) {
-      case FimImageKindCanvas:
-        return destImage.copyFromAsync(this, srcCoords, destCoords);
-
-      case FimImageKindRgbaBuffer:
-        return destImage.copyFrom(this, srcCoords, destCoords);
-
-      default:
-        this.throwOnInvalidImageKind(destImage);
+    if (destImage instanceof FimCanvas) {
+      destImage.copyFromAsync(this, srcCoords, destCoords);
+    } else if (destImage instanceof FimRgbaBuffer) {
+      destImage.copyFrom(this, srcCoords, destCoords);
+    } else {
+      this.throwOnInvalidImageKind(destImage);
     }
   }
 

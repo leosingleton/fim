@@ -3,12 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimCanvasBase, FimImageKindGLCanvas } from '../image';
+import { FimCanvasBase } from '../image/FimCanvasBase';
 
 /** Helper class to create a temporary WebGL canvas, just for reading capabilities */
 class WebGLHelper extends FimCanvasBase {
-  public readonly kind = FimImageKindGLCanvas;
-
   public constructor() {
     // Use a small canvas that any browser supporting WebGL can handle
     super(240, 240);

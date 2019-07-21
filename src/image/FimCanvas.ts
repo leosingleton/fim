@@ -3,17 +3,14 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvasBase } from './FimCanvasBase';
-import { FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindRgbaBuffer } from './FimImageKind';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { FimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor, FimRect } from '../primitives';
 import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
-import { FimGLCanvas } from '../gl';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
-  public readonly kind = FimImageKindCanvas;
-
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -104,16 +101,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param destCoords Coordinates of destination image to copy to
    */
   public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    switch (srcImage.kind) {
-      case FimImageKindCanvas:
-      case FimImageKindGLCanvas:
-        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
-
-      case FimImageKindRgbaBuffer:
-        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
-
-      default:
-        this.throwOnInvalidImageKind(srcImage);
+    if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
+      this.copyFromCanvas(srcImage, srcCoords, destCoords);
+    } else if (srcImage instanceof FimRgbaBuffer) {
+      this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+    } else {
+      this.throwOnInvalidImageKind(srcImage);
     }
   }
 
@@ -125,23 +118,19 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    */
   public async copyFromAsync(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): Promise<void> {
-    switch (srcImage.kind) {
-      case FimImageKindCanvas:
-      case FimImageKindGLCanvas:
-        return this.copyFromCanvas(srcImage, srcCoords, destCoords);
-
-      case FimImageKindRgbaBuffer:
-        // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
-        // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
-        // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit
-        // tests. However, createImageBitmap() is not yet supported on Safari or Edge.
-        if (typeof createImageBitmap !== 'undefined') {
-          return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
-        }
-        return this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
-
-      default:
-        this.throwOnInvalidImageKind(srcImage);
+    if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
+      this.copyFromCanvas(srcImage, srcCoords, destCoords);
+    } else if (srcImage instanceof FimRgbaBuffer) {
+      // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
+      // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
+      // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit
+      // tests. However, createImageBitmap() is not yet supported on Safari or Edge.
+      if (typeof createImageBitmap !== 'undefined') {
+        return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
+      }
+      this.copyFromRgbaBuffer(srcImage, srcCoords, destCoords);
+    } else {
+      this.throwOnInvalidImageKind(srcImage);
     }
   }
 

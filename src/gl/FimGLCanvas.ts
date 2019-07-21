@@ -4,14 +4,14 @@
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer } from '../image';
+import { FimCanvas } from '../image/FimCanvas';
+import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase {
-  public readonly kind = FimImageKindGLCanvas;
-
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
