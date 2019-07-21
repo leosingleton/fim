@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLTexture } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs';
 import { FimCanvas } from '../../image';
@@ -66,6 +67,40 @@ function spec(useOffscreenCanvas: boolean) {
         expectToBeCloseTo(canvas.getPixel(126, 126), FimColor.fromString('#000'));
       });
     });
+
+    it('Downscales oversized canvases', async () => {
+      await DisposableSet.usingAsync(async disposable => {
+        // Find a canvas size bigger than the GPU can support and create a canvas of that size
+        let caps = FimGLCapabilities.getCapabilities();
+        let canvasSize = caps.maxRenderBufferSize + 1000;
+        let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 2));
+        expect(gl.downscaled).toBeTruthy();
+        expect(gl.w).toBe(caps.maxRenderBufferSize);
+        expect(gl.h).toBe(caps.maxRenderBufferSize / 2);
+        expect(gl.downscaleRatio).toBe(canvasSize / caps.maxRenderBufferSize);
+
+        // Create a test image the original size of the canvas
+        let texture = disposable.addDisposable(new FimGLTexture(gl, canvasSize, canvasSize / 2));
+        let jpeg = FimTestImages.fourSquaresJpeg();
+        let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
+        texture.copyFrom(buffer);
+  
+        // Render the texture to the WebGL canvas
+        let program = disposable.addDisposable(new FimGLProgramCopy(gl));
+        program.setInputs(texture);
+        program.execute();
+  
+        // Check a few pixels to ensure the texture rendered correctly
+        let left = canvasSize / 4;
+        let right = canvasSize * 3 / 4;
+        let top = canvasSize / 8;
+        let bottom = canvasSize * 3 / 8;
+        expectToBeCloseTo(gl.getPixel(left, top), FimColor.fromString('#f00'));
+        expectToBeCloseTo(gl.getPixel(right, top), FimColor.fromString('#0f0'));
+        expectToBeCloseTo(gl.getPixel(left, bottom), FimColor.fromString('#00f'));
+        expectToBeCloseTo(gl.getPixel(right, bottom), FimColor.fromString('#000'));
+      });
+    });  
   };
 }
 

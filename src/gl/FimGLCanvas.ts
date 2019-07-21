@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimCanvas } from '../image/FimCanvas';
@@ -25,8 +26,21 @@ export class FimGLCanvas extends FimCanvasBase {
    */
   constructor(width: number, height: number, initialColor?: FimColor | string,
       useOffscreenCanvas = FimGLCanvas.supportsOffscreenCanvas, quality = 1) {
-    super(width, height, useOffscreenCanvas);
+    // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
+    // necessary.
+    let caps = FimGLCapabilities.getCapabilities();
+    let maxDimension = caps.maxRenderBufferSize;
+
+    // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
+    // unstable if you create a WebGL canvas larger than 2048x2048. Ignore its capabilities and enforce a lower
+    // maximum limit.
+    if (caps.unmaskedVendor.indexOf('NVS 295') >= 0) {
+      maxDimension = 2048;
+    }
+
+    super(width, height, useOffscreenCanvas, maxDimension);
     this.renderQuality = quality;
+    this.objects = [];
 
     // Initialize WebGL
     let canvas = this.canvasElement;
@@ -134,7 +148,7 @@ export class FimGLCanvas extends FimCanvasBase {
     return ext;
   }
 
-  private objects: IFimGLContextNotify[] = [];
+  private objects: IFimGLContextNotify[];
   private extensionTextureFloat: OES_texture_float;
   private extensionTextureHalfFloat: OES_texture_half_float;
 
