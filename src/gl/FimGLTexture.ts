@@ -65,7 +65,6 @@ export class FimGLTexture extends FimImage {
     width = this.w;
     height = this.h;
 
-    this.flags = flags;
     this.hasImage = false;
 
     let gl = this.gl = glCanvas.gl;
@@ -98,7 +97,7 @@ export class FimGLTexture extends FimImage {
     if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
       let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
       let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
-        this.glCanvas.getMaxTextureDepthValue();
+        this.glCanvas.getMaxTextureDepthValue((this.textureFlags & FimGLTextureFlags.LinearSampling) !== 0);
       gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
       FimGLError.throwOnError(gl);
 
@@ -110,8 +109,6 @@ export class FimGLTexture extends FimImage {
       FimGLError.throwOnError(gl);
     }
   }
-
-  public readonly flags: FimGLTextureFlags;
 
   public bind(textureUnit: number): void {
     let gl = this.gl;
@@ -244,6 +241,8 @@ export class FimGLTexture extends FimImage {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
 
+  public readonly textureFlags: FimGLTextureFlags;
+
   /**
    * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
    * texture as the output of a FimGLProgram.
@@ -254,7 +253,6 @@ export class FimGLTexture extends FimImage {
   private gl: WebGLRenderingContext;
   private texture: WebGLTexture;
   private fb: WebGLFramebuffer;
-  private textureFlags: FimGLTextureFlags;
 
   /**
    * Creates a new WebGL texture from another image
