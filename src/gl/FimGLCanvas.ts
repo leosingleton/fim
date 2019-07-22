@@ -53,16 +53,15 @@ export class FimGLCanvas extends FimCanvasBase {
       console.log('Lost WebGL context');
       event.preventDefault();
 
-      // I'm not 100% sure, but we probably will have re-enable the OES_texture_float extension after losing the WebGL
-      // context...
-      this.extensionTextureFloat = undefined;
-      this.extensionTextureHalfFloat = undefined;
-
       this.objects.forEach(o => o.onContextLost());
     }, false);
 
     canvas.addEventListener('webglcontextrestored', () => {
       console.log('WebGL context restored');
+
+      // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
+      this.loadExtensions();
+
       this.objects.forEach(o => o.onContextRestored());
     }, false);
 
@@ -70,6 +69,8 @@ export class FimGLCanvas extends FimCanvasBase {
     if (!this.gl) {
       throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
+
+    this.loadExtensions();
 
     if (initialColor) {
       this.fill(initialColor);
@@ -90,71 +91,47 @@ export class FimGLCanvas extends FimCanvasBase {
 
   /**
    * Determines the color depth to use for textures
+   * @param linear True if linear filtering is required; false for nearest
+   * @returns FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
    */
-  public getMaxTextureDepthValue(): number {
+  public getMaxTextureDepthValue(linear: boolean): number {
     // The quality values are arbitrarily chosen. 85% and above uses 32-bit precision; 50% and above uses 16-bit, and
     // below 50% falls back to 8-bit.
     if (this.renderQuality >= 0.85) {
-      if (this.getTextureFloatExtension()) {
-        return this.gl.FLOAT;
+      if (this.extensionTexture32) {
+        if (!linear || this.extensionTextureLinear32) {
+          return this.gl.FLOAT;
+        }
       }
     }
 
     // Disabling half float support for now. It was crashing on Chrome on OS X.
-    /*if (this.quality >= 0.5) {
-      let ext = this.getTextureHalfFloatExtension();
+    /*if (this.renderQuality >= 0.5) {
+      let ext = this.extensionTexture16;
       if (ext) {
-        return ext.HALF_FLOAT_OES;
+        if (!linear || this.extensionTextureLinear16) {
+          return ext.HALF_FLOAT_OES;
+        }
       }
     }*/
 
     return this.gl.UNSIGNED_BYTE;
   }
 
-  /**
-   * OES_texture_float is a WebGL extension that improves image quality by using 32 bits per channel instead of the
-   * standard 8 bits per channel. However, it is not supported by all GPUs, and must first be enabled on _each_ WebGL
-   * context within the web page.
-   * 
-   * This returns the extension if it is supported and automatically enables it if possible.
-   */  
-  private getTextureFloatExtension(): OES_texture_float {
-    if (this.extensionTextureFloat === null) {
-      return null;
-    } else if (this.extensionTextureFloat) {
-      return this.extensionTextureFloat;
-    }
-
-    let ext = this.gl.getExtension('OES_texture_float');
-    if (ext) {
-      console.log('Supports OES_texture_float');
-    }
-    this.extensionTextureFloat = ext;
-    return ext;
+  private loadExtensions(): void {
+    let gl = this.gl;
+    this.extensionTexture32 = gl.getExtension('OES_texture_float');
+    this.extensionTextureLinear32 = gl.getExtension('OES_texture_float_linear');
+    this.extensionTexture16 = gl.getExtension('OES_texture_half_float');
+    this.extensionTextureLinear16 = gl.getExtension('OES_texture_half_float_linear');
   }
 
-  /**
-   * Checks support for the OES_texture_half_float WebGL extension. See comments on getTextureFloatExtension() for
-   * details.
-   */
-  private getTextureHalfFloatExtension(): OES_texture_half_float {
-    if (this.extensionTextureHalfFloat === null) {
-      return null;
-    } else if (this.extensionTextureHalfFloat) {
-      return this.extensionTextureHalfFloat;
-    }
-
-    let ext = this.gl.getExtension('OES_texture_half_float');
-    if (ext) {
-      console.log('Supports OES_texture_half_float');
-    }
-    this.extensionTextureHalfFloat = ext;
-    return ext;
-  }
+  private extensionTexture32: OES_texture_float;
+  private extensionTextureLinear32: OES_texture_float_linear;
+  private extensionTexture16: OES_texture_half_float;
+  private extensionTextureLinear16: OES_texture_half_float_linear;
 
   private objects: IFimGLContextNotify[];
-  private extensionTextureFloat: OES_texture_float;
-  private extensionTextureHalfFloat: OES_texture_half_float;
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {
