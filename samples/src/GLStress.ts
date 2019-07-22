@@ -5,7 +5,7 @@
 import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1DFast,
   FimGLTextureFlags, GaussianKernel } from '../../build/dist/index.js';
 import { loadTestImage, renderOutput } from './Common';
-import { Stopwatch } from '@leosingleton/commonlibs';
+import { Stopwatch, Task } from '@leosingleton/commonlibs';
 
 export async function glStress(canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
@@ -22,27 +22,33 @@ export async function glStress(canvasId: string): Promise<void> {
   // Render loop
   let count = 1;
   while (true) {
-    let timer = Stopwatch.startNew();
-    // On the first run, read from the input
-    blur.setInputs(input, kernel, temp);
-    blur.execute(texture);
-
-    // On subsequent runs, output to the texture. WebGL normally doesn't allow reading and writing to the same texture
-    // at the same time, but this works because FimGLProgramMatrixOperation1D uses a temporary texture internally.
-    for (let n = 0; n < count; n++) {
-      blur.setInputs(texture, kernel, temp);
+    try {
+      let timer = Stopwatch.startNew();
+      // On the first run, read from the input
+      blur.setInputs(input, kernel, temp);
       blur.execute(texture);
+
+      // On subsequent runs, output to the texture. WebGL normally doesn't allow reading and writing to the same
+      // texture at the same time, but this works because FimGLProgramMatrixOperation1D uses a temporary texture
+      // internally.
+      for (let n = 0; n < count; n++) {
+        blur.setInputs(texture, kernel, temp);
+        blur.execute(texture);
+      }
+
+      // On the final run, output to the WebGL canvas
+      blur.setInputs(texture, kernel, temp);
+      blur.execute();
+      let time = timer.getElapsedMilliseconds();
+
+      // Render output
+      let message = `WebGL Stress\nProgram Executions: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
+      await renderOutput(gl, message, null, canvasId);
+
+      count++;
+    } catch (ex) {
+      console.log(ex);
+      await Task.delay(1000);
     }
-
-    // On the final run, output to the WebGL canvas
-    blur.setInputs(texture, kernel, temp);
-    blur.execute();
-    let time = timer.getElapsedMilliseconds();
-
-    // Render output
-    let message = `WebGL Stress\nProgram Executions: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
-    await renderOutput(gl, message, null, canvasId);
-
-    count++;
   }
 }
