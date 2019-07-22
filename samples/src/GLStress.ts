@@ -12,8 +12,8 @@ export async function glStress(canvasId: string): Promise<void> {
   let srcImage = await loadTestImage();
   let gl = new FimGLCanvas(srcImage.w, srcImage.h);
   let input = FimGLTexture.createFrom(gl, srcImage, FimGLTextureFlags.LinearSampling);
-  let texture = new FimGLTexture(gl, srcImage.w, srcImage.h)//, FimGLTextureFlags.LinearSampling);
-  let temp = new FimGLTexture(gl, srcImage.w, srcImage.h)//, FimGLTextureFlags.LinearSampling); 
+  let texture = new FimGLTexture(gl, srcImage.w, srcImage.h, FimGLTextureFlags.LinearSampling);
+  let temp = new FimGLTexture(gl, srcImage.w, srcImage.h, FimGLTextureFlags.LinearSampling); 
   
   // Create a Gaussian blur
   let kernel = GaussianKernel.calculate(1, 31);
