@@ -105,15 +105,14 @@ export class FimGLCanvas extends FimCanvasBase {
       }
     }
 
-    // Disabling half float support for now. It was crashing on Chrome on OS X.
-    /*if (this.renderQuality >= 0.5) {
+    if (this.renderQuality >= 0.5) {
       let ext = this.extensionTexture16;
       if (ext && this.extensionColorBuffer16) {
         if (!linear || this.extensionTextureLinear16) {
           return ext.HALF_FLOAT_OES;
         }
       }
-    }*/
+    }
 
     return this.gl.UNSIGNED_BYTE;
   }
