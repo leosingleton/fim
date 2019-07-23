@@ -354,7 +354,19 @@ function writeError(error: string): void {
   // Append the error to <div id="errors">
   let div = $('#errors');
   if (div) {
-    div.text(div.text() + '\n' + error);
+    div.text(div.text() + '\n\n' + error);
     div.show(); // Unhide if display: none
   }
+}
+
+export function handleError(error: any): void {
+  // Convert the error to a string
+  let errorStr: string;
+  if (error instanceof Error) {
+    errorStr = `Error: ${error.message}\n${error.stack}`;
+  } else {
+    errorStr = `Error: ${error.toString()}`;
+  }
+  
+  writeError(errorStr);
 }

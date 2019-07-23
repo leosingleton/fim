@@ -4,7 +4,7 @@
 
 import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1DFast,
   FimGLTextureFlags, GaussianKernel } from '../../build/dist/index.js';
-import { loadTestImage, renderOutput } from './Common';
+import { handleError, loadTestImage, renderOutput } from './Common';
 import { Stopwatch, Task } from '@leosingleton/commonlibs';
 
 export async function glStress(canvasId: string): Promise<void> {
@@ -24,6 +24,7 @@ export async function glStress(canvasId: string): Promise<void> {
   while (true) {
     try {
       let timer = Stopwatch.startNew();
+
       // On the first run, read from the input
       blur.setInputs(input, kernel, temp);
       blur.execute(texture);
@@ -48,6 +49,7 @@ export async function glStress(canvasId: string): Promise<void> {
       count++;
     } catch (ex) {
       console.log(ex);
+      handleError(ex);
       await Task.delay(1000);
     }
   }
