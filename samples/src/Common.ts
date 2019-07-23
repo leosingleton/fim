@@ -24,6 +24,15 @@ export async function loadTestImage(): Promise<FimCanvas> {
   return FimCanvas.createFromJpeg(jpeg);
 }
 
+/** Blocks execution until the browser is ready to render another frame */
+export async function waitForAnimationFrame(): Promise<void> {
+  return new Promise(resolve => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
+  });
+}
+
 /** Performance testing results */
 export interface IPerformanceResults {
   /** Average execution time, in milliseconds */
@@ -186,7 +195,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
  */
-export async function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
+export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
   let outputDimensions = canvas.dimensions;
@@ -245,8 +254,8 @@ export async function renderOutput(canvas: FimCanvasBase, message?: string, maxD
     ctx.restore();
   }
   
-  // Give the browser time to render
-  return TaskScheduler.yield();
+  // Wait for the browser to render a frame
+  return waitForAnimationFrame();
 }
 
 /** Copies a FimGLTexture onto a FimGLCanvas */
