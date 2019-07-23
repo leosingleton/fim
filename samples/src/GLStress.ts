@@ -5,51 +5,64 @@
 import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1DFast,
   FimGLTextureFlags, GaussianKernel } from '../../build/dist/index.js';
 import { handleError, loadTestImage, renderOutput } from './Common';
-import { Stopwatch, Task } from '@leosingleton/commonlibs';
+import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
 
 export async function glStress(canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
   let srcImage = await loadTestImage();
   let gl = new FimGLCanvas(srcImage.w, srcImage.h);
-  let input = FimGLTexture.createFrom(gl, srcImage, FimGLTextureFlags.LinearSampling);
-  let texture = new FimGLTexture(gl, srcImage.w, srcImage.h, FimGLTextureFlags.LinearSampling);
-  let temp = new FimGLTexture(gl, srcImage.w, srcImage.h, FimGLTextureFlags.LinearSampling); 
-  
-  // Create a Gaussian blur
-  let kernel = GaussianKernel.calculate(1, 31);
-  let blur = new FimGLProgramMatrixOperation1DFast(gl, 31);
 
-  // Render loop
   let count = 1;
   while (true) {
+    let disposable = new DisposableSet();
     try {
-      let timer = Stopwatch.startNew();
+      let input = disposable.addDisposable(FimGLTexture.createFrom(gl, srcImage,
+        FimGLTextureFlags.LinearSampling));
+      let texture = disposable.addDisposable(new FimGLTexture(gl, srcImage.w, srcImage.h,
+        FimGLTextureFlags.LinearSampling));
+      let temp = disposable.addDisposable(new FimGLTexture(gl, srcImage.w, srcImage.h,
+        FimGLTextureFlags.LinearSampling));
+  
+      // Create a Gaussian blur
+      let kernel = GaussianKernel.calculate(1, 31);
+      let blur = disposable.addDisposable(new FimGLProgramMatrixOperation1DFast(gl, 31));
 
-      // On the first run, read from the input
-      blur.setInputs(input, kernel, temp);
-      blur.execute(texture);
+      // Render loop
+      while (true) {
+        let timer = Stopwatch.startNew();
 
-      // On subsequent runs, output to the texture. WebGL normally doesn't allow reading and writing to the same
-      // texture at the same time, but this works because FimGLProgramMatrixOperation1D uses a temporary texture
-      // internally.
-      for (let n = 0; n < count; n++) {
-        blur.setInputs(texture, kernel, temp);
+        // On the first run, read from the input
+        blur.setInputs(input, kernel, temp);
         blur.execute(texture);
+
+        // On subsequent runs, output to the texture. WebGL normally doesn't allow reading and writing to the same
+        // texture at the same time, but this works because FimGLProgramMatrixOperation1D uses a temporary texture
+        // internally.
+        for (let n = 0; n < count; n++) {
+          blur.setInputs(texture, kernel, temp);
+          blur.execute(texture);
+        }
+
+        // On the final run, output to the WebGL canvas
+        blur.setInputs(texture, kernel, temp);
+        blur.execute();
+        let time = timer.getElapsedMilliseconds();
+
+        // Render output
+        let message = `WebGL Stress\nProgram Executions: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
+        await renderOutput(gl, message, null, canvasId);
+
+        count++;
       }
-
-      // On the final run, output to the WebGL canvas
-      blur.setInputs(texture, kernel, temp);
-      blur.execute();
-      let time = timer.getElapsedMilliseconds();
-
-      // Render output
-      let message = `WebGL Stress\nProgram Executions: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
-      await renderOutput(gl, message, null, canvasId);
-
-      count++;
     } catch (ex) {
+      // Log the error
       console.log(ex);
       handleError(ex);
+
+      // Free resources
+      disposable.dispose();
+
+      // Try again after 1 second
       await Task.delay(1000);
     }
   }
