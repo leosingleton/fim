@@ -97,23 +97,29 @@ export class FimGLTexture extends FimImage {
 
       // If width and height are specified, create a framebuffer to back this texture
       if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
+        // Allocate the texture
         let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
         let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
           this.glCanvas.getMaxTextureDepthValue((this.textureFlags & FimGLTextureFlags.LinearSampling) !== 0);
         gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
         FimGLError.throwOnError(gl);
 
+        // Create the framebuffer
         this.fb = gl.createFramebuffer();
         FimGLError.throwOnError(gl);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
         FimGLError.throwOnError(gl);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
         FimGLError.throwOnError(gl);
+
+        // Check the framebuffer status
+        FimGLError.throwOnFrameBufferStatus(gl, gl.FRAMEBUFFER);
       }
 
       this.texture = texture;
     } finally {
       gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
   }
 
