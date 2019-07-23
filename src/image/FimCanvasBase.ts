@@ -31,7 +31,10 @@ export abstract class FimCanvasBase extends FimImage {
    */
   public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas,
       maxDimension = 0) {
+    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
     super(width, height, maxDimension);
+    width = this.w;
+    height = this.h;
 
     if (useOffscreenCanvas) {
       // Use Chrome's OffscreenCanvas object

@@ -4,7 +4,7 @@
 
 import { FimGLProgramCopy } from '../FimGLProgramCopy';
 import { FimGLCanvas } from '../../FimGLCanvas';
-import { FimGLTexture } from '../../FimGLTexture';
+import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
 import { FimCanvas, FimGreyscaleBuffer, FimRgbaBuffer } from '../../../image';
 import { FimColor } from '../../../primitives';
 import { DisposableSet } from '@leosingleton/commonlibs';
@@ -60,6 +60,28 @@ describe('FimGLProgramCopy', () => {
 
       // Copy the texture
       program.setInputs(texture);
+      program.execute();
+
+      // Ensure the output WebGL canvas is now grey
+      expect(canvas.getPixel(100, 100)).toEqual(FimColor.fromString('#808080'));
+    });
+  });
+
+  it('Copies from a texture to another texture when linear sampling is enabled', () => {
+    DisposableSet.using(disposable => {
+      // Initialize the WebGL canvas, program, and a solid grey texture from RGBA buffer
+      let canvas = disposable.addDisposable(new FimGLCanvas(640, 480));
+      let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
+      let buffer = disposable.addDisposable(new FimGreyscaleBuffer(640, 480, 128));
+      let t1 = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer, FimGLTextureFlags.LinearSampling));
+      let t2 = disposable.addDisposable(new FimGLTexture(canvas, 640, 480, FimGLTextureFlags.LinearSampling));
+
+      // Copy t1 to t2
+      program.setInputs(t1);
+      program.execute(t2);
+
+      // Copy t2 to output
+      program.setInputs(t2);
       program.execute();
 
       // Ensure the output WebGL canvas is now grey

@@ -9,6 +9,7 @@ import { FimCanvas } from '../../image';
 import { FimColor } from '../../primitives';
 import { FimTestImages } from '../../test';
 import { DisposableSet } from '@leosingleton/commonlibs';
+import { FimGLCapabilities } from '../FimGLCapabilities';
 
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
   expect(actual.r).toBeCloseTo(expected.r, -1);
@@ -23,17 +24,18 @@ describe('FimGLTexture', () => {
       let gl = disposable.addDisposable(new FimGLCanvas(480, 240));
       
       // Find a texture size bigger than the GPU can support and create a texture of that size
-      let textureSize = gl.capabilities.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 2));
+      let caps = FimGLCapabilities.getCapabilities();
+      let textureSize = caps.maxTextureSize + 1000;
+      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8));
       expect(texture.downscaled).toBeTruthy();
-      expect(texture.w).toBe(gl.capabilities.maxTextureSize);
-      expect(texture.h).toBe(gl.capabilities.maxTextureSize / 2);
-      expect(texture.downscaleRatio).toBe(textureSize / gl.capabilities.maxTextureSize);
+      expect(texture.w).toBe(caps.maxTextureSize);
+      expect(texture.h).toBe(caps.maxTextureSize / 8);
+      expect(texture.downscaleRatio).toBe(textureSize / caps.maxTextureSize);
 
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
       let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
-      let srcImage = disposable.addDisposable(new FimCanvas(textureSize, textureSize / 2));
+      let srcImage = disposable.addDisposable(new FimCanvas(textureSize, textureSize / 8));
       srcImage.copyFrom(buffer);
       texture.copyFrom(srcImage);
 

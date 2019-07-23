@@ -3,9 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from './FimGLCanvas';
+import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimCanvas, FimGreyscaleBuffer, FimImage, FimRgbaBuffer, FimImageKind, FimImageKindGLTexture,
-  FimImageKindCanvas, FimImageKindGLCanvas, FimImageKindGreyscaleBuffer, FimImageKindRgbaBuffer } from '../image';
+import { FimCanvas } from '../image/FimCanvas';
+import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
+import { FimImage } from '../image/FimImage';
+import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
@@ -41,8 +44,6 @@ export const enum FimGLTextureFlags {
 
 /** Wrapper class for WebGL textures */
 export class FimGLTexture extends FimImage {
-  public readonly kind: FimImageKind;
-
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -57,12 +58,13 @@ export class FimGLTexture extends FimImage {
 
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
-    let maxDimension = glCanvas.capabilities.maxTextureSize;
+    let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
+
+    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
     super(width, height, maxDimension);
     width = this.w;
     height = this.h;
 
-    this.kind = FimImageKindGLTexture;
     this.hasImage = false;
 
     let gl = this.gl = glCanvas.gl;
@@ -70,50 +72,71 @@ export class FimGLTexture extends FimImage {
     this.textureFlags = flags;
 
     // Create a texture
-    this.texture = gl.createTexture();
+    let texture = gl.createTexture();
     FimGLError.throwOnError(gl);
-    this.bind(0);
-    
-    // Set the parameters so we can render any size image
-    if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
-      // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
-      throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
-    }
-    let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
-    FimGLError.throwOnError(gl);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clamp);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     FimGLError.throwOnError(gl);
 
-    let filter = (this.textureFlags & FimGLTextureFlags.LinearSampling) ? gl.LINEAR : gl.NEAREST;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
-    FimGLError.throwOnError(gl);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
-    FimGLError.throwOnError(gl);
-
-    // If width and height are specified, create a framebuffer to back this texture
-    if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
-      let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
-      let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
-        this.glCanvas.getMaxTextureDepthValue();
-      gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
+    try {    
+      // Set the parameters so we can render any size image
+      if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
+        // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
+        throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
+      }
+      let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
+      FimGLError.throwOnError(gl);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clamp);
       FimGLError.throwOnError(gl);
 
-      this.fb = gl.createFramebuffer();
+      let filter = (this.textureFlags & FimGLTextureFlags.LinearSampling) ? gl.LINEAR : gl.NEAREST;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
       FimGLError.throwOnError(gl);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
       FimGLError.throwOnError(gl);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
-      FimGLError.throwOnError(gl);
+
+      // If width and height are specified, create a framebuffer to back this texture
+      if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
+        // Allocate the texture
+        let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
+        let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
+          this.glCanvas.getMaxTextureDepthValue((this.textureFlags & FimGLTextureFlags.LinearSampling) !== 0);
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
+        FimGLError.throwOnError(gl);
+
+        // Create the framebuffer
+        this.fb = gl.createFramebuffer();
+        FimGLError.throwOnError(gl);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+        FimGLError.throwOnError(gl);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        FimGLError.throwOnError(gl);
+
+        // Check the framebuffer status
+        FimGLError.throwOnFrameBufferStatus(gl, gl.FRAMEBUFFER);
+      }
+
+      this.texture = texture;
+    } finally {
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
   }
 
   public bind(textureUnit: number): void {
+    this.bindInternal(textureUnit, this.texture);
+  }
+
+  public unbind(textureUnit: number): void {
+    this.bindInternal(textureUnit, null);
+  }
+
+  private bindInternal(textureUnit: number, texture: WebGLTexture): void {
     let gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + textureUnit);
     FimGLError.throwOnError(gl);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);    
+    gl.bindTexture(gl.TEXTURE_2D, texture);    
     FimGLError.throwOnError(gl);
   }
 
@@ -134,24 +157,19 @@ export class FimGLTexture extends FimImage {
     // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
-    let maxDimension = this.glCanvas.capabilities.maxTextureSize;
+    let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
     if (srcImage.w > maxDimension || srcImage.h > maxDimension) {
       return this.copyFromWithDownscale(srcImage);
     }
 
-    switch (srcImage.kind) {
-      case FimImageKindCanvas:
-      case FimImageKindGLCanvas:
-        return this.copyFromCanvas(srcImage);
-
-      case FimImageKindGreyscaleBuffer:
-        return this.copyFromGreyscaleBuffer(srcImage);
-
-      case FimImageKindRgbaBuffer:
-        return this.copyFromRgbaBuffer(srcImage);
-
-      default:
-        this.throwOnInvalidImageKind(srcImage);
+    if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
+      this.copyFromCanvas(srcImage);
+    } else if (srcImage instanceof FimGreyscaleBuffer) {
+      this.copyFromGreyscaleBuffer(srcImage);
+    } else if (srcImage instanceof FimRgbaBuffer) {
+      this.copyFromRgbaBuffer(srcImage);
+    } else {
+      this.throwOnInvalidImageKind(srcImage);
     }
   }
   
@@ -161,6 +179,7 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
+    this.unbind(0);
 
     this.hasImage = true;
   }
@@ -173,6 +192,7 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+    this.unbind(0);
 
     this.hasImage = true;
   }
@@ -185,12 +205,13 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+    this.unbind(0);
 
     this.hasImage = true;
   }
 
   private copyFromWithDownscale(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer): void {
-    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+    if (srcImage instanceof FimGreyscaleBuffer) {
       // This code path needs to be optimized, but it will likely rarely, if ever, get used. FimGreyscaleBuffer
       // doesn't support resizing, nor does FimCanvas support copyFrom() a FimGreyscaleBuffer. So, we do multiple
       // steps:
@@ -216,13 +237,11 @@ export class FimGLTexture extends FimImage {
     if (this.texture) {
       gl.deleteTexture(this.texture);
       this.texture = undefined;
-      FimGLError.throwOnError(gl);
     }
 
     if (this.fb) {
       gl.deleteFramebuffer(this.fb);
       this.fb = undefined;
-      FimGLError.throwOnError(gl);
     }
 
     this.gl = undefined;
@@ -244,6 +263,8 @@ export class FimGLTexture extends FimImage {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
 
+  public readonly textureFlags: FimGLTextureFlags;
+
   /**
    * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
    * texture as the output of a FimGLProgram.
@@ -254,7 +275,6 @@ export class FimGLTexture extends FimImage {
   private gl: WebGLRenderingContext;
   private texture: WebGLTexture;
   private fb: WebGLFramebuffer;
-  private textureFlags: FimGLTextureFlags;
 
   /**
    * Creates a new WebGL texture from another image
@@ -267,10 +287,10 @@ export class FimGLTexture extends FimImage {
       extraFlags = FimGLTextureFlags.None): FimGLTexture {
     // Calculate flags with defaults and extras
     let flags = FimGLTextureFlags.InputOnly | extraFlags;
-    if (srcImage.kind === FimImageKindGreyscaleBuffer) {
+    if (srcImage instanceof FimGreyscaleBuffer) {
       flags |= FimGLTextureFlags.Greyscale;
     }
-    if (srcImage.kind !== FimImageKindGLCanvas) {
+    if (!(srcImage instanceof FimGLCanvas)) {
       flags |= FimGLTextureFlags.EightBit;
     }
 

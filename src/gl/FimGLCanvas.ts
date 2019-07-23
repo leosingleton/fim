@@ -2,16 +2,17 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimCanvas, FimCanvasBase, FimImageKindGLCanvas, FimRgbaBuffer, FimImageKindCanvas, FimImageKindRgbaBuffer } from '../image';
+import { FimCanvas } from '../image/FimCanvas';
+import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase {
-  public readonly kind = FimImageKindGLCanvas;
-
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
@@ -25,35 +26,51 @@ export class FimGLCanvas extends FimCanvasBase {
    */
   constructor(width: number, height: number, initialColor?: FimColor | string,
       useOffscreenCanvas = FimGLCanvas.supportsOffscreenCanvas, quality = 1) {
-    super(width, height, useOffscreenCanvas);
+    // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
+    // necessary.
+    let caps = FimGLCapabilities.getCapabilities();
+    let maxDimension = caps.maxRenderBufferSize;
+
+    // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
+    // unstable if you create a WebGL canvas larger than 2048x2048. Ignore its capabilities and enforce a lower
+    // maximum limit.
+    if (caps.unmaskedVendor.indexOf('NVS 295') >= 0) {
+      maxDimension = 2048;
+    }
+
+    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
+    super(width, height, useOffscreenCanvas, maxDimension);
+    width = this.w;
+    height = this.h;
+
     this.renderQuality = quality;
+    this.objects = [];
 
     // Initialize WebGL
     let canvas = this.canvasElement;
-    this.gl = canvas.getContext('webgl');
-    if (!this.gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL);
-    }
-
-    // Read the browser capabilities
-    this.capabilities = this.readCapabilities();
 
     canvas.addEventListener('webglcontextlost', event => {
       console.log('Lost WebGL context');
       event.preventDefault();
-
-      // I'm not 100% sure, but we probably will have re-enable the OES_texture_float extension after losing the WebGL
-      // context...
-      this.extensionTextureFloat = undefined;
-      this.extensionTextureHalfFloat = undefined;
 
       this.objects.forEach(o => o.onContextLost());
     }, false);
 
     canvas.addEventListener('webglcontextrestored', () => {
       console.log('WebGL context restored');
+
+      // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
+      this.loadExtensions();
+
       this.objects.forEach(o => o.onContextRestored());
     }, false);
+
+    this.gl = canvas.getContext('webgl');
+    if (!this.gl) {
+      throw new FimGLError(FimGLErrorCode.NoWebGL);
+    }
+
+    this.loadExtensions();
 
     if (initialColor) {
       this.fill(initialColor);
@@ -74,100 +91,50 @@ export class FimGLCanvas extends FimCanvasBase {
 
   /**
    * Determines the color depth to use for textures
+   * @param linear True if linear filtering is required; false for nearest
+   * @returns FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
    */
-  public getMaxTextureDepthValue(): number {
+  public getMaxTextureDepthValue(linear: boolean): number {
     // The quality values are arbitrarily chosen. 85% and above uses 32-bit precision; 50% and above uses 16-bit, and
     // below 50% falls back to 8-bit.
     if (this.renderQuality >= 0.85) {
-      if (this.getTextureFloatExtension()) {
-        return this.gl.FLOAT;
+      if (this.extensionTexture32 && this.extensionColorBuffer32) {
+        if (!linear || this.extensionTextureLinear32) {
+          return this.gl.FLOAT;
+        }
       }
     }
 
-    // Disabling half float support for now. It was crashing on Chrome on OS X.
-    /*if (this.quality >= 0.5) {
-      let ext = this.getTextureHalfFloatExtension();
-      if (ext) {
-        return ext.HALF_FLOAT_OES;
+    if (this.renderQuality >= 0.5) {
+      let ext = this.extensionTexture16;
+      if (ext && this.extensionColorBuffer16) {
+        if (!linear || this.extensionTextureLinear16) {
+          return ext.HALF_FLOAT_OES;
+        }
       }
-    }*/
+    }
 
     return this.gl.UNSIGNED_BYTE;
   }
 
-  /**
-   * OES_texture_float is a WebGL extension that improves image quality by using 32 bits per channel instead of the
-   * standard 8 bits per channel. However, it is not supported by all GPUs, and must first be enabled on _each_ WebGL
-   * context within the web page.
-   * 
-   * This returns the extension if it is supported and automatically enables it if possible.
-   */  
-  private getTextureFloatExtension(): OES_texture_float {
-    if (this.extensionTextureFloat === null) {
-      return null;
-    } else if (this.extensionTextureFloat) {
-      return this.extensionTextureFloat;
-    }
-
-    let ext = this.gl.getExtension('OES_texture_float');
-    if (ext) {
-      console.log('Supports OES_texture_float');
-    }
-    this.extensionTextureFloat = ext;
-    return ext;
-  }
-
-  /**
-   * Checks support for the OES_texture_half_float WebGL extension. See comments on getTextureFloatExtension() for
-   * details.
-   */
-  private getTextureHalfFloatExtension(): OES_texture_half_float {
-    if (this.extensionTextureHalfFloat === null) {
-      return null;
-    } else if (this.extensionTextureHalfFloat) {
-      return this.extensionTextureHalfFloat;
-    }
-
-    let ext = this.gl.getExtension('OES_texture_half_float');
-    if (ext) {
-      console.log('Supports OES_texture_half_float');
-    }
-    this.extensionTextureHalfFloat = ext;
-    return ext;
-  }
-
-  /**
-   * Returns the WebGL capabilities of the current browser
-   */
-  public readonly capabilities: FimGLCapabilities;
-
-  private readCapabilities(): FimGLCapabilities {
+  private loadExtensions(): void {
     let gl = this.gl;
-    let caps = {
-      glVersion: gl.getParameter(gl.VERSION),
-      shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
-      vendor: gl.getParameter(gl.VENDOR),
-      renderer: gl.getParameter(gl.RENDERER),
-      unmaskedVendor: '',
-      unmaskedRenderer: '',
-      maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
-      maxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
-      maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-      extensions: gl.getSupportedExtensions()
-    };
-
-    let dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
-    if (dbgRenderInfo) {
-      caps.unmaskedVendor = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
-      caps.unmaskedRenderer = gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL);
-    }
-
-    return caps;
+    this.extensionTexture32 = gl.getExtension('OES_texture_float');
+    this.extensionTextureLinear32 = gl.getExtension('OES_texture_float_linear');
+    this.extensionColorBuffer32 = gl.getExtension('WEBGL_color_buffer_float');
+    this.extensionTexture16 = gl.getExtension('OES_texture_half_float');
+    this.extensionTextureLinear16 = gl.getExtension('OES_texture_half_float_linear');
+    this.extensionColorBuffer16 = gl.getExtension('EXT_color_buffer_half_float');
   }
 
-  private objects: IFimGLContextNotify[] = [];
-  private extensionTextureFloat: OES_texture_float;
-  private extensionTextureHalfFloat: OES_texture_half_float;
+  private extensionTexture32: OES_texture_float;
+  private extensionTextureLinear32: OES_texture_float_linear;
+  private extensionColorBuffer32: WEBGL_color_buffer_float;
+  private extensionTexture16: OES_texture_half_float;
+  private extensionTextureLinear16: OES_texture_half_float_linear;
+  private extensionColorBuffer16: any;
+
+  private objects: IFimGLContextNotify[];
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {
@@ -208,17 +175,4 @@ export class FimGLCanvas extends FimCanvasBase {
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
-}
-
-export interface FimGLCapabilities {
-  glVersion: string,
-  shadingLanguageVersion: string,
-  vendor: string,
-  renderer: string,
-  unmaskedVendor: string,
-  unmaskedRenderer: string,
-  maxRenderBufferSize: number,
-  maxTextureImageUnits: number,
-  maxTextureSize: number,
-  extensions: string[]
 }

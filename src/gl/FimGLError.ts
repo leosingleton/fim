@@ -43,6 +43,31 @@ export class FimGLError extends Error {
         throw new FimGLError(FimGLErrorCode.UnknownError, `Code ${errCode}`);
     }
   }
+
+  /** Validates the result of gl.checkFramebufferStatus() and throws on a non-complete value */
+  static throwOnFrameBufferStatus(gl: WebGLRenderingContext, target: number): void {
+    let status = gl.checkFramebufferStatus(target);
+    let code = FimGLErrorCode.FrameBufferStatus;
+    switch (status) {
+      case gl.FRAMEBUFFER_COMPLETE:
+        return;
+
+      case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        throw new FimGLError(code, 'IncompleteAttachment');
+
+      case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        throw new FimGLError(code, 'IncompleteMissingAttachment');
+
+      case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+        throw new FimGLError(code, 'IncompleteDimensions');
+
+      case gl.FRAMEBUFFER_UNSUPPORTED:
+        throw new FimGLError(code, 'Unsupported');
+
+      default:
+        throw new FimGLError(code, `Status ${status}`);
+    }
+  }
 }
 
 /**
@@ -67,5 +92,8 @@ export const enum FimGLErrorCode {
    * Special error code for non-WebGL errors. Indicates that the application has a bug and is calling the FIM library
    * in an unsupported way.
    */
-  AppError = 'AppError'
+  AppError = 'AppError',
+
+  /** Thrown when the framebuffer status is not complete */
+  FrameBufferStatus = 'FrameBufferStatus'
 }

@@ -3,14 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage } from './FimImage';
-import { FimImageKindGreyscaleBuffer } from './FimImageKind';
-import { FimRect } from '../primitives';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { FimRect } from '../primitives';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
 export class FimGreyscaleBuffer extends FimImage {
-  public readonly kind = FimImageKindGreyscaleBuffer;
-
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
    * @param width Canvas width, in pixels
