@@ -72,50 +72,65 @@ export class FimGLTexture extends FimImage {
     this.textureFlags = flags;
 
     // Create a texture
-    this.texture = gl.createTexture();
+    let texture = gl.createTexture();
     FimGLError.throwOnError(gl);
-    this.bind(0);
-    
-    // Set the parameters so we can render any size image
-    if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
-      // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
-      throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
-    }
-    let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
-    FimGLError.throwOnError(gl);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clamp);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     FimGLError.throwOnError(gl);
 
-    let filter = (this.textureFlags & FimGLTextureFlags.LinearSampling) ? gl.LINEAR : gl.NEAREST;
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
-    FimGLError.throwOnError(gl);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
-    FimGLError.throwOnError(gl);
-
-    // If width and height are specified, create a framebuffer to back this texture
-    if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
-      let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
-      let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
-        this.glCanvas.getMaxTextureDepthValue((this.textureFlags & FimGLTextureFlags.LinearSampling) !== 0);
-      gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
+    try {    
+      // Set the parameters so we can render any size image
+      if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
+        // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
+        throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
+      }
+      let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
+      FimGLError.throwOnError(gl);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clamp);
       FimGLError.throwOnError(gl);
 
-      this.fb = gl.createFramebuffer();
+      let filter = (this.textureFlags & FimGLTextureFlags.LinearSampling) ? gl.LINEAR : gl.NEAREST;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
       FimGLError.throwOnError(gl);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
       FimGLError.throwOnError(gl);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
-      FimGLError.throwOnError(gl);
+
+      // If width and height are specified, create a framebuffer to back this texture
+      if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
+        let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
+        let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
+          this.glCanvas.getMaxTextureDepthValue((this.textureFlags & FimGLTextureFlags.LinearSampling) !== 0);
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
+        FimGLError.throwOnError(gl);
+
+        this.fb = gl.createFramebuffer();
+        FimGLError.throwOnError(gl);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+        FimGLError.throwOnError(gl);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        FimGLError.throwOnError(gl);
+      }
+
+      this.texture = texture;
+    } finally {
+      gl.bindTexture(gl.TEXTURE_2D, null);
     }
   }
 
   public bind(textureUnit: number): void {
+    this.bindInternal(textureUnit, this.texture);
+  }
+
+  public unbind(textureUnit: number): void {
+    this.bindInternal(textureUnit, null);
+  }
+
+  private bindInternal(textureUnit: number, texture: WebGLTexture): void {
     let gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + textureUnit);
     FimGLError.throwOnError(gl);
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);    
+    gl.bindTexture(gl.TEXTURE_2D, texture);    
     FimGLError.throwOnError(gl);
   }
 
