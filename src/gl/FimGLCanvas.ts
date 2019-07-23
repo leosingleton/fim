@@ -98,7 +98,7 @@ export class FimGLCanvas extends FimCanvasBase {
     // The quality values are arbitrarily chosen. 85% and above uses 32-bit precision; 50% and above uses 16-bit, and
     // below 50% falls back to 8-bit.
     if (this.renderQuality >= 0.85) {
-      if (this.extensionTexture32) {
+      if (this.extensionTexture32 && this.extensionColorBuffer32) {
         if (!linear || this.extensionTextureLinear32) {
           return this.gl.FLOAT;
         }
@@ -108,7 +108,7 @@ export class FimGLCanvas extends FimCanvasBase {
     // Disabling half float support for now. It was crashing on Chrome on OS X.
     /*if (this.renderQuality >= 0.5) {
       let ext = this.extensionTexture16;
-      if (ext) {
+      if (ext && this.extensionColorBuffer16) {
         if (!linear || this.extensionTextureLinear16) {
           return ext.HALF_FLOAT_OES;
         }
@@ -122,14 +122,18 @@ export class FimGLCanvas extends FimCanvasBase {
     let gl = this.gl;
     this.extensionTexture32 = gl.getExtension('OES_texture_float');
     this.extensionTextureLinear32 = gl.getExtension('OES_texture_float_linear');
+    this.extensionColorBuffer32 = gl.getExtension('WEBGL_color_buffer_float');
     this.extensionTexture16 = gl.getExtension('OES_texture_half_float');
     this.extensionTextureLinear16 = gl.getExtension('OES_texture_half_float_linear');
+    this.extensionColorBuffer16 = gl.getExtension('EXT_color_buffer_half_float');
   }
 
   private extensionTexture32: OES_texture_float;
   private extensionTextureLinear32: OES_texture_float_linear;
+  private extensionColorBuffer32: WEBGL_color_buffer_float;
   private extensionTexture16: OES_texture_half_float;
   private extensionTextureLinear16: OES_texture_half_float_linear;
+  private extensionColorBuffer16: any;
 
   private objects: IFimGLContextNotify[];
 
