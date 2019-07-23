@@ -179,6 +179,7 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
+    this.unbind(0);
 
     this.hasImage = true;
   }
@@ -191,6 +192,7 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+    this.unbind(0);
 
     this.hasImage = true;
   }
@@ -203,6 +205,7 @@ export class FimGLTexture extends FimImage {
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
+    this.unbind(0);
 
     this.hasImage = true;
   }
@@ -234,13 +237,11 @@ export class FimGLTexture extends FimImage {
     if (this.texture) {
       gl.deleteTexture(this.texture);
       this.texture = undefined;
-      FimGLError.throwOnError(gl);
     }
 
     if (this.fb) {
       gl.deleteFramebuffer(this.fb);
       this.fb = undefined;
-      FimGLError.throwOnError(gl);
     }
 
     this.gl = undefined;
