@@ -71,12 +71,18 @@ export class FimGLTexture extends FimImage {
     width = this.w;
     height = this.h;
 
-    this.channels = options ? options.channels : FimColorChannels.RGBA;
     let bpp = options ? options.bpp : FimBitsPerPixel.BPP8;
     let flags = this.textureFlags = options ? options.flags : FimGLTextureFlags.None;
     let depth = glCanvas.getTextureDepth(bpp, (flags & FimGLTextureFlags.LinearSampling) !== 0);
     this.bpp = depth.bpp;
     this.hasImage = false;
+
+    // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
+    // so just use an RGBA one instead if the texture is not flagged InputOnly.
+    if (options && (flags & FimGLTextureFlags.InputOnly) === 0) {
+      options.channels = null;
+    }
+    this.channels = options ? options.channels : FimColorChannels.RGBA;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
