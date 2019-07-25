@@ -10,7 +10,7 @@ import { GaussianKernel } from '../../../math';
 import { FimColor } from '../../../primitives';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
-describe('FimGLProgramMatrixOperation1D', () => {
+describe('FimGLProgramMatrixOperation1DFast', () => {
 
   it('Blurs a solid colored canvas', () => {
     DisposableSet.using(disposable => {

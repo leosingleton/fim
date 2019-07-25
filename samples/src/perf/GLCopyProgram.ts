@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { loadTestImage, perfTest, renderOutput, recordPerformanceValue } from '../Common';
-import { FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimGLProgramCopy } from '../../../build/dist/index.js';
+import { FimBitsPerPixel, FimGLCanvas, FimGLTexture, FimGLTextureFlags,
+  FimGLProgramCopy } from '../../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfGLCopyProgram(): Promise<void> {
@@ -14,12 +15,13 @@ export async function perfGLCopyProgram(): Promise<void> {
     async function testCopyProgram(id: string, canvasWidth: number, canvasHeight: number, textureWidth: number,
         textureHeight: number, linearSampling: boolean, inputOnly = true): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
-        let flags = FimGLTextureFlags.EightBit;
+        let flags = FimGLTextureFlags.None;
         flags |= linearSampling ? FimGLTextureFlags.LinearSampling : 0;
         flags |= inputOnly ? FimGLTextureFlags.InputOnly : 0;
         
         let gl = disposable.addDisposable(new FimGLCanvas(canvasWidth, canvasHeight));
-        let t = disposable.addDisposable(new FimGLTexture(gl, textureWidth, textureHeight, flags));
+        let t = disposable.addDisposable(new FimGLTexture(gl, textureWidth, textureHeight,
+          { bpp: FimBitsPerPixel.BPP8, flags: flags }));
         t.copyFrom(srcImage);
         let program = disposable.addDisposable(new FimGLProgramCopy(gl));
 
