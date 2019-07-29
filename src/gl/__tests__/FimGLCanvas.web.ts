@@ -74,12 +74,12 @@ function spec(useOffscreenCanvas: boolean) {
         let caps = FimGLCapabilities.getCapabilities();
         let canvasSize = caps.maxRenderBufferSize + 1000;
         let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 8, undefined, useOffscreenCanvas));
-        expect(gl.downscaled).toBeTruthy();
-        expect(gl.w).toBe(caps.maxRenderBufferSize);
-        expect(gl.h).toBe(caps.maxRenderBufferSize / 8);
+        expect(gl.realDimensions).toBeDefined();
+        expect(gl.realDimensions.w).toBe(caps.maxRenderBufferSize);
+        expect(gl.realDimensions.h).toBe(caps.maxRenderBufferSize / 8);
         expect(gl.downscaleRatio).toBe(canvasSize / caps.maxRenderBufferSize);
-        expect(gl.getCanvas().width).toBe(gl.w);
-        expect(gl.getCanvas().height).toBe(gl.h);
+        expect(gl.getCanvas().width).toBe(gl.realDimensions.w);
+        expect(gl.getCanvas().height).toBe(gl.realDimensions.h);
 
         // Create a test image the original size of the canvas
         let texture = disposable.addDisposable(new FimGLTexture(gl, canvasSize, canvasSize / 8));

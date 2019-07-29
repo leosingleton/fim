@@ -38,10 +38,8 @@ export class FimGLCanvas extends FimCanvasBase {
       maxDimension = 2048;
     }
 
-    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
+    // Call the parent constructor
     super(width, height, useOffscreenCanvas, maxDimension);
-    width = this.w;
-    height = this.h;
 
     this.renderQuality = quality;
     this.objects = [];
@@ -174,6 +172,10 @@ export class FimGLCanvas extends FimCanvasBase {
   public getPixel(x: number, y: number): FimColor {
     let pixel: Uint8ClampedArray;
 
+    // Scale the coordinates
+    x *= Math.round(this.downscaleRatio);
+    y *= Math.round(this.downscaleRatio);
+    
     using(new FimRgbaBuffer(1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();

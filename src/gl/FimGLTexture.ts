@@ -66,10 +66,9 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
 
-    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
+    // Call the parent constructor. Read the real dimensions as we may have to downscale.
     super(width, height, maxDimension);
-    width = this.w;
-    height = this.h;
+    let realDimensions = this.realDimensions;
 
     let bpp = options ? options.bpp : FimBitsPerPixel.BPP8;
     let flags = this.textureFlags = options ? options.flags : FimGLTextureFlags.None;
@@ -115,7 +114,7 @@ export class FimGLTexture extends FimImage {
       if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
         // Allocate the texture
         let format = this.getGLFormat();
-        gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, depth.glConstant, null);
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, realDimensions.w, realDimensions.h, 0, format, depth.glConstant, null);
         FimGLError.throwOnError(gl);
 
         // Create the framebuffer
@@ -172,7 +171,7 @@ export class FimGLTexture extends FimImage {
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
-    if (srcImage.w > maxDimension || srcImage.h > maxDimension) {
+    if (srcImage.realDimensions.w > maxDimension || srcImage.realDimensions.h > maxDimension) {
       return this.copyFromWithDownscale(srcImage);
     }
 
@@ -232,13 +231,13 @@ export class FimGLTexture extends FimImage {
       //  1. FimGreyscaleBuffer => FimRgbaBuffer
       //  2. FimRgbaBuffer => Downscale => FimCanvas (using the slower, non-async version)
       //  3. FimCanvas => FimTexture
-      using(new FimRgbaBuffer(srcImage.w, srcImage.h), temp => {
+      using(new FimRgbaBuffer(srcImage.realDimensions.w, srcImage.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });
     } else {
       // For all other object types, downscale to a FimCanvas of the target texture dimensions
-      using(new FimCanvas(this.w, this.h), temp => {
+      using(new FimCanvas(this.realDimensions.w, this.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });

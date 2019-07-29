@@ -18,21 +18,18 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    *    requested width or height exceeds this, the image will be automatically downscaled.
    */
   public constructor(width: number, height: number, maxDimension = 0) {
+    this.w = width;
+    this.h = height;
+    this.dimensions = this.realDimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.
-    this.downscaled = false;
     this.downscaleRatio = 1;
     if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
       let newDimensions = rescale(width, height, maxDimension);
+      this.realDimensions = newDimensions.dimensions;
       this.downscaleRatio = width / newDimensions.w;
-      width = newDimensions.w;
-      height = newDimensions.h;
-      this.downscaled = true;
     }
-
-    this.w = width;
-    this.h = height;
-    this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
   }
 
   // IFimDimensions implementation
@@ -40,10 +37,17 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly h: number;
   public readonly dimensions: FimRect;
 
-  /** Set if the dimensions of the image have been downscaled from those requested in the constructor */
-  public readonly downscaled: boolean;
+  /** 
+   * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
+   * constructor.
+   */
+  public readonly realDimensions: FimRect;
 
-  /** Ratio of original resolution to downscaled resolution. 1 if the dimensions have not been downscaled. */
+  /**
+   * Ratio of original resolution to downscaled resolution. 1 if the dimensions have not been downscaled. Member
+   * function which operate on coordinates should multiply values by this ratio to get coordinates of the underlying
+   * image.
+   */
   public readonly downscaleRatio: number;
 
   public abstract dispose(): void;

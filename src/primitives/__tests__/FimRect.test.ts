@@ -63,6 +63,12 @@ describe('FimRect', () => {
 
     let rect2 = FimRect.fromXYWidthHeight(200, 300, 30, 40);
     expect(rect2.getArea()).toEqual(1200);
-  })
+  });
+
+  it('Scales by a multiplier', () => {
+    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    let rect2 = rect1.scale(0.1);
+    expect(rect2).toEqual(FimRect.fromXYWidthHeight(10, 20, 30, 40));
+  });
 
 });

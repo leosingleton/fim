@@ -31,10 +31,9 @@ export abstract class FimCanvasBase extends FimImage {
    */
   public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas,
       maxDimension = 0) {
-    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
+    // Call the parent constructor. Read the new dimensions as they may get downscaled.
     super(width, height, maxDimension);
-    width = this.w;
-    height = this.h;
+    let realDimensions = this.realDimensions;
 
     if (useOffscreenCanvas) {
       // Use Chrome's OffscreenCanvas object
@@ -42,12 +41,12 @@ export abstract class FimCanvasBase extends FimImage {
         // The browser does not support OffscreenCanvas
         throw new Error('No OffScreenCanvas');
       }
-      this.canvasElement = new OffscreenCanvas(width, height);
+      this.canvasElement = new OffscreenCanvas(realDimensions.w, realDimensions.h);
     } else {
       // Create a hidden canvas
       let canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = realDimensions.w;
+      canvas.height = realDimensions.h;
       canvas.style.display = 'none';
       document.body.appendChild(canvas);
       this.canvasElement = canvas;

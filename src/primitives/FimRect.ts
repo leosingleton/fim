@@ -69,6 +69,11 @@ export class FimRect {
     return this.w * this.h;
   }
 
+  /** Scales a rectangle by a multiplier */
+  scale(ratio: number): FimRect {
+    return FimRect.fromCoordinates(this.xLeft * ratio, this.yTop * ratio, this.xRight * ratio, this.yBottom * ratio);
+  }
+
   /**
    * Rescales this rectangle, preserving aspect ratio
    * @param maxDimension Maximum value of either width or height

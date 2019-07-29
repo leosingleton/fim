@@ -63,7 +63,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
   
   /**
-   * Copies image from another. Supports cropping, but not rescaling.
+   * Copies image from another. Supports cropping, but rescaling is only supported on some input types.
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -82,7 +82,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
 
   /**
-   * Copies image from a FimCanvas. Supports cropping, but not rescaling.
+   * Copies image from a FimCanvas. Supports cropping and rescaling.
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -91,39 +91,36 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
+    let origSrcCoords = srcCoords;
 
-    // Rescaling is not supported
-    this.throwOnRescale(srcCoords, destCoords);
+    // Scale the input coordinates. The destination RgbaBuffer doesn't support downscaling.
+    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
 
-    if (destCoords.equals(this.dimensions)) {
-      // Fast case: the destination is this entire image
+    if (!destCoords.equals(this.dimensions)) {
+      // Slow case: The destination is not the entire image. Use a temporary RgbaBuffer.
+      using(new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
+        buffer.copyFromCanvas(srcImage, origSrcCoords);
+        this.copyFromRgbaBuffer(buffer, undefined, destCoords);
+      });
+    } else if ((srcImage instanceof FimCanvas) && srcCoords.w === destCoords.w && srcCoords.h === destCoords.h) {
+      // Fast case: the destination is this entire image, we don't have to rescale, and the input is an HtmlCanvas.
+      // We can't copy directly from a WebGL canvas, either.
       this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
-      // Slow case: the destination is only a subset of the image. Use a temporary RGBA buffer.
-      using(new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
-        buffer.copyFromCanvasInternal(srcImage, srcCoords);
-        this.copyFromRgbaBuffer(buffer, buffer.dimensions, destCoords);
+      // Slow case: Use a temporary canvas.
+      using(new FimCanvas(destCoords.w, destCoords.h), canvas => {
+        canvas.copyFrom(srcImage, origSrcCoords);
+        this.copyFromCanvasInternal(canvas, canvas.realDimensions);
       });
     }
   }
 
-  private copyFromCanvasInternal(srcImage: FimCanvas | FimGLCanvas, srcCoords: FimRect): void {
-    if (srcImage instanceof FimCanvas) {
-      // Copy data from a normal HtmlCanvas
-      using(srcImage.createDrawingContext(), ctx => {
-        let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
-        this.buffer = imgData.data;
-      });
-    } else if (srcImage instanceof FimGLCanvas) {
-      // We can't get a 2D drawing context directly to a WebGL canvas. Instead, copy the part we want first to a
-      // temporary canvas.
-      using(new FimCanvas(srcCoords.w, srcCoords.h), temp => {
-        temp.copyFrom(srcImage, srcCoords);
-        this.copyFromCanvasInternal(temp, temp.dimensions); // Recurse
-      });
-    } else {
-      this.throwOnInvalidImageKind(srcImage);
-    }
+  private copyFromCanvasInternal(srcImage: FimCanvas, srcCoords: FimRect): void {
+    // Copy data from a normal HtmlCanvas
+    using(srcImage.createDrawingContext(), ctx => {
+      let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
+      this.buffer = imgData.data;
+    });
   }
 
   /**
