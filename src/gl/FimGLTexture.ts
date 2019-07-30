@@ -78,10 +78,11 @@ export class FimGLTexture extends FimImage {
 
     // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
     // so just use an RGBA one instead if the texture is not flagged InputOnly.
-    if (options && (flags & FimGLTextureFlags.InputOnly) === 0) {
-      options.channels = null;
+    let channels = FimColorChannels.RGBA;
+    if (options && (flags & FimGLTextureFlags.InputOnly) !== 0) {
+      channels = options.channels || FimColorChannels.RGBA;
     }
-    this.channels = options ? options.channels : FimColorChannels.RGBA;
+    this.channels = channels;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -192,7 +193,8 @@ export class FimGLTexture extends FimImage {
     this.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     FimGLError.throwOnError(gl);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
+    let format = this.getGLFormat();
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
     this.unbind(0);
 
@@ -294,7 +296,11 @@ export class FimGLTexture extends FimImage {
   /** Returns the WebGL constant for the texture's format */
   private getGLFormat(): number {
     let gl = this.gl;
-    return (this.channels === FimColorChannels.Greyscale) ? gl.LUMINANCE : gl.RGBA;
+    switch (this.channels) {
+      case FimColorChannels.Greyscale:  return gl.LUMINANCE;
+      case FimColorChannels.RGB:        return gl.RGB;
+      case FimColorChannels.RGBA:       return gl.RGBA;
+    }
   }
 
   /**

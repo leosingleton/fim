@@ -26,7 +26,7 @@ describe('FimGLTexture', () => {
       let program = disposable.addDisposable(new FimGLProgramCopy(gl));
       let canvas = disposable.addDisposable(new FimCanvas(240, 240, '#888'));
 
-      [FimColorChannels.Greyscale, FimColorChannels.RGBA].forEach(channels => {
+      [FimColorChannels.Greyscale, FimColorChannels.RGB, FimColorChannels.RGBA].forEach(channels => {
         [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32].forEach(bpp => {
           [FimGLTextureFlags.None, FimGLTextureFlags.LinearSampling, FimGLTextureFlags.InputOnly,
               FimGLTextureFlags.LinearSampling | FimGLTextureFlags.InputOnly].forEach(flags => {

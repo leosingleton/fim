@@ -7,6 +7,9 @@ export const enum FimColorChannels {
   /** 1 channel */
   Greyscale = 1,
 
+  /** 3 channels */
+  RGB = 3,
+
   /** 4 channels */
   RGBA = 4
 }
