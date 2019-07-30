@@ -190,6 +190,8 @@ export class FimGLTexture extends FimImage {
     let gl = this.gl;
 
     this.bind(0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    FimGLError.throwOnError(gl);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
     this.unbind(0);
@@ -201,6 +203,8 @@ export class FimGLTexture extends FimImage {
     let gl = this.gl;
 
     this.bind(0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    FimGLError.throwOnError(gl);
     let format = this.getGLFormat();
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
@@ -214,6 +218,8 @@ export class FimGLTexture extends FimImage {
     let gl = this.gl;
 
     this.bind(0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    FimGLError.throwOnError(gl);
     let format = this.getGLFormat();
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
