@@ -63,12 +63,20 @@ export class FimGLCanvas extends FimCanvasBase {
       this.objects.forEach(o => o.onContextRestored());
     }, false);
 
-    this.gl = canvas.getContext('webgl');
-    if (!this.gl) {
+    let gl = this.gl = canvas.getContext('webgl');
+    if (!gl) {
       throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
 
     this.loadExtensions();
+
+    // Disable unneeded features, as we are doing 2D graphics
+    gl.disable(gl.BLEND);
+    FimGLError.throwOnError(gl);
+    gl.disable(gl.CULL_FACE);
+    FimGLError.throwOnError(gl);
+    gl.disable(gl.DEPTH_TEST);
+    FimGLError.throwOnError(gl);
 
     if (initialColor) {
       this.fill(initialColor);
