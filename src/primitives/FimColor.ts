@@ -137,4 +137,9 @@ export class FimColor {
       this.b * 0.0722;  // Blue
     return Math.round(value / 255);
   }
+
+  /** Returns the color as an OpenGL-style vector, of size 4, with values from 0.0 to 1.0. */
+  public toVector(): number[] {
+    return [this.r / 255, this.g / 255, this.b / 255, this.a / 255];
+  }
 }
