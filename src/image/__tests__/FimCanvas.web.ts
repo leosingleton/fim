@@ -187,7 +187,7 @@ function spec(useOffscreenCanvas: boolean) {
     });
 
     it('Encodes JPEGs', async () => {
-      usingAsync(new FimCanvas(320, 320, '#f00', useOffscreenCanvas), async canvas => {
+      await usingAsync(new FimCanvas(320, 320, '#f00', useOffscreenCanvas), async canvas => {
         // Write to JPEG
         let jpeg = await canvas.toJpeg();
 

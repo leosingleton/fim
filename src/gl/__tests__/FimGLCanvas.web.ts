@@ -44,7 +44,7 @@ function spec(useOffscreenCanvas: boolean) {
     });
 
     it('Renders a JPEG texture', async () => {
-      DisposableSet.usingAsync(async disposable => {
+      await DisposableSet.usingAsync(async disposable => {
         // Initialize the WebGL canvas, program, and a texture loaded from a JPEG image
         let canvas = disposable.addDisposable(new FimGLCanvas(128, 128, undefined, useOffscreenCanvas));
         let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
