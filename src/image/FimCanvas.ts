@@ -67,6 +67,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    */
   private opWithSrcDest(inputCanvas: FimCanvasBase, operation: string, alpha: number, src: FimRect, dest: FimRect,
       imageSmoothingEnabled = false): void {
+    // Scale the coordinates
+    src = src.scale(inputCanvas.downscaleRatio);
+    dest = dest.scale(this.downscaleRatio);
+
     using(this.createDrawingContext(imageSmoothingEnabled, operation, alpha), ctx => {
       ctx.drawImage(inputCanvas.getCanvas(), src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
         dest.w, dest.h);
@@ -77,7 +81,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   private opWithColor(color: string, operation: string, alpha: number): void {
     using(this.createDrawingContext(false, operation, alpha), ctx => {
       ctx.fillStyle = color;
-      ctx.fillRect(0, 0, this.dimensions.w, this.dimensions.h);  
+      ctx.fillRect(0, 0, this.realDimensions.w, this.realDimensions.h);  
     });
   }
 
@@ -170,8 +174,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     await DisposableSet.usingAsync(async disposable => {
       let ctx = disposable.addDisposable(this.createDrawingContext(imageSmoothingEnabled));
 
-      let imageData = new ImageData(srcImage.getBuffer(), srcImage.dimensions.w, srcImage.dimensions.h);      
+      let imageData = new ImageData(srcImage.getBuffer(), srcImage.realDimensions.w, srcImage.realDimensions.h);
       let imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
+
+      // Scale the coordinates
+      srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+      destCoords = destCoords.scale(this.downscaleRatio);
 
       ctx.drawImage(imageBitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h, destCoords.xLeft,
         destCoords.yTop, destCoords.w, destCoords.h);
@@ -192,6 +200,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
+    
+    // Scale the coordinates
+    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+    destCoords = destCoords.scale(this.downscaleRatio);
     
     if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
       // Fast case: no cropping or rescaling
@@ -226,6 +238,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   public getPixel(x: number, y: number): FimColor {
     let pixel: Uint8ClampedArray;
 
+    // Scale the coordinates
+    x *= Math.round(this.downscaleRatio);
+    y *= Math.round(this.downscaleRatio);
+    
     using(new FimRgbaBuffer(1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();
@@ -235,6 +251,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   }
 
   public setPixel(x: number, y: number, color: FimColor): void {
+    // Scale the coordinates
+    x *= Math.round(this.downscaleRatio);
+    y *= Math.round(this.downscaleRatio);
+
     using(new FimRgbaBuffer(1, 1, color), buffer => {
       this.copyFromRgbaBuffer(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });

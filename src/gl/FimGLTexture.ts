@@ -9,7 +9,7 @@ import { FimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
-import { FimRect } from '../primitives';
+import { FimBitsPerPixel, FimColorChannels, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
 /** Flags for FimGLTexture creation */
@@ -17,29 +17,32 @@ export const enum FimGLTextureFlags {
   /** Default value */
   None = 0,
 
-  /** Makes the texture a single greyscale channel */
-  Greyscale = (1 << 0),
-
-  /**
-   * Limits the color depth to 8-bit, regardless of the render's maximum quality. This is useful when loading a texture
-   * from an 8-bit image, and greater color depth will not yield any additional quality.
-   */
-  EightBit = (1 << 1),
-
   /** By default, we use nearest sampling. This uses linear instead. */
-  LinearSampling = (1 << 2),
+  LinearSampling = (1 << 0),
 
   /**
    * By default, we clamp the pixels at the edge. This causes us to repeat the image instead.
    * NOTE: Only available on square power-of-two textures!
    */
-  Repeat = (1 << 3),
+  Repeat = (1 << 1),
 
   /**
    * If set, we do not create a framebuffer for this texture. Thus, programs are unable to write to it. This is only
    * useful when loading an input texture as read-only.
    */
-  InputOnly = (1 << 4)
+  InputOnly = (1 << 2)
+}
+
+/** Options for FimGLTexture constructor */
+export interface FimGLTextureOptions {
+  /** Number of channels. Default is RGBA (4). */
+  channels?: FimColorChannels;
+
+  /** Bits per pixel. Default is 32. */
+  bpp?: FimBitsPerPixel;
+
+  /** Flags */
+  flags?: FimGLTextureFlags;
 }
 
 /** Wrapper class for WebGL textures */
@@ -49,9 +52,12 @@ export class FimGLTexture extends FimImage {
    * @param glCanvas FimGLCanvas to which this texture belongs
    * @param width Texture width, in pixels
    * @param height Texture height, in pixels
+   * @param channels Number of channels
+   * @param bpp Bits per pixel. Note that the constructor may choose a lower quality than requested, depending on the
+   *    browser and GPU's WebGL capabilities and the current performance.
    * @param flags See FimGLTextureFlags
    */
-  constructor(glCanvas: FimGLCanvas, width? : number, height?: number, flags = FimGLTextureFlags.None) {
+  constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
     // Default values
     width = width || glCanvas.w;
     height = height || glCanvas.h;
@@ -60,16 +66,26 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
 
-    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
+    // Call the parent constructor. Read the real dimensions as we may have to downscale.
     super(width, height, maxDimension);
-    width = this.w;
-    height = this.h;
+    let realDimensions = this.realDimensions;
 
+    let bpp = options ? options.bpp : FimBitsPerPixel.BPP8;
+    let flags = this.textureFlags = options ? options.flags : FimGLTextureFlags.None;
+    let depth = glCanvas.getTextureDepth(bpp, (flags & FimGLTextureFlags.LinearSampling) !== 0);
+    this.bpp = depth.bpp;
     this.hasImage = false;
+
+    // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
+    // so just use an RGBA one instead if the texture is not flagged InputOnly.
+    let channels = FimColorChannels.RGBA;
+    if (options && (flags & FimGLTextureFlags.InputOnly) !== 0) {
+      channels = options.channels || FimColorChannels.RGBA;
+    }
+    this.channels = channels;
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
-    this.textureFlags = flags;
 
     // Create a texture
     let texture = gl.createTexture();
@@ -79,7 +95,7 @@ export class FimGLTexture extends FimImage {
 
     try {    
       // Set the parameters so we can render any size image
-      if ((this.textureFlags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
+      if ((flags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
         // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
         throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
       }
@@ -98,10 +114,8 @@ export class FimGLTexture extends FimImage {
       // If width and height are specified, create a framebuffer to back this texture
       if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
         // Allocate the texture
-        let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
-        let colorDepth = (this.textureFlags & FimGLTextureFlags.EightBit) ? gl.UNSIGNED_BYTE :
-          this.glCanvas.getMaxTextureDepthValue((this.textureFlags & FimGLTextureFlags.LinearSampling) !== 0);
-        gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, colorDepth, null);
+        let format = this.getGLFormat();
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, realDimensions.w, realDimensions.h, 0, format, depth.glConstant, null);
         FimGLError.throwOnError(gl);
 
         // Create the framebuffer
@@ -158,7 +172,7 @@ export class FimGLTexture extends FimImage {
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
-    if (srcImage.w > maxDimension || srcImage.h > maxDimension) {
+    if (srcImage.realDimensions.w > maxDimension || srcImage.realDimensions.h > maxDimension) {
       return this.copyFromWithDownscale(srcImage);
     }
 
@@ -177,7 +191,10 @@ export class FimGLTexture extends FimImage {
     let gl = this.gl;
 
     this.bind(0);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, srcImage.getCanvas());
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    FimGLError.throwOnError(gl);
+    let format = this.getGLFormat();
+    gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, srcImage.getCanvas());
     FimGLError.throwOnError(gl);
     this.unbind(0);
 
@@ -188,7 +205,9 @@ export class FimGLTexture extends FimImage {
     let gl = this.gl;
 
     this.bind(0);
-    let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    FimGLError.throwOnError(gl);
+    let format = this.getGLFormat();
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.LUMINANCE, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
@@ -201,7 +220,9 @@ export class FimGLTexture extends FimImage {
     let gl = this.gl;
 
     this.bind(0);
-    let format = (this.textureFlags & FimGLTextureFlags.Greyscale) ? gl.LUMINANCE : gl.RGBA;
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    FimGLError.throwOnError(gl);
+    let format = this.getGLFormat();
     gl.texImage2D(gl.TEXTURE_2D, 0, format, srcImage.w, srcImage.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(srcImage.getBuffer()));
     FimGLError.throwOnError(gl);
@@ -218,13 +239,13 @@ export class FimGLTexture extends FimImage {
       //  1. FimGreyscaleBuffer => FimRgbaBuffer
       //  2. FimRgbaBuffer => Downscale => FimCanvas (using the slower, non-async version)
       //  3. FimCanvas => FimTexture
-      using(new FimRgbaBuffer(srcImage.w, srcImage.h), temp => {
+      using(new FimRgbaBuffer(srcImage.realDimensions.w, srcImage.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });
     } else {
       // For all other object types, downscale to a FimCanvas of the target texture dimensions
-      using(new FimCanvas(this.w, this.h), temp => {
+      using(new FimCanvas(this.realDimensions.w, this.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });
@@ -263,7 +284,24 @@ export class FimGLTexture extends FimImage {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
 
+  /** See FimGLTextureFlags */
   public readonly textureFlags: FimGLTextureFlags;
+
+  /** Color channels */
+  public readonly channels: FimColorChannels;
+
+  /** Bits per pixel */
+  public readonly bpp: FimBitsPerPixel;
+
+  /** Returns the WebGL constant for the texture's format */
+  private getGLFormat(): number {
+    let gl = this.gl;
+    switch (this.channels) {
+      case FimColorChannels.Greyscale:  return gl.LUMINANCE;
+      case FimColorChannels.RGB:        return gl.RGB;
+      case FimColorChannels.RGBA:       return gl.RGBA;
+    }
+  }
 
   /**
    * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
@@ -280,21 +318,16 @@ export class FimGLTexture extends FimImage {
    * Creates a new WebGL texture from another image
    * @param canvas WebGL context
    * @param srcImage Source image
-   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function. EightBit
-   *    and/or Greyscale may also be automatically set depending on the type of srcImage.
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
    */
   public static createFrom(canvas: FimGLCanvas, srcImage: FimGreyscaleBuffer | FimRgbaBuffer | FimCanvas | FimGLCanvas,
       extraFlags = FimGLTextureFlags.None): FimGLTexture {
-    // Calculate flags with defaults and extras
+    // Calculate parameters with defaults and extras
+    let channels = (srcImage instanceof FimGreyscaleBuffer) ? FimColorChannels.Greyscale : FimColorChannels.RGBA;
+    let bpp = FimBitsPerPixel.BPP8;
     let flags = FimGLTextureFlags.InputOnly | extraFlags;
-    if (srcImage instanceof FimGreyscaleBuffer) {
-      flags |= FimGLTextureFlags.Greyscale;
-    }
-    if (!(srcImage instanceof FimGLCanvas)) {
-      flags |= FimGLTextureFlags.EightBit;
-    }
 
-    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, flags);
+    let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, { channels, bpp, flags });
     texture.copyFrom(srcImage);
     return texture;
   }

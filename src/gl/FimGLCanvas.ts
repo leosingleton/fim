@@ -8,7 +8,7 @@ import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
-import { FimColor, FimRect } from '../primitives';
+import { FimBitsPerPixel, FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
@@ -38,10 +38,8 @@ export class FimGLCanvas extends FimCanvasBase {
       maxDimension = 2048;
     }
 
-    // Call the parent constructor. We re-read the dimensions as they may get downscaled.
+    // Call the parent constructor
     super(width, height, useOffscreenCanvas, maxDimension);
-    width = this.w;
-    height = this.h;
 
     this.renderQuality = quality;
     this.objects = [];
@@ -90,31 +88,37 @@ export class FimGLCanvas extends FimCanvasBase {
   public renderQuality: number;
 
   /**
-   * Determines the color depth to use for textures
+   * Determines the color depth for a FimGLTexture. Returns both the bits per pixel and correspoding WebGL constant.
+   * The parameter is supplied as a maximum--the result may be lower than requested depending on WebGL capabilities and
+   * performance.
+   * @param maxBpp Maximum bits per pixel
    * @param linear True if linear filtering is required; false for nearest
-   * @returns FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
+   * @returns Object with two properties: {
+   *    bpp: FimBitsPerPixel,
+   *    glConstant: FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
+   * }
    */
-  public getMaxTextureDepthValue(linear: boolean): number {
+  public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
     // The quality values are arbitrarily chosen. 85% and above uses 32-bit precision; 50% and above uses 16-bit, and
     // below 50% falls back to 8-bit.
-    if (this.renderQuality >= 0.85) {
+    if (maxBpp >= FimBitsPerPixel.BPP32 && this.renderQuality >= 0.85) {
       if (this.extensionTexture32 && this.extensionColorBuffer32) {
         if (!linear || this.extensionTextureLinear32) {
-          return this.gl.FLOAT;
+          return { bpp: FimBitsPerPixel.BPP32, glConstant: this.gl.FLOAT };
         }
       }
     }
 
-    if (this.renderQuality >= 0.5) {
+    if (maxBpp >= FimBitsPerPixel.BPP16 && this.renderQuality >= 0.5) {
       let ext = this.extensionTexture16;
       if (ext && this.extensionColorBuffer16) {
         if (!linear || this.extensionTextureLinear16) {
-          return ext.HALF_FLOAT_OES;
+          return { bpp: FimBitsPerPixel.BPP16, glConstant: ext.HALF_FLOAT_OES };
         }
       }
     }
 
-    return this.gl.UNSIGNED_BYTE;
+    return { bpp: FimBitsPerPixel.BPP8, glConstant: this.gl.UNSIGNED_BYTE };
   }
 
   private loadExtensions(): void {
@@ -168,6 +172,10 @@ export class FimGLCanvas extends FimCanvasBase {
   public getPixel(x: number, y: number): FimColor {
     let pixel: Uint8ClampedArray;
 
+    // Scale the coordinates
+    x *= Math.round(this.downscaleRatio);
+    y *= Math.round(this.downscaleRatio);
+    
     using(new FimRgbaBuffer(1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();

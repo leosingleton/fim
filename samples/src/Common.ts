@@ -24,6 +24,15 @@ export async function loadTestImage(): Promise<FimCanvas> {
   return FimCanvas.createFromJpeg(jpeg);
 }
 
+/** Blocks execution until the browser is ready to render another frame */
+export async function waitForAnimationFrame(): Promise<void> {
+  return new Promise(resolve => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
+  });
+}
+
 /** Performance testing results */
 export interface IPerformanceResults {
   /** Average execution time, in milliseconds */
@@ -63,14 +72,14 @@ class PerformanceTester {
     return this.result();
   }
 
-  private iterationsPerBlock: number;
+  private totalIterations: number;
   private values: number[];
   private iterationsSinceLastBlock: number;
   private lastBlockEndTimestamp: number;
   private timer: Stopwatch;
 
   private init(): void {
-    this.iterationsPerBlock = 0;
+    this.totalIterations = 0;
     this.values = [];
     this.iterationsSinceLastBlock = 0;
     this.lastBlockEndTimestamp = 0;
@@ -78,28 +87,21 @@ class PerformanceTester {
   }
 
   private shouldContinue(): boolean {
-    // On the first block, we haven't yet calculated the number of iterations per block. Instead, we keep executing
-    // until we reach a specific time.
+    // Execute until we reach a specific minimum time per block
+    ++this.totalIterations;
     let iterations = ++this.iterationsSinceLastBlock;
-    if (this.iterationsPerBlock === 0) {
-      let time = this.timer.getElapsedMilliseconds();
-      if (time < this.timePerBlock) {
-        return true;
-      }
-
-      // We have completed the first block
-      this.iterationsPerBlock = iterations;
-    } else {
-      // If we have not yet reached the number of iterations per block, continue
-      if (iterations < this.iterationsPerBlock) {
-        return true;
-      }
+    let time = this.timer.getElapsedMilliseconds();
+    let elapsed = time - this.lastBlockEndTimestamp;
+    let timePerBlock = this.timePerBlock;
+    if (elapsed < timePerBlock) {
+      return true;
     }
 
-    // Record the block
-    let time = this.timer.getElapsedMilliseconds();
+    // Record the block. Adjust the iterations for any time over the expected, but only allow 
+    let adjustedIterations = iterations * timePerBlock / elapsed;
+    let avgTimePerIteration = timePerBlock / Math.max(adjustedIterations, iterations - 1);
     let values = this.values;
-    values.push(time - this.lastBlockEndTimestamp);
+    values.push(avgTimePerIteration);
     this.iterationsSinceLastBlock = 0;
     this.lastBlockEndTimestamp = time;
 
@@ -110,8 +112,7 @@ class PerformanceTester {
   private result(): IPerformanceResults {
     // Sort the blocks by execution time
     let values = this.values;
-    let iterationsPerBlock = this.iterationsPerBlock;
-    let originalCount = values.length * iterationsPerBlock;
+    let originalCount = this.totalIterations;
     values.sort();
 
     // Calculate the number of blocks to keep. Keep the ones in the middle.
@@ -122,7 +123,7 @@ class PerformanceTester {
     // Calculate the average iteration time of the remaining blocks
     let sum = 0;
     values.forEach(value => sum += value);
-    let avg = sum / (keep * iterationsPerBlock);
+    let avg = sum / keep;
 
     // Format output string
     let fps = 1000 / avg;
@@ -194,7 +195,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
  */
-export async function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
+export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
   let outputDimensions = canvas.dimensions;
@@ -253,8 +254,8 @@ export async function renderOutput(canvas: FimCanvasBase, message?: string, maxD
     ctx.restore();
   }
   
-  // Give the browser time to render
-  return TaskScheduler.yield();
+  // Wait for the browser to render a frame
+  return waitForAnimationFrame();
 }
 
 /** Copies a FimGLTexture onto a FimGLCanvas */

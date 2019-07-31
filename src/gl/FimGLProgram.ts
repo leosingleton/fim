@@ -182,10 +182,6 @@ export abstract class FimGLProgram implements IDisposable {
 
     // Create the vertex matrix
     let matrix = new Transform3D();
-    if (!outputTexture) {
-      // Flip the final image on the Y-axis
-      matrix.scale(1, -1, 1);
-    }
     if (vertexMatrix) {
       matrix.transform(vertexMatrix);
     }
