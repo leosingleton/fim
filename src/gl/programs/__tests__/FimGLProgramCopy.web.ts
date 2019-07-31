@@ -6,7 +6,7 @@ import { FimGLProgramCopy } from '../FimGLProgramCopy';
 import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
 import { FimCanvas, FimGreyscaleBuffer, FimRgbaBuffer } from '../../../image';
-import { FimBitsPerPixel, FimColor, FimColorChannels } from '../../../primitives';
+import { FimColor } from '../../../primitives';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 describe('FimGLProgramCopy', () => {
