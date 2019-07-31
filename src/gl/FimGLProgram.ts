@@ -158,11 +158,6 @@ export abstract class FimGLProgram implements IDisposable {
    * @param textureCoords Texture coordinates for each vertex as an array of vec2 values
    */
   public setVertices(vertexPositions = TwoTriangles.vertexPositions, textureCoords = TwoTriangles.textureCoords): void {
-    // Ensure the arrays are of the same size
-    if (vertexPositions.length / 4 !== textureCoords.length / 2) {
-      throw new FimGLError(FimGLErrorCode.AppError, 'SizeMismatch');
-    }
-
     this.positionBuffer.set(vertexPositions);
     this.texCoordBuffer.set(textureCoords);
   }
@@ -265,12 +260,18 @@ export abstract class FimGLProgram implements IDisposable {
         FimGLError.throwOnError(gl);
       }
 
+      // Ensure the vertex arrays are of the same length
+      let vertexCount = this.positionBuffer.length;
+      if (vertexCount !== this.texCoordBuffer.length) {
+        throw new FimGLError(FimGLErrorCode.AppError, 'LengthMismatch');
+      }
+
       // Bind the vertices
       this.positionBuffer.bind();
       this.texCoordBuffer.bind();
 
       // Render
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
       FimGLError.throwOnError(gl);
 
       if (outputTexture) {
@@ -346,7 +347,12 @@ class FimGLArrayBuffer implements IDisposable {
     FimGLError.throwOnError(gl);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    this.length = values.length / this.size;
   }
+
+  /** Length of the array buffer, in number of vectors */
+  public length: number;
 
   public bind(): void {
     let gl = this.gl;
