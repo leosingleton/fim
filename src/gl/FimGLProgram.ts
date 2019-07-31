@@ -260,10 +260,15 @@ export abstract class FimGLProgram implements IDisposable {
         FimGLError.throwOnError(gl);
       }
 
-      // Ensure the vertex arrays are of the same length
+      // Validate the vertex arrays
       let vertexCount = this.positionBuffer.length;
       if (vertexCount !== this.texCoordBuffer.length) {
+        // The vertex array and texture coordinate array must have the same number of vertices
         throw new FimGLError(FimGLErrorCode.AppError, 'LengthMismatch');
+      }
+      if (vertexCount % 3 !== 0) {
+        // The number of vertices must be a multiple of 3 as we render triangles
+        throw new FimGLError(FimGLErrorCode.AppError, 'InvalidLength');
       }
 
       // Bind the vertices
