@@ -4,27 +4,12 @@
 
 #version 100
 
-// We're doing 2D graphics on full-frame canvases, so all programs use the same vertex shader. Nothing special,
-// just maps coordinates from (0, 0) to (1, 1).
-attribute vec2 aPos;
-uniform mat4 uVertexMatrix;
+attribute vec4 aPos;
+attribute vec2 aTex;
 varying vec2 vCoord;
 
-// Workaround for a bug in the GLSL compiler. We normally mangle uniform names, but uniforms in the vertex shader can
-// clash with those in the fragment shader. Workaround for now by disabling name mangling on uniforms in the vertex
-// shader until I figure out a better way to fix the bug...
-@nomangle uVertexMatrix
-
+// Simple vertex shader which accepts vertices and texture coordinates as attributes for doing 2D rendering
 void main() {
-  // Convert from 0->1 to 0->2
-  vec2 zeroToTwo = aPos * 2.0;
-
-  // Convert from 0->2 to -1->+1 (clipspace)
-  vec2 clipSpace = zeroToTwo - 1.0;
-
-  // gl_Position is a special variable a vertex shader is responsible for setting
-  gl_Position = uVertexMatrix * vec4(clipSpace, 0.0, 1.0);
-
-  // Pass the texCoord to the fragment shader. The GPU will interpolate this value between points.
-  vCoord = aPos;
+  gl_Position = aPos;
+  vCoord = aTex;
 }

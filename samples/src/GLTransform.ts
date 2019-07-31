@@ -75,7 +75,8 @@ export async function glTransform(canvasId: string): Promise<void> {
     gl.fill('#000');
 
     program.setInputs(texture);
-    program.execute(null, matrix);
+    program.applyVertexMatrix(matrix);
+    program.execute();
 
     // Copy the result to the screen
     let ctx = output.getContext('2d');
