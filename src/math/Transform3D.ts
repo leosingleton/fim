@@ -39,6 +39,25 @@ export class Transform3D {
     ];
   }
 
+  /** Transforms an array of vec4 vertices using this transformation matrix */
+  public transformVertexArray(values: number[]): number[] {
+    // Ensure the input is an array of size 4 vectors
+    if (values.length % 4 !== 0) {
+      throw new Error('ArraySize');
+    }
+
+    let result = [];
+    for (let n = 0; n < values.length; n += 4) {
+      let rr = this.transformPoint(values[n], values[n + 1], values[n + 2], values[n + 3]);
+      result[n] = rr[0];
+      result[n + 1] = rr[1];
+      result[n + 2] = rr[2];
+      result[n + 3] = rr[3];
+    }
+
+    return result;
+  }
+
   /**
    * Applies another transformation using matrix multiplication
    * @param matrix Another 3x3 or 4x4 transformation matrix

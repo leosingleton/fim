@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Transform3D } from '../Transform3D';
+import { TwoTriangles } from '../TwoTriangles';
 
 describe('Transform3D', () => {
 
@@ -57,6 +58,12 @@ describe('Transform3D', () => {
     expect(point[1]).toBeCloseTo(11.5, 8);
     expect(point[2]).toBeCloseTo(0, 8);
     expect(point[3]).toBeCloseTo(1, 8);
+  });
+
+  it('Transforms vertex arrays', () => {
+    let mat = new Transform3D(); // Identity matrix
+    let vertices = TwoTriangles.vertexPositions;
+    expect(mat.transformVertexArray(vertices)).toEqual(vertices);
   });
 
 });

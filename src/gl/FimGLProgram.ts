@@ -6,7 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { Transform2D, Transform3D } from '../math';
+import { Transform2D, Transform3D, TwoTriangles } from '../math';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
@@ -58,13 +58,14 @@ export abstract class FimGLProgram implements IDisposable {
   /** Derived classes should call this function in their constructor after initializing any constants. */
   protected compileProgram(): void {
     let gl = this.gl;
+    let disposable = this.disposable;
     
     // Compile the shaders
     let vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
     let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
 
     // Create the program
-    let program = this.disposable.addNonDisposable(gl.createProgram(), p => gl.deleteProgram(p));
+    let program = disposable.addNonDisposable(gl.createProgram(), p => gl.deleteProgram(p));
     FimGLError.throwOnError(gl);
     gl.attachShader(program, vertexShader);
     FimGLError.throwOnError(gl);
@@ -82,24 +83,10 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     // Create two triangles that map to the full canvas
-    this.positionBuffer = this.disposable.addNonDisposable(gl.createBuffer(), buf => gl.deleteBuffer(buf));
-    FimGLError.throwOnError(gl);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-    FimGLError.throwOnError(gl);
-    let triangles = new Float32Array([
-      0, 0,
-      1, 0,
-      1, 1,
-      0, 0,
-      0, 1,
-      1, 1,
-    ]);
-    gl.bufferData(gl.ARRAY_BUFFER, triangles, gl.STATIC_DRAW);
-    FimGLError.throwOnError(gl);
-
-    // Get the ID of the position attribute
-    this.positionAttributeLocation = gl.getAttribLocation(program, 'aPos');
-    FimGLError.throwOnError(gl);
+    let positionBuffer = this.positionBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aPos', 4));
+    let texCoordBuffer = this.texCoordBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aTex', 2));
+    positionBuffer.set(TwoTriangles.vertexPositions);
+    texCoordBuffer.set(TwoTriangles.textureCoords);
 
     // Get the ID of any uniform variables. Be sure to use the minified name.
     for (let name in this.uniforms) {
@@ -166,24 +153,41 @@ export abstract class FimGLProgram implements IDisposable {
   }
 
   /**
-   * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
-   * FimGLProgram-derived classes.
-   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
+   * Updates the vertices. By default, we draw two triangles filling the entire rendering area.
+   * @param vertexPositions Vertex positions as an array of vec4 values
+   * @param textureCoords Texture coordinates for each vertex as an array of vec2 values
+   */
+  public setVertices(vertexPositions = TwoTriangles.vertexPositions, textureCoords = TwoTriangles.textureCoords): void {
+    this.positionBuffer.set(vertexPositions);
+    this.texCoordBuffer.set(textureCoords);
+  }
+
+  /**
+   * Updates the vertices by taking the standard two triangles vertices and applying a matrix transformation.
    * @param vertexMatrix Optional 3x3 or 4x4 matrix used to manipulate vertices. The Transform2D and Transform3D
    *    classes can help to create the vertex transformation matrices.
    */
-  public execute(outputTexture?: FimGLTexture, vertexMatrix?: Transform2D | Transform3D | number[]): void {
+  public applyVertexMatrix(vertexMatrix: Transform2D | Transform3D | number[]): void {
+    // Convert the input to a 4x4 matrix
+    let matrix = new Transform3D();
+    matrix.transform(vertexMatrix);
+
+    // Update the vertices
+    let vertices = matrix.transformVertexArray(TwoTriangles.vertexPositions);
+    this.setVertices(vertices);
+  }
+
+  /**
+   * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
+   * FimGLProgram-derived classes.
+   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
+   */
+  public execute(outputTexture?: FimGLTexture): void {
     let gl = this.gl;
 
     // On the first call the execute(), compile the program
     if (!this.program) {
       this.compileProgram();
-    }
-
-    // Create the vertex matrix
-    let matrix = new Transform3D();
-    if (vertexMatrix) {
-      matrix.transform(vertexMatrix);
     }
 
     try {
@@ -199,11 +203,6 @@ export abstract class FimGLProgram implements IDisposable {
         FimGLError.throwOnError(gl);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         FimGLError.throwOnError(gl);
-      }
-
-      let vertexMatrixUniform = this.vertexShader.uniforms.uVertexMatrix;
-      if (vertexMatrixUniform) {
-        vertexMatrixUniform.variableValue = matrix.value;
       }
 
       gl.useProgram(this.program);
@@ -261,16 +260,23 @@ export abstract class FimGLProgram implements IDisposable {
         FimGLError.throwOnError(gl);
       }
 
+      // Validate the vertex arrays
+      let vertexCount = this.positionBuffer.length;
+      if (vertexCount !== this.texCoordBuffer.length) {
+        // The vertex array and texture coordinate array must have the same number of vertices
+        throw new FimGLError(FimGLErrorCode.AppError, 'LengthMismatch');
+      }
+      if (vertexCount % 3 !== 0) {
+        // The number of vertices must be a multiple of 3 as we render triangles
+        throw new FimGLError(FimGLErrorCode.AppError, 'InvalidLength');
+      }
+
       // Bind the vertices
-      gl.enableVertexAttribArray(this.positionAttributeLocation);
-      FimGLError.throwOnError(gl);
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-      FimGLError.throwOnError(gl);
-      gl.vertexAttribPointer(this.positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-      FimGLError.throwOnError(gl);
+      this.positionBuffer.bind();
+      this.texCoordBuffer.bind();
 
       // Render
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
       FimGLError.throwOnError(gl);
 
       if (outputTexture) {
@@ -282,8 +288,8 @@ export abstract class FimGLProgram implements IDisposable {
       gl.useProgram(null);
 
       // Unbind the vertices
-      gl.bindBuffer(gl.ARRAY_BUFFER, null);
-      gl.disableVertexAttribArray(this.positionAttributeLocation);
+      this.positionBuffer.unbind();
+      this.texCoordBuffer.unbind();
 
       // Unbind the textures
       for (let name in this.uniforms) {
@@ -302,6 +308,87 @@ export abstract class FimGLProgram implements IDisposable {
   protected readonly vertexShader: FimGLShader;
   protected readonly disposable: DisposableSet;
   private program: WebGLProgram;
-  private positionBuffer: WebGLBuffer;
-  private positionAttributeLocation: number;
+  private positionBuffer: FimGLArrayBuffer;
+  private texCoordBuffer: FimGLArrayBuffer;
+}
+
+/** Helper class to set array buffers in WebGL Programs */
+class FimGLArrayBuffer implements IDisposable {
+  /**
+   * Constructor
+   * @param gl WebGL contxet
+   * @param program WebGL program
+   * @param attributeName Name of the attribute in the program
+   * @param size Size of each vector
+   * @param drawStatic Hint to WebGL: true = set once, false = set many times
+   */
+  public constructor(gl: WebGLRenderingContext, program: WebGLProgram, attributeName: string, size: number,
+      drawStatic = false) {
+    this.gl = gl;
+    this.size = size;
+    this.drawStatic = drawStatic;
+
+    this.attributeLocation = gl.getAttribLocation(program, attributeName);
+    FimGLError.throwOnError(gl);
+
+    this.buffer = gl.createBuffer();
+    FimGLError.throwOnError(gl);
+  }
+
+  /** Sets the value of the buffer */
+  public set(values: number[]): void {
+    let gl = this.gl;
+
+    // Ensure the array
+    if (values.length % this.size !== 0) {
+      throw new FimGLError(FimGLErrorCode.AppError, 'ArraySize');
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    FimGLError.throwOnError(gl);
+
+    let usage = this.drawStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(values), usage);
+    FimGLError.throwOnError(gl);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    this.length = values.length / this.size;
+  }
+
+  /** Length of the array buffer, in number of vectors */
+  public length: number;
+
+  public bind(): void {
+    let gl = this.gl;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    FimGLError.throwOnError(gl);
+
+    let index = this.attributeLocation;
+    gl.enableVertexAttribArray(index);
+    FimGLError.throwOnError(gl);
+
+    gl.vertexAttribPointer(index, this.size, gl.FLOAT, false, 0, 0);
+    FimGLError.throwOnError(gl);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  }
+
+  public unbind(): void {
+    this.gl.disableVertexAttribArray(this.attributeLocation);
+  }
+
+  public dispose(): void {
+    if (this.buffer) {
+      this.gl.deleteBuffer(this.buffer);
+      this.buffer = undefined;
+    }
+  }
+
+  private readonly gl: WebGLRenderingContext;
+  private readonly size: number;
+  private readonly drawStatic: boolean;
+  private readonly attributeLocation: number;
+  private buffer: WebGLBuffer;
 }
