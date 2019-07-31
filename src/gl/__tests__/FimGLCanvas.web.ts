@@ -36,6 +36,10 @@ function spec(useOffscreenCanvas: boolean) {
       using(new FimGLCanvas(640, 480, undefined, useOffscreenCanvas), c => {
         c.fill('#f00');
         expectToBeCloseTo(c.getPixel(300, 200), FimColor.fromString('#f00'));
+        c.fill('#0f0');
+        expectToBeCloseTo(c.getPixel(300, 200), FimColor.fromString('#0f0'));
+        c.fill('#00f');
+        expectToBeCloseTo(c.getPixel(300, 200), FimColor.fromString('#00f'));
       });
     });
 
