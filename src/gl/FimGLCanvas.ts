@@ -151,9 +151,13 @@ export class FimGLCanvas extends FimCanvasBase {
   public fill(color: FimColor | string): void {
     let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
     let gl = this.gl;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    FimGLError.throwOnError(gl);
     gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+    FimGLError.throwOnError(gl);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    FimGLError.throwOnError(gl);
   }
 
   /**
