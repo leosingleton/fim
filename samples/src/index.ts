@@ -6,6 +6,7 @@ export * from './GLBlur';
 export * from './GLBlurGrid';
 export * from './GLStress';
 export * from './GLTransform2D';
+export * from './GLTransform3D';
 export * from './JpegLoadStress';
 export * from './perf/CanvasCopy';
 export * from './perf/GLCopyProgram';
