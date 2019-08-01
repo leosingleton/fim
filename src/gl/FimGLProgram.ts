@@ -85,8 +85,8 @@ export abstract class FimGLProgram implements IDisposable {
     // Create two triangles that map to the full canvas
     let positionBuffer = this.positionBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aPos', 4));
     let texCoordBuffer = this.texCoordBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aTex', 2));
-    positionBuffer.set(TwoTriangles.vertexPositions);
-    texCoordBuffer.set(TwoTriangles.textureCoords);
+    positionBuffer.set(TwoTriangles.vertexPositions, true);
+    texCoordBuffer.set(TwoTriangles.textureCoords, true);
 
     // Get the ID of any uniform variables. Be sure to use the minified name.
     for (let name in this.uniforms) {
@@ -322,11 +322,9 @@ class FimGLArrayBuffer implements IDisposable {
    * @param size Size of each vector
    * @param drawStatic Hint to WebGL: true = set once, false = set many times
    */
-  public constructor(gl: WebGLRenderingContext, program: WebGLProgram, attributeName: string, size: number,
-      drawStatic = false) {
+  public constructor(gl: WebGLRenderingContext, program: WebGLProgram, attributeName: string, size: number) {
     this.gl = gl;
     this.size = size;
-    this.drawStatic = drawStatic;
 
     this.attributeLocation = gl.getAttribLocation(program, attributeName);
     FimGLError.throwOnError(gl);
@@ -336,7 +334,7 @@ class FimGLArrayBuffer implements IDisposable {
   }
 
   /** Sets the value of the buffer */
-  public set(values: number[]): void {
+  public set(values: number[], drawStatic = false): void {
     let gl = this.gl;
 
     // Ensure the array
@@ -347,7 +345,7 @@ class FimGLArrayBuffer implements IDisposable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     FimGLError.throwOnError(gl);
 
-    let usage = this.drawStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
+    let usage = drawStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(values), usage);
     FimGLError.throwOnError(gl);
 
@@ -388,7 +386,6 @@ class FimGLArrayBuffer implements IDisposable {
 
   private readonly gl: WebGLRenderingContext;
   private readonly size: number;
-  private readonly drawStatic: boolean;
   private readonly attributeLocation: number;
   private buffer: WebGLBuffer;
 }
