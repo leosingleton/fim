@@ -82,6 +82,11 @@ export class FimRect {
     return this.w * this.h;
   }
 
+  /** Returns the point at the center of the rectangle */
+  getCenter(): FimPoint {
+    return new FimPoint((this.xLeft + this.xRight) / 2, (this.yTop + this.yBottom) / 2);
+  }
+
   /** Scales a rectangle by a multiplier */
   scale(ratio: number): FimRect {
     return FimRect.fromCoordinates(this.xLeft * ratio, this.yTop * ratio, this.xRight * ratio, this.yBottom * ratio);

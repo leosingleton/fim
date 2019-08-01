@@ -57,6 +57,13 @@ describe('FimRect', () => {
     validate1234(rect.toUpright());
   });
 
+  it('Calculates the center point', () => {
+    let rect = FimRect.fromXYWidthHeight(100, 100, 300, 200);
+    let center = rect.getCenter();
+    expect(center.x).toBe(250);
+    expect(center.y).toBe(200);
+  });
+
   it('Calculates area', () => {
     let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
     expect(rect1.getArea()).toEqual(120000);
