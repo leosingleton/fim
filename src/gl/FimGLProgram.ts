@@ -8,6 +8,7 @@ import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
 import { Transform2D, Transform3D, TwoTriangles } from '../math';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { FimRect } from '../primitives';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
 
@@ -181,8 +182,11 @@ export abstract class FimGLProgram implements IDisposable {
    * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
    * FimGLProgram-derived classes.
    * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
+   * @param destCoords If set, renders the output to the specified destination coordinates using WebGL's viewport and
+   *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
+   *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
    */
-  public execute(outputTexture?: FimGLTexture): void {
+  public execute(outputTexture?: FimGLTexture, destCoords?: FimRect): void {
     let gl = this.gl;
 
     // On the first call the execute(), compile the program
@@ -191,17 +195,35 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     try {
-      if (outputTexture) {
-        // Use a framebuffer to render to a texture
-        gl.bindFramebuffer(gl.FRAMEBUFFER, outputTexture.getFramebuffer());
-        FimGLError.throwOnError(gl);
-        gl.viewport(0, 0, outputTexture.w, outputTexture.h);
+      let destination = outputTexture || this.glCanvas;
+      let destinationFramebuffer = outputTexture ? outputTexture.getFramebuffer() : null;
+
+      // Set the framebuffer
+      gl.bindFramebuffer(gl.FRAMEBUFFER, destinationFramebuffer);
+      FimGLError.throwOnError(gl);
+
+      // Calculate the destCoords. Handle defaults, and flip the Y as WebGL uses a bottom-left coordinate system. Also
+      // downscale.
+      if (destCoords) {
+        destCoords = FimRect.fromXYWidthHeight(destCoords.xLeft, destination.h - destCoords.yBottom, destCoords.w,
+          destCoords.h);
+      } else {
+        destCoords = destination.dimensions;
+      }
+      destCoords = destCoords.scale(destination.downscaleRatio);
+
+      // Set the viewport
+      gl.viewport(destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
+      FimGLError.throwOnError(gl);
+
+      // Set the scissor box
+      if (destCoords.equals(destination.realDimensions)) {
+        gl.disable(gl.SCISSOR_TEST);
         FimGLError.throwOnError(gl);
       } else {
-        // Render to the canvas
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.enable(gl.SCISSOR_TEST);
         FimGLError.throwOnError(gl);
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.scissor(destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
         FimGLError.throwOnError(gl);
       }
 

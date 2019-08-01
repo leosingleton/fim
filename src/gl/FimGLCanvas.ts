@@ -183,6 +183,8 @@ export class FimGLCanvas extends FimCanvasBase {
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     FimGLError.throwOnError(gl);
+    gl.disable(gl.SCISSOR_TEST);
+    FimGLError.throwOnError(gl);
     gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
     FimGLError.throwOnError(gl);
     gl.clear(gl.COLOR_BUFFER_BIT);
