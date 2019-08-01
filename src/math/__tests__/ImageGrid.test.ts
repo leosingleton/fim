@@ -3,9 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { ImageGrid, ImageGridFlags } from '../ImageGrid';
-import { FimRect, FimPoint, FimColor } from '../../primitives';
-import { DisposableSet } from '@leosingleton/commonlibs';
-import { FimRgbaBuffer } from '../../image';
+import { FimRect, FimPoint } from '../../primitives';
 
 describe('ImageGrid', () => {
 
@@ -121,25 +119,6 @@ describe('ImageGrid', () => {
     expect(tile3.tileToFull(new FimPoint(100, -600), true)).toBeNull();
     expect(tile3.fullToTile(new FimPoint(100, 600))).toEqual(new FimPoint(-400, 100));
     expect(tile3.tileToFull(new FimPoint(-400, 100))).toEqual(new FimPoint(100, 600));
-  });
-
-  it('Ensures output covers the full image', () => {
-    DisposableSet.using(disposable => {
-      let output = disposable.addDisposable(new FimRgbaBuffer(576, 384, '#000'));
-      let redTile = disposable.addDisposable(new FimRgbaBuffer(128, 128, '#f00'));
-
-      let grid = new ImageGrid(output.w, output.h, redTile.w, redTile.h, 12);
-      grid.tiles.forEach(tile => {
-        output.copyFrom(redTile, tile.outputTile, tile.outputFull);
-      });
-
-      let red = FimColor.fromString('#f00');
-      for (let x = 0; x < output.w; x += 5) {
-        for (let y = 0; y < output.h; y += 5) {
-          expect(output.getPixel(x, y)).toEqual(red);
-        }
-      }
-    });
   });
 
   it('Calculates with ZeroCenter flags', () => {
