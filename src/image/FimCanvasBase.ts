@@ -51,6 +51,8 @@ export abstract class FimCanvasBase extends FimImage {
       document.body.appendChild(canvas);
       this.canvasElement = canvas;
     }
+
+    this.offscreenCanvas = useOffscreenCanvas;
   }
 
   /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
@@ -67,6 +69,9 @@ export abstract class FimCanvasBase extends FimImage {
       delete this.canvasElement;
     }
   }
+
+  /** True if this object is backed by an OffscreenCanvas; false for a standard 2D canvas */
+  public offscreenCanvas: boolean;
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public abstract duplicate(): FimCanvas;

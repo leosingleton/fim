@@ -35,12 +35,16 @@ function spec(useOffscreenCanvas: boolean) {
     it('Fills with a solid color', () => {
       using(new FimGLCanvas(640, 480, undefined, useOffscreenCanvas), c => {
         c.fill('#f00');
-        expectToBeCloseTo(c.getPixel(300, 200), FimColor.fromString('#f00'));
+        expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#f00'));
+        c.fill('#0f0');
+        expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#0f0'));
+        c.fill('#00f');
+        expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#00f'));
       });
     });
 
     it('Renders a JPEG texture', async () => {
-      DisposableSet.usingAsync(async disposable => {
+      await DisposableSet.usingAsync(async disposable => {
         // Initialize the WebGL canvas, program, and a texture loaded from a JPEG image
         let canvas = disposable.addDisposable(new FimGLCanvas(128, 128, undefined, useOffscreenCanvas));
         let program = disposable.addDisposable(new FimGLProgramCopy(canvas));

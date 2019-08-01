@@ -5,7 +5,7 @@
 import { FimGLCapabilities } from '../FimGLCapabilities';
 
 describe('FimGLCapabilities', () => {
-  it('Reads WebGL capabilities', async () => {
+  it('Reads WebGL capabilities', () => {
     let caps = FimGLCapabilities.getCapabilities();
     expect(caps.renderer.length).toBeGreaterThan(0);
     expect(caps.vendor.length).toBeGreaterThan(0);

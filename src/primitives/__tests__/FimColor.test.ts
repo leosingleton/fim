@@ -55,6 +55,11 @@ describe('FimColor', () => {
     
     expect(black.getLuminance()).toEqual(0);
     expect(white.getLuminance()).toEqual(1);
-  })
+  });
+
+  it('Converts to vectors', () => {
+    let red = FimColor.fromString('#f00');
+    expect(red.toVector()).toEqual([1, 0, 0, 1]);
+  });
 
 });

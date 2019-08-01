@@ -13,6 +13,7 @@ function spec(useOffscreenCanvas: boolean) {
     it('Creates and disposes', () => {
       let b = new FimCanvas(640, 480, undefined, useOffscreenCanvas);
       expect(b.getCanvas()).toBeDefined();
+      expect(b.offscreenCanvas).toBe(useOffscreenCanvas);
 
       b.dispose();
       expect(b.getCanvas()).toBeUndefined();
@@ -187,7 +188,7 @@ function spec(useOffscreenCanvas: boolean) {
     });
 
     it('Encodes JPEGs', async () => {
-      usingAsync(new FimCanvas(320, 320, '#f00', useOffscreenCanvas), async canvas => {
+      await usingAsync(new FimCanvas(320, 320, '#f00', useOffscreenCanvas), async canvas => {
         // Write to JPEG
         let jpeg = await canvas.toJpeg();
 

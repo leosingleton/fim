@@ -5,6 +5,7 @@
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
+import { FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
@@ -43,6 +44,7 @@ export class FimGLCanvas extends FimCanvasBase {
 
     this.renderQuality = quality;
     this.objects = [];
+    this.workaroundChromeBug = false;
 
     // Initialize WebGL
     let canvas = this.canvasElement;
@@ -52,6 +54,11 @@ export class FimGLCanvas extends FimCanvasBase {
       event.preventDefault();
 
       this.objects.forEach(o => o.onContextLost());
+
+      if (this.fillProgram) {
+        this.fillProgram.dispose();
+        this.fillProgram = undefined;
+      }
     }, false);
 
     canvas.addEventListener('webglcontextrestored', () => {
@@ -63,12 +70,20 @@ export class FimGLCanvas extends FimCanvasBase {
       this.objects.forEach(o => o.onContextRestored());
     }, false);
 
-    this.gl = canvas.getContext('webgl');
-    if (!this.gl) {
+    let gl = this.gl = canvas.getContext('webgl');
+    if (!gl) {
       throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
 
     this.loadExtensions();
+
+    // Disable unneeded features, as we are doing 2D graphics
+    gl.disable(gl.BLEND);
+    FimGLError.throwOnError(gl);
+    gl.disable(gl.CULL_FACE);
+    FimGLError.throwOnError(gl);
+    gl.disable(gl.DEPTH_TEST);
+    FimGLError.throwOnError(gl);
 
     if (initialColor) {
       this.fill(initialColor);
@@ -151,10 +166,31 @@ export class FimGLCanvas extends FimCanvasBase {
   public fill(color: FimColor | string): void {
     let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
     let gl = this.gl;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+    // Chrome has a bug where subsequent calls to clear() do not work with OffscreenCanvas. Workaround by using a WebGL
+    // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
+    if (this.offscreenCanvas) {
+      if (this.workaroundChromeBug) {
+        let program = this.fillProgram = this.fillProgram || new FimGLProgramFill(this);
+        program.setInputs(c);
+        program.execute();
+        return;
+      } else {
+        // Use workaround on the next call to fill()
+        this.workaroundChromeBug = true;
+      }
+    }
+
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    FimGLError.throwOnError(gl);
     gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+    FimGLError.throwOnError(gl);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    FimGLError.throwOnError(gl);
   }
+
+  private fillProgram: FimGLProgramFill;
+  private workaroundChromeBug: boolean;
 
   /**
    * Copies image to another.
