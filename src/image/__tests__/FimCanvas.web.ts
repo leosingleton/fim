@@ -13,6 +13,7 @@ function spec(useOffscreenCanvas: boolean) {
     it('Creates and disposes', () => {
       let b = new FimCanvas(640, 480, undefined, useOffscreenCanvas);
       expect(b.getCanvas()).toBeDefined();
+      expect(b.offscreenCanvas).toBe(useOffscreenCanvas);
 
       b.dispose();
       expect(b.getCanvas()).toBeUndefined();
