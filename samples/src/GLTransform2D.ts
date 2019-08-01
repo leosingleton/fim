@@ -7,7 +7,7 @@ import { FimGLCanvas, FimGLTexture, FimGLProgramCopy, FimGLTextureFlags,
   Transform2D } from '../../build/dist/index.js';
 import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
 
-export async function glTransform(canvasId: string): Promise<void> {
+export async function glTransform2D(canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
   let srcImage = await loadTestImage();
   let gl = new FimGLCanvas(srcImage.w, srcImage.h);
