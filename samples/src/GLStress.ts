@@ -3,11 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1DFast,
-  FimGLTextureFlags, GaussianKernel } from '../../build/dist/index.js';
+  FimGLTextureFlags, GaussianKernel, FimGLProgramCopy } from '../../build/dist/index.js';
 import { handleError, loadTestImage, renderOutput } from './Common';
 import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
 
-export async function glStress(canvasId: string): Promise<void> {
+export async function glStress(testCase: string, canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
   let srcImage = await loadTestImage();
   let gl = new FimGLCanvas(srcImage.w, srcImage.h);
@@ -25,31 +25,54 @@ export async function glStress(canvasId: string): Promise<void> {
   
       // Create a Gaussian blur
       let kernel = GaussianKernel.calculate(1, 31);
+      let copy = disposable.addDisposable(new FimGLProgramCopy(gl));
       let blur = disposable.addDisposable(new FimGLProgramMatrixOperation1DFast(gl, 31));
 
       // Render loop
       while (true) {
         let timer = Stopwatch.startNew();
 
-        // On the first run, read from the input
-        blur.setInputs(input, kernel, temp);
-        blur.execute(texture);
+        let caseName: string;
+        if (testCase === 'executions') {
+          //
+          // In this test case, we increase the number of iterations of a Gaussian blur to create a larger and larger
+          // stress test
+          //
+          caseName = 'Program Executions';
 
-        // On subsequent runs, output to the texture. WebGL normally doesn't allow reading and writing to the same
-        // texture at the same time, but this works because FimGLProgramMatrixOperation1D uses a temporary texture
-        // internally.
-        for (let n = 0; n < count; n++) {
-          blur.setInputs(texture, kernel, temp);
+          // On the first run, read from the input
+          blur.setInputs(input, kernel, temp);
           blur.execute(texture);
-        }
 
-        // On the final run, output to the WebGL canvas
-        blur.setInputs(texture, kernel, temp);
-        blur.execute();
+          // On subsequent runs, output to the texture. WebGL normally doesn't allow reading and writing to the same
+          // texture at the same time, but this works because FimGLProgramMatrixOperation1D uses a temporary texture
+          // internally.
+          for (let n = 0; n < count; n++) {
+            blur.setInputs(texture, kernel, temp);
+            blur.execute(texture);
+          }
+
+          // On the final run, output to the WebGL canvas
+          blur.setInputs(texture, kernel, temp);
+          blur.execute();
+        } else if (testCase === 'texImage2D') {
+          //
+          // In this test case, we repeatedly load a texture with texImage2D
+          //
+          caseName = 'texImage2D Operations';
+
+          for (let n = 0; n < count; n++) {
+            input.copyFrom(srcImage);
+          }
+
+          // Copy the texture to the output WebGL canvas
+          copy.setInputs(input);
+          copy.execute();
+        }
         let time = timer.getElapsedMilliseconds();
 
         // Render output
-        let message = `WebGL Stress\nProgram Executions: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
+        let message = `WebGL Stress\n${caseName}: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
         await renderOutput(gl, message, null, canvasId);
 
         count++;

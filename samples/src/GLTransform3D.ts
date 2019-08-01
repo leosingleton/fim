@@ -4,10 +4,10 @@
 
 import { loadTestImage, handleError, renderOutput } from './Common';
 import { FimGLCanvas, FimGLTexture, FimGLProgramCopy, FimGLTextureFlags,
-  Transform2D } from '../../build/dist/index.js';
+  Transform3D } from '../../build/dist/index.js';
 import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
 
-export async function glTransform(canvasId: string): Promise<void> {
+export async function glTransform3D(canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
   let srcImage = await loadTestImage();
   let gl = new FimGLCanvas(srcImage.w, srcImage.h);
@@ -25,41 +25,20 @@ export async function glTransform(canvasId: string): Promise<void> {
       let clock = Stopwatch.startNew();
       let frameCount = 0;  
       while (true) {
-        // Rotate 360 degrees every 5 seconds
-        let angle = Math.PI * 2 * clock.getElapsedMilliseconds() / 5000;
-
-        // Scale to 10% and back every 30 seconds
-        let scale = (clock.getElapsedMilliseconds() % 30000) / 15000;
-        if (scale > 1) {
-          scale = 2 - scale;
-        }
-        if (scale < 0.1) {
-          scale = 0.1;
-        }
-
-        // Translate in a square every 10 seconds
-        let tx: number, ty: number;
-        let translate = (clock.getElapsedMilliseconds() % 10000) / 2500;
-        if (translate > 3) {
-          tx = -0.5;
-          ty = 0.5 - (translate - 3);
-        } else if (translate > 2) {
-          tx = 0.5 - (translate - 2);
-          ty = 0.5;
-        } else if (translate > 1) {
-          tx = 0.5;
-          ty = (translate - 1) - 0.5;
-        } else {
-          tx = translate - 0.5;
-          ty = -0.5;
-        }
+        // Rotate X-axis 360 degrees every 5 seconds, Y-axis every 12 seconds, and Z-axis every 60 seconds
+        let twoPIms = Math.PI * 2 * clock.getElapsedMilliseconds();
+        let angleX = twoPIms / 5000;
+        let angleY = twoPIms / 12000;
+        let angleZ = twoPIms / 60000;
 
         // Calculate the vertex transformation matrix. Note that the operations are applied in reverse order due to the way
         // matrix multiplication works. Translate, then rotate, then scale.
-        let matrix = new Transform2D();
-        matrix.scale(scale, scale);
-        matrix.rotate(angle);
-        matrix.translate(tx, ty);
+        let matrix = new Transform3D();
+        matrix.scale(texture.w, texture.h, texture.w);
+        matrix.rotateX(angleX);
+        matrix.rotateY(angleY);
+        matrix.rotateZ(angleZ);
+        matrix.scale(1 / texture.w, 1 / texture.h, 1 / texture.w);
 
         // Clear any existing image on the WebGL canvas
         gl.fill('#000');

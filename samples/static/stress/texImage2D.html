@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebGL texImage2D Stress Test</title>
+    <script src="../samples.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+    <canvas id="output"></canvas>
+    <script>
+      window.onload = function() {
+        Samples.glStress('texImage2D', 'output');
+      }
+    </script>
+  </body>
+</html>
