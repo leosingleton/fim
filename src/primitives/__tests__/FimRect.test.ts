@@ -71,4 +71,14 @@ describe('FimRect', () => {
     expect(rect2).toEqual(FimRect.fromXYWidthHeight(10, 20, 30, 40));
   });
 
+  it('Prevents negative widths', () => {
+    let rect = FimRect.fromCoordinates(200, 50, 100, 150);
+    expect(rect).toEqual(FimRect.fromCoordinates(100, 50, 200, 150));
+  });
+
+  it('Prevents negative heights', () => {
+    let rect = FimRect.fromCoordinates(100, 150, 200, 50);
+    expect(rect).toEqual(FimRect.fromCoordinates(100, 50, 200, 150));
+  });
+
 });

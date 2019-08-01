@@ -25,12 +25,25 @@ export class FimRect {
   readonly h: number;
 
   private constructor(xLeft: number, yTop: number, xRight: number, yBottom: number, w: number, h: number) {
-    this.xLeft = xLeft;
-    this.yTop = yTop;
-    this.xRight = xRight;
-    this.yBottom = yBottom;
-    this.w = w;
-    this.h = h;
+    if (w >= 0) {
+      this.xLeft = xLeft;
+      this.xRight = xRight;
+      this.w = w;
+    } else {
+      this.xLeft = xRight;
+      this.xRight = xLeft;
+      this.w = -w;
+    }
+
+    if (h >= 0) {
+      this.yTop = yTop;
+      this.yBottom = yBottom;
+      this.h = h;  
+    } else {
+      this.yTop = yBottom;
+      this.yBottom = yTop;
+      this.h = -h;
+    }
   }
 
   /** Compares two FimRect objects */
