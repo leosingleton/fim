@@ -5,6 +5,7 @@
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
+import { FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
@@ -43,6 +44,7 @@ export class FimGLCanvas extends FimCanvasBase {
 
     this.renderQuality = quality;
     this.objects = [];
+    this.workaroundChromeBug = false;
 
     // Initialize WebGL
     let canvas = this.canvasElement;
@@ -52,6 +54,11 @@ export class FimGLCanvas extends FimCanvasBase {
       event.preventDefault();
 
       this.objects.forEach(o => o.onContextLost());
+
+      if (this.fillProgram) {
+        this.fillProgram.dispose();
+        this.fillProgram = undefined;
+      }
     }, false);
 
     canvas.addEventListener('webglcontextrestored', () => {
@@ -160,6 +167,20 @@ export class FimGLCanvas extends FimCanvasBase {
     let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
     let gl = this.gl;
 
+    // Chrome has a bug where subsequent calls to clear() do not work with OffscreenCanvas. Workaround by using a WebGL
+    // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
+    if (this.offscreenCanvas) {
+      if (this.workaroundChromeBug) {
+        let program = this.fillProgram = this.fillProgram || new FimGLProgramFill(this);
+        program.setInputs(c);
+        program.execute();
+        return;
+      } else {
+        // Use workaround on the next call to fill()
+        this.workaroundChromeBug = true;
+      }
+    }
+
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     FimGLError.throwOnError(gl);
     gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
@@ -167,6 +188,9 @@ export class FimGLCanvas extends FimCanvasBase {
     gl.clear(gl.COLOR_BUFFER_BIT);
     FimGLError.throwOnError(gl);
   }
+
+  private fillProgram: FimGLProgramFill;
+  private workaroundChromeBug: boolean;
 
   /**
    * Copies image to another.

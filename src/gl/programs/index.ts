@@ -5,6 +5,7 @@
 export * from './FimGLProgramAlphaBlend';
 export * from './FimGLProgramCopy';
 export * from './FimGLProgramDarker';
+export * from './FimGLProgramFill';
 export * from './FimGLProgramImageStacking';
 export * from './FimGLProgramLinearTransform';
 export * from './FimGLProgramMatrixOperation1D';
