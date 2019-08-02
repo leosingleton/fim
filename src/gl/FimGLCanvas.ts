@@ -5,12 +5,14 @@
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimGLProgramFill } from './programs';
+import { FimGLProgramCopy, FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimBitsPerPixel, FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
+import { FimGLTexture } from './FimGLTexture';
+import { Transform2D } from '../math';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase {
@@ -55,9 +57,13 @@ export class FimGLCanvas extends FimCanvasBase {
 
       this.objects.forEach(o => o.onContextLost());
 
+      if (this.copyProgram) {
+        this.copyProgram.dispose();
+        delete this.copyProgram;
+      }
       if (this.fillProgram) {
         this.fillProgram.dispose();
-        this.fillProgram = undefined;
+        delete this.fillProgram;
       }
     }, false);
 
@@ -171,7 +177,7 @@ export class FimGLCanvas extends FimCanvasBase {
     // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
     if (this.offscreenCanvas) {
       if (this.workaroundChromeBug) {
-        let program = this.fillProgram = this.fillProgram || new FimGLProgramFill(this);
+        let program = this.getFillProgram();
         program.setInputs(c);
         program.execute();
         return;
@@ -191,8 +197,46 @@ export class FimGLCanvas extends FimCanvasBase {
     FimGLError.throwOnError(gl);
   }
 
-  private fillProgram: FimGLProgramFill;
   private workaroundChromeBug: boolean;
+
+  /** Returns a WebGL program to copy a texture to another, or to the canvas */
+  protected getCopyProgram(): FimGLProgramCopy {
+    return this.copyProgram = this.copyProgram || new FimGLProgramCopy(this);
+  }
+
+  private copyProgram: FimGLProgramCopy;
+
+  /** Returns a WebGL program to fill a texture or canvas with a solid color */
+  protected getFillProgram(): FimGLProgramFill {
+    return this.fillProgram = this.fillProgram || new FimGLProgramFill(this);
+  }
+
+  private fillProgram: FimGLProgramFill;
+
+  /**
+   * Copies from a texture. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFrom(srcImage: FimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
+
+    // Scale the coordinates
+    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+    destCoords = destCoords.scale(this.downscaleRatio);
+
+    // Calculate the transformation matrix to achieve the requested srcCoords
+    let matrix = Transform2D.fromSrcCoords(srcCoords, srcImage.dimensions);
+
+    // Execute the copy shader
+    let program = this.getCopyProgram();
+    program.applyVertexMatrix(matrix);
+    program.setInputs(srcImage);
+    program.execute(null, destCoords);
+  }
 
   /**
    * Copies image to another.
