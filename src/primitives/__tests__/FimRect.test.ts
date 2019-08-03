@@ -88,4 +88,10 @@ describe('FimRect', () => {
     expect(rect).toEqual(FimRect.fromCoordinates(100, 50, 200, 150));
   });
 
+  it('Fits one rectangle inside another', () => {
+    let innerRect = FimRect.fromXYWidthHeight(0, 0, 100, 100);
+    let outerRect = FimRect.fromXYWidthHeight(200, 200, 200, 50);
+    expect(innerRect.fit(outerRect)).toEqual(FimRect.fromXYWidthHeight(200, 200, 50, 50));
+  });
+
 });

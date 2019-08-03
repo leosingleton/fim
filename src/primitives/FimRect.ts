@@ -105,6 +105,18 @@ export class FimRect {
     return FimRect.fromXYWidthHeight(this.xLeft, this.yTop, width, height);
   }
 
+  /**
+   * Fits this rectangle inside of another
+   * @param maxRect Rectangle to fit inside of
+   * @returns A rectangle with the same aspect ratio as this, but whose coordinates fit inside of maxRect
+   */
+  fit(maxRect: FimRect): FimRect {
+    let scale = Math.min(maxRect.w / this.w, maxRect.h / this.h);
+    let width = Math.floor(this.w * scale);
+    let height = Math.floor(this.h * scale);
+    return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
+  }
+
   static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
     return new FimRect(x, y, x + width, y + height, width, height);
   }
