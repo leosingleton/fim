@@ -30,6 +30,8 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
       this.realDimensions = newDimensions.dimensions;
       this.downscaleRatio = width / newDimensions.w;
     }
+
+    this.imageId = FimImage.imageIdCounter++;
   }
 
   // IFimDimensions implementation
@@ -49,6 +51,14 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * image.
    */
   public readonly downscaleRatio: number;
+
+  /**
+   * A unique ID assigned to each instance of a FimImage object. Useful for debugging, or comparing two images for
+   * equality.
+   */
+  public readonly imageId: number;
+
+  private static imageIdCounter = 0;
 
   public abstract dispose(): void;
 

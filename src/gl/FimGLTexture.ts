@@ -319,7 +319,9 @@ export class FimGLTexture extends FimImage {
    */
   public hasImage: boolean;
 
-  private glCanvas: FimGLCanvas;
+  /** The FimGLCanvas object which was used to create this texture */
+  public readonly glCanvas: FimGLCanvas;
+
   private gl: WebGLRenderingContext;
   private texture: WebGLTexture;
   private fb: WebGLFramebuffer;

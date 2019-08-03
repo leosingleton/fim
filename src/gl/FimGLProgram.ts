@@ -189,6 +189,11 @@ export abstract class FimGLProgram implements IDisposable {
   public execute(outputTexture?: FimGLTexture, destCoords?: FimRect): void {
     let gl = this.gl;
 
+    // Validate source texture
+    if (outputTexture) {
+      FimGLError.throwOnMismatchedGLCanvas(this.glCanvas, outputTexture.glCanvas);
+    }
+
     // On the first call the execute(), compile the program
     if (!this.program) {
       this.compileProgram();
@@ -250,6 +255,9 @@ export abstract class FimGLProgram implements IDisposable {
             throw new FimGLError(FimGLErrorCode.AppError, 'BindEmptyTexture');
           }
           
+          // Ensure the texture belongs to the same WebGL canvas
+          FimGLError.throwOnMismatchedGLCanvas(this.glCanvas, t.glCanvas);
+
           t.bind(uniform.textureUnit);
 
           // Set the uniform to the texture unit

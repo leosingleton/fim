@@ -220,6 +220,9 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param destCoords Coordinates of destination image to copy to
    */
   public copyFrom(srcImage: FimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Validate source texture
+    FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
+
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
