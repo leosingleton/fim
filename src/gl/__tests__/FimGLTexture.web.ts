@@ -89,4 +89,15 @@ describe('FimGLTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 180), FimColor.fromString('#000'));
     });
   });
+
+  it('Automatically downscales to canvas size', () => {
+    DisposableSet.using(async disposable => {
+      let gl = disposable.addDisposable(new FimGLCanvas(480, 240));
+      let texture = disposable.addDisposable(new FimGLTexture(gl, 1024, 1024));
+
+      // The texture should be automatically downscaled to fit on the canvas
+      expect(texture.realDimensions.w).toBe(240);
+      expect(texture.realDimensions.h).toBe(240);
+    });
+  });
 });
