@@ -4,6 +4,7 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
+import { FimGLPreservedTexture } from './FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
 import { Transform2D, Transform3D, TwoTriangles } from '../math';
@@ -247,7 +248,12 @@ export abstract class FimGLProgram implements IDisposable {
 
         if (uniform.variableType.indexOf('sampler') !== -1) {
           // Special case for textures. Bind the texture to the texture unit.
-          let t = uniform.variableValue as FimGLTexture;
+          let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
+
+          // Handle FimGLPreservedTexture by getting the underlying texture
+          if (t instanceof FimGLPreservedTexture) {
+            t = t.getTexture();
+          }
 
           if (!t.hasImage) {
             // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going to

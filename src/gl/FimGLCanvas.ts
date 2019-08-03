@@ -4,15 +4,16 @@
 
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
+import { FimGLPreservedTexture } from './FimGLPreservedTexture';
+import { FimGLTexture } from './FimGLTexture';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimGLProgramCopy, FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { Transform2D } from '../math';
 import { FimBitsPerPixel, FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
-import { FimGLTexture } from './FimGLTexture';
-import { Transform2D } from '../math';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase {
@@ -225,7 +226,12 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFrom(srcImage: FimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFrom(srcImage: FimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Make srcImage a FimGLTexture
+    if (srcImage instanceof FimGLPreservedTexture) {
+      srcImage = srcImage.getTexture();
+    }
+
     // Validate source texture
     FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
 

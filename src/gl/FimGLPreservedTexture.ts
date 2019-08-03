@@ -7,6 +7,8 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from './FimGLTexture';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimImage } from '../image/FimImage';
+import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
+import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimRect } from '../primitives';
 
 /**
@@ -116,4 +118,29 @@ export class FimGLPreservedTexture extends FimImage {
   // Settings for re-creating the texture
   private glCanvas: FimGLCanvas;
   private textureOptions: FimGLTextureOptions;
+
+  //
+  // The remainder of this class just duplicates FimGLTexture methods so the two can be used interchangeably
+  //
+
+  /**
+   * Copies image from another. Neither cropping nor rescaling is supported.
+   * @param srcImage Source image
+   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   */
+  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    this.getTexture().copyFrom(srcImage, srcCoords, destCoords);
+  }
+
+  /**
+   * Copies to a WebGL canvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyTo(destImage: FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
+  }
 }

@@ -27,14 +27,14 @@ describe('FimGLPreservedTexture', () => {
       let jpeg = FimTestImages.fourSquaresJpeg();
       let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
-      texture.getTexture().copyFrom(canvas);
+      texture.copyFrom(canvas);
 
       // Simulate context loss
       await ContextLost.loseContextAsync(gl);
       await ContextLost.restoreContextAsync(gl);
 
       // Render the texture to the WebGL canvas
-      gl.copyFrom(texture.getTexture());
+      gl.copyFrom(texture);
 
       // Check a few pixels to ensure the texture rendered correctly
       expectToBeCloseTo(gl.getPixel(120, 120), FimColor.fromString('#f00'));
@@ -44,7 +44,7 @@ describe('FimGLPreservedTexture', () => {
       
       // To be sure it works (and wasn't) an artifact of the restore process, render it again
       gl.fill('#fff');
-      gl.copyFrom(texture.getTexture());
+      gl.copyFrom(texture);
 
       // Check a few pixels to ensure the texture rendered correctly
       expectToBeCloseTo(gl.getPixel(120, 120), FimColor.fromString('#f00'));
@@ -65,14 +65,14 @@ describe('FimGLPreservedTexture', () => {
       let jpeg = FimTestImages.fourSquaresJpeg();
       let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 480, 480));
-      texture.getTexture().copyFrom(canvas);
+      texture.copyFrom(canvas);
 
       // Simulate context loss
       await ContextLost.loseContextAsync(gl);
       await ContextLost.restoreContextAsync(gl);
 
       // Render the texture to the WebGL canvas
-      gl.copyFrom(texture.getTexture());
+      gl.copyFrom(texture);
 
       // Check a few pixels to ensure the texture rendered correctly
       expectToBeCloseTo(gl.getPixel(120, 120), FimColor.fromString('#f00'));
@@ -82,7 +82,7 @@ describe('FimGLPreservedTexture', () => {
       
       // To be sure it works (and wasn't) an artifact of the restore process, render it again to a different location
       gl.fill('#fff');
-      gl.copyFrom(texture.getTexture(), null, FimRect.fromXYWidthHeight(200, 200, 200, 200));
+      gl.copyFrom(texture, null, FimRect.fromXYWidthHeight(200, 200, 200, 200));
 
       // Check a few pixels to ensure the texture rendered correctly
       expectToBeCloseTo(gl.getPixel(250, 250), FimColor.fromString('#f00'));

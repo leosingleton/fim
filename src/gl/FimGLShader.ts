@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimGLPreservedTexture } from './FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 
 // This file contains the output of a compiled GLSL shader. Definitions must be kept in sync with the
@@ -16,7 +17,7 @@ export interface FimGLVariableDefinition {
   variableName: string;
 
   /** Sets the value of the const or uniform. Not set by the compiler. */
-  variableValue?: number | number[] | Float32Array | FimGLTexture | boolean;
+  variableValue?: number | number[] | Float32Array | FimGLTexture | FimGLPreservedTexture | boolean;
 }
 
 /** Map of original unminified names to their minified details */
