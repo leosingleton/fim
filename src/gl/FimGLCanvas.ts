@@ -96,8 +96,14 @@ export class FimGLCanvas extends FimCanvasBase {
     }
   }
 
+  /** Registers an object to receive context loss/restored notifications */
   public registerObject(object: IFimGLContextNotify): void {
     this.objects.push(object);
+  }
+
+  /** Returns whether the context is currently lost */
+  public isContextLost(): boolean {
+    return this.gl.isContextLost();
   }
 
   /** WebGL rendering context */
