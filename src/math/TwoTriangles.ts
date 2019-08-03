@@ -6,9 +6,9 @@
  * To render 2D graphics using a GPU, we generally render two triangles that make up the entire viewport. This class
  * contains the coordinates for these triangles.
  */
-export class TwoTriangles {
+export namespace TwoTriangles {
   /** Vertex vectors (size 4) */
-  public static readonly vertexPositions = [
+  export const vertexPositions = [
     -1, -1,  0,  1,
      1, -1,  0,  1,
      1,  1,  0,  1,
@@ -18,7 +18,7 @@ export class TwoTriangles {
   ];
 
   /** Texture coordinates (size 2) */
-  public static readonly textureCoords = [
+  export const textureCoords = [
     0, 0,
     1, 0,
     1, 1,
