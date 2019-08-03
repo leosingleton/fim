@@ -63,7 +63,8 @@ describe('FimGLTexture', () => {
       // Find a texture size bigger than the GPU can support and create a texture of that size
       let caps = FimGLCapabilities.getCapabilities();
       let textureSize = caps.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8));
+      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8,
+        {flags: FimGLTextureFlags.AllowLargerThanCanvas}));
       expect(texture.realDimensions).toBeDefined();
       expect(texture.realDimensions.w).toBe(caps.maxTextureSize);
       expect(texture.realDimensions.h).toBe(caps.maxTextureSize / 8);

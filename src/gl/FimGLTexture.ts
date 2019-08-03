@@ -30,7 +30,14 @@ export const enum FimGLTextureFlags {
    * If set, we do not create a framebuffer for this texture. Thus, programs are unable to write to it. This is only
    * useful when loading an input texture as read-only.
    */
-  InputOnly = (1 << 2)
+  InputOnly = (1 << 2),
+
+  /**
+   * Although in WebGL, it is typical for a texture to be larger than the canvas, it doesn't usually make sense when
+   * using the GPU to do 2D image processing. By default, we automatically downscale textures to the canvas dimensions
+   * unless this flag is set.
+   */
+  AllowLargerThanCanvas = (1 << 3)
 }
 
 /** Options for FimGLTexture constructor */
@@ -66,14 +73,23 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
 
+    // Downscale the texture to fit on the WebGL canvas
+    let flags = options ? options.flags : FimGLTextureFlags.None;
+    if ((flags & FimGLTextureFlags.AllowLargerThanCanvas) === 0) {
+      if (width > glCanvas.w || height > glCanvas.h) {
+        let maxRect = FimRect.fromXYWidthHeight(0, 0, width, height).fit(glCanvas.dimensions);
+        maxDimension = Math.min(maxDimension, Math.max(maxRect.w, maxRect.h));
+      }
+    }
+
     // Call the parent constructor. Read the real dimensions as we may have to downscale.
     super(width, height, maxDimension);
     let realDimensions = this.realDimensions;
 
     let bpp = options ? options.bpp : FimBitsPerPixel.BPP8;
-    let flags = this.textureFlags = options ? options.flags : FimGLTextureFlags.None;
     let depth = glCanvas.getTextureDepth(bpp, (flags & FimGLTextureFlags.LinearSampling) !== 0);
     this.bpp = depth.bpp;
+    this.textureFlags = flags;
     this.hasImage = false;
 
     // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
