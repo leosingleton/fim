@@ -62,7 +62,7 @@ export class FimGLTexture extends FimImage {
    * @param channels Number of channels
    * @param bpp Bits per pixel. Note that the constructor may choose a lower quality than requested, depending on the
    *    browser and GPU's WebGL capabilities and the current performance.
-   * @param flags See FimGLTextureFlags
+   * @param options See FimGLTextureOptions
    */
   constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
     // Default values
