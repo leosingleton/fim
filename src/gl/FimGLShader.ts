@@ -31,6 +31,6 @@ export interface FimGLShader {
   /** Uniform variable names. Maps the original unminified name to its minified details. */
   uniforms: FimGLVariableDefinitionMap;
 
-  /** Constant variables. Maps the orignal unminified name to the substitution value. */
+  /** Constant variables. Maps the original unminified name to the substitution value. */
   consts: FimGLVariableDefinitionMap;
 }

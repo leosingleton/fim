@@ -227,7 +227,7 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param destCoords Coordinates of destination image to copy to
    */
   public copyFrom(srcImage: FimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
-    // Make srcImage a FimGLTexture
+    // Handle FimGLPreservedTexture by getting the underlying texture
     if (srcImage instanceof FimGLPreservedTexture) {
       srcImage = srcImage.getTexture();
     }
