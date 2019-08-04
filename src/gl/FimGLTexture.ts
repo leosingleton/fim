@@ -45,7 +45,10 @@ export interface FimGLTextureOptions {
   /** Number of channels. Default is RGBA (4). */
   channels?: FimColorChannels;
 
-  /** Bits per pixel. Default is 32. */
+  /**
+   * Bits per pixel. Default is 32. Note that the constructor may choose a lower quality than requested, depending on
+   * the browser and GPU's WebGL capabilities and the current performance.
+   */
   bpp?: FimBitsPerPixel;
 
   /** Flags */
@@ -57,11 +60,8 @@ export class FimGLTexture extends FimImage {
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
-   * @param width Texture width, in pixels
-   * @param height Texture height, in pixels
-   * @param channels Number of channels
-   * @param bpp Bits per pixel. Note that the constructor may choose a lower quality than requested, depending on the
-   *    browser and GPU's WebGL capabilities and the current performance.
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
    */
   constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
