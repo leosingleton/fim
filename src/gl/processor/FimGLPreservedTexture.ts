@@ -2,14 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './FimGLCanvas';
-import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from './FimGLTexture';
-import { FimCanvas } from '../image/FimCanvas';
-import { FimImage } from '../image/FimImage';
-import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
-import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
-import { FimRect } from '../primitives';
+import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLError, FimGLErrorCode } from '../FimGLError';
+import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
+import { FimCanvas } from '../../image/FimCanvas';
+import { FimImage } from '../../image/FimImage';
+import { FimGreyscaleBuffer } from '../../image/FimGreyscaleBuffer';
+import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
+import { FimRect } from '../../primitives';
 
 /**
  * When the WebGL context is lost, so is any data that may be held in WebGL textures. This class creates a texture that

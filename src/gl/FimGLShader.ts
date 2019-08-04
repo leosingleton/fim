@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLPreservedTexture } from './FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
+import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 
 // This file contains the output of a compiled GLSL shader. Definitions must be kept in sync with the
 // webpack-glsl-minify source code.

@@ -2,12 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
-import { FimGLCapabilities } from '../FimGLCapabilities';
+import { FimGLCanvas } from '../../FimGLCanvas';
+import { FimGLCapabilities } from '../../FimGLCapabilities';
 import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
-import { FimCanvas } from '../../image/FimCanvas';
-import { FimColor, FimRect } from '../../primitives';
-import { FimTestImages, ContextLost } from '../../test';
+import { FimCanvas } from '../../../image/FimCanvas';
+import { FimColor, FimRect } from '../../../primitives';
+import { FimTestImages, ContextLost } from '../../../test';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {

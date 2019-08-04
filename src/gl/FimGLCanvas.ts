@@ -4,7 +4,7 @@
 
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLPreservedTexture } from './FimGLPreservedTexture';
+import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimGLProgramCopy, FimGLProgramFill } from './programs';

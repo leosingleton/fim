@@ -4,12 +4,12 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLPreservedTexture } from './FimGLPreservedTexture';
+import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
 import { Transform2D, Transform3D, TwoTriangles } from '../math';
-import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 import { FimRect } from '../primitives';
+import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
 
