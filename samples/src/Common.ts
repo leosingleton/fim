@@ -4,7 +4,7 @@
 
 import { FimCanvas, FimCanvasBase, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
   FimRect } from '../../build/dist/index.js';
-import { Stopwatch, TaskScheduler, parseQueryString, using } from '@leosingleton/commonlibs';
+import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
 let qs = parseQueryString();
