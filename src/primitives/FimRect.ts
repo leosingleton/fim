@@ -104,6 +104,10 @@ export class FimRect {
     return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
   }
 
+  static fromWidthHeight(width: number, height: number): FimRect {
+    return new FimRect(0, 0, width, height, width, height);
+  }
+
   static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
     return new FimRect(x, y, x + width, y + height, width, height);
   }

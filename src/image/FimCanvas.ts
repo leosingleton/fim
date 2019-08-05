@@ -224,15 +224,20 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   /**
    * Copies image to another.
    * 
-   * FimCanvas destinations support both cropping and rescaling, while FimRgbaBuffer destinations only support
-   * cropping.
+   * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
+   * only support cropping.
    * 
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFrom(this, srcCoords, destCoords);
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    if (destImage instanceof HTMLCanvasElement) {
+      this.toHtmlCanvas(destImage, srcCoords, destCoords);
+    } else {
+      destImage.copyFrom(this, srcCoords, destCoords);
+    }
   }
 
   public getPixel(x: number, y: number): FimColor {

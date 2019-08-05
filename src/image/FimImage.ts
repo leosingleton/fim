@@ -20,7 +20,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public constructor(width: number, height: number, maxDimension = 0) {
     this.w = width;
     this.h = height;
-    this.dimensions = this.realDimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+    this.dimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
 
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.

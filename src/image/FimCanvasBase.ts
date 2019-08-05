@@ -4,7 +4,7 @@
 
 import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
-import { FimColor } from '../primitives';
+import { FimColor, FimRect } from '../primitives';
 import { parseQueryString } from '@leosingleton/commonlibs';
 
 // OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
@@ -111,6 +111,48 @@ export abstract class FimCanvasBase extends FimImage {
     let blob = await this.toJpegBlob(quality);
     let buffer = await new Response(blob).arrayBuffer();
     return new Uint8Array(buffer);
+  }
+
+  /**
+   * Copies image to an HTML canvas. Supports both cropping and rescaling.
+   * @param destImage Destination HTML canvas
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public toHtmlCanvas(destCanvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords || this.dimensions;
+    destCoords = destCoords || FimRect.fromWidthHeight(destCanvas.width, destCanvas.height);
+    
+    // Scale the coordinates
+    srcCoords = srcCoords.scale(this.downscaleRatio);
+
+    // copy is slightly faster than source-over
+    let op = (destCoords.w === destCanvas.width && destCoords.h === destCanvas.height) ? 'copy' : 'source-over';
+
+    // Enable image smoothing if we are rescaling the image
+    let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
+
+    let ctx = destCanvas.getContext('2d');
+    ctx.save();
+    try {
+      ctx.globalCompositeOperation = op;
+      ctx.globalAlpha = 1;
+
+      // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
+      // support it well...
+      // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
+      let ctxAny = ctx as any;
+      ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
+      ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
+      ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
+      ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
+
+      ctx.drawImage(this.getCanvas(), srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
+        destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
+    } finally {
+      ctx.restore();
+    }
   }
 
   /** Determines whether the current browser supports offscreen canvases */

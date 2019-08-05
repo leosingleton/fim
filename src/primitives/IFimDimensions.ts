@@ -26,6 +26,6 @@ export function createDimensions(width: number, height: number): IFimDimensions 
   return {
     w: width,
     h: height,
-    dimensions: FimRect.fromXYWidthHeight(0, 0, width, height)
+    dimensions: FimRect.fromWidthHeight(width, height)
   };
 }

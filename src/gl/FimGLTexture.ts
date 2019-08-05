@@ -77,7 +77,7 @@ export class FimGLTexture extends FimImage {
     let flags = options ? options.flags : FimGLTextureFlags.None;
     if ((flags & FimGLTextureFlags.AllowLargerThanCanvas) === 0) {
       if (width > glCanvas.w || height > glCanvas.h) {
-        let maxRect = FimRect.fromXYWidthHeight(0, 0, width, height).fit(glCanvas.dimensions);
+        let maxRect = FimRect.fromWidthHeight(width, height).fit(glCanvas.dimensions);
         maxDimension = Math.min(maxDimension, Math.max(maxRect.w, maxRect.h));
       }
     }

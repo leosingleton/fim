@@ -59,7 +59,7 @@ export class ImageGrid implements IFimDimensions {
     // Initialize the IFimDimensions variables
     this.w = width;
     this.h = height;
-    this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+    this.dimensions = FimRect.fromWidthHeight(width, height);
 
     // First, calculate the number of tiles to use in each direction
     function getTileCount(srcSize: number, tileSize: number, max: number, zeroCenter: boolean): number {
@@ -200,7 +200,7 @@ export class ImageGridTile {
     // Initialize the IFimDimensions variables
     this.w = width;
     this.h = height;
-    this.dimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+    this.dimensions = FimRect.fromWidthHeight(width, height);
 
     this.parent = parent;
     this.inputFull = inputFull;
