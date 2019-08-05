@@ -239,9 +239,8 @@ export class FimGLCanvas extends FimCanvasBase {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    // Scale the coordinates
+    // Scale the source coordinates. FimGLProgram.execute() will scale the destination coordinates.
     srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
 
     // Calculate the transformation matrix to achieve the requested srcCoords
     let matrix = Transform2D.fromSrcCoords(srcCoords, srcImage.dimensions);
