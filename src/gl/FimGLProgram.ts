@@ -62,6 +62,11 @@ export abstract class FimGLProgram implements IDisposable {
     let gl = this.gl;
     let disposable = this.disposable;
     
+    // Improve debugability by checking whether the WebGL context is lost rather than failing on shader creation
+    if (gl.isContextLost()) {
+      throw new FimGLError(FimGLErrorCode.ContextLost);
+    }
+
     // Compile the shaders
     let vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
     let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
@@ -123,8 +128,14 @@ export abstract class FimGLProgram implements IDisposable {
       code = code.replace(c.variableName, value);
     }
 
+    // TODO: Need to check the WebGL docs on createShader(). It appears to return null on failure instead of using
+    // glError(), but am currently without wifi to check...
     let shader = gl.createShader(type);
     FimGLError.throwOnError(gl);
+    if (!shader) {
+      throw new FimGLError(FimGLErrorCode.UnknownError, 'CreateShader');
+    }
+
     gl.shaderSource(shader, code);
     FimGLError.throwOnError(gl);
     gl.compileShader(shader);

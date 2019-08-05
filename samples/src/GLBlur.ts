@@ -30,6 +30,11 @@ class BlurImageProcessor extends FimGLImageProcessor {
   }
 
   public async render(sigma: number): Promise<FimGLCanvas> {
+    // Cannot render if WebGL context is lost
+    if (this.glCanvas.isContextLost()) {
+      return null;
+    }
+
     try {
       // Build a Gaussian kernel with the desired sigma
       let kernel = GaussianKernel.calculate(sigma, kernelSize);
