@@ -28,6 +28,7 @@ describe('FimGLPreservedTexture', () => {
       let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
       texture.copyFrom(canvas);
+      texture.preserve();
 
       // Simulate context loss
       await ContextLost.loseContextAsync(gl);
@@ -66,6 +67,7 @@ describe('FimGLPreservedTexture', () => {
       let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 480, 480));
       texture.copyFrom(canvas);
+      texture.preserve();
 
       // Simulate context loss
       await ContextLost.loseContextAsync(gl);
