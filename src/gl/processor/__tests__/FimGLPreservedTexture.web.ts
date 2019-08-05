@@ -22,7 +22,7 @@ describe('FimGLPreservedTexture', () => {
   it('Preserves texture across context loss', async () => {
     await DisposableSet.usingAsync(async disposable => {
       let gl = disposable.addDisposable(new FimGLCanvas(480, 480));
-      
+
       // Create a preserved texture from the test pattern
       let jpeg = FimTestImages.fourSquaresJpeg();
       let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
@@ -42,7 +42,45 @@ describe('FimGLPreservedTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 120), FimColor.fromString('#0f0'));
       expectToBeCloseTo(gl.getPixel(120, 360), FimColor.fromString('#00f'));
       expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
-      
+
+      // To be sure it works (and wasn't) an artifact of the restore process, render it again
+      gl.fill('#fff');
+      gl.copyFrom(texture);
+
+      // Check a few pixels to ensure the texture rendered correctly
+      expectToBeCloseTo(gl.getPixel(120, 120), FimColor.fromString('#f00'));
+      expectToBeCloseTo(gl.getPixel(360, 120), FimColor.fromString('#0f0'));
+      expectToBeCloseTo(gl.getPixel(120, 360), FimColor.fromString('#00f'));
+      expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
+    });
+  });
+
+  it('Preserves textures with scissoring', async () => {
+    // This test case creates a smaller texture than the WebGL canvas to test the case where FimGLPreservedTexture must
+    // use scissoring to render the texture only on one corner of the canvas to preserve it.
+    await DisposableSet.usingAsync(async disposable => {
+      let gl = disposable.addDisposable(new FimGLCanvas(480, 480));
+
+      // Create a preserved texture from the test pattern
+      let jpeg = FimTestImages.fourSquaresJpeg();
+      let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
+      let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 120, 120));
+      texture.copyFrom(canvas);
+      texture.preserve();
+
+      // Simulate context loss
+      await ContextLost.loseContextAsync(gl);
+      await ContextLost.restoreContextAsync(gl);
+
+      // Render the texture to the WebGL canvas
+      gl.copyFrom(texture);
+
+      // Check a few pixels to ensure the texture rendered correctly
+      expectToBeCloseTo(gl.getPixel(120, 120), FimColor.fromString('#f00'));
+      expectToBeCloseTo(gl.getPixel(360, 120), FimColor.fromString('#0f0'));
+      expectToBeCloseTo(gl.getPixel(120, 360), FimColor.fromString('#00f'));
+      expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
+
       // To be sure it works (and wasn't) an artifact of the restore process, render it again
       gl.fill('#fff');
       gl.copyFrom(texture);
@@ -56,12 +94,14 @@ describe('FimGLPreservedTexture', () => {
   });
 
   it('Preserves textures with downscaling', async () => {
+    // This test case is similar to the previous one which tests scissoring, but adds a WebGL canvas that has been
+    // downscaled from the requested dimensions in order to not exceed GPU limits.
     await DisposableSet.usingAsync(async disposable => {
       // Find a canvas size bigger than the GPU can support and create a canvas of that size
       let caps = FimGLCapabilities.getCapabilities();
       let canvasSize = caps.maxRenderBufferSize + 1000;
       let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 8));
-      
+
       // Create a preserved texture from the test pattern. Make this one small.
       let jpeg = FimTestImages.fourSquaresJpeg();
       let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
@@ -81,7 +121,7 @@ describe('FimGLPreservedTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 120), FimColor.fromString('#0f0'));
       expectToBeCloseTo(gl.getPixel(120, 360), FimColor.fromString('#00f'));
       expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
-      
+
       // To be sure it works (and wasn't) an artifact of the restore process, render it again to a different location
       gl.fill('#fff');
       gl.copyFrom(texture, null, FimRect.fromXYWidthHeight(200, 200, 200, 200));
