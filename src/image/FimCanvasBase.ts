@@ -5,7 +5,7 @@
 import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
 import { FimColor, FimRect } from '../primitives';
-import { parseQueryString } from '@leosingleton/commonlibs';
+import { IDisposable, makeDisposable, parseQueryString, using } from '@leosingleton/commonlibs';
 
 // OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
 // @nomangle OffscreenCanvas convertToBlob
@@ -119,7 +119,8 @@ export abstract class FimCanvasBase extends FimImage {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public toHtmlCanvas(destCanvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public toHtmlCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || this.dimensions;
     destCoords = destCoords || FimRect.fromWidthHeight(destCanvas.width, destCanvas.height);
@@ -127,34 +128,72 @@ export abstract class FimCanvasBase extends FimImage {
     // Scale the coordinates
     srcCoords = srcCoords.scale(this.downscaleRatio);
 
+    // Copy the canvas
+    FimCanvasBase.copyCanvasToCanvas(this.getCanvas(), destCanvas, srcCoords, destCoords);
+  }
+
+  /** Determines whether the current browser supports offscreen canvases */
+  public static readonly supportsOffscreenCanvas = (typeof OffscreenCanvas !== 'undefined');
+
+  /**
+   * Helper function to construct a drawing context
+   * @param destCanvas HTML or offscreen canvas to create drawing context of
+   * @param imageSmoothingEnabled Enables image smoothing
+   * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
+   * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
+   */
+  protected static createDrawingContext(destCanvas: HTMLCanvasElement | OffscreenCanvas, imageSmoothingEnabled = false,
+      operation = 'copy', alpha = 1): CanvasRenderingContext2D & IDisposable {
+    let ctx = destCanvas.getContext('2d');
+    ctx.save();
+    ctx.globalCompositeOperation = operation;
+    ctx.globalAlpha = alpha;
+
+    // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
+    // support it well...
+    // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
+    let ctxAny = ctx as any;
+    ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
+
+    return makeDisposable(ctx, ctx => ctx.restore());
+  }
+
+  /**
+   * Helper function to copy one canvas to another
+   * @param srcCanvas Source canvas
+   * @param destCanvas Destination canvas
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  protected static copyCanvasToCanvas(srcCanvas: HTMLCanvasElement | OffscreenCanvas,
+      destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords: FimRect, destCoords: FimRect): void {
     // copy is slightly faster than source-over
     let op = (destCoords.w === destCanvas.width && destCoords.h === destCanvas.height) ? 'copy' : 'source-over';
 
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
-    let ctx = destCanvas.getContext('2d');
-    ctx.save();
-    try {
-      ctx.globalCompositeOperation = op;
-      ctx.globalAlpha = 1;
-
-      // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
-      // support it well...
-      // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
-      let ctxAny = ctx as any;
-      ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
-      ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
-      ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
-      ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
-
-      ctx.drawImage(this.getCanvas(), srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
+    using(this.createDrawingContext(destCanvas, imageSmoothingEnabled, op, 1), ctx => {
+      ctx.drawImage(srcCanvas as HTMLCanvasElement, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
         destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
-    } finally {
-      ctx.restore();
-    }
+    });
   }
 
-  /** Determines whether the current browser supports offscreen canvases */
-  public static readonly supportsOffscreenCanvas = (typeof OffscreenCanvas !== 'undefined');
+  /**
+   * Helper function to fill a canvas with a solid color
+   * @param destCanvas Destination canvas
+   * @param color Fill color
+   */
+  protected static fillCanvas(destCanvas: HTMLCanvasElement, color: FimColor | string): void {
+    // Force color to be a string
+    let colorString = (typeof(color) === 'string') ? color : color.string;
+
+    using(this.createDrawingContext(destCanvas, false, 'copy', 1), ctx => {
+      ctx.fillStyle = colorString;
+      ctx.fillRect(0, 0, destCanvas.width, destCanvas.height);
+    });
+  }
 }
