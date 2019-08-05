@@ -7,19 +7,24 @@ import { FimGLTemporaryTexture } from './FimGLTemporaryTexture';
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture, FimGLTextureOptions } from '../FimGLTexture';
+import { FimRect, IFimDimensions } from '../../primitives';
 import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /**
  * Base class for writing code that processes a series of 2D images. Caches programs and temporary textures. Handles
  * disposing objects when the context is lost.
  */
-export abstract class FimGLImageProcessor implements IDisposable {
+export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions {
   /**
    * Constructor
    * @param maxWidth Maximum width of the output or textures, whichever is largest, in pixels
    * @param maxHeight Maximum height of the output or textures, whichever is largest, in pixels
    */
   public constructor(maxWidth: number, maxHeight: number) {
+    this.w = maxWidth;
+    this.h = maxHeight;
+    this.dimensions = FimRect.fromWidthHeight(maxWidth, maxHeight);
+
     let glCanvas = this.glCanvas = new FimGLCanvas(maxWidth, maxHeight);
 
     this.disposeOnLostContext = new DisposableSet();
@@ -32,6 +37,11 @@ export abstract class FimGLImageProcessor implements IDisposable {
     glCanvas.registerForContextLost(() => this.onLostContext());
   }
 
+  // IFimDimensions implementation
+  public readonly w: number;
+  public readonly h: number;
+  public readonly dimensions: FimRect;
+  
   public dispose(): void {
     this.glCanvas.dispose();
     this.disposeOnDispose.dispose();
