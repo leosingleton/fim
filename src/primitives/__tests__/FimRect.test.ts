@@ -94,4 +94,10 @@ describe('FimRect', () => {
     expect(innerRect.fit(outerRect)).toEqual(FimRect.fromXYWidthHeight(200, 200, 50, 50));
   });
 
+  it('Downscales dimensions', () => {
+    let d2 = FimRect.downscaleToMaxDimension(640, 480, 512);
+    expect(d2.w).toEqual(512);
+    expect(d2.h).toEqual(384);
+  });
+
 });

@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRect, IFimDimensions, rescale } from '../primitives';
+import { FimRect, IFimDimensions } from '../primitives';
 import { IDisposable } from '@leosingleton/commonlibs';
 
 /**
@@ -26,8 +26,8 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
     // automatically downscale the requested resolution.
     this.downscaleRatio = 1;
     if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
-      let newDimensions = rescale(width, height, maxDimension);
-      this.realDimensions = newDimensions.dimensions;
+      let newDimensions = FimRect.downscaleToMaxDimension(width, height, maxDimension);
+      this.realDimensions = newDimensions;
       this.downscaleRatio = newDimensions.w / width;
     }
 
