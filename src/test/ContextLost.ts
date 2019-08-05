@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../gl';
+import { FimGLCanvas, FimGLError } from '../gl';
 import { AsyncManualResetEvent } from '@leosingleton/commonlibs';
 
 export namespace ContextLost {
@@ -16,9 +16,14 @@ export namespace ContextLost {
       onContextRestored() {}
     });
 
+    // Get the extension. We save it, as once the context is lost, gl.getExtension() seems to be unreliable.
+    let gl = glCanvas.gl;
+    let extension = gl.getExtension('WEBGL_lose_context');
+    FimGLError.throwOnError(gl);
+    loseContextExtensions[glCanvas.imageId] = extension;
+
     // Simulate a context loss
-    let loseContext = glCanvas.gl.getExtension('WEBGL_lose_context');
-    loseContext.loseContext();
+    extension.loseContext();
 
     // Wait for the handler to execute
     return contextLostEvent.waitAsync();
@@ -35,10 +40,12 @@ export namespace ContextLost {
     });
 
     // Simulate the context being restored
-    let loseContext = glCanvas.gl.getExtension('WEBGL_lose_context');
-    loseContext.restoreContext();
+    let extension = loseContextExtensions[glCanvas.imageId];
+    extension.restoreContext();
 
     // Wait for the handler to execute
     return contextRestoredEvent.waitAsync();
   }
 }
+
+let loseContextExtensions: { [id: number]: WEBGL_lose_context } = {};

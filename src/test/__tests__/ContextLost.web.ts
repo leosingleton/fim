@@ -9,7 +9,7 @@ import { usingAsync } from '@leosingleton/commonlibs';
 describe('ContextLost', () => {
 
   it('Simulates losing context and restoring', async () => {
-    usingAsync(new FimGLCanvas(640, 480), async gl => {
+    await usingAsync(new FimGLCanvas(640, 480), async gl => {
       // Register handlers to detect context lost
       let contextLost: boolean;
       let contextRestored: boolean;

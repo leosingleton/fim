@@ -20,7 +20,7 @@ function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
 describe('FimGLPreservedTexture', () => {
 
   it('Preserves texture across context loss', async () => {
-    DisposableSet.usingAsync(async disposable => {
+    await DisposableSet.usingAsync(async disposable => {
       let gl = disposable.addDisposable(new FimGLCanvas(480, 480));
       
       // Create a preserved texture from the test pattern
@@ -55,7 +55,7 @@ describe('FimGLPreservedTexture', () => {
   });
 
   it('Preserves textures with downscaling', async () => {
-    DisposableSet.usingAsync(async disposable => {
+    await DisposableSet.usingAsync(async disposable => {
       // Find a canvas size bigger than the GPU can support and create a canvas of that size
       let caps = FimGLCapabilities.getCapabilities();
       let canvasSize = caps.maxRenderBufferSize + 1000;
