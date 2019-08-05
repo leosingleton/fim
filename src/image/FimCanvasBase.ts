@@ -5,6 +5,7 @@
 import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
 import { FimColor } from '../primitives';
+import { parseQueryString } from '@leosingleton/commonlibs';
 
 // OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
 // @nomangle OffscreenCanvas convertToBlob
@@ -35,7 +36,12 @@ export abstract class FimCanvasBase extends FimImage {
     super(width, height, maxDimension);
     let realDimensions = this.realDimensions;
 
-    if (useOffscreenCanvas) {
+    // We have an option to disable offscreen canvas support via the query string. This can be useful for debugging,
+    // since regular canvases can be made visible in the browser's debugging tools.
+    let qs = parseQueryString();
+    let enableOC = (qs['disableOC'] === undefined);
+
+    if (useOffscreenCanvas && enableOC) {
       // Use Chrome's OffscreenCanvas object
       if (!FimCanvasBase.supportsOffscreenCanvas) {
         // The browser does not support OffscreenCanvas
@@ -48,6 +54,7 @@ export abstract class FimCanvasBase extends FimImage {
       canvas.width = realDimensions.w;
       canvas.height = realDimensions.h;
       canvas.style.display = 'none';
+      canvas.id = `fim${this.imageId}`;
       document.body.appendChild(canvas);
       this.canvasElement = canvas;
     }
