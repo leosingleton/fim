@@ -6,7 +6,6 @@ import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
-import { IFimGLContextNotify } from './IFimGLContextNotify';
 import { FimGLProgramCopy, FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
@@ -46,7 +45,8 @@ export class FimGLCanvas extends FimCanvasBase {
     super(width, height, useOffscreenCanvas, maxDimension);
 
     this.renderQuality = quality;
-    this.objects = [];
+    this.contextLostNotifications = [];
+    this.contextRestoredNotifications = [];
     this.workaroundChromeBug = false;
 
     // Initialize WebGL
@@ -56,7 +56,7 @@ export class FimGLCanvas extends FimCanvasBase {
       console.log('Lost WebGL context');
       event.preventDefault();
 
-      this.objects.forEach(o => o.onContextLost());
+      this.contextLostNotifications.forEach(eh => eh());
 
       if (this.copyProgram) {
         this.copyProgram.dispose();
@@ -74,7 +74,7 @@ export class FimGLCanvas extends FimCanvasBase {
       // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
       this.loadExtensions();
 
-      this.objects.forEach(o => o.onContextRestored());
+      this.contextRestoredNotifications.forEach(eh => eh());
     }, false);
 
     let gl = this.gl = canvas.getContext('webgl');
@@ -97,9 +97,14 @@ export class FimGLCanvas extends FimCanvasBase {
     }
   }
 
-  /** Registers an object to receive context loss/restored notifications */
-  public registerObject(object: IFimGLContextNotify): void {
-    this.objects.push(object);
+  /** Registers a lambda function to be executed on WebGL context lost */
+  public registerForContextLost(eventHandler: () => void): void {
+    this.contextLostNotifications.push(eventHandler);
+  }
+
+  /** Registers a lambda function to be executed on WebGL context restored */
+  public registerForContextRestored(eventHandler: () => void): void {
+    this.contextRestoredNotifications.push(eventHandler);
   }
 
   /** Returns whether the context is currently lost */
@@ -166,7 +171,8 @@ export class FimGLCanvas extends FimCanvasBase {
   private extensionTextureLinear16: OES_texture_half_float_linear;
   private extensionColorBuffer16: any;
 
-  private objects: IFimGLContextNotify[];
+  private contextLostNotifications: (() => void)[];
+  private contextRestoredNotifications: (() => void)[];
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {

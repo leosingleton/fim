@@ -48,17 +48,12 @@ export class FimGLPreservedTexture extends FimImage {
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.
     this.backingCanvas = new FimCanvas(texture.realDimensions.w, texture.realDimensions.h);
 
-    // Register for context lost/restore notifications
-    let preservedTexture = this;
-    glCanvas.registerObject({
-      onContextLost() {
-        if (preservedTexture.texture) {
-          preservedTexture.texture.dispose();
-          delete preservedTexture.texture;
-        }
-      },
-
-      onContextRestored() {}
+    // Register for context lost notifications
+    glCanvas.registerForContextLost(() => {
+      if (this.texture) {
+        this.texture.dispose();
+        delete this.texture;
+      }
     });
   }
 

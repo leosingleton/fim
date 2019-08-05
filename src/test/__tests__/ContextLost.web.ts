@@ -13,10 +13,8 @@ describe('ContextLost', () => {
       // Register handlers to detect context lost
       let contextLost: boolean;
       let contextRestored: boolean;
-      gl.registerObject({
-        onContextLost() { contextLost = true; },
-        onContextRestored() { contextRestored = true; }
-      });
+      gl.registerForContextLost(() => contextLost = true);
+      gl.registerForContextRestored(() => contextRestored = true);
 
       // Repeat the test 3 times
       for (let n = 0; n < 3; n++) {
