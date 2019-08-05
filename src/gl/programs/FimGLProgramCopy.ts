@@ -5,6 +5,7 @@
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
+import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 
 /** GL program to copy from one texture to another */
 export class FimGLProgramCopy extends FimGLProgram {
@@ -14,7 +15,7 @@ export class FimGLProgramCopy extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: FimGLTexture): void {
+  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture): void {
     this.fragmentShader.uniforms.u_input.variableValue = inputTexture;
   }
 }

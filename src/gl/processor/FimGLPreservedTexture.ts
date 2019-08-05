@@ -42,6 +42,7 @@ export class FimGLPreservedTexture extends FimImage {
 
     // Call the FimImage constructor. We'll figure out the maxDimension property based on the texture's dimensions.
     super(width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
+    this.glCanvas = glCanvas;
     this.texture = texture;
   
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.

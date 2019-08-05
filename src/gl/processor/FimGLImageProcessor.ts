@@ -55,14 +55,14 @@ export abstract class FimGLImageProcessor implements IDisposable {
    * @param createProgram Lambda function to create the program when needed. This should call the FimGLProgram's
    *    constructor with the required parameters.
    */
-  protected getProgram<T extends FimGLProgram>(programId: number, createProgram: () => T): T {
+  protected getProgram<T extends FimGLProgram>(programId: number, createProgram: (glCanvas: FimGLCanvas) => T): T {
     let programs = this.programs;
 
     // Check the program cache
     let p = programs[programId];
     if (!p) {
       // The program was not found in the cache. Create it.
-      p = this.disposeOnLostContext.addDisposable(createProgram());
+      p = this.disposeOnLostContext.addDisposable(createProgram(this.glCanvas));
       programs[programId] = p;
     }
 
