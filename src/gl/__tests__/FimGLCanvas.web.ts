@@ -81,7 +81,7 @@ function spec(useOffscreenCanvas: boolean) {
         expect(gl.realDimensions).toBeDefined();
         expect(gl.realDimensions.w).toBe(caps.maxRenderBufferSize);
         expect(gl.realDimensions.h).toBe(caps.maxRenderBufferSize / 8);
-        expect(gl.downscaleRatio).toBe(canvasSize / caps.maxRenderBufferSize);
+        expect(gl.downscaleRatio).toBe(caps.maxRenderBufferSize / canvasSize);
         expect(gl.getCanvas().width).toBe(gl.realDimensions.w);
         expect(gl.getCanvas().height).toBe(gl.realDimensions.h);
 

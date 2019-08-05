@@ -28,7 +28,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
     if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
       let newDimensions = rescale(width, height, maxDimension);
       this.realDimensions = newDimensions.dimensions;
-      this.downscaleRatio = width / newDimensions.w;
+      this.downscaleRatio = newDimensions.w / width;
     }
 
     this.imageId = FimImage.imageIdCounter++;
@@ -46,9 +46,9 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly realDimensions: FimRect;
 
   /**
-   * Ratio of original resolution to downscaled resolution. 1 if the dimensions have not been downscaled. Member
-   * function which operate on coordinates should multiply values by this ratio to get coordinates of the underlying
-   * image.
+   * Ratio of the downscaled resolution to the original resolution. 1 if the dimensions have not been downscaled.
+   * Member functions which operate on coordinates should multiply values by this ratio to get coordinates of the
+   * underlying image.
    */
   public readonly downscaleRatio: number;
 
