@@ -44,54 +44,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    */
   public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
       CanvasRenderingContext2D & IDisposable {
-    let ctx = this.canvasElement.getContext('2d');
-    ctx.save();
-    ctx.globalCompositeOperation = operation;
-    ctx.globalAlpha = alpha;
-
-    // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
-    // support it well...
-    // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
-    let ctxAny = ctx as any;
-    ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
-    ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
-    ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
-    ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
-
-    return makeDisposable(ctx, ctx => ctx.restore());
-  }
-
-  /**
-   * Boilerplate code for performing a canvas compositing operation with two canvases. If input and output canvases
-   * differ in size, the operation is scaled to fill the output canvas.
-   */
-  private opWithSrcDest(inputCanvas: FimCanvasBase, operation: string, alpha: number, src: FimRect, dest: FimRect,
-      imageSmoothingEnabled = false): void {
-    // Scale the coordinates
-    src = src.scale(inputCanvas.downscaleRatio);
-    dest = dest.scale(this.downscaleRatio);
-
-    using(this.createDrawingContext(imageSmoothingEnabled, operation, alpha), ctx => {
-      ctx.drawImage(inputCanvas.getCanvas(), src.xLeft, src.yTop, src.w, src.h, dest.xLeft, dest.yTop,
-        dest.w, dest.h);
-    });
-  }
-
-  /** Boilerplate code for performing a canvas compositing operation with a solid color */
-  private opWithColor(color: string, operation: string, alpha: number): void {
-    using(this.createDrawingContext(false, operation, alpha), ctx => {
-      ctx.fillStyle = color;
-      ctx.fillRect(0, 0, this.realDimensions.w, this.realDimensions.h);  
-    });
+    return FimCanvasBase.createDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha);
   }
 
   /** Fills the canvas with a solid color */
   public fill(color: FimColor | string): void {
-    if (typeof(color) === 'string') {
-      this.opWithColor(color, 'copy', 1);
-    } else {
-      this.opWithColor(color.string, 'copy', 1);
-    }
+    FimCanvasBase.fillCanvas(this.getCanvas(), color);
   }
 
   /**
@@ -143,13 +101,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
-    // copy is slightly faster than source-over
-    let op = destCoords.equals(this.dimensions) ? 'copy' : 'source-over';
+    // Scale the coordinates
+    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+    destCoords = destCoords.scale(this.downscaleRatio);
 
-    // Enable image smoothing if we are rescaling the image
-    let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
-    
-    this.opWithSrcDest(srcImage, op, 1, srcCoords, destCoords, imageSmoothingEnabled);
+    // Copy the canvas
+    FimCanvasBase.copyCanvasToCanvas(srcImage.getCanvas(), this.canvasElement, srcCoords, destCoords);
   }
 
   /**
@@ -168,6 +125,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     srcCoords = srcCoords || srcImage.dimensions;
     destCoords = destCoords || this.dimensions;
 
+    // Scale the coordinates
+    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+    destCoords = destCoords.scale(this.downscaleRatio);
+    
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
@@ -176,10 +137,6 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
       let imageData = new ImageData(srcImage.getBuffer(), srcImage.realDimensions.w, srcImage.realDimensions.h);
       let imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
-
-      // Scale the coordinates
-      srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-      destCoords = destCoords.scale(this.downscaleRatio);
 
       ctx.drawImage(imageBitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h, destCoords.xLeft,
         destCoords.yTop, destCoords.w, destCoords.h);
@@ -224,15 +181,20 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   /**
    * Copies image to another.
    * 
-   * FimCanvas destinations support both cropping and rescaling, while FimRgbaBuffer destinations only support
-   * cropping.
+   * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
+   * only support cropping.
    * 
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFrom(this, srcCoords, destCoords);
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    if (destImage instanceof HTMLCanvasElement) {
+      this.toHtmlCanvas(destImage, srcCoords, destCoords);
+    } else {
+      destImage.copyFrom(this, srcCoords, destCoords);
+    }
   }
 
   public getPixel(x: number, y: number): FimColor {

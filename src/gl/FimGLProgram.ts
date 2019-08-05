@@ -4,9 +4,11 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
+import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
 import { Transform2D, Transform3D, TwoTriangles } from '../math';
+import { FimRect } from '../primitives';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
@@ -60,6 +62,11 @@ export abstract class FimGLProgram implements IDisposable {
     let gl = this.gl;
     let disposable = this.disposable;
     
+    // Improve debugability by checking whether the WebGL context is lost rather than failing on shader creation
+    if (gl.isContextLost()) {
+      throw new FimGLError(FimGLErrorCode.ContextLost);
+    }
+
     // Compile the shaders
     let vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
     let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
@@ -121,8 +128,14 @@ export abstract class FimGLProgram implements IDisposable {
       code = code.replace(c.variableName, value);
     }
 
+    // TODO: Need to check the WebGL docs on createShader(). It appears to return null on failure instead of using
+    // glError(), but am currently without wifi to check...
     let shader = gl.createShader(type);
     FimGLError.throwOnError(gl);
+    if (!shader) {
+      throw new FimGLError(FimGLErrorCode.UnknownError, 'CreateShader');
+    }
+
     gl.shaderSource(shader, code);
     FimGLError.throwOnError(gl);
     gl.compileShader(shader);
@@ -181,9 +194,22 @@ export abstract class FimGLProgram implements IDisposable {
    * Executes a program. Callers should first set the uniform values, usually implemented as setInputs() in
    * FimGLProgram-derived classes.
    * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the FimGLCanvas.
+   * @param destCoords If set, renders the output to the specified destination coordinates using WebGL's viewport and
+   *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
+   *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
    */
-  public execute(outputTexture?: FimGLTexture): void {
+  public execute(outputTexture?: FimGLTexture | FimGLPreservedTexture, destCoords?: FimRect): void {
     let gl = this.gl;
+
+    // Handle FimGLPreservedTexture by getting the underlying texture
+    if (outputTexture instanceof FimGLPreservedTexture) {
+      outputTexture = outputTexture.getTexture();
+    }
+
+    // Validate source texture
+    if (outputTexture) {
+      FimGLError.throwOnMismatchedGLCanvas(this.glCanvas, outputTexture.glCanvas);
+    }
 
     // On the first call the execute(), compile the program
     if (!this.program) {
@@ -191,17 +217,35 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     try {
-      if (outputTexture) {
-        // Use a framebuffer to render to a texture
-        gl.bindFramebuffer(gl.FRAMEBUFFER, outputTexture.getFramebuffer());
-        FimGLError.throwOnError(gl);
-        gl.viewport(0, 0, outputTexture.w, outputTexture.h);
+      let destination = outputTexture || this.glCanvas;
+      let destinationFramebuffer = outputTexture ? outputTexture.getFramebuffer() : null;
+
+      // Set the framebuffer
+      gl.bindFramebuffer(gl.FRAMEBUFFER, destinationFramebuffer);
+      FimGLError.throwOnError(gl);
+
+      // Calculate the destCoords. Handle defaults, and flip the Y as WebGL uses a bottom-left coordinate system. Also
+      // downscale.
+      if (destCoords) {
+        destCoords = FimRect.fromXYWidthHeight(destCoords.xLeft, destination.h - destCoords.yBottom, destCoords.w,
+          destCoords.h);
+      } else {
+        destCoords = destination.dimensions;
+      }
+      destCoords = destCoords.scale(destination.downscaleRatio);
+
+      // Set the viewport
+      gl.viewport(destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
+      FimGLError.throwOnError(gl);
+
+      // Set the scissor box
+      if (destCoords.equals(destination.realDimensions)) {
+        gl.disable(gl.SCISSOR_TEST);
         FimGLError.throwOnError(gl);
       } else {
-        // Render to the canvas
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.enable(gl.SCISSOR_TEST);
         FimGLError.throwOnError(gl);
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.scissor(destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);
         FimGLError.throwOnError(gl);
       }
 
@@ -220,7 +264,12 @@ export abstract class FimGLProgram implements IDisposable {
 
         if (uniform.variableType.indexOf('sampler') !== -1) {
           // Special case for textures. Bind the texture to the texture unit.
-          let t = uniform.variableValue as FimGLTexture;
+          let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
+
+          // Handle FimGLPreservedTexture by getting the underlying texture
+          if (t instanceof FimGLPreservedTexture) {
+            t = t.getTexture();
+          }
 
           if (!t.hasImage) {
             // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going to
@@ -228,6 +277,9 @@ export abstract class FimGLProgram implements IDisposable {
             throw new FimGLError(FimGLErrorCode.AppError, 'BindEmptyTexture');
           }
           
+          // Ensure the texture belongs to the same WebGL canvas
+          FimGLError.throwOnMismatchedGLCanvas(this.glCanvas, t.glCanvas);
+
           t.bind(uniform.textureUnit);
 
           // Set the uniform to the texture unit

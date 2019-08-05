@@ -25,12 +25,25 @@ export class FimRect {
   readonly h: number;
 
   private constructor(xLeft: number, yTop: number, xRight: number, yBottom: number, w: number, h: number) {
-    this.xLeft = xLeft;
-    this.yTop = yTop;
-    this.xRight = xRight;
-    this.yBottom = yBottom;
-    this.w = w;
-    this.h = h;
+    if (w >= 0) {
+      this.xLeft = xLeft;
+      this.xRight = xRight;
+      this.w = w;
+    } else {
+      this.xLeft = xRight;
+      this.xRight = xLeft;
+      this.w = -w;
+    }
+
+    if (h >= 0) {
+      this.yTop = yTop;
+      this.yBottom = yBottom;
+      this.h = h;  
+    } else {
+      this.yTop = yBottom;
+      this.yBottom = yTop;
+      this.h = -h;
+    }
   }
 
   /** Compares two FimRect objects */
@@ -69,22 +82,30 @@ export class FimRect {
     return this.w * this.h;
   }
 
+  /** Returns the point at the center of the rectangle */
+  getCenter(): FimPoint {
+    return new FimPoint((this.xLeft + this.xRight) / 2, (this.yTop + this.yBottom) / 2);
+  }
+
   /** Scales a rectangle by a multiplier */
   scale(ratio: number): FimRect {
     return FimRect.fromCoordinates(this.xLeft * ratio, this.yTop * ratio, this.xRight * ratio, this.yBottom * ratio);
   }
 
   /**
-   * Rescales this rectangle, preserving aspect ratio
-   * @param maxDimension Maximum value of either width or height
-   * @returns Downscaled rectangle with the same aspect ratio as the original and xLeft/yTop. Note that the dimensions
-   *    are rounded to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
+   * Fits this rectangle inside of another
+   * @param maxRect Rectangle to fit inside of
+   * @returns A rectangle with the same aspect ratio as this, but whose coordinates fit inside of maxRect
    */
-  rescale(maxDimension: number): FimRect {
-    let scale = Math.min(maxDimension / this.w, maxDimension / this.h);
+  fit(maxRect: FimRect): FimRect {
+    let scale = Math.min(maxRect.w / this.w, maxRect.h / this.h);
     let width = Math.floor(this.w * scale);
     let height = Math.floor(this.h * scale);
-    return FimRect.fromXYWidthHeight(this.xLeft, this.yTop, width, height);
+    return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
+  }
+
+  static fromWidthHeight(width: number, height: number): FimRect {
+    return new FimRect(0, 0, width, height, width, height);
   }
 
   static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
@@ -101,5 +122,20 @@ export class FimRect {
 
   static fromPoints(topLeft: FimPoint, bottomRight: FimPoint) {
     return this.fromCoordinates(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+  }
+
+  /**
+   * Downscales a set of dimensions, preserving aspect ratio
+   * @param width Input width
+   * @param height Input height
+   * @param maxDimension Maximum value of either width or height
+   * @returns Downscaled FimRect with the same aspect ratio as the original. Note that the dimensions are rounded
+   *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
+   */
+  static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimRect {
+    let scale = Math.min(maxDimension / width, maxDimension / height);
+    let w = Math.floor(width * scale);
+    let h = Math.floor(height * scale);
+    return FimRect.fromXYWidthHeight(0, 0, w, h);
   }
 }

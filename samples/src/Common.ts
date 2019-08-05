@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimCanvasBase, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
+import { ContextLost, FimCanvas, FimCanvasBase, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
   FimRect } from '../../build/dist/index.js';
-import { Stopwatch, TaskScheduler, parseQueryString, using } from '@leosingleton/commonlibs';
+import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
 let qs = parseQueryString();
@@ -200,7 +200,7 @@ export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimensi
   // Calculate width and height
   let outputDimensions = canvas.dimensions;
   if (maxDimension) {
-    outputDimensions = outputDimensions.rescale(maxDimension);
+    outputDimensions = FimRect.downscaleToMaxDimension(outputDimensions.w, outputDimensions.h, maxDimension);
   }
 
   // Get the output canvas and scale it to the desired size
@@ -215,8 +215,7 @@ export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimensi
   output.height = outputDimensions.h;
 
   // Copy the input canvas to the DOM one
-  let ctx = output.getContext('2d');
-  ctx.drawImage(canvas.getCanvas(), 0, 0, outputDimensions.w, outputDimensions.h);
+  canvas.toHtmlCanvas(output);
 
   // If we rescaled the output, show a full-resolution detail in the bottom-right corner
   if (maxDimension) {
@@ -232,13 +231,12 @@ export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimensi
     let inputRect = FimRect.fromXYWidthHeight(inputLeft, inputTop, outputRect.w, outputRect.h);
 
     // Draw the detail view
-    ctx.drawImage(canvas.getCanvas(),
-      inputRect.xLeft, inputRect.yTop, inputRect.w, inputRect.h,
-      outputRect.xLeft, outputRect.yTop, outputRect.w, outputRect.h);
+    canvas.toHtmlCanvas(output, inputRect, outputRect);
   }
 
   // Overlay text
   if (message) {
+    let ctx = output.getContext('2d');
     ctx.save();
     ctx.globalCompositeOperation = 'difference';
     ctx.globalAlpha = 1;
@@ -370,4 +368,25 @@ export function handleError(error: any): void {
   }
   
   writeError(errorStr);
+}
+
+/**
+ * Simulates WebGL context lost events if 'debug' is set on the query string. Context is lost for 2 seconds out of
+ * every 7.
+ */
+export function simulateContextLoss(gl: FimGLCanvas): void {
+  async function loseContext(): Promise<void> {
+    await ContextLost.loseContextAsync(gl);
+    setTimeout(restoreContext, 2000);
+  }
+
+  async function restoreContext(): Promise<void> {
+    await ContextLost.restoreContextAsync(gl);
+    setTimeout(loseContext, 5000);
+  }
+
+  if (qs['debug']) {
+    console.log('Lost context simulation enabled');
+    setTimeout(loseContext, 5000);
+  }
 }

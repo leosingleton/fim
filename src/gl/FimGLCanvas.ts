@@ -4,11 +4,13 @@
 
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { IFimGLContextNotify } from './IFimGLContextNotify';
-import { FimGLProgramFill } from './programs';
+import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
+import { FimGLTexture } from './FimGLTexture';
+import { FimGLProgramCopy, FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { Transform2D } from '../math';
 import { FimBitsPerPixel, FimColor, FimRect } from '../primitives';
 import { using } from '@leosingleton/commonlibs';
 
@@ -43,7 +45,8 @@ export class FimGLCanvas extends FimCanvasBase {
     super(width, height, useOffscreenCanvas, maxDimension);
 
     this.renderQuality = quality;
-    this.objects = [];
+    this.contextLostNotifications = [];
+    this.contextRestoredNotifications = [];
     this.workaroundChromeBug = false;
 
     // Initialize WebGL
@@ -53,11 +56,15 @@ export class FimGLCanvas extends FimCanvasBase {
       console.log('Lost WebGL context');
       event.preventDefault();
 
-      this.objects.forEach(o => o.onContextLost());
+      this.contextLostNotifications.forEach(eh => eh());
 
+      if (this.copyProgram) {
+        this.copyProgram.dispose();
+        delete this.copyProgram;
+      }
       if (this.fillProgram) {
         this.fillProgram.dispose();
-        this.fillProgram = undefined;
+        delete this.fillProgram;
       }
     }, false);
 
@@ -67,7 +74,7 @@ export class FimGLCanvas extends FimCanvasBase {
       // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
       this.loadExtensions();
 
-      this.objects.forEach(o => o.onContextRestored());
+      this.contextRestoredNotifications.forEach(eh => eh());
     }, false);
 
     let gl = this.gl = canvas.getContext('webgl');
@@ -90,8 +97,19 @@ export class FimGLCanvas extends FimCanvasBase {
     }
   }
 
-  public registerObject(object: IFimGLContextNotify): void {
-    this.objects.push(object);
+  /** Registers a lambda function to be executed on WebGL context lost */
+  public registerForContextLost(eventHandler: () => void): void {
+    this.contextLostNotifications.push(eventHandler);
+  }
+
+  /** Registers a lambda function to be executed on WebGL context restored */
+  public registerForContextRestored(eventHandler: () => void): void {
+    this.contextRestoredNotifications.push(eventHandler);
+  }
+
+  /** Returns whether the context is currently lost */
+  public isContextLost(): boolean {
+    return this.gl.isContextLost();
   }
 
   /** WebGL rendering context */
@@ -153,7 +171,8 @@ export class FimGLCanvas extends FimCanvasBase {
   private extensionTextureLinear16: OES_texture_half_float_linear;
   private extensionColorBuffer16: any;
 
-  private objects: IFimGLContextNotify[];
+  private contextLostNotifications: (() => void)[];
+  private contextRestoredNotifications: (() => void)[];
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {
@@ -171,7 +190,7 @@ export class FimGLCanvas extends FimCanvasBase {
     // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
     if (this.offscreenCanvas) {
       if (this.workaroundChromeBug) {
-        let program = this.fillProgram = this.fillProgram || new FimGLProgramFill(this);
+        let program = this.getFillProgram();
         program.setInputs(c);
         program.execute();
         return;
@@ -183,26 +202,78 @@ export class FimGLCanvas extends FimCanvasBase {
 
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     FimGLError.throwOnError(gl);
+    gl.disable(gl.SCISSOR_TEST);
+    FimGLError.throwOnError(gl);
     gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
     FimGLError.throwOnError(gl);
     gl.clear(gl.COLOR_BUFFER_BIT);
     FimGLError.throwOnError(gl);
   }
 
-  private fillProgram: FimGLProgramFill;
   private workaroundChromeBug: boolean;
+
+  /** Returns a WebGL program to copy a texture to another, or to the canvas */
+  protected getCopyProgram(): FimGLProgramCopy {
+    return this.copyProgram = this.copyProgram || new FimGLProgramCopy(this);
+  }
+
+  private copyProgram: FimGLProgramCopy;
+
+  /** Returns a WebGL program to fill a texture or canvas with a solid color */
+  protected getFillProgram(): FimGLProgramFill {
+    return this.fillProgram = this.fillProgram || new FimGLProgramFill(this);
+  }
+
+  private fillProgram: FimGLProgramFill;
+
+  /**
+   * Copies from a texture. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyFrom(srcImage: FimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Handle FimGLPreservedTexture by getting the underlying texture
+    if (srcImage instanceof FimGLPreservedTexture) {
+      srcImage = srcImage.getTexture();
+    }
+
+    // Validate source texture
+    FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
+
+    // Default parameters
+    srcCoords = srcCoords || srcImage.dimensions;
+    destCoords = destCoords || this.dimensions;
+
+    // Scale the source coordinates. FimGLProgram.execute() will scale the destination coordinates.
+    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+
+    // Calculate the transformation matrix to achieve the requested srcCoords
+    let matrix = Transform2D.fromSrcCoords(srcCoords, srcImage.dimensions);
+
+    // Execute the copy shader
+    let program = this.getCopyProgram();
+    program.applyVertexMatrix(matrix);
+    program.setInputs(srcImage);
+    program.execute(null, destCoords);
+  }
 
   /**
    * Copies image to another.
    * 
-   * FimCanvas supports both cropping and rescaling, while FimRgbaBuffer only supports cropping.
+   * FimCanvas and HtmlCanvasElement support both cropping and rescaling, while FimRgbaBuffer only supports cropping.
    * 
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
-    destImage.copyFrom(this, srcCoords, destCoords);
+  public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
+      destCoords?: FimRect): void {
+    if (destImage instanceof HTMLCanvasElement) {
+      this.toHtmlCanvas(destImage, srcCoords, destCoords);
+    } else {    
+      destImage.copyFrom(this, srcCoords, destCoords);
+    }
   }
 
   public getPixel(x: number, y: number): FimColor {

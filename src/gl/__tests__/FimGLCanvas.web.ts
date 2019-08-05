@@ -7,7 +7,7 @@ import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLTexture } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs';
 import { FimCanvas } from '../../image';
-import { FimColor } from '../../primitives';
+import { FimColor, FimRect } from '../../primitives';
 import { FimTestImages } from '../../test';
 import { DisposableSet, using } from '@leosingleton/commonlibs';
 
@@ -81,7 +81,7 @@ function spec(useOffscreenCanvas: boolean) {
         expect(gl.realDimensions).toBeDefined();
         expect(gl.realDimensions.w).toBe(caps.maxRenderBufferSize);
         expect(gl.realDimensions.h).toBe(caps.maxRenderBufferSize / 8);
-        expect(gl.downscaleRatio).toBe(canvasSize / caps.maxRenderBufferSize);
+        expect(gl.downscaleRatio).toBe(caps.maxRenderBufferSize / canvasSize);
         expect(gl.getCanvas().width).toBe(gl.realDimensions.w);
         expect(gl.getCanvas().height).toBe(gl.realDimensions.h);
 
@@ -106,7 +106,72 @@ function spec(useOffscreenCanvas: boolean) {
         expectToBeCloseTo(gl.getPixel(left, bottom), FimColor.fromString('#00f'));
         expectToBeCloseTo(gl.getPixel(right, bottom), FimColor.fromString('#000'));
       });
-    });  
+    });
+
+    it('Copies from textures', async () => {
+      await DisposableSet.usingAsync(async disposable => {
+        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, undefined, useOffscreenCanvas));
+
+        // Create a test image the size of the canvas
+        let texture = disposable.addDisposable(new FimGLTexture(gl, 240, 240));
+        let jpeg = FimTestImages.fourSquaresJpeg();
+        let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
+        texture.copyFrom(buffer);
+
+        // Copy the texture
+        gl.copyFrom(texture);
+
+        // Check a few pixels to ensure the texture rendered correctly
+        expectToBeCloseTo(gl.getPixel(60, 60), FimColor.fromString('#f00'));
+        expectToBeCloseTo(gl.getPixel(180, 60), FimColor.fromString('#0f0'));
+        expectToBeCloseTo(gl.getPixel(60, 180), FimColor.fromString('#00f'));
+        expectToBeCloseTo(gl.getPixel(180, 180), FimColor.fromString('#000'));
+      });
+    });
+
+    it('Copies from textures with srcCoords', async () => {
+      await DisposableSet.usingAsync(async disposable => {
+        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, undefined, useOffscreenCanvas));
+
+        // Create a test image the size of the canvas
+        let texture = disposable.addDisposable(new FimGLTexture(gl, 240, 240));
+        let jpeg = FimTestImages.fourSquaresJpeg();
+        let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
+        texture.copyFrom(buffer);
+
+        // Copy the texture
+        gl.copyFrom(texture, FimRect.fromXYWidthHeight(texture.w / 2, 0, texture.w / 2, texture.h / 2));
+
+        // Check a few pixels to ensure the texture rendered correctly
+        expectToBeCloseTo(gl.getPixel(60, 60), FimColor.fromString('#0f0'));
+        expectToBeCloseTo(gl.getPixel(180, 60), FimColor.fromString('#0f0'));
+        expectToBeCloseTo(gl.getPixel(60, 180), FimColor.fromString('#0f0'));
+        expectToBeCloseTo(gl.getPixel(180, 180), FimColor.fromString('#0f0'));
+      });
+    });
+
+    it('Copies from textures with srcCoords and destCoords', async () => {
+      await DisposableSet.usingAsync(async disposable => {
+        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, '#00f', useOffscreenCanvas));
+
+        // Create a test image the size of the canvas
+        let texture = disposable.addDisposable(new FimGLTexture(gl, 240, 240));
+        let jpeg = FimTestImages.fourSquaresJpeg();
+        let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
+        texture.copyFrom(buffer);
+
+        // Copy the texture
+        gl.copyFrom(texture,
+          FimRect.fromXYWidthHeight(0, 0, texture.w / 2, texture.h / 2),
+          FimRect.fromXYWidthHeight(120, 120, 120, 120));
+
+        // Check a few pixels to ensure the texture rendered correctly
+        expectToBeCloseTo(gl.getPixel(60, 60), FimColor.fromString('#00f'));
+        expectToBeCloseTo(gl.getPixel(180, 60), FimColor.fromString('#00f'));
+        expectToBeCloseTo(gl.getPixel(60, 180), FimColor.fromString('#00f'));
+        expectToBeCloseTo(gl.getPixel(180, 180), FimColor.fromString('#f00'));
+      });
+    });
   };
 }
 

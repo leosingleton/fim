@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Transform2D } from '../Transform2D';
-import { FimPoint } from '../../primitives';
+import { FimPoint, FimRect } from '../../primitives';
 
 describe('Transform2D', () => {
 
@@ -56,6 +56,41 @@ describe('Transform2D', () => {
     point = mat.transformPoint(point);
     expect(point.x).toBeCloseTo(24, 8);
     expect(point.y).toBeCloseTo(11.5, 8);
+  });
+
+  it('Translates then rotates', () => {
+    let point = new FimPoint(12, 23);
+
+    let mat = new Transform2D();
+    mat.translate(-4, 3);
+    mat.rotate(Math.PI / 2);
+
+    point = mat.transformPoint(point);
+    expect(point.x).toBeCloseTo(-26, 8);
+    expect(point.y).toBeCloseTo(8, 8);
+  });
+
+  it('Rotates then translates', () => {
+    let point = new FimPoint(12, 23);
+
+    let mat = new Transform2D();
+    mat.rotate(Math.PI / 2);
+    mat.translate(-4, 3);
+
+    point = mat.transformPoint(point);
+    expect(point.x).toBeCloseTo(-27, 8);
+    expect(point.y).toBeCloseTo(15, 8);
+  });
+
+  it('Calculates matrices based on source coordinates', () => {
+    let mat = Transform2D.fromSrcCoords(
+      FimRect.fromXYWidthHeight(25, 50, 25, 25),
+      FimRect.fromXYWidthHeight(0, 0, 100, 100));
+
+    expect(mat.transformPoint(new FimPoint(-1, -1))).toEqual(new FimPoint(-3, -3));
+    expect(mat.transformPoint(new FimPoint(1, -1))).toEqual(new FimPoint(5, -3));
+    expect(mat.transformPoint(new FimPoint(-1, 1))).toEqual(new FimPoint(-3, 5));
+    expect(mat.transformPoint(new FimPoint(1, 1))).toEqual(new FimPoint(5, 5));
   });
 
 });

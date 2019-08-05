@@ -63,11 +63,12 @@ describe('FimGLTexture', () => {
       // Find a texture size bigger than the GPU can support and create a texture of that size
       let caps = FimGLCapabilities.getCapabilities();
       let textureSize = caps.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8));
+      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8,
+        {flags: FimGLTextureFlags.AllowLargerThanCanvas}));
       expect(texture.realDimensions).toBeDefined();
       expect(texture.realDimensions.w).toBe(caps.maxTextureSize);
       expect(texture.realDimensions.h).toBe(caps.maxTextureSize / 8);
-      expect(texture.downscaleRatio).toBe(textureSize / caps.maxTextureSize);
+      expect(texture.downscaleRatio).toBe(caps.maxTextureSize / textureSize);
 
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
@@ -86,6 +87,17 @@ describe('FimGLTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 60), FimColor.fromString('#0f0'));
       expectToBeCloseTo(gl.getPixel(120, 180), FimColor.fromString('#00f'));
       expectToBeCloseTo(gl.getPixel(360, 180), FimColor.fromString('#000'));
+    });
+  });
+
+  it('Automatically downscales to canvas size', () => {
+    DisposableSet.using(async disposable => {
+      let gl = disposable.addDisposable(new FimGLCanvas(480, 240));
+      let texture = disposable.addDisposable(new FimGLTexture(gl, 1024, 1024));
+
+      // The texture should be automatically downscaled to fit on the canvas
+      expect(texture.realDimensions.w).toBe(240);
+      expect(texture.realDimensions.h).toBe(240);
     });
   });
 });

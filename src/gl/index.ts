@@ -8,5 +8,5 @@ export * from './FimGLError';
 export * from './FimGLProgram';
 export * from './FimGLShader';
 export * from './FimGLTexture';
-export * from './IFimGLContextNotify';
+export * from './processor';
 export * from './programs';

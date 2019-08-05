@@ -2,73 +2,105 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel }
-  from '../../build/dist/index.js';
-import { Stopwatch, TaskScheduler, usingAsync } from '@leosingleton/commonlibs';
+import { loadTestImage, renderOutput, simulateContextLoss } from './Common';
+import { FimCanvas, FimGLCanvas, FimGLProgramMatrixOperation1D, GaussianKernel, FimGLImageProcessor,
+  FimGLTextureFlags } from '../../build/dist/index.js';
+import { Stopwatch, TaskScheduler, DisposableSet } from '@leosingleton/commonlibs';
 
 const kernelSize = 31;
 const reps = 5;
 
+const enum ObjectIDs {
+  InputTexture,
+  BlurProgram
+}
+
+class BlurImageProcessor extends FimGLImageProcessor {
+  public constructor(input: FimCanvas) {
+    super(input.w, input.h);
+
+    // Enable context loss simulation
+    simulateContextLoss(this.glCanvas);
+
+    // Create a preserved texture with a sample JPEG image
+    let inputTexture = this.getPreservedTexture(ObjectIDs.InputTexture, input.w, input.h,
+      { flags: FimGLTextureFlags.InputOnly });
+    inputTexture.copyFrom(input);
+    inputTexture.preserve();
+  }
+
+  public async render(sigma: number): Promise<FimGLCanvas> {
+    // Cannot render if WebGL context is lost
+    if (this.glCanvas.isContextLost()) {
+      return null;
+    }
+
+    try {
+      // Build a Gaussian kernel with the desired sigma
+      let kernel = GaussianKernel.calculate(sigma, kernelSize);
+
+      // Get the input texture and blur program
+      let texture = this.getPreservedTexture(ObjectIDs.InputTexture);
+      let program = this.getProgram(ObjectIDs.BlurProgram, gl => new FimGLProgramMatrixOperation1D(gl, kernelSize));
+
+      // Execute the blur program 5 times for a larger blur effect
+      await DisposableSet.usingAsync(async disposable => {
+        // Allocate two temporary textures
+        let temp1 = disposable.addDisposable(this.getTemporaryTexture());
+        let temp2 = disposable.addDisposable(this.getTemporaryTexture());
+
+        // Use the input texture on the first run
+        program.setInputs(texture, kernel, temp2);
+        program.execute(temp1);
+
+        // Copy temp to temp on subsequent runs
+        await TaskScheduler.yield();
+        program.setInputs(temp1, kernel, temp2);
+        for (let n = 0; n < reps - 2; n++) {
+          program.execute(temp1);
+        }
+
+        // Copy to the output on the final run
+        await TaskScheduler.yield();
+        program.execute();
+      });
+
+      return this.glCanvas;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+}
+
 export async function glBlur(canvasId: string): Promise<void> {
-  console.log('Starting WebGL blur sample...');
-
-  // Load a sample JPEG image into a byte array
-  let url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
-  let fetchResponse = await fetch(url, { method: 'GET' });
-  let jpeg = await fetchResponse.arrayBuffer();
-
-  // Load the JPEG onto a FimCanvas
-  let canvas = await FimCanvas.createFromJpeg(new Uint8Array(jpeg));
-
-  // Get the output canvas and scale it to the same size as the input
-  let output = document.getElementById(canvasId) as HTMLCanvasElement;
-  output.width = canvas.w;
-  output.height = canvas.h;
-
-  // Create a WebGL canvas and texture containing the sample image
-  let gl = new FimGLCanvas(canvas.w, canvas.h);
-  let texture = FimGLTexture.createFrom(gl, canvas);
-
-  // Create a WebGL program to perform Gaussian blurs
-  let program = new FimGLProgramMatrixOperation1D(gl, kernelSize);
+  // Load a sample JPEG image
+  let canvas = await loadTestImage();
 
   // Animation loop
   let clock = Stopwatch.startNew();
   let frameCount = 0;  
-  while (true) {
-    await TaskScheduler.yield();
+  let processor = new BlurImageProcessor(canvas);
+  canvas.dispose();
 
+  async function renderFrame(): Promise<void> {
     // Vary the sigma from 0 to 2 every 10 seconds
     let time = clock.getElapsedMilliseconds() % 10000;
     let sigma = (time < 5000) ? time : (10000 - time);
     sigma *= 2 / 5000;
 
-    // Build a Gaussian kernel with the desired sigma
-    let kernel = GaussianKernel.calculate(sigma, kernelSize);
-
-    // Execute the blur program 5 times for a larger blur effect
-    await usingAsync(new FimGLTexture(gl), async temp => {
-      // Use the input texture on the first run
-      program.setInputs(texture, kernel);
-      program.execute(temp);
-
-      // Copy temp to temp on subsequent runs
-      await TaskScheduler.yield();
-      program.setInputs(temp, kernel);
-      for (let n = 0; n < reps - 2; n++) {
-        program.execute(temp);
-      }
-  
-      // Copy to the output on the final run
-      await TaskScheduler.yield();
-      program.execute();
-    });
+    // Render one frame
+    let output = await processor.render(sigma);
 
     // Copy the result to the screen
-    let ctx = output.getContext('2d');
-    ctx.drawImage(gl.getCanvas(), 0, 0);
+    if (output) {
+      let fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
+      let message = `Frame=${frameCount} FPS=${fps.toFixed(2)}`;
+      renderOutput(output, message, null, canvasId);
+    }
 
-    let fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
-    console.log(`Rendered frame. FPS=${fps}`);
+    requestAnimationFrame(renderFrame);
   }
+
+  requestAnimationFrame(renderFrame);
 }

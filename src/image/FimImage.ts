@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRect, IFimDimensions, rescale } from '../primitives';
+import { FimRect, IFimDimensions } from '../primitives';
 import { IDisposable } from '@leosingleton/commonlibs';
 
 /**
@@ -20,16 +20,18 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public constructor(width: number, height: number, maxDimension = 0) {
     this.w = width;
     this.h = height;
-    this.dimensions = this.realDimensions = FimRect.fromXYWidthHeight(0, 0, width, height);
+    this.dimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
 
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.
     this.downscaleRatio = 1;
     if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
-      let newDimensions = rescale(width, height, maxDimension);
-      this.realDimensions = newDimensions.dimensions;
-      this.downscaleRatio = width / newDimensions.w;
+      let newDimensions = FimRect.downscaleToMaxDimension(width, height, maxDimension);
+      this.realDimensions = newDimensions;
+      this.downscaleRatio = newDimensions.w / width;
     }
+
+    this.imageId = FimImage.imageIdCounter++;
   }
 
   // IFimDimensions implementation
@@ -44,11 +46,19 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly realDimensions: FimRect;
 
   /**
-   * Ratio of original resolution to downscaled resolution. 1 if the dimensions have not been downscaled. Member
-   * function which operate on coordinates should multiply values by this ratio to get coordinates of the underlying
-   * image.
+   * Ratio of the downscaled resolution to the original resolution. 1 if the dimensions have not been downscaled.
+   * Member functions which operate on coordinates should multiply values by this ratio to get coordinates of the
+   * underlying image.
    */
   public readonly downscaleRatio: number;
+
+  /**
+   * A unique ID assigned to each instance of a FimImage object. Useful for debugging, or comparing two images for
+   * equality.
+   */
+  public readonly imageId: number;
+
+  private static imageIdCounter = 0;
 
   public abstract dispose(): void;
 

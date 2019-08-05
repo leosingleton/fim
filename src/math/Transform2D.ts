@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimPoint } from '../primitives';
+import { FimPoint, FimRect } from '../primitives';
 
 /**
  * Computes transformation matrices for vertexes in a 2-dimensional space.
@@ -90,6 +90,30 @@ export class Transform2D {
     if (result.length !== 9) {
       throw new Error(`Invalid length ${result.length}`);
     }
+
+    return result;
+  }
+
+  /**
+   * Calculates a transformation matrix to position an input texture so that the desired coordinates are showing
+   * @param srcCoords Coordinates of the input texture to show, in pixels. Note that these are specified with a
+   *    top-left origin, like 2D canvases, not like the bottom-left origin in WebGL.
+   * @param srcDimensions Dimensions of the input texture, in pixels (as a rectangle with top-left of 0,0)
+   * @returns 2D transformation matrix
+   */
+  public static fromSrcCoords(srcCoords: FimRect, srcDimensions: FimRect): Transform2D {
+    // Calculate the center points of each rectangle
+    let centerCoords = srcCoords.getCenter();
+    let centerDimensions = srcDimensions.getCenter();
+
+    // First, translate so that the origin (currently at the center of srcDimensions) is moved to the center of
+    // srcCoords (keep in mind Y in inverted)
+    let result = new Transform2D();
+    result.translate((centerDimensions.x - centerCoords.x) * 2 / srcDimensions.w,
+      (centerCoords.y - centerDimensions.y) * 2 / srcDimensions.h);
+
+    // Finally, scale to the right size.
+    result.scale(srcDimensions.w / srcCoords.w, srcDimensions.h / srcCoords.h);
 
     return result;
   }

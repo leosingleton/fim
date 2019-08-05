@@ -30,7 +30,14 @@ export const enum FimGLTextureFlags {
    * If set, we do not create a framebuffer for this texture. Thus, programs are unable to write to it. This is only
    * useful when loading an input texture as read-only.
    */
-  InputOnly = (1 << 2)
+  InputOnly = (1 << 2),
+
+  /**
+   * Although in WebGL, it is typical for a texture to be larger than the canvas, it doesn't usually make sense when
+   * using the GPU to do 2D image processing. By default, we automatically downscale textures to the canvas dimensions
+   * unless this flag is set.
+   */
+  AllowLargerThanCanvas = (1 << 3)
 }
 
 /** Options for FimGLTexture constructor */
@@ -38,7 +45,10 @@ export interface FimGLTextureOptions {
   /** Number of channels. Default is RGBA (4). */
   channels?: FimColorChannels;
 
-  /** Bits per pixel. Default is 32. */
+  /**
+   * Bits per pixel. Default is 32. Note that the constructor may choose a lower quality than requested, depending on
+   * the browser and GPU's WebGL capabilities and the current performance.
+   */
   bpp?: FimBitsPerPixel;
 
   /** Flags */
@@ -50,12 +60,9 @@ export class FimGLTexture extends FimImage {
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
-   * @param width Texture width, in pixels
-   * @param height Texture height, in pixels
-   * @param channels Number of channels
-   * @param bpp Bits per pixel. Note that the constructor may choose a lower quality than requested, depending on the
-   *    browser and GPU's WebGL capabilities and the current performance.
-   * @param flags See FimGLTextureFlags
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param options See FimGLTextureOptions
    */
   constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
     // Default values
@@ -66,14 +73,23 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
 
+    // Downscale the texture to fit on the WebGL canvas
+    let flags = options ? options.flags : FimGLTextureFlags.None;
+    if ((flags & FimGLTextureFlags.AllowLargerThanCanvas) === 0) {
+      if (width > glCanvas.w || height > glCanvas.h) {
+        let maxRect = FimRect.fromWidthHeight(width, height).fit(glCanvas.dimensions);
+        maxDimension = Math.min(maxDimension, Math.max(maxRect.w, maxRect.h));
+      }
+    }
+
     // Call the parent constructor. Read the real dimensions as we may have to downscale.
     super(width, height, maxDimension);
     let realDimensions = this.realDimensions;
 
     let bpp = options ? options.bpp : FimBitsPerPixel.BPP8;
-    let flags = this.textureFlags = options ? options.flags : FimGLTextureFlags.None;
     let depth = glCanvas.getTextureDepth(bpp, (flags & FimGLTextureFlags.LinearSampling) !== 0);
     this.bpp = depth.bpp;
+    this.textureFlags = flags;
     this.hasImage = false;
 
     // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
@@ -252,6 +268,16 @@ export class FimGLTexture extends FimImage {
     }
   }
 
+  /**
+   * Copies to a WebGL canvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  public copyTo(destImage: FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    destImage.copyFrom(this, srcCoords, destCoords);
+  }
+
   public dispose(): void {
     let gl = this.gl;
 
@@ -309,7 +335,9 @@ export class FimGLTexture extends FimImage {
    */
   public hasImage: boolean;
 
-  private glCanvas: FimGLCanvas;
+  /** The FimGLCanvas object which was used to create this texture */
+  public readonly glCanvas: FimGLCanvas;
+
   private gl: WebGLRenderingContext;
   private texture: WebGLTexture;
   private fb: WebGLFramebuffer;
@@ -330,5 +358,29 @@ export class FimGLTexture extends FimImage {
     let texture = new FimGLTexture(canvas, srcImage.w, srcImage.h, { channels, bpp, flags });
     texture.copyFrom(srcImage);
     return texture;
+  }
+
+  /**
+   * Returns a string describing the texture options.
+   * 
+   * This function takes in the same parameters as the constructor and returns a string which can be used to compare
+   * two textures to know if they share the same options (for the purpose of reusing textures). It must be updated to
+   * stay in sync with the constructor whenever parameters are added or default values are changed on FimGLTexture.
+   * 
+   * @param canvas FimGLCanvas from which the texture will be created
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param options See FimGLTextureOptions
+   */
+  public static describe(canvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions): string {
+    // Default values
+    width = width || canvas.w;
+    height = height || canvas.h;
+    options = options || {};
+    options.bpp = options.bpp || FimBitsPerPixel.BPP8;
+    options.channels = options.channels || FimColorChannels.RGBA;
+    options.flags = FimGLTextureFlags.None;
+
+    return `${width}:${height}:${options.bpp}:${options.channels}:${options.flags}`;
   }
 }

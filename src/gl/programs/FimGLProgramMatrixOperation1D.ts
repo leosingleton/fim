@@ -6,8 +6,9 @@ import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
 import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
-import { using } from '@leosingleton/commonlibs';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
+import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
+import { using } from '@leosingleton/commonlibs';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLProgramMatrixOperation1D extends FimGLProgram {
@@ -24,7 +25,13 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   /** Size of the kernel */
   public readonly kernelSize: number;
 
-  public setInputs(inputTexture: FimGLTexture, kernel: number[], tempTexture?: FimGLTexture): void {
+  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture, kernel: number[],
+      tempTexture?: FimGLTexture): void {
+    // Handle FimGLPreservedTexture by getting the underlying texture
+    if (inputTexture instanceof FimGLPreservedTexture) {
+      inputTexture = inputTexture.getTexture();
+    }
+
     this.inputTexture = inputTexture;
     this.tempTexture = tempTexture;
 
@@ -35,9 +42,14 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;
   }
 
-  public execute(outputTexture?: FimGLTexture): void {
+  public execute(outputTexture?: FimGLTexture | FimGLPreservedTexture): void {
     let gl = this.glCanvas;
 
+    // Handle FimGLPreservedTexture by getting the underlying texture
+    if (outputTexture instanceof FimGLPreservedTexture) {
+      outputTexture = outputTexture.getTexture();
+    }
+    
     if (this.tempTexture) {
       this.executeInternal(this.tempTexture, outputTexture);
     } else {
@@ -47,8 +59,9 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
       let height = Math.min(outputTexture ? outputTexture.h : gl.h, inputTexture.h);
       let flags = inputTexture.textureFlags & ~FimGLTextureFlags.InputOnly;
 
+      let outTexture = outputTexture;
       using(new FimGLTexture(gl, width, height, { flags: flags }), temp => {
-        this.executeInternal(temp, outputTexture);
+        this.executeInternal(temp, outTexture);
       });
     }
   }

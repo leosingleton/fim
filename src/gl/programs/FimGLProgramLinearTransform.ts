@@ -5,6 +5,7 @@
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture } from '../FimGLTexture';
+import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 
 /** GL program to apply a y = mx + b transformation */
 export class FimGLProgramLinearTransform extends FimGLProgram {
@@ -14,7 +15,7 @@ export class FimGLProgramLinearTransform extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: FimGLTexture, m: number, b: number) {
+  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture, m: number, b: number) {
     let uniforms = this.fragmentShader.uniforms;
     uniforms.u_input.variableValue = inputTexture;
     uniforms.u_m.variableValue = m;
