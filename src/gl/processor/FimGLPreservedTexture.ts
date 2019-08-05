@@ -49,10 +49,13 @@ export class FimGLPreservedTexture extends FimImage {
     this.backingCanvas = new FimCanvas(texture.realDimensions.w, texture.realDimensions.h);
 
     // Register for context lost/restore notifications
+    let preservedTexture = this;
     glCanvas.registerObject({
       onContextLost() {
-        this.texture.dispose();
-        delete this.texture;
+        if (preservedTexture.texture) {
+          preservedTexture.texture.dispose();
+          delete preservedTexture.texture;
+        }
       },
 
       onContextRestored() {}

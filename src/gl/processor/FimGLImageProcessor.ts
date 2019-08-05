@@ -28,8 +28,9 @@ export abstract class FimGLImageProcessor implements IDisposable {
     this.temporaryTextures = {};
     this.preservedTextures = {};
 
+    let imageProcessor = this;
     glCanvas.registerObject({
-      onContextLost() { this.onContextLost(); },
+      onContextLost() { imageProcessor.onLostContext(); },
       onContextRestored() {}
     });
   }
