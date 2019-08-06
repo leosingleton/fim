@@ -347,7 +347,10 @@ export abstract class FimGLProgram implements IDisposable {
       for (let name in this.uniforms) {
         let uniform = this.uniforms[name];
         if (uniform.variableType.indexOf('sampler') !== -1) {
-          let t = uniform.variableValue as FimGLTexture;
+          let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
+          if (t instanceof FimGLPreservedTexture) {
+            t = t.getTexture(); // Handle FimGLPreservedTexture by getting the underlying texture
+          }
           t.unbind(uniform.textureUnit);
         }
       }
