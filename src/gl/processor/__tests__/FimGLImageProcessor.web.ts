@@ -51,7 +51,11 @@ class SampleProcessor extends FimGLImageProcessor {
   }
 
   public getColor(): FimColor {
-    return this.glCanvas.getPixel(5, 5);
+    let glCanvas = this.glCanvas;
+    let texture = this.getPreservedTexture(ObjectID.Texture);
+
+    glCanvas.copyFrom(texture);
+    return glCanvas.getPixel(5, 5);
   }
 }
 
@@ -69,7 +73,7 @@ describe('FimGLImageProcessor', () => {
     });
   });
 
-  /*it('Works across context loss', async () => {
+  it('Works across context loss', async () => {
     await usingAsync(new SampleProcessor(480, 480), async processor => {
       for (let n = 0; n < 10; n++) {
         // Increase brightness by 5%
@@ -82,6 +86,6 @@ describe('FimGLImageProcessor', () => {
       // We expect the texture to be 50% grey
       expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
     });
-  });*/
+  });
 
 });
