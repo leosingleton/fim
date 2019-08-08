@@ -5,7 +5,7 @@
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLConfig } from './debug';
+import { FimConfig } from '../debug';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
@@ -75,7 +75,7 @@ export class FimGLTexture extends FimImage {
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
 
     // If a lower texture size limit was set for debugging, use that instead
-    let debugMaxDimension = FimGLConfig.config.maxTextureSize;
+    let debugMaxDimension = FimConfig.config.maxGLTextureSize;
     if (debugMaxDimension > 0) {
       maxDimension = Math.min(maxDimension, debugMaxDimension);
     }

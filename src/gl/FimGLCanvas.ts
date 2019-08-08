@@ -6,8 +6,8 @@ import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
-import { FimGLConfig } from './debug';
 import { FimGLProgramCopy, FimGLProgramFill } from './programs';
+import { FimConfig } from '../debug';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
@@ -43,7 +43,7 @@ export class FimGLCanvas extends FimCanvasBase {
     }
 
     // If a lower render buffer limit was set for debugging, use that instead
-    let debugMaxDimension = FimGLConfig.config.maxRenderBufferSize;
+    let debugMaxDimension = FimConfig.config.maxGLRenderBufferSize;
     if (debugMaxDimension > 0) {
       maxDimension = Math.min(maxDimension, debugMaxDimension);
     }
@@ -140,7 +140,7 @@ export class FimGLCanvas extends FimCanvasBase {
    */
   public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
     // If a lower BPP limit was set for debugging, use that instead
-    let debugMaxBpp = FimGLConfig.config.maxBpp;
+    let debugMaxBpp = FimConfig.config.maxGLBpp;
     if (debugMaxBpp > 0) {
       maxBpp = Math.min(maxBpp, debugMaxBpp);
     }
