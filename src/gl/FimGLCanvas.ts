@@ -6,6 +6,7 @@ import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
+import { FimGLConfig } from './debug';
 import { FimGLProgramCopy, FimGLProgramFill } from './programs';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
@@ -39,6 +40,12 @@ export class FimGLCanvas extends FimCanvasBase {
     // maximum limit.
     if (caps.unmaskedVendor.indexOf('NVS 295') >= 0) {
       maxDimension = 2048;
+    }
+
+    // If a lower render buffer limit was set for debugging, use that instead
+    let debugMaxDimension = FimGLConfig.config.maxRenderBufferSize;
+    if (debugMaxDimension > 0) {
+      maxDimension = Math.min(maxDimension, debugMaxDimension);
     }
 
     // Call the parent constructor
@@ -132,6 +139,12 @@ export class FimGLCanvas extends FimCanvasBase {
    * }
    */
   public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
+    // If a lower BPP limit was set for debugging, use that instead
+    let debugMaxBpp = FimGLConfig.config.maxBpp;
+    if (debugMaxBpp > 0) {
+      maxBpp = Math.min(maxBpp, debugMaxBpp);
+    }
+
     // The quality values are arbitrarily chosen. 85% and above uses 32-bit precision; 50% and above uses 16-bit, and
     // below 50% falls back to 8-bit.
     if (maxBpp >= FimBitsPerPixel.BPP32 && this.renderQuality >= 0.85) {

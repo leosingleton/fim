@@ -5,6 +5,7 @@
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
+import { FimGLConfig } from './debug';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
@@ -73,6 +74,12 @@ export class FimGLTexture extends FimImage {
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
     let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
 
+    // If a lower texture size limit was set for debugging, use that instead
+    let debugMaxDimension = FimGLConfig.config.maxTextureSize;
+    if (debugMaxDimension > 0) {
+      maxDimension = Math.min(maxDimension, debugMaxDimension);
+    }
+    
     // Downscale the texture to fit on the WebGL canvas
     let flags = options ? options.flags : FimGLTextureFlags.None;
     if ((flags & FimGLTextureFlags.AllowLargerThanCanvas) === 0) {
