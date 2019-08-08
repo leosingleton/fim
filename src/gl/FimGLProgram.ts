@@ -7,6 +7,7 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
+import { FimObjectType, recordCreate, recordDispose } from '../debug';
 import { Transform2D, Transform3D, TwoTriangles } from '../math';
 import { FimRect } from '../primitives';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
@@ -40,6 +41,9 @@ export abstract class FimGLProgram implements IDisposable {
   constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
     this.glCanvas = canvas;
     this.gl = canvas.gl;
+
+    // Report telemetry for debugging
+    recordCreate(this, FimObjectType.GLProgram);
 
     // Derived classes are likely to hold disposable objects, such as other programs or textures. To make it easy to
     // clean up, they may use this DisposableSet to have resources automatically freed in dispose().
@@ -162,6 +166,9 @@ export abstract class FimGLProgram implements IDisposable {
   }
 
   public dispose(): void {
+    // Report telemetry for debugging
+    recordDispose(this, FimObjectType.GLProgram);
+
     this.disposable.dispose();
   }
 

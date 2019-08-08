@@ -5,9 +5,10 @@
 import { FimCanvasBase } from './FimCanvasBase';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { FimObjectType, recordCreate, recordDispose } from '../debug';
 import { FimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor, FimRect } from '../primitives';
-import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
@@ -24,9 +25,19 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
       useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas) {
     super(width, height, useOffscreenCanvas);
 
+    // Report telemetry for debugging
+    recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);
+
     if (initialColor) {
       this.fill(initialColor);
     }
+  }
+
+  public dispose(): void {
+    // Report telemetry for debugging
+    recordDispose(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D);
+
+    super.dispose();
   }
 
   /** Creates a new FimCanvas which is a duplicate of this one */

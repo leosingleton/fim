@@ -5,7 +5,7 @@
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimConfig } from '../debug';
+import { FimConfig, FimObjectType, recordCreate, recordDispose } from '../debug';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
@@ -106,6 +106,9 @@ export class FimGLTexture extends FimImage {
       channels = options.channels || FimColorChannels.RGBA;
     }
     this.channels = channels;
+
+    // Report telemetry for debugging
+    recordCreate(this, FimObjectType.GLTexture, options, channels, depth.bpp);
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
@@ -287,6 +290,9 @@ export class FimGLTexture extends FimImage {
 
   public dispose(): void {
     let gl = this.gl;
+
+    // Report telemetry for debugging
+    recordDispose(this, FimObjectType.GLTexture);
 
     if (this.texture) {
       gl.deleteTexture(this.texture);

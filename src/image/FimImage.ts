@@ -31,7 +31,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
       this.downscaleRatio = newDimensions.w / width;
     }
 
-    this.imageId = FimImage.imageIdCounter++;
+    this.imageId = ++FimImage.imageIdCounter;
   }
 
   // IFimDimensions implementation

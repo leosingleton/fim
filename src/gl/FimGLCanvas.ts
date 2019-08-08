@@ -7,7 +7,7 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy, FimGLProgramFill } from './programs';
-import { FimConfig } from '../debug';
+import { FimConfig, FimObjectType, recordCreate, recordDispose } from '../debug';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
@@ -50,6 +50,9 @@ export class FimGLCanvas extends FimCanvasBase {
 
     // Call the parent constructor
     super(width, height, useOffscreenCanvas, maxDimension);
+
+    // Report telemetry for debugging
+    recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
 
     this.renderQuality = quality;
     this.contextLostNotifications = [];
@@ -102,6 +105,13 @@ export class FimGLCanvas extends FimCanvasBase {
     if (initialColor) {
       this.fill(initialColor);
     }
+  }
+
+  public dispose(): void {
+    // Report telemetry for debugging
+    recordDispose(this, FimObjectType.GLCanvas);
+
+    super.dispose();
   }
 
   /** Registers a lambda function to be executed on WebGL context lost */
