@@ -2,12 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ConfigurationOptions, StorageType } from '@leosingleton/commonlibs';
+import { ConfigurationOptions, ConfigurationFlags, StorageType } from '@leosingleton/commonlibs';
 
 /** Debugging options for FIM's WebGL support */
 export class FimGLConfig extends ConfigurationOptions {
   private constructor() {
-    super('fim_');
+    super('fim_', ConfigurationFlags.AllowNonBrowsers);
     this.initialize();
   }
 
