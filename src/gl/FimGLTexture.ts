@@ -66,9 +66,12 @@ export class FimGLTexture extends FimImage {
    * @param options See FimGLTextureOptions
    */
   constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+    let originalOptions = options;
+
     // Default values
     width = width || glCanvas.w;
     height = height || glCanvas.h;
+    options = FimGLTexture.applyDefaults(options);
 
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
@@ -81,8 +84,7 @@ export class FimGLTexture extends FimImage {
     }
     
     // Downscale the texture to fit on the WebGL canvas
-    let flags = options ? options.flags : FimGLTextureFlags.None;
-    if ((flags & FimGLTextureFlags.AllowLargerThanCanvas) === 0) {
+    if ((options.flags & FimGLTextureFlags.AllowLargerThanCanvas) === 0) {
       if (width > glCanvas.w || height > glCanvas.h) {
         let maxRect = FimRect.fromWidthHeight(width, height).fit(glCanvas.dimensions);
         maxDimension = Math.min(maxDimension, Math.max(maxRect.w, maxRect.h));
@@ -93,25 +95,17 @@ export class FimGLTexture extends FimImage {
     super(width, height, maxDimension);
     let realDimensions = this.realDimensions;
 
-    let bpp = options ? options.bpp : FimBitsPerPixel.BPP8;
-    let depth = glCanvas.getTextureDepth(bpp, (flags & FimGLTextureFlags.LinearSampling) !== 0);
-    this.bpp = depth.bpp;
-    this.textureFlags = flags;
-    this.hasImage = false;
-
-    // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
-    // so just use an RGBA one instead if the texture is not flagged InputOnly.
-    let channels = FimColorChannels.RGBA;
-    if (options && (flags & FimGLTextureFlags.InputOnly) !== 0) {
-      channels = options.channels || FimColorChannels.RGBA;
-    }
-    this.channels = channels;
+    // Reduce requested color depth depending on GPU capabilities and desired quality
+    let depth = glCanvas.getTextureDepth(options.bpp, (options.flags & FimGLTextureFlags.LinearSampling) !== 0);
+    options.bpp = depth.bpp;
 
     // Report telemetry for debugging
-    recordCreate(this, FimObjectType.GLTexture, options, channels, depth.bpp);
+    recordCreate(this, FimObjectType.GLTexture, originalOptions, options, options.channels, options.bpp);
 
     let gl = this.gl = glCanvas.gl;
     this.glCanvas = glCanvas;
+    this.options = options;
+    this.hasImage = false;
 
     // Create a texture
     let texture = gl.createTexture();
@@ -121,24 +115,24 @@ export class FimGLTexture extends FimImage {
 
     try {    
       // Set the parameters so we can render any size image
-      if ((flags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
+      if ((options.flags & FimGLTextureFlags.Repeat) && !this.isSquarePot()) {
         // WebGL only supports non CLAMP_TO_EDGE texture wrapping with square power-of-two textures
         throw new FimGLError(FimGLErrorCode.AppError, 'TextureWrapNonSquarePot');
       }
-      let clamp = (this.textureFlags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+      let clamp = (options.flags & FimGLTextureFlags.Repeat) ? gl.REPEAT : gl.CLAMP_TO_EDGE;
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clamp);
       FimGLError.throwOnError(gl);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clamp);
       FimGLError.throwOnError(gl);
 
-      let filter = (this.textureFlags & FimGLTextureFlags.LinearSampling) ? gl.LINEAR : gl.NEAREST;
+      let filter = (options.flags & FimGLTextureFlags.LinearSampling) ? gl.LINEAR : gl.NEAREST;
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
       FimGLError.throwOnError(gl);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
       FimGLError.throwOnError(gl);
 
       // If width and height are specified, create a framebuffer to back this texture
-      if ((this.textureFlags & FimGLTextureFlags.InputOnly) === 0) {
+      if ((options.flags & FimGLTextureFlags.InputOnly) === 0) {
         // Allocate the texture
         let format = this.getGLFormat();
         gl.texImage2D(gl.TEXTURE_2D, 0, format, realDimensions.w, realDimensions.h, 0, format, depth.glConstant, null);
@@ -308,7 +302,7 @@ export class FimGLTexture extends FimImage {
   }
 
   public getFramebuffer(): WebGLFramebuffer {
-    if (this.textureFlags & FimGLTextureFlags.InputOnly) {
+    if (this.options.flags & FimGLTextureFlags.InputOnly) {
       // Cannot write to an input only texture
       throw new FimGLError(FimGLErrorCode.AppError, 'InputOnly');
     }
@@ -323,19 +317,13 @@ export class FimGLTexture extends FimImage {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
 
-  /** See FimGLTextureFlags */
-  public readonly textureFlags: FimGLTextureFlags;
-
-  /** Color channels */
-  public readonly channels: FimColorChannels;
-
-  /** Bits per pixel */
-  public readonly bpp: FimBitsPerPixel;
+  /** See FimGLTextureOptions */
+  public readonly options: FimGLTextureOptions;
 
   /** Returns the WebGL constant for the texture's format */
   private getGLFormat(): number {
     let gl = this.gl;
-    switch (this.channels) {
+    switch (this.options.channels) {
       case FimColorChannels.Greyscale:  return gl.LUMINANCE;
       case FimColorChannels.RGB:        return gl.RGB;
       case FimColorChannels.RGBA:       return gl.RGBA;
@@ -373,6 +361,39 @@ export class FimGLTexture extends FimImage {
     return texture;
   }
 
+  /** Default options for FimGLTexture */
+  private static readonly defaultOptions: FimGLTextureOptions = {
+    channels: FimColorChannels.RGBA,
+    bpp: FimBitsPerPixel.BPP32,
+    flags: FimGLTextureFlags.None
+  };
+
+  /**
+   * Populates any missing fields with defaults and returns a complete FimGLTextureOptions object
+   * @param options See FimGLTextureOptions
+   */
+  private static applyDefaults(options?: FimGLTextureOptions): FimGLTextureOptions {
+    let defaultOptions = this.defaultOptions;
+
+    options = options || {};
+    options.bpp = options.bpp || defaultOptions.bpp;
+    options.channels = options.channels || defaultOptions.channels;
+    options.flags = options.flags || defaultOptions.flags;
+
+    // InputOnly textures are currently limited to 8 BPP, as FIM doesn't have any input formats that support higher.
+    if (options.flags & FimGLTextureFlags.InputOnly) {
+      options.bpp = FimBitsPerPixel.BPP32;
+    }
+
+    // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
+    // so just use an RGBA one instead if the texture is not flagged InputOnly.
+    if ((options.flags & FimGLTextureFlags.InputOnly) === 0) {
+      options.channels = FimColorChannels.RGBA;
+    }
+
+    return options;
+  }
+
   /**
    * Returns a string describing the texture options.
    * 
@@ -389,10 +410,7 @@ export class FimGLTexture extends FimImage {
     // Default values
     width = width || canvas.w;
     height = height || canvas.h;
-    options = options || {};
-    options.bpp = options.bpp || FimBitsPerPixel.BPP8;
-    options.channels = options.channels || FimColorChannels.RGBA;
-    options.flags = FimGLTextureFlags.None;
+    options = this.applyDefaults(options);
 
     return `${width}:${height}:${options.bpp}:${options.channels}:${options.flags}`;
   }

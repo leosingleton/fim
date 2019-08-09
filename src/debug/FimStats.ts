@@ -23,37 +23,40 @@ export const enum FimObjectType {
   GLTexture
 }
 
-function objectTypeToString(type: FimObjectType): string {
-  let names = Object.keys(objectTypeMap);
-  for (let n = 0; n < names.length; n++) {
-    let name = names[n];
-    if (objectTypeMap[name] === type) {
-      return name;
-    }
-  }
-  return null;
+const enum FimObjectTypeFlags {
+  None = 0,
+  GpuMemory = (1 << 0),
 }
 
-const objectTypeMap: { [name: string]: FimObjectType } = {
-  Canvas2D: FimObjectType.Canvas2D,
-  OffScreenCanvas: FimObjectType.OffscreenCanvas,
-  GLCanvas: FimObjectType.GLCanvas,
-  GLProgram: FimObjectType.GLProgram,
-  GLTexture: FimObjectType.GLTexture
-};
+const objectTypeMap: { [enumValue: number]: [string, FimObjectTypeFlags] } = {};
+objectTypeMap[FimObjectType.Canvas2D] = ['Canvas2D', FimObjectTypeFlags.None];
+objectTypeMap[FimObjectType.OffscreenCanvas] = ['OffscreenCanvas', FimObjectTypeFlags.None];
+objectTypeMap[FimObjectType.GLCanvas] = ['GLCanvas', FimObjectTypeFlags.GpuMemory];
+objectTypeMap[FimObjectType.GLProgram] = ['GLProgram', FimObjectTypeFlags.None];
+objectTypeMap[FimObjectType.GLTexture] = ['GLTexture', FimObjectTypeFlags.GpuMemory];
+
+function objectTypeToString(type: FimObjectType): string {
+  return objectTypeMap[type][0];
+}
+
+function objectTypeToFlags(type: FimObjectType): FimObjectTypeFlags {
+  return objectTypeMap[type][1];
+}
 
 /**
  * Tracks the creation of an object
  * @param object The object itself
  * @param type Object type. See FimObjectType.
- * @param options Object-specific creation options
+ * @param requestedOptions Object-specific creation options supplied to the constructor
+ * @param actualOptions Object-specific creation options that were actually used
  * @param channels Number of channels. Used to estimate memory consumption.
  * @param bpp Bits per pixel. Used to estimate memory consumption.
  */
-export function recordCreate(object: any, type: FimObjectType, options?: any, channels?: number, bpp?: number): void {
+export function recordCreate(object: any, type: FimObjectType, requestedOptions?: any, actualOptions?: any,
+    channels?: number, bpp?: number): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let message = `Created ${objectTypeToString(type)}`;
+    let message = `Create ${objectTypeToString(type)}`;
 
     if (object instanceof FimImage) {
       let id = object.imageId;
@@ -62,13 +65,24 @@ export function recordCreate(object: any, type: FimObjectType, options?: any, ch
       message += ` ID=${id} (${dimensions.w}x${dimensions.h} => ${realDimensions.w}x${realDimensions.h})`;
 
       if (channels && bpp) {
+        // Estimate memory consumed, in MB
         let memory = (realDimensions.getArea() * channels * bpp) / (1024 * 1024 * 8);
-        message += ` ${memory.toFixed(3)} MB`;
+
+        // Store the value so we can subtract it on dispose
+        memoryMap[id] = memory;
+
+        // Update counters
+        totalMemory += memory;
+        if (objectTypeToFlags(type) & FimObjectTypeFlags.GpuMemory) {
+          gpuMemory += memory;
+        }
+
+        message += memoryToString(memory);
       }
     }
 
-    if (options) {
-      console.log(message, options);
+    if (requestedOptions || actualOptions) {
+      console.log(message, requestedOptions || {}, actualOptions || {});
     } else {
       console.log(message);
     }
@@ -83,13 +97,37 @@ export function recordCreate(object: any, type: FimObjectType, options?: any, ch
 export function recordDispose(object: any, type: FimObjectType): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let message = `Disposed ${objectTypeToString(type)}`;
+    let message = `Dispose ${objectTypeToString(type)}`;
 
     if (object instanceof FimImage) {
       let id = object.imageId;
       message += ` ID=${id}`;
+
+      // Update memory consumed
+      let memory = memoryMap[id];
+      if (memory) {
+        totalMemory -= memory;
+        if (objectTypeToFlags(type) & FimObjectTypeFlags.GpuMemory) {
+          gpuMemory -= memory;
+        }
+
+        message += memoryToString(memory);
+      }
     }
 
     console.log(message);
   }
 }
+
+function memoryToString(memory: number): string {
+  return ` ${memory.toFixed(3)} MB (Current GPU: ${gpuMemory.toFixed(1)} MB Total: ${totalMemory.toFixed(1)} MB)`;
+}
+
+/** Map of FimImage.imageId to amount of memory consumed by that object, in MB */
+let memoryMap: { [id: number]: number } = {};
+
+/** Estimated GPU memory consumed, in MB */
+let gpuMemory = 0;
+
+/** Estimated total memory consumed by graphics, in MB */
+let totalMemory = 0;
