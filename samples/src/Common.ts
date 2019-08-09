@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ContextLost, FimCanvas, FimCanvasBase, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
+import { ContextLost, FimCanvas, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
   FimRect } from '../../build/dist/index.js';
 import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
@@ -195,7 +195,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
  */
-export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
+export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
   let outputDimensions = canvas.dimensions;

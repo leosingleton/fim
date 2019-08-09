@@ -4,8 +4,9 @@
 
 import { FimGreyscaleBuffer } from '../FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
+import { FimColor } from '../../primitives/FimColor';
+import { FimRect } from '../../primitives/FimRect';
 import { SeededRandom, using, DisposableSet } from '@leosingleton/commonlibs';
-import { FimRect, FimColor } from '../../primitives';
 
 describe('FimRgbaBuffer', () => {
 

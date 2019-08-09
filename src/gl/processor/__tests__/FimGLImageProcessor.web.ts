@@ -3,11 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLImageProcessor } from '../FimGLImageProcessor';
-import { FimGLProgramLinearTransform } from '../../programs';
-import { FimColor } from '../../../primitives';
-import { ContextLost } from '../../../test';
+import { FimGLProgramLinearTransform } from '../../programs/FimGLProgramLinearTransform';
+import { ContextLost } from '../../../debug/ContextLost';
+import { FimCanvas } from '../../../image/FimCanvas';
+import { FimColor } from '../../../primitives/FimColor';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { FimCanvas } from '../../../image';
 
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
   expect(actual.r).toBeCloseTo(expected.r, -1);

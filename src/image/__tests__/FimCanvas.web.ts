@@ -4,9 +4,11 @@
 
 import { FimCanvas } from '../FimCanvas';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
+import { FimTestImages } from '../../debug/FimTestImages';
+import { FimTestPatterns } from '../../debug/FimTestPatterns';
+import { FimRect } from '../../primitives/FimRect';
+import { FimColor } from '../../primitives/FimColor';
 import { DisposableSet, SeededRandom, using, usingAsync } from '@leosingleton/commonlibs';
-import { FimRect, FimColor } from '../../primitives';
-import { FimTestPatterns, FimTestImages } from '../../test';
 
 function spec(useOffscreenCanvas: boolean) {
   return () => {

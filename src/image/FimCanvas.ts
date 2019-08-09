@@ -5,9 +5,10 @@
 import { FimCanvasBase } from './FimCanvasBase';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
-import { FimObjectType, recordCreate, recordDispose } from '../debug';
+import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimGLCanvas } from '../gl/FimGLCanvas';
-import { FimColor, FimRect } from '../primitives';
+import { FimColor } from '../primitives/FimColor';
+import { FimRect } from '../primitives/FimRect';
 import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** An image consisting of an invisible HTML canvas on the DOM */

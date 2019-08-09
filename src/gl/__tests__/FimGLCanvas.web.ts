@@ -5,10 +5,11 @@
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLTexture } from '../FimGLTexture';
-import { FimGLProgramCopy } from '../programs';
-import { FimCanvas } from '../../image';
-import { FimColor, FimRect } from '../../primitives';
-import { FimTestImages } from '../../test';
+import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
+import { FimTestImages } from '../../debug/FimTestImages';
+import { FimCanvas } from '../../image/FimCanvas';
+import { FimColor } from '../../primitives/FimColor';
+import { FimRect } from '../../primitives/FimRect';
 import { DisposableSet, using } from '@leosingleton/commonlibs';
 
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {

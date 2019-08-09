@@ -7,9 +7,11 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { FimObjectType, recordCreate, recordDispose } from '../debug';
-import { Transform2D, Transform3D, TwoTriangles } from '../math';
-import { FimRect } from '../primitives';
+import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
+import { Transform2D } from '../math/Transform2D';
+import { Transform3D } from '../math/Transform3D';
+import { TwoTriangles } from '../math/TwoTriangles';
+import { FimRect } from '../primitives/FimRect';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');

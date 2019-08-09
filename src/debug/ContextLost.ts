@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas, FimGLError } from '../gl';
+import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { FimGLError } from '../gl/FimGLError';
 import { AsyncManualResetEvent } from '@leosingleton/commonlibs';
 
 export namespace ContextLost {

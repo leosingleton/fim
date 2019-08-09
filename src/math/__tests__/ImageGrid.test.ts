@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { ImageGrid, ImageGridFlags } from '../ImageGrid';
-import { FimRect, FimPoint } from '../../primitives';
+import { FimPoint } from '../../primitives/FimPoint';
+import { FimRect } from '../../primitives/FimRect';
 
 describe('ImageGrid', () => {
 

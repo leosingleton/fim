@@ -4,7 +4,7 @@
 
 import { FimImage } from './FimImage';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
-import { FimRect } from '../primitives';
+import { FimRect } from '../primitives/FimRect';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
 export class FimGreyscaleBuffer extends FimImage {

@@ -7,7 +7,8 @@ import { FimGLTemporaryTexture } from './FimGLTemporaryTexture';
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTexture, FimGLTextureOptions } from '../FimGLTexture';
-import { FimRect, IFimDimensions } from '../../primitives';
+import { FimRect } from '../../primitives/FimRect';
+import { IFimDimensions } from '../../primitives/IFimDimensions';
 import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /**

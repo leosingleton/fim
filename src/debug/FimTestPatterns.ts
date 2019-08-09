@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGetSetPixel } from '../image';
-import { FimColor, IFimDimensions } from '../primitives';
+import { IFimGetSetPixel } from '../image/IFimGetSetPixel';
+import { FimColor } from '../primitives/FimColor';
+import { IFimDimensions } from '../primitives/IFimDimensions';
 
 /**
  * Generates and validates test patterns. Primarily used for unit testing, although it ships as an export of the

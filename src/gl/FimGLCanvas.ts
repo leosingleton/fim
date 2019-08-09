@@ -6,13 +6,17 @@ import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
-import { FimGLProgramCopy, FimGLProgramFill } from './programs';
-import { FimConfig, FimObjectType, recordCreate, recordDispose } from '../debug';
+import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
+import { FimGLProgramFill } from './programs/FimGLProgramFill';
+import { FimConfig } from '../debug/FimConfig';
+import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
-import { Transform2D } from '../math';
-import { FimBitsPerPixel, FimColor, FimRect } from '../primitives';
+import { Transform2D } from '../math/Transform2D';
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
+import { FimColor } from '../primitives/FimColor';
+import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */

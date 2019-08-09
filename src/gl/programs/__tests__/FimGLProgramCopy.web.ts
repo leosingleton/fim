@@ -5,8 +5,10 @@
 import { FimGLProgramCopy } from '../FimGLProgramCopy';
 import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
-import { FimCanvas, FimGreyscaleBuffer, FimRgbaBuffer } from '../../../image';
-import { FimColor } from '../../../primitives';
+import { FimCanvas } from '../../../image/FimCanvas';
+import { FimGreyscaleBuffer } from '../../../image/FimGreyscaleBuffer';
+import { FimRgbaBuffer } from '../../../image/FimRgbaBuffer';
+import { FimColor } from '../../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 describe('FimGLProgramCopy', () => {

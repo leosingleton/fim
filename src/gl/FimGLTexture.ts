@@ -5,12 +5,15 @@
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimConfig, FimObjectType, recordCreate, recordDispose } from '../debug';
+import { FimConfig } from '../debug/FimConfig';
+import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
-import { FimBitsPerPixel, FimColorChannels, FimRect } from '../primitives';
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
+import { FimColorChannels } from '../primitives/FimColorChannels';
+import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** Flags for FimGLTexture creation */

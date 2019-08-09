@@ -2,7 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimPoint, FimRect, IFimDimensions } from '../primitives';
+import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
+import { IFimDimensions } from '../primitives/IFimDimensions';
 
 /** Flags for the ImageGrid constructor */
 export const enum ImageGridFlags {

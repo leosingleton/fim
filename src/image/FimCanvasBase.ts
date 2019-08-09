@@ -4,7 +4,8 @@
 
 import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
-import { FimColor, FimRect } from '../primitives';
+import { FimColor } from '../primitives/FimColor';
+import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, parseQueryString, using } from '@leosingleton/commonlibs';
 
 // OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
