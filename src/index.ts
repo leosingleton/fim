@@ -4,7 +4,6 @@
  * Released under the MIT license
  */
 
-export { ContextLost } from './debug/ContextLost';
 export { FimTestImages } from './debug/FimTestImages';
 export { FimTestPatterns } from './debug/FimTestPatterns';
 export { FimGLCanvas } from './gl/FimGLCanvas';

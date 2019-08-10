@@ -8,6 +8,7 @@ import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
+import { ContextLost } from '../debug/ContextLost';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
@@ -108,6 +109,12 @@ export class FimGLCanvas extends FimCanvasBase {
 
     if (initialColor) {
       this.fill(initialColor);
+    }
+
+    // Simulate intermittent context loss if the debugging option is enabled
+    let contextLostInterval = FimConfig.config.contextLostSimulationInterval;
+    if (contextLostInterval > 0) {
+      ContextLost.simulateContextLoss(this, contextLostInterval);
     }
   }
 

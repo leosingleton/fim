@@ -32,11 +32,19 @@ export class FimConfig extends ConfigurationOptions {
    */
   public readonly maxGLBpp: number;
 
+  /**
+   * If set to a positive number, a background task simulates the loss of the WebGL context to test the application's
+   * exception handling and recovery. This value controls the interval of WebGL context loss, in seconds. The context
+   * is automatically restored one second later, then the interval repeats.
+   */
+  public readonly contextLostSimulationInterval: number;
+
   protected defaults: {[id: string]: [string, StorageType, any]} = {
     debugLoggingEnabled: ['log', StorageType.Session, false],
     maxGLRenderBufferSize: ['maxrbs', StorageType.Session, 0],
     maxGLTextureSize: ['maxtex', StorageType.Session, 0],
-    maxGLBpp: ['maxbpp', StorageType.Session, 0]
+    maxGLBpp: ['maxbpp', StorageType.Session, 0],
+    contextLostSimulationInterval: ['clsim', StorageType.Session, 0]
   };
 
   /** Shared global instance */
