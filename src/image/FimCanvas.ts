@@ -131,7 +131,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  private async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
+  protected async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
       FimRect): Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
@@ -264,5 +264,13 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
         reject(err);
       };
     });
+  }
+}
+
+/** Internal version of the class only for unit testing */
+export class InternalFimCanvas extends FimCanvas {
+  public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): Promise<void> {
+    return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
   }
 }

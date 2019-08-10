@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas } from '../FimCanvas';
+import { FimCanvas, InternalFimCanvas } from '../FimCanvas';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { FimTestImages } from '../../debug/FimTestImages';
 import { FimTestPatterns } from '../../debug/FimTestPatterns';
@@ -92,7 +92,8 @@ function spec(useOffscreenCanvas: boolean) {
      * Generic test case for copying a FimRgbaBuffer to a FimCanvas
      * @param copy Lambda function that performs the copy
      */
-    async function copyFromRgbaBuffer(copy: (dest: FimCanvas, src: FimRgbaBuffer) => Promise<void>): Promise<void> {
+    async function copyFromRgbaBuffer(copy: (dest: InternalFimCanvas, src: FimRgbaBuffer) => Promise<void>):
+        Promise<void> {
       let rand = new SeededRandom(0);
 
       // Create an RGBA buffer and fill it with gradiant values
@@ -105,7 +106,7 @@ function spec(useOffscreenCanvas: boolean) {
         }
 
         // Copy the RGBA buffer to an FimCanvas
-        let dest = disposable.addDisposable(new FimCanvas(100, 100, undefined, useOffscreenCanvas));
+        let dest = disposable.addDisposable(new InternalFimCanvas(100, 100, undefined, useOffscreenCanvas));
         await copy(dest, src);
 
         // Ensure the two are the same
@@ -121,9 +122,9 @@ function spec(useOffscreenCanvas: boolean) {
     }
 
     // We need an internal scope like .NET...
-    //it('Copies from FimRgbaBuffer with ImageBitmap', async () => {
-    //  await copyFromRgbaBuffer((dest, src) => dest.copyFromRgbaBufferWithImageBitmapAsync(src));
-    //});
+    it('Copies from FimRgbaBuffer with ImageBitmap', async () => {
+      await copyFromRgbaBuffer((dest, src) => dest.internalCopyFromRgbaBufferWithImageBitmapAsync(src));
+    });
 
     it('Copies from FimRgbaBuffer with PutImageData', async () => {
       await copyFromRgbaBuffer(async (dest, src) => dest.copyFrom(src));
