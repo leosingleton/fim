@@ -56,7 +56,8 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
     channels?: number, bpp?: number): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let message = `Create ${objectTypeToString(type)}`;
+    let className = object.constructor.name as string;
+    let message = `Create ${objectTypeToString(type)} ${className}`;
 
     if (object instanceof FimImage) {
       let id = object.imageId;
@@ -97,7 +98,8 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
 export function recordDispose(object: any, type: FimObjectType): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let message = `Dispose ${objectTypeToString(type)}`;
+    let className = object.constructor.name as string;
+    let message = `Dispose ${objectTypeToString(type)} ${className}`;
 
     if (object instanceof FimImage) {
       let id = object.imageId;
