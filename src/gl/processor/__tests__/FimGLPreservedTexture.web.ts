@@ -5,9 +5,11 @@
 import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLCapabilities } from '../../FimGLCapabilities';
 import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
+import { ContextLost } from '../../../debug/ContextLost';
+import { FimTestImages } from '../../../debug/FimTestImages';
 import { FimCanvas } from '../../../image/FimCanvas';
-import { FimColor, FimRect } from '../../../primitives';
-import { FimTestImages, ContextLost } from '../../../test';
+import { FimColor } from '../../../primitives/FimColor';
+import { FimRect } from '../../../primitives/FimRect';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {

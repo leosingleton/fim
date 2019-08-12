@@ -7,7 +7,8 @@ import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimGLCanvas } from '../gl/FimGLCanvas';
-import { FimRect, FimColor } from '../primitives';
+import { FimColor } from '../primitives/FimColor';
+import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */

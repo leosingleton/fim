@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRect, IFimDimensions } from '../primitives';
+import { FimRect } from '../primitives/FimRect';
+import { IFimDimensions } from '../primitives/IFimDimensions';
 import { IDisposable } from '@leosingleton/commonlibs';
 
 /**
@@ -31,7 +32,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
       this.downscaleRatio = newDimensions.w / width;
     }
 
-    this.imageId = FimImage.imageIdCounter++;
+    this.imageId = ++FimImage.imageIdCounter;
   }
 
   // IFimDimensions implementation

@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ContextLost, FimCanvas, FimCanvasBase, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
+import { FimCanvas, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
   FimRect } from '../../build/dist/index.js';
 import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
@@ -195,7 +195,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
  */
-export function renderOutput(canvas: FimCanvasBase, message?: string, maxDimension?: number,
+export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
   let outputDimensions = canvas.dimensions;
@@ -368,25 +368,4 @@ export function handleError(error: any): void {
   }
   
   writeError(errorStr);
-}
-
-/**
- * Simulates WebGL context lost events if 'debug' is set on the query string. Context is lost for 2 seconds out of
- * every 7.
- */
-export function simulateContextLoss(gl: FimGLCanvas): void {
-  async function loseContext(): Promise<void> {
-    await ContextLost.loseContextAsync(gl);
-    setTimeout(restoreContext, 2000);
-  }
-
-  async function restoreContext(): Promise<void> {
-    await ContextLost.restoreContextAsync(gl);
-    setTimeout(loseContext, 5000);
-  }
-
-  if (qs['debug']) {
-    console.log('Lost context simulation enabled');
-    setTimeout(loseContext, 5000);
-  }
 }

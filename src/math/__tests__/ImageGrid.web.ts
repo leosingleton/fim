@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { ImageGrid } from '../ImageGrid';
-import { FimRgbaBuffer } from '../../image';
-import { FimColor } from '../../primitives';
+import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
+import { FimColor } from '../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 describe('ImageGrid', () => {

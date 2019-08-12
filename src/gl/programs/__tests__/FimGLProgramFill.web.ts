@@ -4,7 +4,8 @@
 
 import { FimGLProgramFill } from '../FimGLProgramFill';
 import { FimGLCanvas } from '../../FimGLCanvas';
-import { FimColor, FimRect } from '../../../primitives';
+import { FimColor } from '../../../primitives/FimColor';
+import { FimRect } from '../../../primitives/FimRect';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 function spec(useOffscreenCanvas: boolean) {

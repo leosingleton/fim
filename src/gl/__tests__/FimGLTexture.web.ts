@@ -5,10 +5,12 @@
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
-import { FimGLProgramCopy } from '../programs';
-import { FimCanvas } from '../../image';
-import { FimBitsPerPixel, FimColor, FimColorChannels } from '../../primitives';
-import { FimTestImages } from '../../test';
+import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
+import { FimTestImages } from '../../debug/FimTestImages';
+import { FimCanvas } from '../../image/FimCanvas';
+import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
+import { FimColor } from '../../primitives/FimColor';
+import { FimColorChannels } from '../../primitives/FimColorChannels';
 import { DisposableSet, using } from '@leosingleton/commonlibs';
 
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {

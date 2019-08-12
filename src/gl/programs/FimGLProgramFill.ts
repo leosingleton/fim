@@ -4,7 +4,7 @@
 
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimColor } from '../../primitives';
+import { FimColor } from '../../primitives/FimColor';
 
 /** GL program to fill a texture or canvas with a solid color */
 export class FimGLProgramFill extends FimGLProgram {

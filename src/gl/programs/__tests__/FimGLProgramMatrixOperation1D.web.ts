@@ -5,9 +5,9 @@
 import { FimGLProgramMatrixOperation1D } from '../FimGLProgramMatrixOperation1D';
 import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLTexture } from '../../FimGLTexture';
-import { FimCanvas } from '../../../image';
-import { GaussianKernel } from '../../../math';
-import { FimColor } from '../../../primitives';
+import { FimCanvas } from '../../../image/FimCanvas';
+import { GaussianKernel } from '../../../math/GaussianKernel';
+import { FimColor } from '../../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 describe('FimGLProgramMatrixOperation1D', () => {

@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimGreyscaleBuffer } from '../FimGreyscaleBuffer';
+import { FimRect } from '../../primitives/FimRect';
 import { using, DisposableSet } from '@leosingleton/commonlibs';
-import { FimRect } from '../../primitives';
 
 describe('FimGreyscaleBuffer', () => {
 

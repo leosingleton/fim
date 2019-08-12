@@ -6,12 +6,18 @@ import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
-import { FimGLProgramCopy, FimGLProgramFill } from './programs';
+import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
+import { FimGLProgramFill } from './programs/FimGLProgramFill';
+import { ContextLost } from '../debug/ContextLost';
+import { FimConfig } from '../debug/FimConfig';
+import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
-import { Transform2D } from '../math';
-import { FimBitsPerPixel, FimColor, FimRect } from '../primitives';
+import { Transform2D } from '../math/Transform2D';
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
+import { FimColor } from '../primitives/FimColor';
+import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
@@ -41,8 +47,17 @@ export class FimGLCanvas extends FimCanvasBase {
       maxDimension = 2048;
     }
 
+    // If a lower render buffer limit was set for debugging, use that instead
+    let debugMaxDimension = FimConfig.config.maxGLRenderBufferSize;
+    if (debugMaxDimension > 0) {
+      maxDimension = Math.min(maxDimension, debugMaxDimension);
+    }
+
     // Call the parent constructor
     super(width, height, useOffscreenCanvas, maxDimension);
+
+    // Report telemetry for debugging
+    recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
 
     this.renderQuality = quality;
     this.contextLostNotifications = [];
@@ -95,6 +110,19 @@ export class FimGLCanvas extends FimCanvasBase {
     if (initialColor) {
       this.fill(initialColor);
     }
+
+    // Simulate intermittent context loss if the debugging option is enabled
+    let contextLostInterval = FimConfig.config.contextLostSimulationInterval;
+    if (contextLostInterval > 0) {
+      ContextLost.simulateContextLoss(this, contextLostInterval);
+    }
+  }
+
+  public dispose(): void {
+    // Report telemetry for debugging
+    recordDispose(this, FimObjectType.GLCanvas);
+
+    super.dispose();
   }
 
   /** Registers a lambda function to be executed on WebGL context lost */
@@ -132,6 +160,12 @@ export class FimGLCanvas extends FimCanvasBase {
    * }
    */
   public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
+    // If a lower BPP limit was set for debugging, use that instead
+    let debugMaxBpp = FimConfig.config.maxGLBpp;
+    if (debugMaxBpp > 0) {
+      maxBpp = Math.min(maxBpp, debugMaxBpp);
+    }
+
     // The quality values are arbitrarily chosen. 85% and above uses 32-bit precision; 50% and above uses 16-bit, and
     // below 50% falls back to 8-bit.
     if (maxBpp >= FimBitsPerPixel.BPP32 && this.renderQuality >= 0.85) {

@@ -9,7 +9,7 @@ import { FimCanvas } from '../../image/FimCanvas';
 import { FimImage } from '../../image/FimImage';
 import { FimGreyscaleBuffer } from '../../image/FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
-import { FimRect } from '../../primitives';
+import { FimRect } from '../../primitives/FimRect';
 
 /**
  * When the WebGL context is lost, so is any data that may be held in WebGL textures. This class creates a texture that

@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimPoint, FimRect } from '../primitives';
+import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
 
 /**
  * Computes transformation matrices for vertexes in a 2-dimensional space.

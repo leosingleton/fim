@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimColor } from '../primitives';
+import { FimColor } from '../primitives/FimColor';
 
 /** Interface implemented by images that can get and set individual pixels */
 export interface IFimGetSetPixel {

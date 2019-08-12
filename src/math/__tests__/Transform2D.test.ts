@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { Transform2D } from '../Transform2D';
-import { FimPoint, FimRect } from '../../primitives';
+import { FimPoint } from '../../primitives/FimPoint';
+import { FimRect } from '../../primitives/FimRect';
 
 describe('Transform2D', () => {
 

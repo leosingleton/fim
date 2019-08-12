@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { ContextLost } from '../ContextLost';
-import { FimGLCanvas } from '../../gl';
+import { FimGLCanvas } from '../../gl/FimGLCanvas';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 describe('ContextLost', () => {

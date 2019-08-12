@@ -5,9 +5,11 @@
 import { FimCanvasBase } from './FimCanvasBase';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimGLCanvas } from '../gl/FimGLCanvas';
-import { FimColor, FimRect } from '../primitives';
-import { using, makeDisposable, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { FimColor } from '../primitives/FimColor';
+import { FimRect } from '../primitives/FimRect';
+import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** An image consisting of an invisible HTML canvas on the DOM */
 export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
@@ -24,9 +26,19 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
       useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas) {
     super(width, height, useOffscreenCanvas);
 
+    // Report telemetry for debugging
+    recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);
+
     if (initialColor) {
       this.fill(initialColor);
     }
+  }
+
+  public dispose(): void {
+    // Report telemetry for debugging
+    recordDispose(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D);
+
+    super.dispose();
   }
 
   /** Creates a new FimCanvas which is a duplicate of this one */
@@ -119,7 +131,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  private async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
+  protected async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
       FimRect): Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.dimensions;
@@ -252,5 +264,13 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
         reject(err);
       };
     });
+  }
+}
+
+/** Internal version of the class only for unit testing */
+export class InternalFimCanvas extends FimCanvas {
+  public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): Promise<void> {
+    return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
   }
 }
