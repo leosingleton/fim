@@ -43,8 +43,8 @@ class BlurImageProcessor extends FimGLImageProcessor {
       // Execute the blur program 5 times for a larger blur effect
       await DisposableSet.usingAsync(async disposable => {
         // Allocate two temporary textures
-        let temp1 = disposable.addDisposable(this.getTemporaryTexture());
-        let temp2 = disposable.addDisposable(this.getTemporaryTexture());
+        let temp1 = disposable.addDisposable(this.temporaryTextures.getTexture());
+        let temp2 = disposable.addDisposable(this.temporaryTextures.getTexture());
 
         // Use the input texture on the first run
         program.setInputs(texture, kernel, temp2);

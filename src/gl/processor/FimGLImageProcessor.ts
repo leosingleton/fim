@@ -3,10 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLPreservedTexture } from './FimGLPreservedTexture';
-import { FimGLTemporaryTexture } from './FimGLTemporaryTexture';
+import { FimGLTexturePool } from './FimGLTexturePool';
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimGLTexture, FimGLTextureOptions } from '../FimGLTexture';
+import { FimGLTextureOptions } from '../FimGLTexture';
 import { FimRect } from '../../primitives/FimRect';
 import { IFimDimensions } from '../../primitives/IFimDimensions';
 import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
@@ -31,7 +31,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
     this.disposeOnLostContext = new DisposableSet();
     this.disposeOnDispose = new DisposableSet();
     this.programs = {};
-    this.temporaryTextures = {};
+    this.temporaryTextures = new FimGLTexturePool(glCanvas);
     this.preservedTextures = {};
 
     // Register for context lost notifications
@@ -52,7 +52,9 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
   private onLostContext(): void {
     this.disposeOnLostContext.dispose();
     this.programs = {};
-    this.temporaryTextures = {};
+
+    this.temporaryTextures.dispose();
+    this.temporaryTextures = new FimGLTexturePool(this.glCanvas);
   }
 
   /**
@@ -76,41 +78,6 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
     }
 
     return p as T;
-  }
-
-  /**
-   * Creates a WebGL texture that is only used for a short time. Its contents may be lost on a WebGL context lost
-   * event, or it may be overwritten by another user of temporary textures. The caller is responsible for calling
-   * dispose() to indicate when it is done using the temporary texture.
-   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
-   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
-   * @param options See FimGLTextureOptions
-   */
-  protected getTemporaryTexture(width?: number, height?: number, options?: FimGLTextureOptions): FimGLTexture {
-    let glCanvas = this.glCanvas;
-    let temporaryTextures = this.temporaryTextures;
-
-    // Get a unique string describing the texture options and check the cache
-    let textureDescription = FimGLTexture.describe(glCanvas, width, height, options);
-    let t1 = temporaryTextures[textureDescription];
-    if (!t1) {
-      // This is the first request for these texture parameters. Create a new array in the cache and fall through
-      // below.
-      t1 = temporaryTextures[textureDescription] = [];
-    } else if (t1.length > 0) {
-      // Texture of the right parameters was found in the cache. Return it.
-      return t1.pop();
-    }
-
-    // No matching textures were found in the cache. Allocate a new texture.
-    let t2 = new FimGLTemporaryTexture(() => {
-      t1.push(t2); // Return the texture to the cache on dispose()
-    }, glCanvas, width, height, options);
-
-    // Custom disposer to actually dispose the texture on lost context
-    this.disposeOnLostContext.addNonDisposable(t2, t3 => t3.realDispose());
-
-    return t2;
   }
 
   /**
@@ -151,7 +118,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
   private programs: { [programId: number]: FimGLProgram };
 
   /** Cache of temporary WebGL textures, indexed by FimGLTexture.describe() strings */
-  private temporaryTextures: { [textureDescription: string]: FimGLTemporaryTexture[] };
+  protected temporaryTextures: FimGLTexturePool;
 
   /** Cache of preserved WebGL textures, indexed by a texture ID number */
   private preservedTextures: { [textureId: number]: FimGLPreservedTexture };
