@@ -177,7 +177,7 @@ export function recordWebGLRender(program: FimGLProgram, uniforms: UniformDefini
 
       if (uniform.variableType.indexOf('sampler') !== -1) {
         if (inputTextures.length > 0) {
-          inputTextures += ' ';
+          inputTextures += ', ';
         }
 
         let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
