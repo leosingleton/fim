@@ -4,6 +4,11 @@
 
 import { FimConfig } from './FimConfig';
 import { FimImage } from '../image/FimImage';
+import { FimGLTexture } from '../gl/FimGLTexture';
+import { FimGLProgram, UniformDefinitionMap } from '../gl/FimGLProgram';
+import { FimGLPreservedTexture } from '../gl/processor/FimGLPreservedTexture';
+import { FimRect } from '../primitives/FimRect';
+import { FimGLCanvas } from '../gl/FimGLCanvas';
 
 /** Object types that we track statistics on */
 export const enum FimObjectType {
@@ -43,6 +48,10 @@ function objectTypeToFlags(type: FimObjectType): FimObjectTypeFlags {
   return objectTypeMap[type][1];
 }
 
+function getClassName(object: any): string {
+  return object.constructor.name;
+}
+
 /**
  * Tracks the creation of an object
  * @param object The object itself
@@ -56,7 +65,7 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
     channels?: number, bpp?: number): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let className = object.constructor.name as string;
+    let className = getClassName(object);
     let message = `Create ${objectTypeToString(type)} ${className}`;
 
     if (object instanceof FimImage) {
@@ -98,7 +107,7 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
 export function recordDispose(object: any, type: FimObjectType): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let className = object.constructor.name as string;
+    let className = getClassName(object);
     let message = `Dispose ${objectTypeToString(type)} ${className}`;
 
     if (object instanceof FimImage) {
@@ -133,3 +142,73 @@ let gpuMemory = 0;
 
 /** Estimated total memory consumed by graphics, in MB */
 let totalMemory = 0;
+
+/**
+ * Logs calls to texImage2D
+ * @param src Source image
+ * @param dest Destination texture
+ */
+export function recordTexImage2D(src: FimImage, dest: FimGLTexture): void {
+  if (FimConfig.config.debugLoggingEnabled) {
+    let srcClassName = getClassName(src);
+    let destClassName = getClassName(dest);
+    console.log(`texImage2D ${srcClassName} (${src.imageId}) => ${destClassName} (${dest.imageId})`);
+  }
+}
+
+/**
+ * Logs rendering of WebGL programs
+ * @param program WebGL rogram being executed
+ * @param uniforms Program uniforms
+ * @param destCoords Destination coordinates
+ * @param outputTexture Output texture or WebGL canvas
+ */
+export function recordWebGLRender(program: FimGLProgram, uniforms: UniformDefinitionMap, destCoords: FimRect,
+    outputTexture: FimGLTexture | FimGLPreservedTexture | FimGLCanvas): void {
+  if (FimConfig.config.debugLoggingEnabled) {
+    // Build the console message
+    let className = getClassName(program);
+    let message = `Render ${className}`;
+
+    // Extract any input textures from the uniforms
+    let inputTextures = '';
+    for (let name in uniforms) {
+      let uniform = uniforms[name];
+
+      if (uniform.variableType.indexOf('sampler') !== -1) {
+        if (inputTextures.length > 0) {
+          inputTextures += ' ';
+        }
+
+        let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
+        let textureClassName = getClassName(t);
+        inputTextures += `${textureClassName} (${t.imageId})`;
+      }
+    }
+
+    let outputClassName = getClassName(outputTexture);
+    message += ` [${inputTextures}] => ${outputClassName} (${outputTexture.imageId}) ${destCoords.w}x${destCoords.h}`;
+
+    console.log(message);
+  }
+}
+
+function coordsToString(coords: FimRect): string {
+  return `[${coords.xLeft},${coords.yTop}-${coords.xRight},${coords.yBottom}]`;
+}
+
+/**
+ * Logs calls to drawImage to copy pixels to a 2D canvas
+ * @param srcCoords Source coordinates
+ * @param destCoords Destination coordinates
+ * @param op Compositie operation, e.g. 'copy' or 'source-over'
+ * @param imageSmoothingEnabled Whether browser-specific image smoothing is enabled for the drawing context
+ */
+export function recordDrawImage(srcCoords: FimRect, destCoords: FimRect, op: string,
+    imageSmoothingEnabled: boolean): void {
+  if (FimConfig.config.debugLoggingEnabled) {
+    let srcCoordsString = coordsToString(srcCoords);
+    let destCoordsString = coordsToString(destCoords);
+    console.log(`drawImage ${op} (smoothing=${imageSmoothingEnabled}) ${srcCoordsString} => ${destCoordsString}`);
+  }
+}

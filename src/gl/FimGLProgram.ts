@@ -7,7 +7,7 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
-import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
+import { FimObjectType, recordCreate, recordDispose, recordWebGLRender } from '../debug/FimStats';
 import { Transform2D } from '../math/Transform2D';
 import { Transform3D } from '../math/Transform3D';
 import { TwoTriangles } from '../math/TwoTriangles';
@@ -17,7 +17,7 @@ import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
 
 /** Uniform definition. A combination of values from the GLSL shader compiler and from execution time. */
-interface UniformDefinition extends FimGLVariableDefinition {
+export interface UniformDefinition extends FimGLVariableDefinition {
   /** Location value bound to the uniform. Set when the uniform is bound in compile(). */
   uniformLocation?: WebGLUniformLocation,
 
@@ -26,7 +26,7 @@ interface UniformDefinition extends FimGLVariableDefinition {
 }
 
 /** Map of uniform values */
-type UniformDefinitionMap = { [name: string]: UniformDefinition };
+export type UniformDefinitionMap = { [name: string]: UniformDefinition };
 
 /**
  * Abstract base class for implementing WebGL programs.
@@ -242,6 +242,9 @@ export abstract class FimGLProgram implements IDisposable {
         destCoords = destination.dimensions;
       }
       destCoords = destCoords.scale(destination.downscaleRatio);
+
+      // Report telemetry for debugging
+      recordWebGLRender(this, this.uniforms, destCoords, outputTexture || this.glCanvas);
 
       // Set the viewport
       gl.viewport(destCoords.xLeft, destCoords.yTop, destCoords.w, destCoords.h);

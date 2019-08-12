@@ -6,7 +6,7 @@ import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimConfig } from '../debug/FimConfig';
-import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
+import { FimObjectType, recordCreate, recordDispose, recordTexImage2D } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
@@ -213,6 +213,9 @@ export class FimGLTexture extends FimImage {
   private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas): void {
     let gl = this.gl;
 
+    // Report telemetry for debugging
+    recordTexImage2D(srcImage, this);
+
     this.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     FimGLError.throwOnError(gl);
@@ -226,6 +229,9 @@ export class FimGLTexture extends FimImage {
 
   private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
     let gl = this.gl;
+
+    // Report telemetry for debugging
+    recordTexImage2D(srcImage, this);
 
     this.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -241,6 +247,9 @@ export class FimGLTexture extends FimImage {
 
   private copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
+
+    // Report telemetry for debugging
+    recordTexImage2D(srcImage, this);
 
     this.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

@@ -4,6 +4,7 @@
 
 import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
+import { recordDrawImage } from '../debug/FimStats';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, parseQueryString, using } from '@leosingleton/commonlibs';
@@ -176,6 +177,9 @@ export abstract class FimCanvasBase extends FimImage {
 
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
+
+    // Report telemetry for debugging
+    recordDrawImage(srcCoords, destCoords, op, imageSmoothingEnabled);
 
     using(this.createDrawingContext(destCanvas, imageSmoothingEnabled, op, 1), ctx => {
       ctx.drawImage(srcCanvas as HTMLCanvasElement, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h,
