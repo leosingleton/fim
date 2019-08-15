@@ -104,7 +104,7 @@ export class GaussianKernel {
     if (quantize) {
       kernel = this.quantize(kernel); 
     } else {
-      kernel = this.normalize(kernel);
+      kernel = this.normalizeValues(kernel);
     }
 
     // Cache the result
@@ -198,7 +198,7 @@ export class GaussianKernel {
    * Normalizes a kernel so the values sum to 1
    * @param kernel Any kernel
    */
-  static normalize(kernel: number[]): number[] {
+  static normalizeValues(kernel: number[]): number[] {
     let kernelSize = kernel.length;
     let sum = 0;
 

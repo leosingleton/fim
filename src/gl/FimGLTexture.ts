@@ -418,7 +418,8 @@ export class FimGLTexture extends FimImage {
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
    */
-  public static describe(canvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions): string {
+  public static describeTexture(canvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions):
+      string {
     // Default values
     width = width || canvas.w;
     height = height || canvas.h;
