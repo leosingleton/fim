@@ -60,7 +60,7 @@ export async function glTransform2D(canvasId: string): Promise<void> {
         matrix.rescale(texture.w, texture.h);
         matrix.rescale(scale, scale);
         matrix.rotate(angle);
-        matrix.translate(tx * texture.w, ty * texture.h);
+        matrix.translation(tx * texture.w, ty * texture.h);
         matrix.rescale(1 / texture.w, 1 / texture.h);
 
         // Clear any existing image on the WebGL canvas

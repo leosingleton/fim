@@ -9,10 +9,10 @@ describe('Transform3D', () => {
 
   it('Initializes to an identity matrix', () => {
     let mat1 = new Transform3D();
-    mat1.transform(mat1);
+    mat1.multiply(mat1);
 
     let mat2 = new Transform3D();
-    expect(mat1.value).toEqual(mat2.value);
+    expect(mat1.matrix).toEqual(mat2.matrix);
   });
 
   it('Multiplies by the identity matrix', () => {
@@ -20,20 +20,20 @@ describe('Transform3D', () => {
 
     // Multiply by the identity matrix
     let mat2 = new Transform3D(mat1);
-    mat2.transform(new Transform3D());
+    mat2.multiply(new Transform3D());
 
-    expect(mat2.value).toEqual(mat1);
+    expect(mat2.matrix).toEqual(mat1);
   });
 
   it('Leaves points unchanged by the identity matrix', () => {
     let mat = new Transform3D();
-    expect(mat.transformPoint(12, 23)).toEqual([12, 23, 0, 1]);
+    expect(mat.transformXYZW(12, 23)).toEqual([12, 23, 0, 1]);
   });
 
   it('Translates points', () => {
     let mat = new Transform3D();
-    mat.translate(-4, 3, 0);
-    let point = mat.transformPoint(12, 23);
+    mat.translation(-4, 3, 0);
+    let point = mat.transformXYZW(12, 23);
     expect(point[0]).toBeCloseTo(8, 8);
     expect(point[1]).toBeCloseTo(26, 8);
     expect(point[2]).toBeCloseTo(0, 8);
@@ -43,7 +43,7 @@ describe('Transform3D', () => {
   it('Rotates points', () => {
     let mat = new Transform3D();
     mat.rotateZ(Math.PI / 2);
-    let point = mat.transformPoint(12, 23);
+    let point = mat.transformXYZW(12, 23);
     expect(point[0]).toBeCloseTo(-23, 8);
     expect(point[1]).toBeCloseTo(12, 8);
     expect(point[2]).toBeCloseTo(0, 8);
@@ -53,7 +53,7 @@ describe('Transform3D', () => {
   it('Scales points', () => {
     let mat = new Transform3D();
     mat.rescale(2, 0.5, 1);
-    let point = mat.transformPoint(12, 23);
+    let point = mat.transformXYZW(12, 23);
     expect(point[0]).toBeCloseTo(24, 8);
     expect(point[1]).toBeCloseTo(11.5, 8);
     expect(point[2]).toBeCloseTo(0, 8);
