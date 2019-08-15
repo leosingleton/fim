@@ -61,7 +61,7 @@ export class ImageGrid implements IFimDimensions {
     // Initialize the IFimDimensions variables
     this.w = width;
     this.h = height;
-    this.dimensions = FimRect.fromWidthHeight(width, height);
+    this.imageDimensions = FimRect.fromWidthHeight(width, height);
 
     // First, calculate the number of tiles to use in each direction
     function getTileCount(srcSize: number, tileSize: number, max: number, zeroCenter: boolean): number {
@@ -183,13 +183,13 @@ export class ImageGrid implements IFimDimensions {
   public getEfficiency(): number {
     let t = this;
     let i = t.tiles;
-    return t.dimensions.getArea() / (i.length * i[0].dimensions.getArea());
+    return t.imageDimensions.getArea() / (i.length * i[0].dimensions.getArea());
   }
 
   // IFimDimensions implementation
   public readonly w: number;
   public readonly h: number;
-  public readonly dimensions: FimRect;
+  public readonly imageDimensions: FimRect;
 
   /** Returns the tile coordinates that make up the grid */
   public readonly tiles: ImageGridTile[];

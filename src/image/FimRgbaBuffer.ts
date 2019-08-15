@@ -90,14 +90,14 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    */
   private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
     let origSrcCoords = srcCoords;
 
     // Scale the input coordinates. The destination RgbaBuffer doesn't support downscaling.
     srcCoords = srcCoords.scale(srcImage.downscaleRatio);
 
-    if (!destCoords.equals(this.dimensions)) {
+    if (!destCoords.equals(this.imageDimensions)) {
       // Slow case: The destination is not the entire image. Use a temporary RgbaBuffer.
       using(new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
         buffer.copyFromCanvas(srcImage, origSrcCoords);
@@ -132,8 +132,8 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    */
   private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Rescaling is not supported
     this.throwOnRescale(srcCoords, destCoords);
@@ -162,14 +162,15 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    */
   private copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Rescaling is not supported
     this.throwOnRescale(srcCoords, destCoords);
 
     // Optimization: If images have the same dimensions, just copy the entire byte array
-    if (srcCoords.equals(destCoords) && srcImage.dimensions.equals(srcCoords) && this.dimensions.equals(destCoords)) {
+    if (srcCoords.equals(destCoords) && srcImage.imageDimensions.equals(srcCoords) &&
+        this.imageDimensions.equals(destCoords)) {
       this.buffer.set(srcImage.buffer);
       return;
     }

@@ -65,19 +65,19 @@ function spec(useOffscreenCanvas: boolean) {
         using(new FimCanvas(100, 100, undefined, useOffscreenCanvas), src => {
           // Top-left => red
           src.fill('#f00');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
           // Top-right => green
           src.fill('#0f0');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
           // Bottom-left => blue
           src.fill('#00f');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
           // Bottom-right => white
           src.fill('#fff');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
         });
 
         // Check a pixel in each of the four quadrants for the expected color

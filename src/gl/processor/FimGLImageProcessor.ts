@@ -24,7 +24,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
   public constructor(maxWidth: number, maxHeight: number) {
     this.w = maxWidth;
     this.h = maxHeight;
-    this.dimensions = FimRect.fromWidthHeight(maxWidth, maxHeight);
+    this.imageDimensions = FimRect.fromWidthHeight(maxWidth, maxHeight);
 
     let glCanvas = this.glCanvas = new FimGLCanvas(maxWidth, maxHeight);
 
@@ -41,7 +41,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
   // IFimDimensions implementation
   public readonly w: number;
   public readonly h: number;
-  public readonly dimensions: FimRect;
+  public readonly imageDimensions: FimRect;
   
   public dispose(): void {
     this.glCanvas.dispose();

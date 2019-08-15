@@ -48,14 +48,15 @@ export class FimGreyscaleBuffer extends FimImage {
    */
   public copyFrom(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Rescaling is not supported
     this.throwOnRescale(srcCoords, destCoords);
 
     // Optimization: If images have the same dimensions, just copy the entire byte array
-    if (srcCoords.equals(destCoords) && srcImage.dimensions.equals(srcCoords) && this.dimensions.equals(destCoords)) {
+    if (srcCoords.equals(destCoords) && srcImage.imageDimensions.equals(srcCoords) &&
+        this.imageDimensions.equals(destCoords)) {
       this.buffer.set(srcImage.buffer);
       return;
     }

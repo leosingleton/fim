@@ -210,8 +210,8 @@ export class FimGLCanvas extends FimCanvasBase {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicate(): FimCanvas {
-    let dupe = new FimCanvas(this.dimensions.w, this.dimensions.h);
-    dupe.copyFrom(this, this.dimensions, this.dimensions);
+    let dupe = new FimCanvas(this.w, this.h);
+    dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
 
@@ -276,14 +276,14 @@ export class FimGLCanvas extends FimCanvasBase {
     FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
 
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Scale the source coordinates. FimGLProgram.execute() will scale the destination coordinates.
     srcCoords = srcCoords.scale(srcImage.downscaleRatio);
 
     // Calculate the transformation matrix to achieve the requested srcCoords
-    let matrix = Transform2D.fromSrcCoords(srcCoords, srcImage.dimensions);
+    let matrix = Transform2D.fromSrcCoords(srcCoords, srcImage.imageDimensions);
 
     // Execute the copy shader
     let program = this.getCopyProgram();

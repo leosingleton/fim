@@ -21,7 +21,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public constructor(width: number, height: number, maxDimension = 0) {
     this.w = width;
     this.h = height;
-    this.dimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
+    this.imageDimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
 
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.
@@ -38,7 +38,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   // IFimDimensions implementation
   public readonly w: number;
   public readonly h: number;
-  public readonly dimensions: FimRect;
+  public readonly imageDimensions: FimRect;
 
   /** 
    * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
@@ -81,8 +81,8 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * @param srcImage Source image
    */
   protected throwOnMismatchedDimensions(srcImage: FimImage): void {
-    if (!this.dimensions.equals(srcImage.dimensions)) {
-      throw new Error(`Crop and rescale not supported: ${this.dimensions} ${srcImage.dimensions}`);
+    if (!this.imageDimensions.equals(srcImage.imageDimensions)) {
+      throw new Error(`Crop and rescale not supported: ${this.imageDimensions} ${srcImage.imageDimensions}`);
     }
   }
 

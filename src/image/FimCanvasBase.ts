@@ -124,7 +124,7 @@ export abstract class FimCanvasBase extends FimImage {
   public toHtmlCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || this.dimensions;
+    srcCoords = srcCoords || this.imageDimensions;
     destCoords = destCoords || FimRect.fromWidthHeight(destCanvas.width, destCanvas.height);
     
     // Scale the coordinates

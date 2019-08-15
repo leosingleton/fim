@@ -239,7 +239,7 @@ export abstract class FimGLProgram implements IDisposable {
         destCoords = FimRect.fromXYWidthHeight(destCoords.xLeft, destination.h - destCoords.yBottom, destCoords.w,
           destCoords.h);
       } else {
-        destCoords = destination.dimensions;
+        destCoords = destination.imageDimensions;
       }
       destCoords = destCoords.scale(destination.downscaleRatio);
 
