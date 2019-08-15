@@ -21,7 +21,7 @@ class BlurImageProcessor extends FimGLImageProcessor {
 
     // Create a preserved texture with a sample JPEG image
     let inputTexture = this.getPreservedTexture(ObjectIDs.InputTexture, input.w, input.h,
-      { flags: FimGLTextureFlags.InputOnly });
+      { textureFlags: FimGLTextureFlags.InputOnly });
     inputTexture.copyFrom(input);
     inputTexture.preserve();
   }

@@ -33,7 +33,7 @@ export class FimGLPreservedTexture extends FimImage {
     height = height || glCanvas.h;
 
     // Do not allow the AllowLargerThanCanvas flag, as we must use the canvas to preserve the texture
-    if (options && options.flags && (options.flags & FimGLTextureFlags.AllowLargerThanCanvas) !== 0) {
+    if (options && options.textureFlags && (options.textureFlags & FimGLTextureFlags.AllowLargerThanCanvas) !== 0) {
       throw new FimGLError(FimGLErrorCode.AppError, 'NoAllowLargerThanCanvas');
     }
 

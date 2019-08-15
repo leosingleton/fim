@@ -35,7 +35,7 @@ describe('FimGLTexture', () => {
             let options: FimGLTextureOptions = {
               channels: channels,
               bpp: bpp,
-              flags: flags | FimGLTextureFlags.InputOnly
+              textureFlags: flags | FimGLTextureFlags.InputOnly
             };
 
             using(new FimGLTexture(gl, 240, 240, options), texture => {
@@ -66,7 +66,7 @@ describe('FimGLTexture', () => {
       let caps = FimGLCapabilities.getCapabilities();
       let textureSize = caps.maxTextureSize + 1000;
       let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8,
-        {flags: FimGLTextureFlags.AllowLargerThanCanvas}));
+        {textureFlags: FimGLTextureFlags.AllowLargerThanCanvas}));
       expect(texture.realDimensions).toBeDefined();
       expect(texture.realDimensions.w).toBe(caps.maxTextureSize);
       expect(texture.realDimensions.h).toBe(caps.maxTextureSize / 8);
