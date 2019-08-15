@@ -192,7 +192,7 @@ export abstract class FimGLProgram implements IDisposable {
   public applyVertexMatrix(vertexMatrix: Transform2D | Transform3D | number[]): void {
     // Convert the input to a 4x4 matrix
     let matrix = new Transform3D();
-    matrix.multiply(vertexMatrix);
+    matrix.matrixMultiply(vertexMatrix);
 
     // Update the vertices
     let vertices = matrix.transformVertexArray(TwoTriangles.vertexPositions);

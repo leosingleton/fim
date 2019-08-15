@@ -9,10 +9,10 @@ describe('Transform3D', () => {
 
   it('Initializes to an identity matrix', () => {
     let mat1 = new Transform3D();
-    mat1.multiply(mat1);
+    mat1.matrixMultiply(mat1);
 
     let mat2 = new Transform3D();
-    expect(mat1.matrix).toEqual(mat2.matrix);
+    expect(mat1.matrixValue).toEqual(mat2.matrixValue);
   });
 
   it('Multiplies by the identity matrix', () => {
@@ -20,9 +20,9 @@ describe('Transform3D', () => {
 
     // Multiply by the identity matrix
     let mat2 = new Transform3D(mat1);
-    mat2.multiply(new Transform3D());
+    mat2.matrixMultiply(new Transform3D());
 
-    expect(mat2.matrix).toEqual(mat1);
+    expect(mat2.matrixValue).toEqual(mat1);
   });
 
   it('Leaves points unchanged by the identity matrix', () => {
