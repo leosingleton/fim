@@ -128,7 +128,7 @@ export abstract class FimCanvasBase extends FimImage {
     destCoords = destCoords || FimRect.fromWidthHeight(destCanvas.width, destCanvas.height);
     
     // Scale the coordinates
-    srcCoords = srcCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(this.downscaleRatio);
 
     // Copy the canvas
     FimCanvasBase.copyCanvasToCanvas(this.getCanvas(), destCanvas, srcCoords, destCoords);

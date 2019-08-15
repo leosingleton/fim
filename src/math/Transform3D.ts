@@ -132,7 +132,7 @@ export class Transform3D {
    * @param sy Y-scale (1 = unchanged)
    * @param sz Z-scale (1 = unchanged)
    */
-  public scale(sx: number, sy: number, sz: number): void {
+  public rescale(sx: number, sy: number, sz: number): void {
     this.transform([sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1]);
   }
 

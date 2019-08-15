@@ -53,7 +53,7 @@ describe('Transform2D', () => {
   it('Scales points', () => {
     let point = new FimPoint(12, 23);
     let mat = new Transform2D();
-    mat.scale(2, 0.5);
+    mat.rescale(2, 0.5);
     point = mat.transformPoint(point);
     expect(point.x).toBeCloseTo(24, 8);
     expect(point.y).toBeCloseTo(11.5, 8);

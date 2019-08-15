@@ -57,11 +57,11 @@ export async function glTransform2D(canvasId: string): Promise<void> {
         // Calculate the vertex transformation matrix. Note that the operations are applied in reverse order due to the way
         // matrix multiplication works. Translate, then rotate, then scale.
         let matrix = new Transform2D();
-        matrix.scale(texture.w, texture.h);
-        matrix.scale(scale, scale);
+        matrix.rescale(texture.w, texture.h);
+        matrix.rescale(scale, scale);
         matrix.rotate(angle);
         matrix.translate(tx * texture.w, ty * texture.h);
-        matrix.scale(1 / texture.w, 1 / texture.h);
+        matrix.rescale(1 / texture.w, 1 / texture.h);
 
         // Clear any existing image on the WebGL canvas
         gl.fillCanvas('#000');

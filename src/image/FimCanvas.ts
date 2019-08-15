@@ -114,8 +114,8 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     destCoords = destCoords || this.imageDimensions;
 
     // Scale the coordinates
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
+    destCoords = destCoords.rescale(this.downscaleRatio);
 
     // Copy the canvas
     FimCanvasBase.copyCanvasToCanvas(srcImage.getCanvas(), this.canvasElement, srcCoords, destCoords);
@@ -138,8 +138,8 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     destCoords = destCoords || this.imageDimensions;
 
     // Scale the coordinates
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
+    destCoords = destCoords.rescale(this.downscaleRatio);
     
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
@@ -171,8 +171,8 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     destCoords = destCoords || this.imageDimensions;
     
     // Scale the coordinates
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
+    destCoords = destCoords.rescale(this.downscaleRatio);
     
     if (srcCoords.equals(srcImage.imageDimensions) && srcCoords.sameDimensions(destCoords)) {
       // Fast case: no cropping or rescaling

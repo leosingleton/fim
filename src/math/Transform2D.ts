@@ -82,7 +82,7 @@ export class Transform2D {
    * @param sx X-scale (1 = unchanged)
    * @param sy Y-scale (1 = unchanged)
    */
-  public scale(sx: number, sy: number): void {
+  public rescale(sx: number, sy: number): void {
     this.transform([sx, 0, 0, 0, sy, 0, 0, 0, 1]);
   }
 
@@ -114,7 +114,7 @@ export class Transform2D {
       (centerCoords.y - centerDimensions.y) * 2 / srcDimensions.h);
 
     // Finally, scale to the right size.
-    result.scale(srcDimensions.w / srcCoords.w, srcDimensions.h / srcCoords.h);
+    result.rescale(srcDimensions.w / srcCoords.w, srcDimensions.h / srcCoords.h);
 
     return result;
   }

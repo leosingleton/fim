@@ -241,7 +241,7 @@ export abstract class FimGLProgram implements IDisposable {
       } else {
         destCoords = destination.imageDimensions;
       }
-      destCoords = destCoords.scale(destination.downscaleRatio);
+      destCoords = destCoords.rescale(destination.downscaleRatio);
 
       // Report telemetry for debugging
       recordWebGLRender(this, this.uniforms, destCoords, outputTexture || this.glCanvas);

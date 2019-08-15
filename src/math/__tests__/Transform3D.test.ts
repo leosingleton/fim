@@ -52,7 +52,7 @@ describe('Transform3D', () => {
 
   it('Scales points', () => {
     let mat = new Transform3D();
-    mat.scale(2, 0.5, 1);
+    mat.rescale(2, 0.5, 1);
     let point = mat.transformPoint(12, 23);
     expect(point[0]).toBeCloseTo(24, 8);
     expect(point[1]).toBeCloseTo(11.5, 8);

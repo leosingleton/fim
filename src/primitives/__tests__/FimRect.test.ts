@@ -74,7 +74,7 @@ describe('FimRect', () => {
 
   it('Scales by a multiplier', () => {
     let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
-    let rect2 = rect1.scale(0.1);
+    let rect2 = rect1.rescale(0.1);
     expect(rect2).toEqual(FimRect.fromXYWidthHeight(10, 20, 30, 40));
   });
 

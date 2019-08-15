@@ -95,7 +95,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     let origSrcCoords = srcCoords;
 
     // Scale the input coordinates. The destination RgbaBuffer doesn't support downscaling.
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
 
     if (!destCoords.equals(this.imageDimensions)) {
       // Slow case: The destination is not the entire image. Use a temporary RgbaBuffer.
