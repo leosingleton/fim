@@ -12,10 +12,10 @@ import { Transform2D } from './Transform2D';
 export class Transform3D {
   public constructor(matrix?: Transform2D | Transform3D | number[]) {
     if (matrix) {
-      this.matrix = Transform3D.acceptMatrixOrArray(matrix);
+      this.matrixValue = Transform3D.acceptMatrixOrArray(matrix);
     } else {
       // The default value is an identity matrix
-      this.matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+      this.matrixValue = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     }
   }
 
@@ -23,7 +23,7 @@ export class Transform3D {
    * A 4x4 transformation matrix. The matrix is expressed as an array of 16 values, in column major order (the way
    * OpenGL expects it).
    */
-  public matrix: number[];
+  public matrixValue: number[];
 
   /**
    * Transforms a point using this transformation matrix
@@ -31,11 +31,12 @@ export class Transform3D {
    * @returns Array containing transformed vec4
    */
   public transformXYZW(x: number, y: number, z = 0, w = 1): number[] {
+    let matrix = this.matrixValue;
     return [
-      x * this.matrix[0] + y * this.matrix[4] + z * this.matrix[8]  + w * this.matrix[12],
-      x * this.matrix[1] + y * this.matrix[5] + z * this.matrix[9]  + w * this.matrix[13],
-      x * this.matrix[2] + y * this.matrix[6] + z * this.matrix[10] + w * this.matrix[14],
-      x * this.matrix[3] + y * this.matrix[7] + z * this.matrix[11] + w * this.matrix[15]
+      x * matrix[0] + y * matrix[4] + z * matrix[8]  + w * matrix[12],
+      x * matrix[1] + y * matrix[5] + z * matrix[9]  + w * matrix[13],
+      x * matrix[2] + y * matrix[6] + z * matrix[10] + w * matrix[14],
+      x * matrix[3] + y * matrix[7] + z * matrix[11] + w * matrix[15]
     ];
   }
 
@@ -62,11 +63,11 @@ export class Transform3D {
    * Applies another transformation using matrix multiplication
    * @param matrix Another 3x3 or 4x4 transformation matrix
    */
-  public multiply(matrix: Transform2D | Transform3D | number[]): void {
+  public matrixMultiply(matrix: Transform2D | Transform3D | number[]): void {
     let left = Transform3D.acceptMatrixOrArray(matrix);
-    let right = this.matrix;
+    let right = this.matrixValue;
 
-    this.matrix = [
+    this.matrixValue = [
       left[0] * right[0]  + left[4] * right[1]  + left[8]  * right[2]  + left[12] * right[3],
       left[1] * right[0]  + left[5] * right[1]  + left[9]  * right[2]  + left[13] * right[3],
       left[2] * right[0]  + left[6] * right[1]  + left[10] * right[2]  + left[14] * right[3],
@@ -93,7 +94,7 @@ export class Transform3D {
    * @param tz Z offset (-1 to 1)
    */
   public translation(tx: number, ty: number, tz: number): void {
-    this.multiply([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1]);
+    this.matrixMultiply([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1]);
   }
 
   /**
@@ -103,7 +104,7 @@ export class Transform3D {
   public rotateX(angle: number): void {
     let s = Math.sin(angle);
     let c = Math.cos(angle);
-    this.multiply([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
+    this.matrixMultiply([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
   }
 
   /**
@@ -113,7 +114,7 @@ export class Transform3D {
   public rotateY(angle: number): void {
     let s = Math.sin(angle);
     let c = Math.cos(angle);
-    this.multiply([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
+    this.matrixMultiply([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
   }
 
   /**
@@ -123,7 +124,7 @@ export class Transform3D {
   public rotateZ(angle: number): void {
     let s = Math.sin(angle);
     let c = Math.cos(angle);
-    this.multiply([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this.matrixMultiply([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   }
 
   /**
@@ -133,11 +134,11 @@ export class Transform3D {
    * @param sz Z-scale (1 = unchanged)
    */
   public rescale(sx: number, sy: number, sz: number): void {
-    this.multiply([sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1]);
+    this.matrixMultiply([sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1]);
   }
 
   private static acceptMatrixOrArray(value: Transform2D | Transform3D | number[]): number[] {
-    let result = (value instanceof Transform2D || value instanceof Transform3D) ? value.matrix : value;
+    let result = (value instanceof Transform2D || value instanceof Transform3D) ? value.matrixValue : value;
     if (result.length === 9) {
       // Special case: We support 2D 3x3 matrices as inputs. Do the conversion to 4x4.
       let o = result;
