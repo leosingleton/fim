@@ -98,8 +98,8 @@ export abstract class FimGLProgram implements IDisposable {
     // Create two triangles that map to the full canvas
     let positionBuffer = this.positionBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aPos', 4));
     let texCoordBuffer = this.texCoordBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aTex', 2));
-    positionBuffer.set(TwoTriangles.vertexPositions, true);
-    texCoordBuffer.set(TwoTriangles.textureCoords, true);
+    positionBuffer.setValues(TwoTriangles.vertexPositions, true);
+    texCoordBuffer.setValues(TwoTriangles.textureCoords, true);
 
     // Get the ID of any uniform variables. Be sure to use the minified name.
     for (let name in this.uniforms) {
@@ -180,8 +180,8 @@ export abstract class FimGLProgram implements IDisposable {
    * @param textureCoords Texture coordinates for each vertex as an array of vec2 values
    */
   public setVertices(vertexPositions = TwoTriangles.vertexPositions, textureCoords = TwoTriangles.textureCoords): void {
-    this.positionBuffer.set(vertexPositions);
-    this.texCoordBuffer.set(textureCoords);
+    this.positionBuffer.setValues(vertexPositions);
+    this.texCoordBuffer.setValues(textureCoords);
   }
 
   /**
@@ -325,8 +325,8 @@ export abstract class FimGLProgram implements IDisposable {
       }
 
       // Validate the vertex arrays
-      let vertexCount = this.positionBuffer.length;
-      if (vertexCount !== this.texCoordBuffer.length) {
+      let vertexCount = this.positionBuffer.arrayLength;
+      if (vertexCount !== this.texCoordBuffer.arrayLength) {
         // The vertex array and texture coordinate array must have the same number of vertices
         throw new FimGLError(FimGLErrorCode.AppError, 'LengthMismatch');
       }
@@ -336,8 +336,8 @@ export abstract class FimGLProgram implements IDisposable {
       }
 
       // Bind the vertices
-      this.positionBuffer.bind();
-      this.texCoordBuffer.bind();
+      this.positionBuffer.bindArray();
+      this.texCoordBuffer.bindArray();
 
       // Render
       gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
@@ -352,8 +352,8 @@ export abstract class FimGLProgram implements IDisposable {
       gl.useProgram(null);
 
       // Unbind the vertices
-      this.positionBuffer.unbind();
-      this.texCoordBuffer.unbind();
+      this.positionBuffer.unbindArray();
+      this.texCoordBuffer.unbindArray();
 
       // Unbind the textures
       for (let name in this.uniforms) {
@@ -401,7 +401,7 @@ class FimGLArrayBuffer implements IDisposable {
   }
 
   /** Sets the value of the buffer */
-  public set(values: number[], drawStatic = false): void {
+  public setValues(values: number[], drawStatic = false): void {
     let gl = this.gl;
 
     // Ensure the array
@@ -418,13 +418,13 @@ class FimGLArrayBuffer implements IDisposable {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    this.length = values.length / this.size;
+    this.arrayLength = values.length / this.size;
   }
 
   /** Length of the array buffer, in number of vectors */
-  public length: number;
+  public arrayLength: number;
 
-  public bind(): void {
+  public bindArray(): void {
     let gl = this.gl;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -440,7 +440,7 @@ class FimGLArrayBuffer implements IDisposable {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
   }
 
-  public unbind(): void {
+  public unbindArray(): void {
     this.gl.disableVertexAttribArray(this.attributeLocation);
   }
 
