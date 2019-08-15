@@ -83,10 +83,10 @@ export abstract class FimCanvasBase extends FimImage {
   public offscreenCanvas: boolean;
 
   /** Creates a new FimCanvas which is a duplicate of this one */
-  public abstract duplicate(): FimCanvas;
+  public abstract duplicateCanvas(): FimCanvas;
 
   /** Fills the canvas with a solid color */
-  public abstract fill(color: FimColor | string): void;
+  public abstract fillCanvas(color: FimColor | string): void;
 
   /**
    * Exports the canvas to a JPEG file

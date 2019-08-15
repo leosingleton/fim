@@ -40,19 +40,19 @@ describe('FimGreyscaleBuffer', () => {
       let src = disposable.addDisposable(new FimGreyscaleBuffer(100, 100));
 
       // Top-left => 0
-      src.fill(0);
+      src.fillCanvas(0);
       dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
       // Top-right => 50
-      src.fill(50);
+      src.fillCanvas(50);
       dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
       // Bottom-left => 100
-      src.fill(100);
+      src.fillCanvas(100);
       dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
       // Bottom-right => 150
-      src.fill(150);
+      src.fillCanvas(150);
       dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
 
       // Check a pixel in each of the four quadrants for the expected color

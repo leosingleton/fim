@@ -30,7 +30,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);
 
     if (initialColor) {
-      this.fill(initialColor);
+      this.fillCanvas(initialColor);
     }
   }
 
@@ -42,7 +42,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   }
 
   /** Creates a new FimCanvas which is a duplicate of this one */
-  public duplicate(): FimCanvas {
+  public duplicateCanvas(): FimCanvas {
     let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h);
     dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
@@ -60,7 +60,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   }
 
   /** Fills the canvas with a solid color */
-  public fill(color: FimColor | string): void {
+  public fillCanvas(color: FimColor | string): void {
     FimCanvasBase.fillCanvas(this.getCanvas(), color);
   }
 

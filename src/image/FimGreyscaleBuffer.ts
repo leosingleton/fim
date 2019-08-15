@@ -19,7 +19,7 @@ export class FimGreyscaleBuffer extends FimImage {
     this.buffer = new Uint8ClampedArray(width * height);
 
     if (initialColor) {
-      this.fill(initialColor);
+      this.fillCanvas(initialColor);
     }
   }
 
@@ -36,7 +36,7 @@ export class FimGreyscaleBuffer extends FimImage {
   }
 
   /** Fills the canvas with a solid color (0 to 255) */
-  public fill(color: number): void {
+  public fillCanvas(color: number): void {
     this.buffer.fill(color);
   }
 

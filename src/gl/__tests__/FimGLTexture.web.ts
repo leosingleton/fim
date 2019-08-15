@@ -43,7 +43,7 @@ describe('FimGLTexture', () => {
               texture.copyFrom(canvas);
     
               // Clear the WebGL canvas
-              gl.fill('#000');
+              gl.fillCanvas('#000');
     
               // Render the texture to the WebGL canvas
               program.setInputs(texture);

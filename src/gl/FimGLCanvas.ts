@@ -108,7 +108,7 @@ export class FimGLCanvas extends FimCanvasBase {
     FimGLError.throwOnError(gl);
 
     if (initialColor) {
-      this.fill(initialColor);
+      this.fillCanvas(initialColor);
     }
 
     // Simulate intermittent context loss if the debugging option is enabled
@@ -209,14 +209,14 @@ export class FimGLCanvas extends FimCanvasBase {
   private contextRestoredNotifications: (() => void)[];
 
   /** Creates a new FimCanvas which is a duplicate of this one */
-  public duplicate(): FimCanvas {
+  public duplicateCanvas(): FimCanvas {
     let dupe = new FimCanvas(this.w, this.h);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
 
   /** Fills the canvas with a solid color */
-  public fill(color: FimColor | string): void {
+  public fillCanvas(color: FimColor | string): void {
     let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
     let gl = this.gl;
 

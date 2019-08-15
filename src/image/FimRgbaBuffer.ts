@@ -24,7 +24,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     this.buffer = new Uint8ClampedArray(width * height * 4);
 
     if (initialColor) {
-      this.fill(initialColor);
+      this.fillCanvas(initialColor);
     }
   }
 
@@ -41,7 +41,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   }
 
   /** Fills the canvas with a solid color */
-  public fill(color: FimColor | string): void {
+  public fillCanvas(color: FimColor | string): void {
     if (typeof color === 'string') {
       color = FimColor.fromString(color);
     }
