@@ -183,7 +183,7 @@ export class ImageGrid implements IFimDimensions {
   public getEfficiency(): number {
     let t = this;
     let i = t.tiles;
-    return t.imageDimensions.getArea() / (i.length * i[0].dimensions.getArea());
+    return t.imageDimensions.getArea() / (i.length * i[0].imageDimensions.getArea());
   }
 
   // IFimDimensions implementation
@@ -196,15 +196,15 @@ export class ImageGrid implements IFimDimensions {
 }
 
 /** Holds the coordinates for a single tile in an ImageGrid */
-export class ImageGridTile {
+export class ImageGridTile implements IFimDimensions {
   public constructor(parent: ImageGrid, width: number, height: number, inputFull: FimRect, inputTile: FimRect,
       outputTile: FimRect, outputFull: FimRect) {
     // Initialize the IFimDimensions variables
     this.w = width;
     this.h = height;
-    this.dimensions = FimRect.fromWidthHeight(width, height);
+    this.imageDimensions = FimRect.fromWidthHeight(width, height);
 
-    this.parent = parent;
+    this.parentGrid = parent;
     this.inputFull = inputFull;
     this.inputTile = inputTile;
     this.outputTile = outputTile;
@@ -214,10 +214,10 @@ export class ImageGridTile {
   // IFimDimensions implementation
   public readonly w: number;
   public readonly h: number;
-  public readonly dimensions: FimRect;
+  public readonly imageDimensions: FimRect;
   
   /** Parent ImageGrid to which this tile belongs */
-  public readonly parent: ImageGrid;
+  public readonly parentGrid: ImageGrid;
 
   /** When copying input data, the coordinates on the full-sized original image to copy from */
   public readonly inputFull: FimRect;
@@ -263,7 +263,7 @@ export class ImageGridTile {
     let y = point.y + this.outputFull.yTop - this.outputTile.yTop;
 
     if (checkBounds) {
-      if (x < 0 || y < 0 || x >= this.parent.w || y >= this.parent.h) {
+      if (x < 0 || y < 0 || x >= this.parentGrid.w || y >= this.parentGrid.h) {
         return null;
       }
     }
