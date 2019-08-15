@@ -59,7 +59,7 @@ export async function glTransform2D(canvasId: string): Promise<void> {
         let matrix = new Transform2D();
         matrix.rescale(texture.w, texture.h);
         matrix.rescale(scale, scale);
-        matrix.rotate(angle);
+        matrix.rotation(angle);
         matrix.translation(tx * texture.w, ty * texture.h);
         matrix.rescale(1 / texture.w, 1 / texture.h);
 

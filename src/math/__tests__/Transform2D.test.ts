@@ -44,7 +44,7 @@ describe('Transform2D', () => {
   it('Rotates points', () => {
     let point = new FimPoint(12, 23);
     let mat = new Transform2D();
-    mat.rotate(Math.PI / 2);
+    mat.rotation(Math.PI / 2);
     point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(-23, 8);
     expect(point.y).toBeCloseTo(12, 8);
@@ -64,7 +64,7 @@ describe('Transform2D', () => {
 
     let mat = new Transform2D();
     mat.translation(-4, 3);
-    mat.rotate(Math.PI / 2);
+    mat.rotation(Math.PI / 2);
 
     point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(-26, 8);
@@ -75,7 +75,7 @@ describe('Transform2D', () => {
     let point = new FimPoint(12, 23);
 
     let mat = new Transform2D();
-    mat.rotate(Math.PI / 2);
+    mat.rotation(Math.PI / 2);
     mat.translation(-4, 3);
 
     point = mat.transformXY(point);

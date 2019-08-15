@@ -71,7 +71,7 @@ export class Transform2D {
    * Rotates coordinates by the desired angle
    * @param angle Angle, in radians
    */
-  public rotate(angle: number): void {
+  public rotation(angle: number): void {
     let s = Math.sin(angle);
     let c = Math.cos(angle);
     this.multiply([c, s, 0, -s, c, 0, 0, 0, 1]);
