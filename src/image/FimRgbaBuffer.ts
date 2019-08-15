@@ -21,7 +21,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
    */
   constructor(width: number, height: number, initialColor?: FimColor | string) {
     super(width, height);
-    this.buffer = new Uint8ClampedArray(width * height * 4);
+    this._buffer = new Uint8ClampedArray(width * height * 4);
 
     if (initialColor) {
       this.fillCanvas(initialColor);
@@ -30,13 +30,13 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {
-    return this.buffer;
+    return this._buffer;
   }
-  private buffer: Uint8ClampedArray;
+  private _buffer: Uint8ClampedArray;
   
   public dispose(): void {
-    if (this.buffer) {
-      delete this.buffer;
+    if (this._buffer) {
+      delete this._buffer;
     }
   }
 
@@ -48,9 +48,9 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
 
     if (color.r === color.g && color.r === color.b && color.r === color.a) {
       // Optimization: if all components are the same, use the built-in array fill
-      this.buffer.fill(color.r);
+      this._buffer.fill(color.r);
     } else {
-      let buf = this.buffer;
+      let buf = this._buffer;
       let len = buf.length;
       let offset = 0;
 
@@ -120,7 +120,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     // Copy data from a normal HtmlCanvas
     using(srcImage.createDrawingContext(), ctx => {
       let imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h);
-      this.buffer = imgData.data;
+      this._buffer = imgData.data;
     });
   }
 
@@ -140,7 +140,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
 
     // Perform a copy of the image data
     let srcBuf = srcImage.getBuffer();
-    let destBuf = this.buffer;
+    let destBuf = this._buffer;
     for (let y = 0; y < destCoords.h; y++) {
       let srcOffset = (y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft;
       let destOffset = ((y + destCoords.yTop) * this.w + destCoords.xLeft) * 4;
@@ -171,13 +171,13 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     // Optimization: If images have the same dimensions, just copy the entire byte array
     if (srcCoords.equals(destCoords) && srcImage.imageDimensions.equals(srcCoords) &&
         this.imageDimensions.equals(destCoords)) {
-      this.buffer.set(srcImage.buffer);
+      this._buffer.set(srcImage._buffer);
       return;
     }
 
     // Perform a copy of the image data
-    let srcBuf = srcImage.buffer;
-    let destBuf = this.buffer;
+    let srcBuf = srcImage._buffer;
+    let destBuf = this._buffer;
     for (let y = 0; y < destCoords.h; y++) {
       let srcOffset = ((y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft) * 4;
       let destOffset = ((y + destCoords.yTop) * this.w + destCoords.xLeft) * 4;
@@ -222,15 +222,15 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
 
   public getPixel(x: number, y: number): FimColor {
     let offset = (y * this.w + x) * 4;
-    return FimColor.fromRGBABytes(this.buffer[offset], this.buffer[offset + 1], this.buffer[offset + 2],
-      this.buffer[offset + 3]);
+    return FimColor.fromRGBABytes(this._buffer[offset], this._buffer[offset + 1], this._buffer[offset + 2],
+      this._buffer[offset + 3]);
   }
 
   public setPixel(x: number, y: number, color: FimColor): void {
     let offset = (y * this.w + x) * 4;
-    this.buffer[offset++] = color.r;
-    this.buffer[offset++] = color.g;
-    this.buffer[offset++] = color.b;
-    this.buffer[offset] = color.a;
+    this._buffer[offset++] = color.r;
+    this._buffer[offset++] = color.g;
+    this._buffer[offset++] = color.b;
+    this._buffer[offset] = color.a;
   }
 }
