@@ -35,7 +35,7 @@
     "webpack-glsl-minify": "^1.0.4"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.0.0-alpha.23"
+    "@leosingleton/commonlibs": "^1.0.0-alpha.24"
   },
   "scripts": {
     "build": "npx webpack --mode=none",

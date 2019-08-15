@@ -61,7 +61,7 @@ export async function glTransform3D(canvasId: string): Promise<void> {
       disposable.dispose();
 
       // Try again after 1 second
-      await Task.delay(1000);
+      await Task.delayAsync(1000);
     }
   }
 }

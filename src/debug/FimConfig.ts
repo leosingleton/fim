@@ -8,7 +8,7 @@ import { ConfigurationOptions, ConfigurationFlags, StorageType } from '@leosingl
 export class FimConfig extends ConfigurationOptions {
   private constructor() {
     super('fim_', ConfigurationFlags.AllowNonBrowsers);
-    this.initialize();
+    this.initializeValues();
   }
 
   /** Enables detailed logging messages to the JavaScript console */
