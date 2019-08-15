@@ -41,7 +41,7 @@ export async function glTransform3D(canvasId: string): Promise<void> {
         matrix.scale(1 / texture.w, 1 / texture.h, 1 / texture.w);
 
         // Clear any existing image on the WebGL canvas
-        gl.fill('#000');
+        gl.fillCanvas('#000');
 
         program.setInputs(texture);
         program.applyVertexMatrix(matrix);
