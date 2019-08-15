@@ -198,7 +198,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
 export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
-  let outputDimensions = canvas.dimensions;
+  let outputDimensions = canvas.imageDimensions;
   if (maxDimension) {
     outputDimensions = FimRect.downscaleToMaxDimension(outputDimensions.w, outputDimensions.h, maxDimension);
   }

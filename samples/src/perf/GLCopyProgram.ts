@@ -21,7 +21,7 @@ export async function perfGLCopyProgram(): Promise<void> {
         
         let gl = disposable.addDisposable(new FimGLCanvas(canvasWidth, canvasHeight));
         let t = disposable.addDisposable(new FimGLTexture(gl, textureWidth, textureHeight,
-          { bpp: FimBitsPerPixel.BPP8, flags: flags }));
+          { bpp: FimBitsPerPixel.BPP8, textureFlags: flags }));
         t.copyFrom(srcImage);
         let program = disposable.addDisposable(new FimGLProgramCopy(gl));
 

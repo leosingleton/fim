@@ -52,7 +52,7 @@ function spec(useOffscreenCanvas: boolean) {
           dest.copyFrom(src);
 
           // Modify src
-          src.fill(color2)
+          src.fillCanvas(color2);
 
           // Ensure dest is still copied from original src
           expect(dest.getPixel(142, 373)).toEqual(color1);
@@ -64,20 +64,20 @@ function spec(useOffscreenCanvas: boolean) {
       using(new FimCanvas(200, 200, undefined, useOffscreenCanvas), dest => {
         using(new FimCanvas(100, 100, undefined, useOffscreenCanvas), src => {
           // Top-left => red
-          src.fill('#f00');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+          src.fillCanvas('#f00');
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
           // Top-right => green
-          src.fill('#0f0');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+          src.fillCanvas('#0f0');
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
           // Bottom-left => blue
-          src.fill('#00f');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+          src.fillCanvas('#00f');
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
           // Bottom-right => white
-          src.fill('#fff');
-          dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+          src.fillCanvas('#fff');
+          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
         });
 
         // Check a pixel in each of the four quadrants for the expected color

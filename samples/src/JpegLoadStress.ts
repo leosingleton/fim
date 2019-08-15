@@ -20,7 +20,7 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
   let frameCount = 0;
   let totalTime = 0;
   while (true) {
-    await TaskScheduler.yield();
+    await TaskScheduler.yieldAsync();
 
     // Load the JPEG onto a FimCanvas
     let timer = Stopwatch.startNew();
@@ -28,7 +28,7 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
     let decodeTime = timer.getElapsedMilliseconds();
     totalTime += decodeTime;
 
-    await TaskScheduler.yield();
+    await TaskScheduler.yieldAsync();
 
     // Write the status
     let status = `Decoded ${++frameCount} JPEGs. Average = ${Math.floor(totalTime / frameCount)} ms`;

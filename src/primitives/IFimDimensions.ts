@@ -13,7 +13,7 @@ export interface IFimDimensions {
   readonly h: number;
 
   /** Dimensions of the image, in pixels. The x/y coordinates are always zero. */
-  readonly dimensions: FimRect;
+  readonly imageDimensions: FimRect;
 }
 
 /**
@@ -26,6 +26,6 @@ export function createDimensions(width: number, height: number): IFimDimensions 
   return {
     w: width,
     h: height,
-    dimensions: FimRect.fromWidthHeight(width, height)
+    imageDimensions: FimRect.fromWidthHeight(width, height)
   };
 }

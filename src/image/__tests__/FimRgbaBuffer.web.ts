@@ -52,7 +52,7 @@ describe('FimRgbaBuffer', () => {
       dest.copyFrom(src);
 
       // Modify src
-      src.fill(color2)
+      src.fillCanvas(color2)
 
       // Ensure dest is still copied from original src
       expect(dest.getPixel(142, 373)).toEqual(color1);
@@ -65,20 +65,20 @@ describe('FimRgbaBuffer', () => {
       let src = disposable.addDisposable(new FimRgbaBuffer(100, 100));
 
       // Top-left => red
-      src.fill('#f00');
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+      src.fillCanvas('#f00');
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
       // Top-right => green
-      src.fill('#0f0');
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+      src.fillCanvas('#0f0');
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
       // Bottom-left => blue
-      src.fill('#00f');
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+      src.fillCanvas('#00f');
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
       // Bottom-right => white
-      src.fill('#fff');
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+      src.fillCanvas('#fff');
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
 
       // Check a pixel in each of the four quadrants for the expected color
       expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#f00'));
@@ -129,20 +129,20 @@ describe('FimRgbaBuffer', () => {
       let src = disposable.addDisposable(new FimGreyscaleBuffer(100, 100));
 
       // Top-left => 0x00
-      src.fill(0x00);
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+      src.fillCanvas(0x00);
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
       // Top-right => 0x33
-      src.fill(0x33);
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+      src.fillCanvas(0x33);
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
 
       // Bottom-left => 0x66
-      src.fill(0x66);
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+      src.fillCanvas(0x66);
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
 
       // Bottom-right => 0x99
-      src.fill(0x99);
-      dest.copyFrom(src, src.dimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+      src.fillCanvas(0x99);
+      dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
 
       // Check a pixel in each of the four quadrants for the expected color
       expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#000'));

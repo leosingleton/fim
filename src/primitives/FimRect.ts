@@ -88,7 +88,7 @@ export class FimRect {
   }
 
   /** Scales a rectangle by a multiplier */
-  scale(ratio: number): FimRect {
+  rescale(ratio: number): FimRect {
     return FimRect.fromCoordinates(this.xLeft * ratio, this.yTop * ratio, this.xRight * ratio, this.yBottom * ratio);
   }
 

@@ -4,10 +4,11 @@
 
 import { FimCanvas } from './FimCanvas';
 import { FimImage } from './FimImage';
+import { FimConfig } from '../debug/FimConfig';
 import { recordDrawImage } from '../debug/FimStats';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
-import { IDisposable, makeDisposable, parseQueryString, using } from '@leosingleton/commonlibs';
+import { IDisposable, makeDisposable, using } from '@leosingleton/commonlibs';
 
 // OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
 // @nomangle OffscreenCanvas convertToBlob
@@ -40,8 +41,7 @@ export abstract class FimCanvasBase extends FimImage {
 
     // We have an option to disable offscreen canvas support via the query string. This can be useful for debugging,
     // since regular canvases can be made visible in the browser's debugging tools.
-    let qs = parseQueryString();
-    let enableOC = (qs['disableOC'] === undefined);
+    let enableOC = FimConfig.config.enableOffscreenCanvas;
 
     if (useOffscreenCanvas && enableOC) {
       // Use Chrome's OffscreenCanvas object
@@ -83,10 +83,10 @@ export abstract class FimCanvasBase extends FimImage {
   public offscreenCanvas: boolean;
 
   /** Creates a new FimCanvas which is a duplicate of this one */
-  public abstract duplicate(): FimCanvas;
+  public abstract duplicateCanvas(): FimCanvas;
 
   /** Fills the canvas with a solid color */
-  public abstract fill(color: FimColor | string): void;
+  public abstract fillCanvas(color: FimColor | string): void;
 
   /**
    * Exports the canvas to a JPEG file
@@ -124,11 +124,11 @@ export abstract class FimCanvasBase extends FimImage {
   public toHtmlCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || this.dimensions;
+    srcCoords = srcCoords || this.imageDimensions;
     destCoords = destCoords || FimRect.fromWidthHeight(destCanvas.width, destCanvas.height);
     
     // Scale the coordinates
-    srcCoords = srcCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(this.downscaleRatio);
 
     // Copy the canvas
     FimCanvasBase.copyCanvasToCanvas(this.getCanvas(), destCanvas, srcCoords, destCoords);

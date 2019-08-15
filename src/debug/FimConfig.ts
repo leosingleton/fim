@@ -8,11 +8,17 @@ import { ConfigurationOptions, ConfigurationFlags, StorageType } from '@leosingl
 export class FimConfig extends ConfigurationOptions {
   private constructor() {
     super('fim_', ConfigurationFlags.AllowNonBrowsers);
-    this.initialize();
+    this.initializeValues();
   }
 
   /** Enables detailed logging messages to the JavaScript console */
   public readonly debugLoggingEnabled: boolean;
+
+  /**
+   * Enables offscreen canvas support. This can be useful for debugging, as Chrome's support is new and still has some
+   * bugs, plus regular canvases can be made visible in the browser's debugging tools.
+   */
+  public readonly enableOffscreenCanvas: boolean;
 
   /**
    * If set to a positive number, the WebGL render buffer is limited to the lower of this value or the GPU's stated
@@ -41,6 +47,7 @@ export class FimConfig extends ConfigurationOptions {
 
   protected defaults: {[id: string]: [string, StorageType, any]} = {
     debugLoggingEnabled: ['log', StorageType.Session, false],
+    enableOffscreenCanvas: ['oc', StorageType.Session, true],
     maxGLRenderBufferSize: ['maxrbs', StorageType.Session, 0],
     maxGLTextureSize: ['maxtex', StorageType.Session, 0],
     maxGLBpp: ['maxbpp', StorageType.Session, 0],

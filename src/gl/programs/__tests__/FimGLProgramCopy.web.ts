@@ -77,7 +77,7 @@ describe('FimGLProgramCopy', () => {
       let buffer = disposable.addDisposable(new FimGreyscaleBuffer(640, 480, 128));
       let t1 = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer, FimGLTextureFlags.LinearSampling));
       let t2 = disposable.addDisposable(new FimGLTexture(canvas, 640, 480,
-        { flags: FimGLTextureFlags.LinearSampling }));
+        { textureFlags: FimGLTextureFlags.LinearSampling }));
 
       // Copy t1 to t2
       program.setInputs(t1);

@@ -26,7 +26,7 @@ export class FimGLTexturePool extends ResourcePool<FimGLTexture> {
    */
   public getTexture(width?: number, height?: number, options?: FimGLTextureOptions):
       FimGLTexture {
-    let id = FimGLTexture.describe(this.glCanvas, width, height, options);
+    let id = FimGLTexture.describeTexture(this.glCanvas, width, height, options);
     return this.getOrCreateObject(id, () => new FimGLTexture(this.glCanvas, width, height, options));
   }
 

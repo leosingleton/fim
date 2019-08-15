@@ -34,14 +34,14 @@ export async function glTransform3D(canvasId: string): Promise<void> {
         // Calculate the vertex transformation matrix. Note that the operations are applied in reverse order due to the way
         // matrix multiplication works. Translate, then rotate, then scale.
         let matrix = new Transform3D();
-        matrix.scale(texture.w, texture.h, texture.w);
+        matrix.rescale(texture.w, texture.h, texture.w);
         matrix.rotateX(angleX);
         matrix.rotateY(angleY);
         matrix.rotateZ(angleZ);
-        matrix.scale(1 / texture.w, 1 / texture.h, 1 / texture.w);
+        matrix.rescale(1 / texture.w, 1 / texture.h, 1 / texture.w);
 
         // Clear any existing image on the WebGL canvas
-        gl.fill('#000');
+        gl.fillCanvas('#000');
 
         program.setInputs(texture);
         program.applyVertexMatrix(matrix);
@@ -61,7 +61,7 @@ export async function glTransform3D(canvasId: string): Promise<void> {
       disposable.dispose();
 
       // Try again after 1 second
-      await Task.delay(1000);
+      await Task.delayAsync(1000);
     }
   }
 }

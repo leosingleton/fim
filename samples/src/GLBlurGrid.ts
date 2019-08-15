@@ -58,7 +58,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
       let tile = grid.tiles[n];
 
       // Process the event loop between tiles
-      await TaskScheduler.yield();
+      await TaskScheduler.yieldAsync();
 
       // Load the input image onto the texture
       input.copyFrom(canvas, tile.inputFull, tile.inputTile);
@@ -67,12 +67,12 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
       // Copy texture to texture on subsequent all but the last run
       program.setInputs(texture, kernel);
       for (let n = 0; n < reps - 3; n++) {
-        await TaskScheduler.yield();
+        await TaskScheduler.yieldAsync();
         program.execute(texture);
       }
   
       // Copy to the output on the final run
-      await TaskScheduler.yield();
+      await TaskScheduler.yieldAsync();
       program.execute();
 
       // Copy the result to the screen

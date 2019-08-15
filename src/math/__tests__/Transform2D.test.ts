@@ -10,10 +10,10 @@ describe('Transform2D', () => {
 
   it('Initializes to an identity matrix', () => {
     let mat1 = new Transform2D();
-    mat1.transform(mat1);
+    mat1.multiply(mat1);
 
     let mat2 = new Transform2D();
-    expect(mat1.value).toEqual(mat2.value);
+    expect(mat1.matrix).toEqual(mat2.matrix);
   });
 
   it('Multiplies by the identity matrix', () => {
@@ -21,22 +21,22 @@ describe('Transform2D', () => {
 
     // Multiply by the identity matrix
     let mat2 = new Transform2D(mat1);
-    mat2.transform(new Transform2D());
+    mat2.multiply(new Transform2D());
 
-    expect(mat2.value).toEqual(mat1);
+    expect(mat2.matrix).toEqual(mat1);
   });
 
   it('Leaves points unchanged by the identity matrix', () => {
     let point = new FimPoint(12, 23);
     let mat = new Transform2D();
-    expect(mat.transformPoint(point)).toEqual(point);
+    expect(mat.transformXY(point)).toEqual(point);
   });
 
   it('Translates points', () => {
     let point = new FimPoint(12, 23);
     let mat = new Transform2D();
-    mat.translate(-4, 3);
-    point = mat.transformPoint(point);
+    mat.translation(-4, 3);
+    point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(8, 8);
     expect(point.y).toBeCloseTo(26, 8);
   });
@@ -44,8 +44,8 @@ describe('Transform2D', () => {
   it('Rotates points', () => {
     let point = new FimPoint(12, 23);
     let mat = new Transform2D();
-    mat.rotate(Math.PI / 2);
-    point = mat.transformPoint(point);
+    mat.rotation(Math.PI / 2);
+    point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(-23, 8);
     expect(point.y).toBeCloseTo(12, 8);
   });
@@ -53,8 +53,8 @@ describe('Transform2D', () => {
   it('Scales points', () => {
     let point = new FimPoint(12, 23);
     let mat = new Transform2D();
-    mat.scale(2, 0.5);
-    point = mat.transformPoint(point);
+    mat.rescale(2, 0.5);
+    point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(24, 8);
     expect(point.y).toBeCloseTo(11.5, 8);
   });
@@ -63,10 +63,10 @@ describe('Transform2D', () => {
     let point = new FimPoint(12, 23);
 
     let mat = new Transform2D();
-    mat.translate(-4, 3);
-    mat.rotate(Math.PI / 2);
+    mat.translation(-4, 3);
+    mat.rotation(Math.PI / 2);
 
-    point = mat.transformPoint(point);
+    point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(-26, 8);
     expect(point.y).toBeCloseTo(8, 8);
   });
@@ -75,10 +75,10 @@ describe('Transform2D', () => {
     let point = new FimPoint(12, 23);
 
     let mat = new Transform2D();
-    mat.rotate(Math.PI / 2);
-    mat.translate(-4, 3);
+    mat.rotation(Math.PI / 2);
+    mat.translation(-4, 3);
 
-    point = mat.transformPoint(point);
+    point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(-27, 8);
     expect(point.y).toBeCloseTo(15, 8);
   });
@@ -88,10 +88,10 @@ describe('Transform2D', () => {
       FimRect.fromXYWidthHeight(25, 50, 25, 25),
       FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
-    expect(mat.transformPoint(new FimPoint(-1, -1))).toEqual(new FimPoint(-3, -3));
-    expect(mat.transformPoint(new FimPoint(1, -1))).toEqual(new FimPoint(5, -3));
-    expect(mat.transformPoint(new FimPoint(-1, 1))).toEqual(new FimPoint(-3, 5));
-    expect(mat.transformPoint(new FimPoint(1, 1))).toEqual(new FimPoint(5, 5));
+    expect(mat.transformXY(new FimPoint(-1, -1))).toEqual(new FimPoint(-3, -3));
+    expect(mat.transformXY(new FimPoint(1, -1))).toEqual(new FimPoint(5, -3));
+    expect(mat.transformXY(new FimPoint(-1, 1))).toEqual(new FimPoint(-3, 5));
+    expect(mat.transformXY(new FimPoint(1, 1))).toEqual(new FimPoint(5, 5));
   });
 
 });

@@ -16,28 +16,28 @@ export class FimGreyscaleBuffer extends FimImage {
    */
   constructor(width: number, height: number, initialColor?: number) {
     super(width, height);
-    this.buffer = new Uint8ClampedArray(width * height);
+    this._buffer = new Uint8ClampedArray(width * height);
 
     if (initialColor) {
-      this.fill(initialColor);
+      this.fillCanvas(initialColor);
     }
   }
 
   /** Returns the underlying Uint8Array of RGBA pixel data */
   public getBuffer(): Uint8ClampedArray {
-    return this.buffer;
+    return this._buffer;
   }
-  private buffer: Uint8ClampedArray;
+  private _buffer: Uint8ClampedArray;
   
   public dispose(): void {
-    if (this.buffer) {
-      delete this.buffer;
+    if (this._buffer) {
+      delete this._buffer;
     }
   }
 
   /** Fills the canvas with a solid color (0 to 255) */
-  public fill(color: number): void {
-    this.buffer.fill(color);
+  public fillCanvas(color: number): void {
+    this._buffer.fill(color);
   }
 
   /**
@@ -48,21 +48,22 @@ export class FimGreyscaleBuffer extends FimImage {
    */
   public copyFrom(srcImage: FimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Rescaling is not supported
     this.throwOnRescale(srcCoords, destCoords);
 
     // Optimization: If images have the same dimensions, just copy the entire byte array
-    if (srcCoords.equals(destCoords) && srcImage.dimensions.equals(srcCoords) && this.dimensions.equals(destCoords)) {
-      this.buffer.set(srcImage.buffer);
+    if (srcCoords.equals(destCoords) && srcImage.imageDimensions.equals(srcCoords) &&
+        this.imageDimensions.equals(destCoords)) {
+      this._buffer.set(srcImage._buffer);
       return;
     }
 
     // Perform a copy of the image data
-    let srcBuf = srcImage.buffer;
-    let destBuf = this.buffer;
+    let srcBuf = srcImage._buffer;
+    let destBuf = this._buffer;
     for (let y = 0; y < destCoords.h; y++) {
       let srcOffset = (y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft;
       let destOffset = (y + destCoords.yTop) * this.w + destCoords.xLeft;
@@ -81,10 +82,10 @@ export class FimGreyscaleBuffer extends FimImage {
   }
   
   public getPixel(x: number, y: number): number {
-    return this.buffer[y * this.w + x];
+    return this._buffer[y * this.w + x];
   }
 
   public setPixel(x: number, y: number, color: number): void {
-    this.buffer[y * this.w + x] = color;
+    this._buffer[y * this.w + x] = color;
   }
 }

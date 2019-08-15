@@ -20,11 +20,11 @@ class WebGLHelper extends FimCanvasBase {
   /** WebGL rendering context */
   public readonly gl: WebGLRenderingContext;
 
-  public duplicate(): never {
+  public duplicateCanvas(): never {
     throw new FimGLError(FimGLErrorCode.AppError);
   }
   
-  public fill(color: never): never {
+  public fillCanvas(color: never): never {
     throw new FimGLError(FimGLErrorCode.AppError);
   }
 }

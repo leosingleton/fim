@@ -19,9 +19,9 @@ export async function glStress(testCase: string, canvasId: string): Promise<void
       let input = disposable.addDisposable(FimGLTexture.createFrom(gl, srcImage,
         FimGLTextureFlags.LinearSampling));
       let texture = disposable.addDisposable(new FimGLTexture(gl, srcImage.w, srcImage.h,
-        {flags: FimGLTextureFlags.LinearSampling}));
+        { textureFlags: FimGLTextureFlags.LinearSampling }));
       let temp = disposable.addDisposable(new FimGLTexture(gl, srcImage.w, srcImage.h,
-        {flags: FimGLTextureFlags.LinearSampling}));
+        { textureFlags: FimGLTextureFlags.LinearSampling }));
   
       // Create a Gaussian blur
       let kernel = GaussianKernel.calculate(1, 31);
@@ -86,7 +86,7 @@ export async function glStress(testCase: string, canvasId: string): Promise<void
       disposable.dispose();
 
       // Try again after 1 second
-      await Task.delay(1000);
+      await Task.delayAsync(1000);
     }
   }
 }

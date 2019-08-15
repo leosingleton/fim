@@ -57,10 +57,10 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
       let inputTexture = this.inputTexture;
       let width = Math.min(outputTexture ? outputTexture.w : gl.w, inputTexture.w);
       let height = Math.min(outputTexture ? outputTexture.h : gl.h, inputTexture.h);
-      let flags = inputTexture.options.flags & ~FimGLTextureFlags.InputOnly;
+      let flags = inputTexture.textureOptions.textureFlags & ~FimGLTextureFlags.InputOnly;
 
       let outTexture = outputTexture;
-      using(new FimGLTexture(gl, width, height, { flags: flags }), temp => {
+      using(new FimGLTexture(gl, width, height, { textureFlags: flags }), temp => {
         this.executeInternal(temp, outTexture);
       });
     }

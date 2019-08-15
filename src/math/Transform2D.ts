@@ -13,10 +13,10 @@ import { FimRect } from '../primitives/FimRect';
 export class Transform2D {
   public constructor(matrix?: Transform2D | number[]) {
     if (matrix) {
-      this.value = Transform2D.acceptMatrixOrArray(matrix);
+      this.matrix = Transform2D.acceptMatrixOrArray(matrix);
     } else {
       // The default value is an identity matrix
-      this.value = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+      this.matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
     }
   }
 
@@ -24,28 +24,28 @@ export class Transform2D {
    * A 3x3 transformation matrix. The matrix is expressed as an array of 9 values, in column major order (the way
    * OpenGL expects it).
    */
-  public value: number[];
+  public matrix: number[];
 
   /**
    * Transforms a point using this transformation matrix
    * @param point Input X/Y coordinates
    * @returns Transformed X/Y coordinates
    */
-  public transformPoint(point: FimPoint): FimPoint {
+  public transformXY(point: FimPoint): FimPoint {
     return new FimPoint(
-      point.x * this.value[0] + point.y * this.value[3] + this.value[6],
-      point.x * this.value[1] + point.y * this.value[4] + this.value[7]);
+      point.x * this.matrix[0] + point.y * this.matrix[3] + this.matrix[6],
+      point.x * this.matrix[1] + point.y * this.matrix[4] + this.matrix[7]);
   }
 
   /**
    * Applies another transformation using matrix multiplication
    * @param matrix Another 3x3 transformation matrix
    */
-  public transform(matrix: Transform2D | number[]): void {
+  public multiply(matrix: Transform2D | number[]): void {
     let left = Transform2D.acceptMatrixOrArray(matrix);
-    let right = this.value;
+    let right = this.matrix;
 
-    this.value = [
+    this.matrix = [
       left[0 /*1,1*/] * right[0 /*1,1*/] + left[3 /*1,2*/] * right[1 /*2,1*/] + left[6 /*1,3*/] * right[2 /*3,1*/],
       left[1 /*2,1*/] * right[0 /*1,1*/] + left[4 /*2,2*/] * right[1 /*2,1*/] + left[7 /*2,3*/] * right[2 /*3,1*/],
       left[2 /*3,1*/] * right[0 /*1,1*/] + left[5 /*3,2*/] * right[1 /*2,1*/] + left[8 /*3,3*/] * right[2 /*3,1*/],
@@ -63,18 +63,18 @@ export class Transform2D {
    * @param tx X offset (-1 to 1)
    * @param ty Y offset (-1 to 1)
    */
-  public translate(tx: number, ty: number): void {
-    this.transform([1, 0, 0, 0, 1, 0, tx, ty, 1]);
+  public translation(tx: number, ty: number): void {
+    this.multiply([1, 0, 0, 0, 1, 0, tx, ty, 1]);
   }
 
   /**
    * Rotates coordinates by the desired angle
    * @param angle Angle, in radians
    */
-  public rotate(angle: number): void {
+  public rotation(angle: number): void {
     let s = Math.sin(angle);
     let c = Math.cos(angle);
-    this.transform([c, s, 0, -s, c, 0, 0, 0, 1]);
+    this.multiply([c, s, 0, -s, c, 0, 0, 0, 1]);
   }
 
   /**
@@ -82,12 +82,12 @@ export class Transform2D {
    * @param sx X-scale (1 = unchanged)
    * @param sy Y-scale (1 = unchanged)
    */
-  public scale(sx: number, sy: number): void {
-    this.transform([sx, 0, 0, 0, sy, 0, 0, 0, 1]);
+  public rescale(sx: number, sy: number): void {
+    this.multiply([sx, 0, 0, 0, sy, 0, 0, 0, 1]);
   }
 
   private static acceptMatrixOrArray(value: Transform2D | number[]): number[] {
-    let result = (value instanceof Transform2D) ? value.value : value;
+    let result = (value instanceof Transform2D) ? value.matrix : value;
     if (result.length !== 9) {
       throw new Error(`Invalid length ${result.length}`);
     }
@@ -110,11 +110,11 @@ export class Transform2D {
     // First, translate so that the origin (currently at the center of srcDimensions) is moved to the center of
     // srcCoords (keep in mind Y in inverted)
     let result = new Transform2D();
-    result.translate((centerDimensions.x - centerCoords.x) * 2 / srcDimensions.w,
+    result.translation((centerDimensions.x - centerCoords.x) * 2 / srcDimensions.w,
       (centerCoords.y - centerDimensions.y) * 2 / srcDimensions.h);
 
     // Finally, scale to the right size.
-    result.scale(srcDimensions.w / srcCoords.w, srcDimensions.h / srcCoords.h);
+    result.rescale(srcDimensions.w / srcCoords.w, srcDimensions.h / srcCoords.h);
 
     return result;
   }

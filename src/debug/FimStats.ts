@@ -70,7 +70,7 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
 
     if (object instanceof FimImage) {
       let id = object.imageId;
-      let dimensions = object.dimensions;
+      let dimensions = object.imageDimensions;
       let realDimensions = object.realDimensions;
       message += ` ID=${id} (${dimensions.w}x${dimensions.h} => ${realDimensions.w}x${realDimensions.h})`;
 

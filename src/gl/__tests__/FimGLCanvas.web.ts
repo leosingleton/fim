@@ -35,11 +35,11 @@ function spec(useOffscreenCanvas: boolean) {
 
     it('Fills with a solid color', () => {
       using(new FimGLCanvas(640, 480, undefined, useOffscreenCanvas), c => {
-        c.fill('#f00');
+        c.fillCanvas('#f00');
         expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#f00'));
-        c.fill('#0f0');
+        c.fillCanvas('#0f0');
         expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#0f0'));
-        c.fill('#00f');
+        c.fillCanvas('#00f');
         expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#00f'));
       });
     });

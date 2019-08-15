@@ -21,7 +21,7 @@ class BlurImageProcessor extends FimGLImageProcessor {
 
     // Create a preserved texture with a sample JPEG image
     let inputTexture = this.getPreservedTexture(ObjectIDs.InputTexture, input.w, input.h,
-      { flags: FimGLTextureFlags.InputOnly });
+      { textureFlags: FimGLTextureFlags.InputOnly });
     inputTexture.copyFrom(input);
     inputTexture.preserve();
   }
@@ -51,14 +51,14 @@ class BlurImageProcessor extends FimGLImageProcessor {
         program.execute(temp1);
 
         // Copy temp to temp on subsequent runs
-        await TaskScheduler.yield();
+        await TaskScheduler.yieldAsync();
         program.setInputs(temp1, kernel, temp2);
         for (let n = 0; n < reps - 2; n++) {
           program.execute(temp1);
         }
 
         // Copy to the output on the final run
-        await TaskScheduler.yield();
+        await TaskScheduler.yieldAsync();
         program.execute();
       });
 

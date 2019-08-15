@@ -46,7 +46,7 @@ describe('FimGLPreservedTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
 
       // To be sure it works (and wasn't) an artifact of the restore process, render it again
-      gl.fill('#fff');
+      gl.fillCanvas('#fff');
       gl.copyFrom(texture);
 
       // Check a few pixels to ensure the texture rendered correctly
@@ -84,7 +84,7 @@ describe('FimGLPreservedTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
 
       // To be sure it works (and wasn't) an artifact of the restore process, render it again
-      gl.fill('#fff');
+      gl.fillCanvas('#fff');
       gl.copyFrom(texture);
 
       // Check a few pixels to ensure the texture rendered correctly
@@ -125,7 +125,7 @@ describe('FimGLPreservedTexture', () => {
       expectToBeCloseTo(gl.getPixel(360, 360), FimColor.fromString('#000'));
 
       // To be sure it works (and wasn't) an artifact of the restore process, render it again to a different location
-      gl.fill('#fff');
+      gl.fillCanvas('#fff');
       gl.copyFrom(texture, null, FimRect.fromXYWidthHeight(200, 200, 200, 200));
 
       // Check a few pixels to ensure the texture rendered correctly

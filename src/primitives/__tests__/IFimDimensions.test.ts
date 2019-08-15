@@ -10,7 +10,7 @@ describe('IFimDimensions', () => {
     let d = createDimensions(1920, 1080);
     expect(d.w).toEqual(1920);
     expect(d.h).toEqual(1080);
-    expect(d.dimensions.getArea()).toEqual(1920 * 1080);
+    expect(d.imageDimensions.getArea()).toEqual(1920 * 1080);
   });
 
 });

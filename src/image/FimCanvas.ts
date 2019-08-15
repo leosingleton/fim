@@ -30,7 +30,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);
 
     if (initialColor) {
-      this.fill(initialColor);
+      this.fillCanvas(initialColor);
     }
   }
 
@@ -42,9 +42,9 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   }
 
   /** Creates a new FimCanvas which is a duplicate of this one */
-  public duplicate(): FimCanvas {
-    let dupe = new FimCanvas(this.dimensions.w, this.dimensions.h);
-    dupe.copyFromCanvas(this, this.dimensions, this.dimensions);
+  public duplicateCanvas(): FimCanvas {
+    let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h);
+    dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
 
@@ -60,7 +60,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   }
 
   /** Fills the canvas with a solid color */
-  public fill(color: FimColor | string): void {
+  public fillCanvas(color: FimColor | string): void {
     FimCanvasBase.fillCanvas(this.getCanvas(), color);
   }
 
@@ -110,12 +110,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Scale the coordinates
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
+    destCoords = destCoords.rescale(this.downscaleRatio);
 
     // Copy the canvas
     FimCanvasBase.copyCanvasToCanvas(srcImage.getCanvas(), this.canvasElement, srcCoords, destCoords);
@@ -134,12 +134,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   protected async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
       FimRect): Promise<void> {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
 
     // Scale the coordinates
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
+    destCoords = destCoords.rescale(this.downscaleRatio);
     
     // Enable image smoothing if we are rescaling the image
     let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
@@ -167,14 +167,14 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    */
   private copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords || srcImage.dimensions;
-    destCoords = destCoords || this.dimensions;
+    srcCoords = srcCoords || srcImage.imageDimensions;
+    destCoords = destCoords || this.imageDimensions;
     
     // Scale the coordinates
-    srcCoords = srcCoords.scale(srcImage.downscaleRatio);
-    destCoords = destCoords.scale(this.downscaleRatio);
+    srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
+    destCoords = destCoords.rescale(this.downscaleRatio);
     
-    if (srcCoords.equals(srcImage.dimensions) && srcCoords.sameDimensions(destCoords)) {
+    if (srcCoords.equals(srcImage.imageDimensions) && srcCoords.sameDimensions(destCoords)) {
       // Fast case: no cropping or rescaling
       using(this.createDrawingContext(), ctx => {
         let pixels = ctx.createImageData(srcCoords.w, srcCoords.h);
@@ -230,7 +230,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     y *= Math.round(this.downscaleRatio);
 
     using(new FimRgbaBuffer(1, 1, color), buffer => {
-      this.copyFromRgbaBuffer(buffer, buffer.dimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
+      this.copyFromRgbaBuffer(buffer, buffer.imageDimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
 

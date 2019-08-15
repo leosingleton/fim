@@ -33,7 +33,7 @@ export class FimGLPreservedTexture extends FimImage {
     height = height || glCanvas.h;
 
     // Do not allow the AllowLargerThanCanvas flag, as we must use the canvas to preserve the texture
-    if (options && options.flags && (options.flags & FimGLTextureFlags.AllowLargerThanCanvas) !== 0) {
+    if (options && options.textureFlags && (options.textureFlags & FimGLTextureFlags.AllowLargerThanCanvas) !== 0) {
       throw new FimGLError(FimGLErrorCode.AppError, 'NoAllowLargerThanCanvas');
     }
 
@@ -104,7 +104,7 @@ export class FimGLPreservedTexture extends FimImage {
     // than the texture and (2) the canvas may be downscaled and copyFrom does not honor the real coordinates. We don't
     // worry about destRect ever being larger than the canvas, as we suppressed the AllowLargerThanCanvas flag in the
     // constructor.
-    let glRect = texture.realDimensions.scale(1 / glCanvas.downscaleRatio);
+    let glRect = texture.realDimensions.rescale(1 / glCanvas.downscaleRatio);
 
     // Copy the texture to the 2D backing canvas. This takes two steps, as we copy to the WebGL canvas first.
     glCanvas.copyFrom(texture, null, glRect);

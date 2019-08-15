@@ -58,7 +58,7 @@ describe('GaussianKernel', () => {
 
   it('normalize', () => {
     let kernel = [1, 2, 3, 4, 5];
-    let n = GaussianKernel.normalize(kernel);
+    let n = GaussianKernel.normalizeValues(kernel);
     expect(kernel[0]).toBeCloseTo(1/15);
     expect(kernel[1]).toBeCloseTo(2/15);
     expect(kernel[2]).toBeCloseTo(3/15);
