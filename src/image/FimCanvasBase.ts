@@ -11,7 +11,6 @@ import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, using } from '@leosingleton/commonlibs';
 
 // OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
-// @nomangle OffscreenCanvas convertToBlob
 declare class OffscreenCanvas extends EventTarget {
   constructor(width: number, height: number);
   width: number;
@@ -49,6 +48,9 @@ export abstract class FimCanvasBase extends FimImage {
         // The browser does not support OffscreenCanvas
         throw new Error('No OffScreenCanvas');
       }
+
+      // uglify-js is not yet aware of OffscreenCanvas and name mangles it
+      // @nomangle OffscreenCanvas convertToBlob
       this.canvasElement = new OffscreenCanvas(realDimensions.w, realDimensions.h);
     } else {
       // Create a hidden canvas
@@ -100,7 +102,7 @@ export abstract class FimCanvasBase extends FimImage {
         canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
       });
     } else {
-      return this.canvasElement.convertToBlob({ type: 'image/jpeg', quality: 0.95 });
+      return this.canvasElement.convertToBlob({ type: 'image/jpeg', quality: quality });
     }
   }
 
