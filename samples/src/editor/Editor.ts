@@ -139,7 +139,14 @@ function onExecuteShader(shader: Shader): void {
 
     let group = $('<div class="form-group"/>').attr('for', id).appendTo('#execute-shader-form');
     group.append($('<label class="control-label"/>').text(text));
-    group.append($('<input type="text" class="form-control" />').attr('id', id));
+    if (v.variableType.indexOf('sampler') === -1) {
+      group.append($('<input type="text" class="form-control"/>').attr('id', id));
+    } else {
+      let select = $('<select class="form-control"/>').attr('id', id).appendTo(group);
+      textures.forEach(texture => {
+        select.append($('<option/>').attr('value', texture.id).text(texture.name));
+      });
+    }
   }
 
   for (let cname in shader.consts) {
@@ -175,7 +182,14 @@ function runCurrentShader(): FimCanvas {
       let u = currentShader.uniforms[uname];
       let id = `#var-${u.variableName}`;
       let value = eval($(id).val().toString());
-      program.setUniform(uname, value);
+      if (u.variableType.indexOf('sampler') === -1) {
+        program.setUniform(uname, value);
+      } else {
+        let canvas = textures.find(v => v.id === value).canvas;
+        let inputTexture = disposable.addDisposable(new FimGLTexture(gl, canvas.w, canvas.h));
+        inputTexture.copyFrom(canvas);
+        program.setUniform(uname, inputTexture);
+      }
     }
     
     program.execute();
@@ -194,10 +208,12 @@ function onDeleteShader(shader: Shader): void {
 
 class Texture {
   public constructor(name: string, canvas: FimCanvas) {
+    this.id = ++Texture.idCount;
     this.name = name;
     this.canvas = canvas;
   }
 
+  public readonly id: number;
   public readonly name: string;
   public readonly canvas: FimCanvas;
 
@@ -206,6 +222,8 @@ class Texture {
     let name = `${file.name} (${canvas.w}x${canvas.h})`;
     return new Texture(name, canvas);
   }
+
+  private static idCount = 0;
 }
 
 let textures: Texture[] = [];
