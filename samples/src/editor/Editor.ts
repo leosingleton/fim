@@ -248,8 +248,14 @@ function runCurrentShader(): FimCanvas {
   return result;
 }
 
-function onEditShader(shader: Shader = null): void {
+/**
+ * Displays the dialog box to create or edit a shader
+ * @param shader The existing shader if editing. A create dialog is displayed if undefined.
+ */
+function onEditShader(shader?: Shader): void {
   currentShader = shader;
+  $('#add-shader-title').text(shader ? 'Edit Shader' : 'Create New Shader');
+  $('#add-shader-ok').text(shader ? 'Edit' : 'Create');
   $('#add-shader-name').val(shader ? shader.name : '');
   $('#add-shader-source').val(shader ? shader.sourceCode : '');
   $('#add-shader-errors').hide();
