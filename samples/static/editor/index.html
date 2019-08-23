@@ -22,7 +22,12 @@
         <table class="table">
           <thead class="thead-dark">
             <tr>
-              <th>Shader (<a href="#" onclick="Samples.Editor.addShader()">Create</a>)</th>
+              <th>Shader (<a href="#" onclick="Samples.Editor.addShader()">Create</a>
+                &nbsp;|&nbsp;
+                <a href="#"><label for="shader-upload">Import</label><input type="file" id="shader-upload"
+                  style="display:none" accept="text/plain" multiple
+                  onchange="Samples.Editor.uploadShaders(this.files)" /></a>)
+              </th>
               <th>Actions</th>
             </tr>
           </thead>
