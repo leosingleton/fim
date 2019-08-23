@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLProgram } from '../../../build/dist/index.js';
+import { FimCanvas, FimGLCanvas, FimGLProgram, ImageGrid } from '../../../build/dist/index.js';
 import { FimGLVariableDefinitionMap, FimGLShader } from '../../../build/dist/gl/FimGLShader';
 import { using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
@@ -142,8 +142,26 @@ function refreshTextureList(): void {
   });
 }
 
-function onViewTexture(texture: Texture): void {
-  console.log('TODO: onViewTexture');
+async function onViewTexture(texture: Texture): Promise<void> {
+  let canvas = texture.canvas.getCanvas() as HTMLCanvasElement | OffscreenCanvas;
+  let blob: Blob;
+  if (texture.canvas.offscreenCanvas) {
+    let c = canvas as OffscreenCanvas;
+    blob = await c.convertToBlob();
+  } else {
+    let c = canvas as HTMLCanvasElement;
+    blob = await new Promise<Blob>(resolve => c.toBlob(blob => resolve(blob)));
+  }
+
+  let fr = new FileReader();
+  fr.readAsDataURL(blob);
+  fr.onload = () => {
+    let img = new Image();
+    img.src = fr.result as string;
+
+    let popup = window.open('');
+    popup.document.write(img.outerHTML);
+  };
 }
 
 function onDeleteTexture(texture: Texture): void {
