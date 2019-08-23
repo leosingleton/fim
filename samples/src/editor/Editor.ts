@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas, FimGLCanvas, FimGLProgram, FimGLTexture } from '../../../build/dist/index.js';
-import { FimGLVariableDefinitionMap, FimGLShader, FimGLVariableDefinition } from '../../../build/dist/gl/FimGLShader';
+import { FimGLVariableDefinitionMap, FimGLShader } from '../../../build/dist/gl/FimGLShader';
 import { using, DisposableSet } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -87,15 +87,6 @@ class Shader implements FimGLShader {
       };
     }
 
-    // Parse the source code looking for constants
-    let constRegex = /const\s(\w+)\s(\w+)/g;
-    while (match = constRegex.exec(sourceCode)) {
-      this.consts[match[2]] = {
-        variableName: match[2],
-        variableType: match[1]
-      };
-    }
-
     // Try to compile the shader
     using(new FimGLCanvas(100, 100), gl => {
       using(new Program(gl, this), program => {
@@ -133,13 +124,14 @@ function onExecuteShader(shader: Shader): void {
 
   $('#execute-shader-form div').remove();
 
-  function addVar(v: FimGLVariableDefinition): void {
-    let id = `var-${v.variableName}`;
-    let text = `${v.variableName} (${v.variableType})`;
+  for (let uname in shader.uniforms) {
+    let u = shader.uniforms[uname];
+    let id = `uniform-${u.variableName}`;
+    let text = `${u.variableName} (${u.variableType})`;
 
     let group = $('<div class="form-group"/>').attr('for', id).appendTo('#execute-shader-form');
     group.append($('<label class="control-label"/>').text(text));
-    if (v.variableType.indexOf('sampler') === -1) {
+    if (u.variableType.indexOf('sampler') === -1) {
       group.append($('<input type="text" class="form-control"/>').attr('id', id));
     } else {
       let select = $('<select class="form-control"/>').attr('id', id).appendTo(group);
@@ -147,14 +139,6 @@ function onExecuteShader(shader: Shader): void {
         select.append($('<option/>').attr('value', texture.id).text(texture.name));
       });
     }
-  }
-
-  for (let cname in shader.consts) {
-    addVar(shader.consts[cname]);
-  }
-  
-  for (let uname in shader.uniforms) {
-    addVar(shader.uniforms[uname]);
   }
 
   $('#execute-shader-errors').hide();
@@ -171,16 +155,9 @@ function runCurrentShader(): FimCanvas {
     let gl = disposable.addDisposable(new FimGLCanvas(width, height));
     let program = disposable.addDisposable(new Program(gl, currentShader));
 
-    for (let cname in currentShader.consts) {
-      let c = currentShader.consts[cname];
-      let id = `#var-${c.variableName}`;
-      let value = eval($(id).val().toString());
-      program.setConst(cname, value);
-    }
-  
     for (let uname in currentShader.uniforms) {
       let u = currentShader.uniforms[uname];
-      let id = `#var-${u.variableName}`;
+      let id = `#uniform-${u.variableName}`;
       let value = eval($(id).val().toString());
       if (u.variableType.indexOf('sampler') === -1) {
         program.setUniform(uname, value);
