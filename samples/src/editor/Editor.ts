@@ -6,6 +6,7 @@ import { SelectChannelProgram } from './SelectChannel';
 import { FimCanvas, FimGLCanvas, FimGLProgram, FimGLTexture } from '../../../build/dist/index.js';
 import { FimGLVariableDefinitionMap, FimGLShader } from '../../../build/dist/gl/FimGLShader';
 import { using, DisposableSet } from '@leosingleton/commonlibs';
+import { saveAs } from 'file-saver';
 import $ from 'jquery';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
@@ -320,6 +321,8 @@ function refreshTextureList(): void {
     actions.append('&nbsp;');
     actions.append($('<a href="#">A</a>').click(() => onViewTextureChannel(texture, 'A')));
     actions.append(')&nbsp;|&nbsp;');
+    actions.append($('<a href="#">Download</a>').click(() => onDownloadTexture(texture)));
+    actions.append('&nbsp;|&nbsp;');
     actions.append($('<a href="#">Rename</a>').click(() => onRenameTexture(texture)));
     actions.append('&nbsp;|&nbsp;');
     actions.append($('<a href="#">Delete</a>').click(() => onDeleteTexture(texture)));
@@ -342,19 +345,11 @@ function onRenameTextureDone(texture: Texture): void {
 }
 
 function onViewTexture(texture: Texture): Promise<void> {
-  let canvas = texture.canvas.getCanvas() as HTMLCanvasElement | OffscreenCanvas;
-  return onViewCanvas(canvas);
+  return onViewCanvas(texture.canvas);
 }
 
-async function onViewCanvas(canvas: HTMLCanvasElement | OffscreenCanvas): Promise<void> {
-  let blob: Blob;
-  if (canvas instanceof OffscreenCanvas) {
-    let c = canvas as OffscreenCanvas;
-    blob = await c.convertToBlob();
-  } else {
-    let c = canvas as HTMLCanvasElement;
-    blob = await new Promise<Blob>(resolve => c.toBlob(blob => resolve(blob)));
-  }
+async function onViewCanvas(canvas: FimCanvas): Promise<void> {
+  let blob = await canvas.toPngBlob();
 
   let fr = new FileReader();
   fr.readAsDataURL(blob);
@@ -378,10 +373,20 @@ function onViewTextureChannel(texture: Texture, channel: 'R' | 'G' | 'B' | 'A'):
     p.execute();
 
     let newCanvas = disposable.addDisposable(gl.duplicateCanvas());
-    result = onViewCanvas(newCanvas.getCanvas());
+    result = onViewCanvas(newCanvas);
   });
 
   return result;
+}
+
+/** Handler for the Download button */
+async function onDownloadTexture(texture: Texture): Promise<void> {
+  // Generate a filename for the download by replacing all non-alphanumeric characters with underscores
+  let filename = texture.name.replace(/[^\w]/g, '_') + '.png';
+
+  // Save the output
+  let blob = await texture.canvas.toPngBlob();
+  saveAs(blob, filename);
 }
 
 function onDeleteTexture(texture: Texture): void {

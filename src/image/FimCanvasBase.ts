@@ -91,6 +91,31 @@ export abstract class FimCanvasBase extends FimImage {
   public abstract fillCanvas(color: FimColor | string): void;
 
   /**
+   * Exports the canvas to a PNG file
+   * @returns Blob containing PNG data
+   */
+  public async toPngBlob(): Promise<Blob> {
+    if (this.canvasElement instanceof HTMLCanvasElement) {
+      let canvas = this.canvasElement;
+      return new Promise<Blob>(resolve => {
+        canvas.toBlob(blob => resolve(blob));
+      });
+    } else {
+      return this.canvasElement.convertToBlob({});
+    }
+  }
+
+  /**
+   * Exports the canvas to a PNG file
+   * @returns Array containing PNG data
+   */
+  public async toPng(): Promise<Uint8Array> {
+    let blob = await this.toPngBlob();
+    let buffer = await new Response(blob).arrayBuffer();
+    return new Uint8Array(buffer);
+  }
+
+  /**
    * Exports the canvas to a JPEG file
    * @param quality JPEG quality, 0 to 1
    * @returns Blob containing JPEG data
