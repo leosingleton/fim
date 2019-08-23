@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Editor and Tester for GLSL Fragment Shaders</title>
+    <link href="bootstrap.min.css" rel="stylesheet" />
+    <script src="../samples.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Editor and Tester for GLSL Fragment Shaders</h1>
+      </div>
+
+      <div>
+        <h2>Shaders <a href="#" onclick="Samples.Editor.addShader();">+</a></a></h2>
+        <table class="table">
+          <thead class="thead-dark">
+            <tr>
+              <th>Shader Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="shaders"></tbody>
+        </table>
+      </div>
+
+      <div>
+        <h2>Textures <a href="#" onclick="Samples.Editor.addTexture();">+</a></a></h2>
+        <table id="textures">
+        </table>
+      </div>
+
+      <div class="modal fade" tabindex="-1" id="add-shader">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 className="modal-title">Add Shader</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <label for="add-shader-name" class="control-label">Name</label>
+                  <input id="add-shader-name" type="text" class="form-control" />    
+                </div>
+                <div class="form-group">
+                  <label for="add-shader-source" class="control-label">GLSL Source Code</label>
+                  <textarea id="add-shader-source" rows="15" cols="80" class="form-control"></textarea>
+                </div>
+              </form>
+              <div id="add-shader-errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary btn-lg" onclick="Samples.Editor.addShaderOk()">Create</button>
+            </div>           
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+    </div>
+  </body>
+</html>
