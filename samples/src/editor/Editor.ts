@@ -11,16 +11,24 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export namespace Editor {
   export function addShader(): void {
-    $('#add-shader-errors').hide();
-    $('#add-shader').modal('show');
+    onEditShader();
   }
 
   export async function addShaderOk(): Promise<void> {
     try {
       let name = $('#add-shader-name').val().toString();
-      let source = $('#add-shader-source').val().toString();
+      if (!name) {
+        throw new Error('Name is required');
+      }
 
-      let shader = new Shader(name, source);
+      let source = $('#add-shader-source').val().toString();
+      if (!source) {
+        throw new Error('Source code is required');
+      }
+
+      let id = currentShader ? currentShader.id : null;
+      let shader = new Shader(name, source, id);
+      shaders = shaders.filter(s => s !== currentShader);
       shaders.push(shader);
       refreshShaderList();
 
@@ -69,9 +77,10 @@ class Program extends FimGLProgram {
 }
 
 class Shader implements FimGLShader {
-  public constructor(name: string, sourceCode: string) {
+  public constructor(name: string, sourceCode: string, id = ++Shader.idCount) {
     let match: RegExpExecArray
 
+    this.id = id;
     this.name = name;
     this.sourceCode = sourceCode;
 
@@ -92,11 +101,14 @@ class Shader implements FimGLShader {
     });
   }
 
+  public readonly id: number;
   public readonly name: string;
   public readonly sourceCode: string;
   public readonly uniforms: FimGLVariableDefinitionMap = {};
   public readonly consts: FimGLVariableDefinitionMap = {};
   public executionCount = 0;
+
+  private static idCount = 0;
 }
 
 let shaders: Shader[] = [];
@@ -110,11 +122,13 @@ function refreshShaderList(): void {
     let actions = $('<td/>').appendTo(row);
     actions.append($('<a href="#">Execute</a>').click(() => onExecuteShader(shader)));
     actions.append('&nbsp;|&nbsp;');
+    actions.append($('<a href="#">Edit</a>').click(() => onEditShader(shader)));
+    actions.append('&nbsp;|&nbsp;');
     actions.append($('<a href="#">Delete</a>').click(() => onDeleteShader(shader)));
   });
 }
 
-let currentShader: Shader;
+let currentShader: Shader = null;
 
 function onExecuteShader(shader: Shader): void {
   currentShader = shader;
@@ -171,6 +185,14 @@ function runCurrentShader(): FimCanvas {
   });
 
   return result;
+}
+
+function onEditShader(shader: Shader = null): void {
+  currentShader = shader;
+  $('#add-shader-name').val(shader ? shader.name : '');
+  $('#add-shader-source').val(shader ? shader.sourceCode : '');
+  $('#add-shader-errors').hide();
+  $('#add-shader').modal('show');
 }
 
 function onDeleteShader(shader: Shader): void {
