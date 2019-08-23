@@ -238,11 +238,20 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * Creates a FimCanvas from a JPEG file
    * @param jpegFile JPEG file, loaded into a byte array
    */
-  public static async createFromJpeg(jpegFile: Uint8Array, useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas):
+  public static createFromJpeg(jpegFile: Uint8Array, useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas):
+      Promise<FimCanvas> {
+    // Create a Blob holding the binary data and load it onto an HTMLImageElement
+    let blob = new Blob([jpegFile], { type: 'image/jpeg' });
+    return FimCanvas.createFromImageBlob(blob, useOffscreenCanvas);
+  }
+
+  /**
+   * Creates a FimCanvas from a Blob containing an image
+   * @param blob Blob of type 'image/*'
+   */
+  public static async createFromImageBlob(blob: Blob, useOffscreenCanvas = FimCanvas.supportsOffscreenCanvas):
       Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
-      // Create a Blob holding the binary data and load it onto an HTMLImageElement
-      let blob = new Blob([jpegFile], { type: 'image/jpeg' });
       let url = (URL || webkitURL).createObjectURL(blob);
       let img = new Image();
       img.src = url;

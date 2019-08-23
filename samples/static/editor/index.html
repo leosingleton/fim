@@ -13,12 +13,12 @@
         <h1>Editor and Tester for GLSL Fragment Shaders</h1>
       </div>
 
-      <div>
-        <h2>Shaders <a href="#" onclick="Samples.Editor.addShader();">+</a></a></h2>
+      <div class="mt-5">
+        <h2>Shaders <a href="#" onclick="Samples.Editor.addShader()">+</a></a></h2>
         <table class="table">
           <thead class="thead-dark">
             <tr>
-              <th>Shader Name</th>
+              <th>Name</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -26,11 +26,24 @@
         </table>
       </div>
 
-      <div>
-        <h2>Textures <a href="#" onclick="Samples.Editor.addTexture();">+</a></a></h2>
-        <table id="textures">
-        </table>
-      </div>
+      <div class="mt-5">
+        <h2>Textures
+          <a href="#">
+            <label for="texture-upload">+</label>
+            <input type="file" id="texture-upload" style="display:none" accept="image/*" multiple
+              onchange="Samples.Editor.uploadTextures(this.files)" />
+          </a>
+        </h2>
+        <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="textures"></tbody>
+          </table>
+        </div>
 
       <div class="modal fade" tabindex="-1" id="add-shader">
         <div class="modal-dialog modal-lg modal-dialog-centered">

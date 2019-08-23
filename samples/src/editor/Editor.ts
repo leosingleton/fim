@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas, FimGLProgram } from '../../../build/dist/index.js';
+import { FimCanvas, FimGLCanvas, FimGLProgram } from '../../../build/dist/index.js';
 import { FimGLVariableDefinitionMap, FimGLShader } from '../../../build/dist/gl/FimGLShader';
 import { using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
@@ -29,8 +29,11 @@ export namespace Editor {
     }
   }
 
-  export function addTexture(): void {
-    console.log('TODO: addTexture');
+  export async function uploadTextures(files: FileList): Promise<void> {
+    for (let i = 0; i < files.length; i++) {
+      textures.push(await Texture.createFromFile(files[i]));
+    }
+    refreshTextureList();
   }
 }
 
@@ -106,4 +109,44 @@ function onExecuteShader(shader: Shader): void {
 function onDeleteShader(shader: Shader): void {
   shaders = shaders.filter(s => s !== shader);
   refreshShaderList();
+}
+
+class Texture {
+  public constructor(name: string, canvas: FimCanvas) {
+    this.name = name;
+    this.canvas = canvas;
+  }
+
+  public readonly name: string;
+  public readonly canvas: FimCanvas;
+
+  public static async createFromFile(file: File): Promise<Texture> {
+    let canvas = await FimCanvas.createFromImageBlob(file);
+    let name = `${file.name} (${canvas.w}x${canvas.h})`;
+    return new Texture(name, canvas);
+  }
+}
+
+let textures: Texture[] = [];
+
+function refreshTextureList(): void {
+  $('#textures tr').remove();
+  textures.forEach(texture => {
+    let row = $('<tr/>').appendTo('#textures');
+    row.append($('<td/>').text(texture.name));
+
+    let actions = $('<td/>').appendTo(row);
+    actions.append($('<a href="#">View</a>').click(() => onViewTexture(texture)));
+    actions.append('&nbsp;|&nbsp;');
+    actions.append($('<a href="#">Delete</a>').click(() => onDeleteTexture(texture)));
+  });
+}
+
+function onViewTexture(texture: Texture): void {
+  console.log('TODO: onViewTexture');
+}
+
+function onDeleteTexture(texture: Texture): void {
+  textures = textures.filter(t => t !== texture);
+  refreshTextureList();
 }
