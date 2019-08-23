@@ -275,6 +275,7 @@ class Texture {
   public readonly id: number;
   public readonly name: string;
   public readonly canvas: FimCanvas;
+  public isRenaming = false;
 
   public static async createFromFile(file: File): Promise<Texture> {
     let canvas = await FimCanvas.createFromImageBlob(file);
@@ -294,7 +295,13 @@ function refreshTextureList(): void {
   $('#textures tr').remove();
   textures.forEach(texture => {
     let row = $('<tr/>').appendTo('#textures');
-    row.append($('<td/>').text(texture.name));
+    if (!texture.isRenaming) {
+      row.append($('<td/>').text(texture.name));
+    } else {
+      // When renaming, the name becomes an edit box
+      row.append($('<td/>').append($('<input type="text" id="rename-texture" class="form-control"/>')
+        .val(texture.name).focusout(() => onRenameTextureDone(texture))));
+    }
 
     let actions = $('<td/>').appendTo(row);
     actions.append($('<a href="#">View</a>').click(() => onViewTexture(texture)));
@@ -307,8 +314,25 @@ function refreshTextureList(): void {
     actions.append('&nbsp;');
     actions.append($('<a href="#">A</a>').click(() => onViewTextureChannel(texture, 'A')));
     actions.append(')&nbsp;|&nbsp;');
+    actions.append($('<a href="#">Rename</a>').click(() => onRenameTexture(texture)));
+    actions.append('&nbsp;|&nbsp;');
     actions.append($('<a href="#">Delete</a>').click(() => onDeleteTexture(texture)));
   });
+}
+
+/** Called when the button to rename a texture is clicked. Changes the name to an edit box. */
+function onRenameTexture(texture: Texture): void {
+  texture.isRenaming = true;
+  refreshTextureList();
+}
+
+/** Called when the edit box to rename a texture loses focus. Performs the actual rename. */
+function onRenameTextureDone(texture: Texture): void {
+  let name = $('#rename-texture').val().toString();
+  let newTexture = new Texture(name, texture.canvas);
+  textures = textures.filter(t => t !== texture);
+  textures.push(newTexture);
+  refreshTextureList();
 }
 
 function onViewTexture(texture: Texture): Promise<void> {
