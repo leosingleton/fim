@@ -10,6 +10,25 @@ import $ from 'jquery';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export namespace Editor {
+  export function onLoad(): void {
+    // Load previous shaders from local storage on startup
+    for (let n = 0; n < localStorage.length; n++) {
+      let key = localStorage.key(n);
+      if (key.indexOf('shader_name_') === 0) {
+        // We found a shader
+        let id = Number.parseInt(key.substring(12));
+        let name = localStorage.getItem(`shader_name_${id}`);
+        let source = localStorage.getItem(`shader_source_${id}`);
+
+        // Create the shader
+        let shader = new Shader(name, source, id);
+        shaders.push(shader);  
+      }
+    }
+
+    refreshShaderList();
+  }
+
   export function addShader(): void {
     onEditShader();
   }
@@ -77,8 +96,17 @@ class Program extends FimGLProgram {
 }
 
 class Shader implements FimGLShader {
-  public constructor(name: string, sourceCode: string, id = ++Shader.idCount) {
+  public constructor(name: string, sourceCode: string, id?: number) {
     let match: RegExpExecArray
+
+    if (!id) {
+      id = ++Shader.idCount;
+    }
+
+    // When loading from localStorage, also increment the next ID
+    if (id > Shader.idCount) {
+      Shader.idCount = id;
+    }
 
     this.id = id;
     this.name = name;
@@ -99,6 +127,10 @@ class Shader implements FimGLShader {
         program.compileProgram();
       });
     });
+
+    // Write the shader to local storage
+    localStorage.setItem(`shader_name_${id}`, name);
+    localStorage.setItem(`shader_source_${id}`, sourceCode);
   }
 
   public readonly id: number;
@@ -198,6 +230,10 @@ function onEditShader(shader: Shader = null): void {
 function onDeleteShader(shader: Shader): void {
   shaders = shaders.filter(s => s !== shader);
   refreshShaderList();
+
+  // Also delete from local storage
+  localStorage.removeItem(`shader_name_${shader.id}`);
+  localStorage.removeItem(`shader_source_${shader.id}`);
 }
 
 class Texture {
