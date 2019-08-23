@@ -19,11 +19,10 @@
       </div>
 
       <div class="mt-5">
-        <h2>Shaders <a href="#" onclick="Samples.Editor.addShader()">+</a></a></h2>
         <table class="table">
           <thead class="thead-dark">
             <tr>
-              <th>Name</th>
+              <th>Shader (<a href="#" onclick="Samples.Editor.addShader()">Create</a>)</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -32,17 +31,14 @@
       </div>
 
       <div class="mt-5">
-        <h2>Textures
-          <a href="#">
-            <label for="texture-upload">+</label>
-            <input type="file" id="texture-upload" style="display:none" accept="image/*" multiple
-              onchange="Samples.Editor.uploadTextures(this.files)" />
-          </a>
-        </h2>
         <table class="table">
             <thead class="thead-dark">
               <tr>
-                <th>Name</th>
+                <th>Texture
+                  (<a href="#"><label for="texture-upload">Import</label><input type="file" id="texture-upload"
+                    style="display:none" accept="image/*" multiple
+                    onchange="Samples.Editor.uploadTextures(this.files)" /></a>)
+                </th>
                 <th>Actions</th>
               </tr>
             </thead>
