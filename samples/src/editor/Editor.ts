@@ -172,6 +172,9 @@ class Shader implements FimGLShader {
 let shaders: Shader[] = [];
 
 function refreshShaderList(): void {
+  // Sort alphabetically by name
+  shaders = shaders.sort(sortByName);
+
   $('#shaders tr').remove();
   shaders.forEach(shader => {
     let row = $('<tr/>').appendTo('#shaders');
@@ -285,6 +288,9 @@ class Texture {
 let textures: Texture[] = [];
 
 function refreshTextureList(): void {
+  // Sort alphabetically by name
+  textures = textures.sort(sortByName);
+
   $('#textures tr').remove();
   textures.forEach(texture => {
     let row = $('<tr/>').appendTo('#textures');
@@ -352,4 +358,18 @@ function onDeleteTexture(texture: Texture): void {
   texture.canvas.dispose();
   textures = textures.filter(t => t !== texture);
   refreshTextureList();
+}
+
+/** Helper function for Array.sort() */
+function sortByName(obj1: Shader | Texture, obj2: Shader | Texture): number {
+  let name1 = obj1.name.toUpperCase();
+  let name2 = obj2.name.toUpperCase();
+
+  if (name1 < name2) {
+    return -1;
+  } else if (name1 > name2) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
