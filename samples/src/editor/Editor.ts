@@ -2,14 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLProgram, ImageGrid } from '../../../build/dist/index.js';
-import { FimGLVariableDefinitionMap, FimGLShader } from '../../../build/dist/gl/FimGLShader';
-import { using } from '@leosingleton/commonlibs';
+import { FimCanvas, FimGLCanvas, FimGLProgram, FimGLTexture } from '../../../build/dist/index.js';
+import { FimGLVariableDefinitionMap, FimGLShader, FimGLVariableDefinition } from '../../../build/dist/gl/FimGLShader';
+import { using, DisposableSet } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export namespace Editor {
   export function addShader(): void {
+    $('#add-shader-errors').hide();
     $('#add-shader').modal('show');
   }
 
@@ -29,6 +30,21 @@ export namespace Editor {
     }
   }
 
+  export function executeShaderOk(): void {
+    try {
+      let canvas = runCurrentShader();
+
+      let texture = new Texture(`Output of ${currentShader.name} ${++currentShader.executionCount}`, canvas);
+      textures.push(texture);
+      refreshTextureList();
+
+      $('#execute-shader').modal('hide');
+    } catch (err) {
+      $('#execute-shader-errors').text(err);
+      $('#execute-shader-errors').show();
+    }
+  }
+
   export async function uploadTextures(files: FileList): Promise<void> {
     for (let i = 0; i < files.length; i++) {
       textures.push(await Texture.createFromFile(files[i]));
@@ -45,6 +61,14 @@ class Program extends FimGLProgram {
   public compileProgram(): void {
     super.compileProgram();
   }
+
+  public setConst(name: string, value: number | number[] | boolean): void {
+    this.fragmentShader.consts[name].variableValue = value;
+  }
+
+  public setUniform(name: string, value: number | number[] | boolean | FimGLTexture): void {
+    this.fragmentShader.uniforms[name].variableValue = value;
+  }
 }
 
 class Shader implements FimGLShader {
@@ -57,9 +81,9 @@ class Shader implements FimGLShader {
     // Parse the source code looking for uniforms
     let uniformRegex = /uniform\s(\w+)\s(\w+)/g;
     while (match = uniformRegex.exec(sourceCode)) {
-      this.uniforms[match[1]] = {
-        variableName: match[1],
-        variableType: match[0]
+      this.uniforms[match[2]] = {
+        variableName: match[2],
+        variableType: match[1]
       };
     }
 
@@ -102,8 +126,65 @@ function refreshShaderList(): void {
   });
 }
 
+let currentShader: Shader;
+
 function onExecuteShader(shader: Shader): void {
-  console.log('TODO: onExecuteShader');
+  currentShader = shader;
+
+  $('#execute-shader-form div').remove();
+
+  function addVar(v: FimGLVariableDefinition): void {
+    let id = `var-${v.variableName}`;
+    let text = `${v.variableName} (${v.variableType})`;
+
+    let group = $('<div class="form-group"/>').attr('for', id).appendTo('#execute-shader-form');
+    group.append($('<label class="control-label"/>').text(text));
+    group.append($('<input type="text" class="form-control" />').attr('id', id));
+  }
+
+  for (let cname in shader.consts) {
+    addVar(shader.consts[cname]);
+  }
+  
+  for (let uname in shader.uniforms) {
+    addVar(shader.uniforms[uname]);
+  }
+
+  $('#execute-shader-errors').hide();
+  $('#execute-shader').modal('show');
+}
+
+function runCurrentShader(): FimCanvas {
+  let result: FimCanvas;
+
+  let width = $('#execute-shader-width').val() as number;
+  let height = $('#execute-shader-height').val() as number;
+
+  DisposableSet.using(disposable => {
+    let gl = disposable.addDisposable(new FimGLCanvas(width, height));
+    let program = disposable.addDisposable(new Program(gl, currentShader));
+
+    for (let cname in currentShader.consts) {
+      let c = currentShader.consts[cname];
+      let id = `#var-${c.variableName}`;
+      let value = eval($(id).val().toString());
+      program.setConst(cname, value);
+    }
+  
+    for (let uname in currentShader.uniforms) {
+      let u = currentShader.uniforms[uname];
+      let id = `#var-${u.variableName}`;
+      let value = eval($(id).val().toString());
+      program.setUniform(uname, value);
+    }
+    
+    program.execute();
+
+    result = new FimCanvas(width, height);
+    result.copyFrom(gl);
+  });
+
+  return result;
 }
 
 function onDeleteShader(shader: Shader): void {
@@ -165,6 +246,7 @@ async function onViewTexture(texture: Texture): Promise<void> {
 }
 
 function onDeleteTexture(texture: Texture): void {
+  texture.canvas.dispose();
   textures = textures.filter(t => t !== texture);
   refreshTextureList();
 }
