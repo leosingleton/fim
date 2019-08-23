@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { SelectChannelProgram } from './SelectChannel';
 import { FimCanvas, FimGLCanvas, FimGLProgram, FimGLTexture } from '../../../build/dist/index.js';
 import { FimGLVariableDefinitionMap, FimGLShader } from '../../../build/dist/gl/FimGLShader';
 import { using, DisposableSet } from '@leosingleton/commonlibs';
@@ -60,10 +61,6 @@ class Program extends FimGLProgram {
 
   public compileProgram(): void {
     super.compileProgram();
-  }
-
-  public setConst(name: string, value: number | number[] | boolean): void {
-    this.fragmentShader.consts[name].variableValue = value;
   }
 
   public setUniform(name: string, value: number | number[] | boolean | FimGLTexture): void {
@@ -170,9 +167,7 @@ function runCurrentShader(): FimCanvas {
     }
     
     program.execute();
-
-    result = new FimCanvas(width, height);
-    result.copyFrom(gl);
+    result = gl.duplicateCanvas();
   });
 
   return result;
@@ -213,15 +208,27 @@ function refreshTextureList(): void {
 
     let actions = $('<td/>').appendTo(row);
     actions.append($('<a href="#">View</a>').click(() => onViewTexture(texture)));
-    actions.append('&nbsp;|&nbsp;');
+    actions.append('&nbsp;(');
+    actions.append($('<a href="#">R</a>').click(() => onViewTextureChannel(texture, 'R')));
+    actions.append('&nbsp;');
+    actions.append($('<a href="#">G</a>').click(() => onViewTextureChannel(texture, 'G')));
+    actions.append('&nbsp;');
+    actions.append($('<a href="#">B</a>').click(() => onViewTextureChannel(texture, 'B')));
+    actions.append('&nbsp;');
+    actions.append($('<a href="#">A</a>').click(() => onViewTextureChannel(texture, 'A')));
+    actions.append(')&nbsp;|&nbsp;');
     actions.append($('<a href="#">Delete</a>').click(() => onDeleteTexture(texture)));
   });
 }
 
-async function onViewTexture(texture: Texture): Promise<void> {
+function onViewTexture(texture: Texture): Promise<void> {
   let canvas = texture.canvas.getCanvas() as HTMLCanvasElement | OffscreenCanvas;
+  return onViewCanvas(canvas);
+}
+
+async function onViewCanvas(canvas: HTMLCanvasElement | OffscreenCanvas): Promise<void> {
   let blob: Blob;
-  if (texture.canvas.offscreenCanvas) {
+  if (canvas instanceof OffscreenCanvas) {
     let c = canvas as OffscreenCanvas;
     blob = await c.convertToBlob();
   } else {
@@ -238,6 +245,23 @@ async function onViewTexture(texture: Texture): Promise<void> {
     let popup = window.open('');
     popup.document.write(img.outerHTML);
   };
+}
+
+function onViewTextureChannel(texture: Texture, channel: 'R' | 'G' | 'B' | 'A'): Promise<void> {
+  let result: Promise<void>;
+  DisposableSet.using(disposable => {
+    let oldCanvas = texture.canvas;
+    let gl = disposable.addDisposable(new FimGLCanvas(oldCanvas.w, oldCanvas.h));
+    let tex = disposable.addDisposable(FimGLTexture.createFrom(gl, oldCanvas));
+    let p = disposable.addDisposable(new SelectChannelProgram(gl));
+    p.setInputs(tex, channel);
+    p.execute();
+
+    let newCanvas = disposable.addDisposable(gl.duplicateCanvas());
+    result = onViewCanvas(newCanvas.getCanvas());
+  });
+
+  return result;
 }
 
 function onDeleteTexture(texture: Texture): void {
