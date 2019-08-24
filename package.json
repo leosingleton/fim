@@ -1,6 +1,6 @@
 {
   "name": "@leosingleton/fim",
-  "version": "1.0.0-alpha.13",
+  "version": "1.0.0-alpha.14",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "Fast Image Manipulation Library for JavaScript",
   "homepage": "https://github.com/leosingleton/fim",
@@ -11,11 +11,15 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
+    "@types/bootstrap": "4.3.1",
+    "@types/file-saver": "^2.0.1",
     "@types/jasmine": "^3.3.13",
     "@types/jest": "^24.0.15",
     "@types/jquery": "^3.3.30",
     "@types/node": "^12.6.2",
+    "bootstrap": "^4.3.1",
     "copy-webpack-plugin": "^5.0.3",
+    "file-saver": "^2.0.2",
     "glob": "^7.1.4",
     "jasmine-core": "^3.4.0",
     "jest": "^24.8.0",

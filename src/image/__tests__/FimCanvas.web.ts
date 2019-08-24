@@ -190,6 +190,19 @@ function spec(useOffscreenCanvas: boolean) {
       });
     });
 
+    it('Encodes PNGs', async () => {
+      await usingAsync(new FimCanvas(320, 320, '#f00', useOffscreenCanvas), async canvas => {
+        // Write to PNG
+        let png = await canvas.toPng();
+
+        // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
+        expect(png[0]).toBe(0x89);
+        expect(png[1]).toBe(0x50);
+        expect(png[2]).toBe(0x4e);
+        expect(png[3]).toBe(0x47);
+      });
+    });
+
     it('Encodes JPEGs', async () => {
       await usingAsync(new FimCanvas(320, 320, '#f00', useOffscreenCanvas), async canvas => {
         // Write to JPEG

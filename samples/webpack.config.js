@@ -28,6 +28,11 @@ var config = {
         context: './static/',
         from: '**/*',
         to: './'
+      },
+      {
+        context: '../node_modules/bootstrap/dist/css/',
+        from: 'bootstrap.min.css',
+        to: './editor/'
       }
     ])
   ],
