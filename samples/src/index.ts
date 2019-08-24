@@ -8,7 +8,6 @@ export * from './GLStress';
 export * from './GLTransform2D';
 export * from './GLTransform3D';
 export * from './JpegLoadStress';
-export * from './editor/Editor';
 export * from './perf/CanvasCopy';
 export * from './perf/GLCopyProgram';
 export * from './perf/TexImage2D';
