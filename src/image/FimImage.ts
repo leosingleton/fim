@@ -19,8 +19,8 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    *    requested width or height exceeds this, the image will be automatically downscaled.
    */
   public constructor(width: number, height: number, maxDimension = 0) {
-    this.w = width;
-    this.h = height;
+    this.w = width = Math.floor(width);
+    this.h = height = Math.floor(height);
     this.imageDimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
 
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
