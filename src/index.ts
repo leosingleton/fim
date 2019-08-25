@@ -16,6 +16,7 @@ export { FimGLPreservedTexture } from './gl/processor/FimGLPreservedTexture';
 export { FimGLProgramAlphaBlend } from './gl/programs/FimGLProgramAlphaBlend';
 export { FimGLProgramCopy } from './gl/programs/FimGLProgramCopy';
 export { FimGLProgramDarker } from './gl/programs/FimGLProgramDarker';
+export { FimGLProgramDownscale } from './gl/programs/FimGLProgramDownscale';
 export { FimGLProgramFill } from './gl/programs/FimGLProgramFill';
 export { FimGLProgramImageStacking } from './gl/programs/FimGLProgramImageStacking';
 export { FimGLProgramLinearTransform } from './gl/programs/FimGLProgramLinearTransform';
