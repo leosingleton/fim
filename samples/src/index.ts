@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+export * from './Downscale';
 export * from './GLBlur';
 export * from './GLBlurGrid';
 export * from './GLStress';
