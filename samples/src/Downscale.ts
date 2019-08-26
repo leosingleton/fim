@@ -3,25 +3,15 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas, FimRgbaBuffer, FimColor, FimGLCanvas, FimGLTexture, FimGLTextureFlags,
-  FimGLProgramDownscale } from '../../build/dist/index.js';
+  FimGLProgramDownscale, 
+  FimTestPatterns} from '../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function downscale(): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
     // Build the test pattern
     let testBuffer = disposable.addDisposable(new FimRgbaBuffer(512, 512));
-    for (let x = 0; x < testBuffer.w; x++) {
-      let color = '#fff';
-      switch (x % 4) {
-        case 0: color = '#f00'; break;
-        case 1: color = '#0f0'; break;
-        case 2: color = '#00f'; break;
-      }
-
-      for (let y = 0; y < testBuffer.h; y++) {
-        testBuffer.setPixel(x, y, FimColor.fromString(color));
-      }
-    }
+    FimTestPatterns.render(testBuffer, FimTestPatterns.downscaleStress);
 
     // Copy the test pattern to a canvas and draw it
     let test = disposable.addDisposable(new FimCanvas(testBuffer.w, testBuffer.h));
