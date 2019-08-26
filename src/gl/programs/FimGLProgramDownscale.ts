@@ -88,44 +88,19 @@ export class FimGLProgramDownscale extends FimGLProgram {
       return [[0, 1]];
     }
 
-    // Cover as many pixels as possible by sampling the midpoint of 2 pixels. Note that the pixels[] array has not yet
-    // calculated the proper weights yet--instead, we use the weight field to track the number of pixels counted.
+    // Calculate the offset of the rightmost point
+    let rightMost = halfRatio - 1;
+
+    // Space the sample points equally
+    let spacing = (rightMost * 2) / (count - 1);
+
+    // Create the points
     let pixels = [];
-    let rightMost = 0;
-    let weightSum = 0;
-    if (count % 2 === 0) {
-      // Even number of samples
-      for (let n = 0; n < (count / 2) - 1; n++) {
-        let offset = n * 2 + 1;
-        pixels.push([offset, 2]);
-        pixels.push([-offset, 2]);
-        weightSum += 4;
-        rightMost = offset + 1;
-      }
-    } else {
-      // Odd number of samples
-      pixels.push([0, 2]);
-      weightSum += 2;
-      for (let n = 0; n < Math.floor(count / 2) - 1; n++) {
-        let offset = (n + 1) * 2;
-        pixels.push([offset, 2]);
-        pixels.push([-offset, 2]);
-        weightSum += 4;
-        rightMost = offset + 1;
-      }
+    let weight = 1 / count;
+    for (let n = 0; n < count; n++) {
+      let offset = -rightMost + spacing * n;
+      pixels.push([offset, weight]);
     }
-
-    // At this point, there's between 1 and 2 pixels remaining on each side
-    let pixelsRemaining = halfRatio - rightMost;
-
-    // Calculate the two remaining samples
-    let offset = rightMost + (pixelsRemaining / 2);
-    pixels.push([offset, pixelsRemaining]);
-    pixels.push([-offset, pixelsRemaining]);
-    weightSum += pixelsRemaining * 2;
-
-    // Finally, we have to normalize the weights so they add up to exactly 1
-    pixels.forEach(pixel => pixel[1] /= weightSum);
 
     return pixels;
   }
