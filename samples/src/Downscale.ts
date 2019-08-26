@@ -50,6 +50,10 @@ export async function downscale(): Promise<void> {
     await testDownscaleWithCanvas(test, 16);
     await testDownscaleWithGLCopy(test, 16);
     await testDownscaleWithGL(test, 16);
+
+    await testDownscaleWithCanvas(test, 48);
+    await testDownscaleWithGLCopy(test, 48);
+    await testDownscaleWithGL(test, 48);
   });
 }
 
