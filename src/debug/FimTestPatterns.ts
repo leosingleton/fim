@@ -24,6 +24,18 @@ export module FimTestPatterns {
     return FimColor.fromRGBABytes(x % 256, x % 256, x % 256, 255);
   }
 
+  /** Generator function for a test pattern that stresses downscale operations. On average, it is 50% grey. */
+  export function downscaleStress(x: number, y: number): FimColor {
+    let color = '#fff';
+    switch (x % 4) {
+      case 0: color = '#f00'; break;
+      case 1: color = '#0f0'; break;
+      case 2: color = '#00f'; break;
+    }
+
+    return FimColor.fromString(color);
+  }
+
   /**
    * Renders a test pattern to the destination image
    * @param destImage Destination image
