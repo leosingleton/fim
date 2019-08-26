@@ -83,45 +83,50 @@ export class FimGLProgramDownscale extends FimGLProgram {
     // adjacent pixels with each texture2D call.
     let count = Math.ceil(halfRatio);
 
-    // If there's only one pixel to sample, there's no offset or weight
+    // If there's only one pixel to sample, there's no offset or weight. This happens whenever ratio <= 2.
     if (count === 1) {
       return [[0, 1]];
     }
 
-    // Calculate the rightmost sample point. This follows a stairstep function...
-    //  ratio ==> count ==> rightmost
-    //  2.001 ==>   2   ==>  0.5
-    //  4.000 ==>   2   ==>  1
-    //  4.001 ==>   3   ==>  1.5
-    //  6.000 ==>   3   ==>  2
-    //  6.001 ==>   4   ==>  2.5
-    //  8.000 ==>   4   ==>  3
-    //  8.001 ==>   5   ==>  3.5
-    // 10.000 ==>   5   ==>  4
-    let rightMost = (halfRatio + count - 2) / 2;
-
-    let weight = 1 / count; // BUGBUG: The weight of the rightmost and leftmost points should not be equal!
+    // Cover as many pixels as possible by sampling the midpoint of 2 pixels. Note that the pixels[] array has not yet
+    // calculated the proper weights yet--instead, we use the weight field to track the number of pixels counted.
     let pixels = [];
-
+    let rightMost = 0;
+    let weightSum = 0;
     if (count % 2 === 0) {
       // Even number of samples
-      for (let n = 0; n < count / 2 - 1; n++) {
+      for (let n = 0; n < (count / 2) - 1; n++) {
         let offset = n * 2 + 1;
-        pixels.push([offset, weight]);
-        pixels.push([-offset, weight]);
+        pixels.push([offset, 2]);
+        pixels.push([-offset, 2]);
+        weightSum += 4;
+        rightMost = offset + 1;
       }
     } else {
       // Odd number of samples
-      pixels.push([0, weight]);
+      pixels.push([0, 2]);
+      weightSum += 2;
       for (let n = 0; n < Math.floor(count / 2) - 1; n++) {
         let offset = (n + 1) * 2;
-        pixels.push([offset, weight]);
-        pixels.push([-offset, weight]);
+        pixels.push([offset, 2]);
+        pixels.push([-offset, 2]);
+        weightSum += 4;
+        rightMost = offset + 1;
       }
     }
 
-    pixels.push([rightMost, weight]);
-    pixels.push([-rightMost, weight]);
+    // At this point, there's between 1 and 2 pixels remaining on each side
+    let pixelsRemaining = halfRatio - rightMost;
+
+    // Calculate the two remaining samples
+    let offset = rightMost + (pixelsRemaining / 2);
+    pixels.push([offset, pixelsRemaining]);
+    pixels.push([-offset, pixelsRemaining]);
+    weightSum += pixelsRemaining * 2;
+
+    // Finally, we have to normalize the weights so they add up to exactly 1
+    pixels.forEach(pixel => pixel[1] /= weightSum);
+
     return pixels;
   }
 }
