@@ -50,7 +50,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
   private pixelCount: number;
 
   private calculateSamplePixels(xRatio: number, yRatio: number): void {
-    let xPixels = this.calculateSamplePixelsOneAxis(xRatio); console.log(`${xRatio} -> ${xPixels}`);
+    let xPixels = this.calculateSamplePixelsOneAxis(xRatio);
     let yPixels = this.calculateSamplePixelsOneAxis(yRatio);
 
     let xCount = xPixels.length;
