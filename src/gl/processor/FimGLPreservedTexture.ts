@@ -44,6 +44,7 @@ export class FimGLPreservedTexture extends FimImage {
     super(width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
     this.glCanvas = glCanvas;
     this.texture = texture;
+    this.textureOptions = texture.textureOptions;
   
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.
     this.backingCanvas = new FimCanvas(texture.realDimensions.w, texture.realDimensions.h);
@@ -116,7 +117,7 @@ export class FimGLPreservedTexture extends FimImage {
 
   // Settings for re-creating the texture
   private glCanvas: FimGLCanvas;
-  private textureOptions: FimGLTextureOptions;
+  public readonly textureOptions: FimGLTextureOptions;
 
   //
   // The remainder of this class just duplicates FimGLTexture methods so the two can be used interchangeably

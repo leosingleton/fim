@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimGLTexture } from '../FimGLTexture';
+import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 
 /** GL program to downscale a texture to a lower resolution */
@@ -26,6 +27,10 @@ export class FimGLProgramDownscale extends FimGLProgram {
   }
 
   public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture): void {
+    // Ensure the input texture has linear filtering enabled
+    if ((inputTexture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
+      throw new FimGLError(FimGLErrorCode.AppError, 'NotLinear');
+    }
     this.fragmentShader.uniforms.uInput.variableValue = inputTexture;
 
     // The X and Y of the sample pixels must be scaled based on the actual input resolution
@@ -45,7 +50,32 @@ export class FimGLProgramDownscale extends FimGLProgram {
   private pixelCount: number;
 
   private calculateSamplePixels(xRatio: number, yRatio: number): void {
-    this.pixelCount = 4;
-    this.pixels = [-1, -1, 0.25, -1, 1, 0.25, 1, -1, 0.25, 1, 1, 0.25];
+    let xPixels = this.calculateSamplePixelsOneAxis(xRatio);
+    let yPixels = this.calculateSamplePixelsOneAxis(yRatio);
+
+    let xCount = xPixels.length;
+    let yCount = yPixels.length;
+    this.pixelCount = xCount * yCount;
+    
+    let pixels: number[] = [];
+    for (let x = 0; x < xCount; x++) {
+      let xPixel = xPixels[x];
+      for (let y = 0; y < yCount; y++) {
+        let yPixel = yPixels[y];
+        pixels.push(xPixel[0]);             // X offset
+        pixels.push(yPixel[0]);             // Y offset
+        pixels.push(xPixel[1] * yPixel[1]); // Weight
+      }
+    }
+    this.pixels = pixels;
+  }
+
+  /**
+   * Calculates the pixels to sample in one direction
+   * @param ratio Downscale ratio of the axis, where 1 is unchanged, 2 is halved, 4 is quartered...
+   * @returns Array of [offset, weight] tuples for the pixels we should sample
+   */
+  private calculateSamplePixelsOneAxis(ratio: number): number[][] {
+    return [[-1, 0.5], [1, 0.5]];
   }
 }
