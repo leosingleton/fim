@@ -20,7 +20,9 @@ export class FimGLProgramDownscale extends FimGLProgram {
     let fragmentShader = require('./glsl/Downscale.glsl');
     super(canvas, fragmentShader);
 
-    this.calculateSamplePixels(xRatio, yRatio);
+    let c = FimGLProgramDownscale.calculateSamplePixels(xRatio, yRatio);
+    this.pixelCount = c.pixelCount;
+    this.pixels = c.pixels;
 
     this.fragmentShader.consts.PIXELS.variableValue = [this.pixelCount];
     this.compileProgram();
@@ -34,28 +36,29 @@ export class FimGLProgramDownscale extends FimGLProgram {
     this.fragmentShader.uniforms.uInput.variableValue = inputTexture;
 
     // The X and Y of the sample pixels must be scaled based on the actual input resolution
-    let scaledPixels: number[] = [];
-    for (let n = 0; n < this.pixelCount; n++) {
-      let x = this.pixels[n * 3];
-      let y = this.pixels[n * 3 + 1];
-      let z = this.pixels[n * 3 + 2];
-      scaledPixels.push(x / inputTexture.w);
-      scaledPixels.push(y / inputTexture.h);
-      scaledPixels.push(z);
-    }
-    this.fragmentShader.uniforms.uPixels.variableValue = scaledPixels;
+    this.fragmentShader.uniforms.uPixels.variableValue = FimGLProgramDownscale.scaleSamplePixels(this.pixelCount,
+      this.pixels, inputTexture.w, inputTexture.h);
   }
 
   private pixels: number[];
   private pixelCount: number;
 
-  private calculateSamplePixels(xRatio: number, yRatio: number): void {
+  /**
+   * Calculates the location and weight of the pixels that should be sampled to create an accurate image downscale
+   * @param xRatio Downscale ratio of the X-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
+   * @param yRatio Downscale ratio of the Y-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
+   * @returns An object with two properties:
+   * - pixelCount The number of pixels to samples
+   * - pixels An array with 3 elements per pixel: X-offset, Y-offset, and weight. The X-offset and Y-offset are in
+   *    pixels, and still need to be scale to 0 to 1 values before being used as uniforms. Use the scaleSamplePixels()
+   *    function to do so.
+   */
+  public static calculateSamplePixels(xRatio: number, yRatio: number): { pixelCount: number, pixels: number[] } {
     let xPixels = this.calculateSamplePixelsOneAxis(xRatio);
     let yPixels = this.calculateSamplePixelsOneAxis(yRatio);
 
     let xCount = xPixels.length;
     let yCount = yPixels.length;
-    this.pixelCount = xCount * yCount;
     
     let pixels: number[] = [];
     for (let x = 0; x < xCount; x++) {
@@ -67,7 +70,11 @@ export class FimGLProgramDownscale extends FimGLProgram {
         pixels.push(xPixel[1] * yPixel[1]); // Weight
       }
     }
-    this.pixels = pixels;
+
+    return {
+      pixelCount: xCount * yCount,
+      pixels: pixels
+    };
   }
 
   /**
@@ -75,7 +82,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
    * @param ratio Downscale ratio of the axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    * @returns Array of [offset, weight] tuples for the pixels we should sample
    */
-  private calculateSamplePixelsOneAxis(ratio: number): number[][] {
+  private static calculateSamplePixelsOneAxis(ratio: number): number[][] {
     // Ratio is conveniently the number of pixels we need to sample, centered on zero...
     let halfRatio = ratio / 2;
 
@@ -103,5 +110,27 @@ export class FimGLProgramDownscale extends FimGLProgram {
     }
 
     return pixels;
+  }
+
+  /**
+   * Scales the X- and Y-offsets in the sample pixels array to 0 to 1 values to be used as uniforms.
+   * @param pixelCount Numnber of pixels in the pixels array (pixels.length / 3)
+   * @param pixels An array of 3 elements per pixel: X-offset, Y-offst, and weight. The offsets are in pixels.
+   * @param width Width of the input image, in pixels
+   * @param height Height of the input image, in pixels
+   * @returns New pixels array where the X- and Y-offsets have been scale to 0 to 1 values based on the input image
+   *    dimensions
+   */
+  public static scaleSamplePixels(pixelCount: number, pixels: number[], width: number, height: number): number[] {
+    let scaledPixels: number[] = [];
+    for (let n = 0; n < pixelCount; n++) {
+      let x = pixels[n * 3];
+      let y = pixels[n * 3 + 1];
+      let z = pixels[n * 3 + 2];
+      scaledPixels.push(x / width);
+      scaledPixels.push(y / height);
+      scaledPixels.push(z);
+    }
+    return scaledPixels;
   }
 }
