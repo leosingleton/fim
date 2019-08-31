@@ -31,11 +31,11 @@
     "ts-loader": "^6.0.4",
     "typescript": "^3.5.3",
     "webpack": "^4.35.3",
-    "webpack-cli": "^3.3.5",
-    "webpack-glsl-minify": "^1.0.4"
+    "webpack-cli": "^3.3.5"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.0.0-alpha.25"
+    "@leosingleton/commonlibs": "^1.0.0-alpha.25",
+    "webpack-glsl-minify": "^1.1.0"
   },
   "scripts": {
     "build": "npx webpack --mode=none",
