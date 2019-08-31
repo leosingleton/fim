@@ -13,8 +13,9 @@ import { Transform3D } from '../math/Transform3D';
 import { TwoTriangles } from '../math/TwoTriangles';
 import { FimRect } from '../primitives/FimRect';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
+import { GlslShader } from 'webpack-glsl-minify';
 
-let defaultVertexShader: FimGLShader = require('./glsl/vertex.glsl');
+let defaultVertexShader: GlslShader = require('./glsl/vertex.glsl');
 
 /** Uniform definition. A combination of values from the GLSL shader compiler and from execution time. */
 export interface UniformDefinition extends FimGLVariableDefinition {
@@ -40,7 +41,7 @@ export type UniformDefinitionMap = { [name: string]: UniformDefinition };
  *    execute().
  */
 export abstract class FimGLProgram implements IDisposable {
-  constructor(canvas: FimGLCanvas, fragmentShader: FimGLShader, vertexShader = defaultVertexShader) {
+  constructor(canvas: FimGLCanvas, fragmentShader: GlslShader, vertexShader = defaultVertexShader) {
     this.glCanvas = canvas;
     this.gl = canvas.gl;
 
@@ -53,8 +54,8 @@ export abstract class FimGLProgram implements IDisposable {
 
     // Perform a deep copy in case the same GLSL file is used by multiple programs with different const or uniform
     // values. Callers need to be careful to modify the new versions, not the original, when initializing values.
-    this.fragmentShader = deepCopy(fragmentShader);
-    this.vertexShader = deepCopy(vertexShader);
+    this.fragmentShader = deepCopy(fragmentShader) as FimGLShader;
+    this.vertexShader = deepCopy(vertexShader) as FimGLShader;
   }
 
   /** Uniforms used by the program */
