@@ -8,6 +8,7 @@ import { FimGLTexture } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { FimTestImages } from '../../debug/FimTestImages';
 import { FimCanvas } from '../../image/FimCanvas';
+import { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../../image/FimCanvasBase';
 import { FimColor } from '../../primitives/FimColor';
 import { FimRect } from '../../primitives/FimRect';
 import { DisposableSet, using } from '@leosingleton/commonlibs';
@@ -19,10 +20,10 @@ function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
   expect(actual.a).toBeCloseTo(expected.a, -1);  
 }
 
-function spec(useOffscreenCanvas: boolean) {
+function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
   return () => {
     it('Creates and disposes', () => {
-      let b = new FimGLCanvas(640, 480, undefined, useOffscreenCanvas);
+      let b = new FimGLCanvas(640, 480, undefined, offscreenCanvasFactory);
       expect(b.getCanvas()).toBeDefined();
 
       b.dispose();
@@ -34,7 +35,7 @@ function spec(useOffscreenCanvas: boolean) {
     });
 
     it('Fills with a solid color', () => {
-      using(new FimGLCanvas(640, 480, undefined, useOffscreenCanvas), c => {
+      using(new FimGLCanvas(640, 480, undefined, offscreenCanvasFactory), c => {
         c.fillCanvas('#f00');
         expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#f00'));
         c.fillCanvas('#0f0');
@@ -47,10 +48,10 @@ function spec(useOffscreenCanvas: boolean) {
     it('Renders a JPEG texture', async () => {
       await DisposableSet.usingAsync(async disposable => {
         // Initialize the WebGL canvas, program, and a texture loaded from a JPEG image
-        let canvas = disposable.addDisposable(new FimGLCanvas(128, 128, undefined, useOffscreenCanvas));
+        let canvas = disposable.addDisposable(new FimGLCanvas(128, 128, undefined, offscreenCanvasFactory));
         let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
         let jpeg = FimTestImages.fourSquaresJpeg();
-        let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg, useOffscreenCanvas));
+        let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg, offscreenCanvasFactory));
         let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer));
 
         // Copy the texture
@@ -78,7 +79,8 @@ function spec(useOffscreenCanvas: boolean) {
         // Find a canvas size bigger than the GPU can support and create a canvas of that size
         let caps = FimGLCapabilities.getCapabilities();
         let canvasSize = caps.maxRenderBufferSize + 1000;
-        let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 8, undefined, useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(canvasSize, canvasSize / 8, undefined,
+          offscreenCanvasFactory));
         expect(gl.realDimensions).toBeDefined();
         expect(gl.realDimensions.w).toBe(caps.maxRenderBufferSize);
         expect(gl.realDimensions.h).toBe(caps.maxRenderBufferSize / 8);
@@ -111,7 +113,7 @@ function spec(useOffscreenCanvas: boolean) {
 
     it('Copies from textures', async () => {
       await DisposableSet.usingAsync(async disposable => {
-        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, undefined, useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, undefined, offscreenCanvasFactory));
 
         // Create a test image the size of the canvas
         let texture = disposable.addDisposable(new FimGLTexture(gl, 240, 240));
@@ -132,7 +134,7 @@ function spec(useOffscreenCanvas: boolean) {
 
     it('Copies from textures with srcCoords', async () => {
       await DisposableSet.usingAsync(async disposable => {
-        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, undefined, useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, undefined, offscreenCanvasFactory));
 
         // Create a test image the size of the canvas
         let texture = disposable.addDisposable(new FimGLTexture(gl, 240, 240));
@@ -153,7 +155,7 @@ function spec(useOffscreenCanvas: boolean) {
 
     it('Copies from textures with srcCoords and destCoords', async () => {
       await DisposableSet.usingAsync(async disposable => {
-        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, '#00f', useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(240, 240, '#00f', offscreenCanvasFactory));
 
         // Create a test image the size of the canvas
         let texture = disposable.addDisposable(new FimGLTexture(gl, 240, 240));
@@ -176,9 +178,9 @@ function spec(useOffscreenCanvas: boolean) {
   };
 }
 
-describe('FimGLCanvas(OffScreenCanvas=false)', spec(false));
+describe('FimGLCanvas(OffScreenCanvas=false)', spec(null));
 
 // Only run OffscreenCanvas tests on browsers that support it
 if (FimGLCanvas.supportsOffscreenCanvas) {
-  describe('FimGLCanvas(OffScreenCanvas=true)', spec(true));
+  describe('FimGLCanvas(OffScreenCanvas=true)', spec(FimDefaultOffscreenCanvasFactory));
 }

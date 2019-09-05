@@ -10,20 +10,48 @@ import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, using } from '@leosingleton/commonlibs';
 
+/**
+ * Factory method to create OffscreenCanvas objects. These could be Chrome's OffscreenCanvas support, or a mock object
+ * to support NodeJS or other platforms.
+ * @param width Width of the canvas, in pixels
+ * @param height Height of the canvas, in pixels
+ * @returns OffscreenCanvas object
+ */
+export type FimOffscreenCanvasFactory = (width: number, height: number) => OffscreenCanvas;
+
+/**
+ * Constructs an OffscreenCanvas using Chrome's implementation. Be sure to check FimCanvasBase.supportsOffscreenCanvas
+ * before calling this function.
+ * @param width Width of the canvas, in pixels
+ * @param height Height of the canvas, in pixels
+ * @returns OffscreenCanvas object
+ */
+export function FimDefaultOffscreenCanvasFactory(width: number, height: number): OffscreenCanvas {
+  // Use Chrome's OffscreenCanvas object
+  if (!FimCanvasBase.supportsOffscreenCanvas) {
+    // The browser does not support OffscreenCanvas
+    throw new Error('No OffScreenCanvas');
+  }
+
+  // uglify-js is not yet aware of OffscreenCanvas and name mangles it
+  // @nomangle OffscreenCanvas convertToBlob
+  return new OffscreenCanvas(width, height);
+}
+
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
 export abstract class FimCanvasBase extends FimImage {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
-   * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
-   *    workers. Check FimCanvasBase.supportsOffscreenCanvas to determine whether the web browser supports the
-   *    OffscreenCanvas feature.
+   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
+   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
+   *    and uses Chrome's OffscreenCanvas functionality if supported.
    * @param maxDimension WebGL framebuffers have maximum sizes, which can be as low as 2048x2048. If the canvas width
    *    or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(width: number, height: number, useOffscreenCanvas = FimCanvasBase.supportsOffscreenCanvas,
-      maxDimension = 0) {
+  public constructor(width: number, height: number, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
+      FimDefaultOffscreenCanvasFactory : null, maxDimension = 0) {
     // Call the parent constructor. Read the new dimensions as they may get downscaled.
     super(width, height, maxDimension);
     let realDimensions = this.realDimensions;
@@ -32,16 +60,9 @@ export abstract class FimCanvasBase extends FimImage {
     // since regular canvases can be made visible in the browser's debugging tools.
     let enableOC = FimConfig.config.enableOffscreenCanvas;
 
-    if (useOffscreenCanvas && enableOC) {
-      // Use Chrome's OffscreenCanvas object
-      if (!FimCanvasBase.supportsOffscreenCanvas) {
-        // The browser does not support OffscreenCanvas
-        throw new Error('No OffScreenCanvas');
-      }
-
-      // uglify-js is not yet aware of OffscreenCanvas and name mangles it
-      // @nomangle OffscreenCanvas convertToBlob
-      this.canvasElement = new OffscreenCanvas(realDimensions.w, realDimensions.h);
+    let useOffscreenCanvas = (offscreenCanvasFactory !== null) && enableOC;
+    if (useOffscreenCanvas) {
+      this.canvasElement = offscreenCanvasFactory(realDimensions.w, realDimensions.h);
     } else {
       // Create a hidden canvas
       let canvas = document.createElement('canvas');

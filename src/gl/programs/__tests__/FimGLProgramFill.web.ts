@@ -7,13 +7,14 @@ import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimRect } from '../../../primitives/FimRect';
 import { DisposableSet } from '@leosingleton/commonlibs';
+import { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../../../image/FimCanvasBase';
 
-function spec(useOffscreenCanvas: boolean) {
+function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
   return () => {
     it('Respects custom destination rectangles', () => {
       DisposableSet.using(disposable => {
         // Create a 300x200 red canvas
-        let gl = disposable.addDisposable(new FimGLCanvas(300, 200, '#f00', useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(300, 200, '#f00', offscreenCanvasFactory));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));
@@ -30,7 +31,7 @@ function spec(useOffscreenCanvas: boolean) {
     it('Respects custom destination rectangles vertically', () => {
       DisposableSet.using(disposable => {
         // Create a 300x200 red canvas
-        let gl = disposable.addDisposable(new FimGLCanvas(100, 200, '#f00', useOffscreenCanvas));
+        let gl = disposable.addDisposable(new FimGLCanvas(100, 200, '#f00', offscreenCanvasFactory));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));
@@ -45,9 +46,9 @@ function spec(useOffscreenCanvas: boolean) {
   };
 }
 
-describe('FimGLProgramFill(OffScreenCanvas=false)', spec(false));
+describe('FimGLProgramFill(OffScreenCanvas=false)', spec(null));
 
 // Only run OffscreenCanvas tests on browsers that support it
 if (FimGLCanvas.supportsOffscreenCanvas) {
-  describe('FimGLProgramFill(OffScreenCanvas=true)', spec(true));
+  describe('FimGLProgramFill(OffScreenCanvas=true)', spec(FimDefaultOffscreenCanvasFactory));
 }

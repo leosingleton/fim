@@ -12,7 +12,7 @@ import { ContextLost } from '../debug/ContextLost';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
-import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimCanvasBase, FimDefaultOffscreenCanvasFactory } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
@@ -27,14 +27,15 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param width Width, in pixels
    * @param height Height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
-   * @param useOffscreenCanvas If this parameter is true, an offscreen canvas will be used. These can be used in web
-   *    workers. Check FimCanvasBase.supportsOffscreenCanvas to determine whether the web browser supports the
-   *    OffscreenCanvas feature.
+   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
+   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
+   *    and uses Chrome's OffscreenCanvas functionality if supported.
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
   constructor(width: number, height: number, initialColor?: FimColor | string,
-      useOffscreenCanvas = FimGLCanvas.supportsOffscreenCanvas, quality = 1) {
+      offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ? FimDefaultOffscreenCanvasFactory : null,
+      quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
     let caps = FimGLCapabilities.getCapabilities();
@@ -54,7 +55,7 @@ export class FimGLCanvas extends FimCanvasBase {
     }
 
     // Call the parent constructor
-    super(width, height, useOffscreenCanvas, maxDimension);
+    super(width, height, offscreenCanvasFactory, maxDimension);
 
     // Report telemetry for debugging
     recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
@@ -92,7 +93,7 @@ export class FimGLCanvas extends FimCanvasBase {
       this.contextRestoredNotifications.forEach(eh => eh());
     }, false);
 
-    let gl = this.gl = canvas.getContext('webgl');
+    let gl = this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!gl) {
       throw new FimGLError(FimGLErrorCode.NoWebGL);
     }

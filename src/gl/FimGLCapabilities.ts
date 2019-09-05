@@ -3,15 +3,15 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimCanvasBase, FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../image/FimCanvasBase';
 
 /** Helper class to create a temporary WebGL canvas, just for reading capabilities */
 class WebGLHelper extends FimCanvasBase {
-  public constructor() {
+  public constructor(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     // Use a small canvas that any browser supporting WebGL can handle
-    super(240, 240);
+    super(240, 240, offscreenCanvasFactory);
 
-    this.gl = this.canvasElement.getContext('webgl');
+    this.gl = (this.canvasElement as HTMLCanvasElement).getContext('webgl');
     if (!this.gl) {
       throw new FimGLError(FimGLErrorCode.NoWebGL);
     }
@@ -42,8 +42,8 @@ export class FimGLCapabilities {
   public readonly maxTextureSize: number;
   public readonly extensions: string[];
 
-  private constructor() {
-    let helper = new WebGLHelper();
+  private constructor(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
+    let helper = new WebGLHelper(offscreenCanvasFactory);
     try {
       let gl = helper.gl;
 
@@ -70,11 +70,17 @@ export class FimGLCapabilities {
 
   private static caps: FimGLCapabilities;
 
-  /** Returns the WebGL capabilities of the current browser */
-  public static getCapabilities(): FimGLCapabilities {
+  /**
+   * Returns the WebGL capabilities of the current browser
+   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
+   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
+   *    and uses Chrome's OffscreenCanvas functionality if supported.
+   */
+  public static getCapabilities(offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
+      FimDefaultOffscreenCanvasFactory : null): FimGLCapabilities {
     // For performance, only read capabilities on the first call and cache the results.
     if (!this.caps) {
-      this.caps = new FimGLCapabilities();
+      this.caps = new FimGLCapabilities(offscreenCanvasFactory);
     }
 
     return this.caps;
