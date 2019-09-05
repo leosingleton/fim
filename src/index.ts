@@ -23,6 +23,7 @@ export { FimGLProgramLinearTransform } from './gl/programs/FimGLProgramLinearTra
 export { FimGLProgramMatrixOperation1D } from './gl/programs/FimGLProgramMatrixOperation1D';
 export { FimGLProgramMatrixOperation1DFast } from './gl/programs/FimGLProgramMatrixOperation1DFast';
 export { FimCanvas } from './image/FimCanvas';
+export { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from './image/FimCanvasBase';
 export { FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
 export { FimImage } from './image/FimImage';
 export { FimRgbaBuffer } from './image/FimRgbaBuffer';
