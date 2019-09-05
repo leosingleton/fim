@@ -10,16 +10,6 @@ import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, using } from '@leosingleton/commonlibs';
 
-// OffscreenCanvas was added in Chrome 69, but still not supported by other browsers as of July 2019
-declare class OffscreenCanvas extends EventTarget {
-  constructor(width: number, height: number);
-  width: number;
-  height: number;
-  getContext(contextType: '2d', contextAttributes?: CanvasRenderingContext2DSettings): CanvasRenderingContext2D;
-  getContext(contextType: 'webgl', contextAttributes?: WebGLContextAttributes): WebGLRenderingContext;
-  convertToBlob(options: any): Promise<Blob>;
-}
-
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
 export abstract class FimCanvasBase extends FimImage {
   /**
@@ -173,7 +163,7 @@ export abstract class FimCanvasBase extends FimImage {
    */
   protected static createDrawingContext(destCanvas: HTMLCanvasElement | OffscreenCanvas, imageSmoothingEnabled = false,
       operation = 'copy', alpha = 1): CanvasRenderingContext2D & IDisposable {
-    let ctx = destCanvas.getContext('2d');
+    let ctx = (destCanvas as HTMLCanvasElement).getContext('2d');
     ctx.save();
     ctx.globalCompositeOperation = operation;
     ctx.globalAlpha = alpha;
