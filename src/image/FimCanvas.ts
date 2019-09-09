@@ -202,10 +202,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    */
   public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
       destCoords?: FimRect): void {
-    if (destImage instanceof HTMLCanvasElement) {
-      this.toHtmlCanvas(destImage, srcCoords, destCoords);
-    } else {
+    if (destImage instanceof FimCanvas || destImage instanceof FimRgbaBuffer) {
       destImage.copyFrom(this, srcCoords, destCoords);
+    } else {
+      this.toHtmlCanvas(destImage, srcCoords, destCoords);
     }
   }
 
