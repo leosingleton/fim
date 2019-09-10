@@ -85,8 +85,8 @@ export abstract class FimCanvasBase extends FimImage {
 
   public dispose(): void {
     if (this.canvasElement) {
-      if (this.canvasElement instanceof HTMLCanvasElement) {
-        document.body.removeChild(this.canvasElement);
+      if (!this.offscreenCanvas) {
+        document.body.removeChild(this.canvasElement as HTMLCanvasElement);
       }
       delete this.canvasElement;
     }
@@ -106,13 +106,14 @@ export abstract class FimCanvasBase extends FimImage {
    * @returns Blob containing PNG data
    */
   public async toPngBlob(): Promise<Blob> {
-    if (this.canvasElement instanceof HTMLCanvasElement) {
-      let canvas = this.canvasElement;
+    if (!this.offscreenCanvas) {
+      let canvas = this.canvasElement as HTMLCanvasElement;
       return new Promise<Blob>(resolve => {
         canvas.toBlob(blob => resolve(blob));
       });
     } else {
-      return this.canvasElement.convertToBlob({});
+      let canvas = this.canvasElement as OffscreenCanvas;
+      return canvas.convertToBlob({});
     }
   }
 
@@ -132,13 +133,14 @@ export abstract class FimCanvasBase extends FimImage {
    * @returns Blob containing JPEG data
    */
   public async toJpegBlob(quality = 0.95): Promise<Blob> {
-    if (this.canvasElement instanceof HTMLCanvasElement) {
-      let canvas = this.canvasElement;
+    if (!this.offscreenCanvas) {
+      let canvas = this.canvasElement as HTMLCanvasElement;
       return new Promise<Blob>(resolve => {
         canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
       });
     } else {
-      return this.canvasElement.convertToBlob({ type: 'image/jpeg', quality: quality });
+      let canvas = this.canvasElement as OffscreenCanvas;
+      return canvas.convertToBlob({ type: 'image/jpeg', quality: quality });
     }
   }
 
