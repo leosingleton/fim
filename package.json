@@ -14,7 +14,7 @@
     "@types/jasmine": "^3.4.0",
     "@types/jest": "^24.0.18",
     "@types/jquery": "^3.3.31",
-    "@types/node": "^12.7.3",
+    "@types/node": "^12.7.4",
     "copy-webpack-plugin": "^5.0.4",
     "glob": "^7.1.4",
     "jasmine-core": "^3.4.0",
@@ -31,11 +31,11 @@
     "ts-loader": "^6.0.4",
     "typescript": "^3.6.2",
     "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7"
+    "webpack-cli": "^3.3.8"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "^1.0.0-alpha.25",
-    "webpack-glsl-minify": "^1.1.1"
+    "webpack-glsl-minify": "^1.1.2"
   },
   "scripts": {
     "build": "npx webpack --mode=none",
