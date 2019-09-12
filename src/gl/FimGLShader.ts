@@ -6,9 +6,6 @@ import { FimGLTexture } from './FimGLTexture';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { GlslVariable, GlslShader } from 'webpack-glsl-minify';
 
-// This file contains the output of a compiled GLSL shader. Definitions must be kept in sync with the
-// webpack-glsl-minify source code.
-
 /** One uniform or const variable in a shader minified by webpack-glsl-minify, with the addition of its value */
 export interface FimGLVariableDefinition extends GlslVariable {
   /** Sets the value of the const or uniform. Not set by the compiler. */

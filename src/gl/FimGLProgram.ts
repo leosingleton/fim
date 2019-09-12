@@ -135,8 +135,8 @@ export abstract class FimGLProgram implements IDisposable {
       code = code.replace(c.variableName, value);
     }
 
-    // TODO: Need to check the WebGL docs on createShader(). It appears to return null on failure instead of using
-    // glError(), but am currently without wifi to check...
+    // Docs don't seem to cover error handling of WebGL's createShader(). It appears to return null on failure instead
+    // of using glError(), but checking both just in case...
     let shader = gl.createShader(type);
     FimGLError.throwOnError(gl);
     if (!shader) {
