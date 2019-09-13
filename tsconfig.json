@@ -6,8 +6,7 @@
     "declaration": true,
     "outDir": "./build/dist",
     "noImplicitAny": true,
-    "sourceMap": true,
-//    "strict": true
+    "sourceMap": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "samples", "**/__tests__/*"]
