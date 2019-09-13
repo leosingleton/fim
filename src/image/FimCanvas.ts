@@ -43,7 +43,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h);
+    let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h, null, this.offscreenCanvasFactory);
     dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -183,7 +183,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
       });
     } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-      using(new FimCanvas(srcImage.w, srcImage.h), temp => {
+      using(new FimCanvas(srcImage.w, srcImage.h, null, this.offscreenCanvasFactory), temp => {
         temp.copyFromRgbaBuffer(srcImage);
         this.copyFromCanvas(temp, srcCoords, destCoords);
       });
@@ -264,7 +264,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
-        let result = new FimCanvas(img.width, img.height, undefined, offscreenCanvasFactory);
+        let result = new FimCanvas(img.width, img.height, null, offscreenCanvasFactory);
         using(result.createDrawingContext(), ctx => {
           ctx.drawImage(img, 0, 0);
         });

@@ -264,6 +264,8 @@ export class FimGLTexture extends FimImage {
   }
 
   private copyFromWithDownscale(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer): void {
+    let glCanvas = this.glCanvas;
+
     if (srcImage instanceof FimGreyscaleBuffer) {
       // This code path needs to be optimized, but it will likely rarely, if ever, get used. FimGreyscaleBuffer
       // doesn't support resizing, nor does FimCanvas support copyFrom() a FimGreyscaleBuffer. So, we do multiple
@@ -277,7 +279,7 @@ export class FimGLTexture extends FimImage {
       });
     } else {
       // For all other object types, downscale to a FimCanvas of the target texture dimensions
-      using(new FimCanvas(this.realDimensions.w, this.realDimensions.h), temp => {
+      using(new FimCanvas(this.realDimensions.w, this.realDimensions.h, null, glCanvas.offscreenCanvasFactory), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });

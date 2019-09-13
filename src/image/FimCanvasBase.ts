@@ -75,6 +75,7 @@ export abstract class FimCanvasBase extends FimImage {
     }
 
     this.offscreenCanvas = useOffscreenCanvas;
+    this.offscreenCanvasFactory = useOffscreenCanvas ? offscreenCanvasFactory : null;
   }
 
   /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
@@ -93,7 +94,10 @@ export abstract class FimCanvasBase extends FimImage {
   }
 
   /** True if this object is backed by an OffscreenCanvas; false for a standard 2D canvas */
-  public offscreenCanvas: boolean;
+  public readonly offscreenCanvas: boolean;
+
+  /** If offscreenCanvas is true, a reference to the factory object used to create the canvas */
+  public readonly offscreenCanvasFactory: FimOffscreenCanvasFactory;
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public abstract duplicateCanvas(): FimCanvas;
