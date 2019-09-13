@@ -2,9 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimRgbaBuffer, FimColor, FimGLCanvas, FimGLTexture, FimGLTextureFlags,
-  FimGLProgramDownscale, 
-  FimTestPatterns} from '../../build/dist/index.js';
+import { FimCanvas, FimRgbaBuffer, FimGLCanvas, FimGLTexture, FimGLTextureFlags,
+  FimGLProgramDownscale, FimTestPatterns } from '../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function downscale(): Promise<void> {

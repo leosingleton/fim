@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimGLProgramMatrixOperation1D, GaussianKernel,
+import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel,
   ImageGrid } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, parseQueryString } from '@leosingleton/commonlibs';
 
