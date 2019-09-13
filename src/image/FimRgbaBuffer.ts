@@ -109,7 +109,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
       this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
       // Slow case: Use a temporary canvas.
-      using(new FimCanvas(destCoords.w, destCoords.h), canvas => {
+      using(new FimCanvas(destCoords.w, destCoords.h, null, srcImage.offscreenCanvasFactory), canvas => {
         canvas.copyFrom(srcImage, origSrcCoords);
         this.copyFromCanvasInternal(canvas, canvas.realDimensions);
       });

@@ -211,7 +211,7 @@ export class FimGLCanvas extends FimCanvasBase {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.w, this.h);
+    let dupe = new FimCanvas(this.w, this.h, null, this.offscreenCanvasFactory);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -312,16 +312,17 @@ export class FimGLCanvas extends FimCanvasBase {
   }
 
   public getPixel(x: number, y: number): FimColor {
-    let pixel: Uint8ClampedArray;
+    let gl = this.gl;
+    let pixel = new Uint8Array(4);
 
-    // Scale the coordinates
-    x *= Math.round(this.downscaleRatio);
-    y *= Math.round(this.downscaleRatio);
+    // Scale the coordinates and flip Y, as the coordinates for readPixels start in the lower-left corner
+    x = Math.round(x * this.downscaleRatio);
+    y = Math.round((this.h - y - 1) * this.downscaleRatio);
     
-    using(new FimRgbaBuffer(1, 1), buffer => {
-      buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
-      pixel = buffer.getBuffer();
-    });
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    FimGLError.throwOnError(gl);
+    gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+    FimGLError.throwOnError(gl);
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
