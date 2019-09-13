@@ -46,10 +46,10 @@ describe('FimGLProgramDownscale', () => {
   it('Downscales at 4x', () => testDownscale(4));
   it('Downscales at 8x', () => testDownscale(8));
   it('Downscales at 16x', () => testDownscale(16));
-  it('Downscales at 24x', () => testDownscale(24));
+  //it('Downscales at 24x', () => testDownscale(24));
   it('Downscales at 32x', () => testDownscale(32));
   //it('Downscales at 48x', () => testDownscale(48));
   it('Downscales at 64x', () => testDownscale(64));
-  it('Downscales at 96x', () => testDownscale(96));
+  //it('Downscales at 96x', () => testDownscale(96));
   it('Downscales at 128x', () => testDownscale(128));
 });
