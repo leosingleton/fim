@@ -64,8 +64,12 @@ export abstract class FimGLProgram implements IDisposable {
   /** Counter used to assign a unique texture unit to each texture */
   private textureCount = 0;
 
-  /** Derived classes should call this function in their constructor after initializing any constants. */
-  protected compileProgram(): void {
+  /**
+   * Derived classes should call this function in their constructor after initializing any constants.
+   * @param stripVersion Strips any "#version" directives. For WebGL 1, only version 100 is allowed, and it
+   *    causes problems with some GLSL compilers.
+   */
+  protected compileProgram(stripVersion = true): void {
     let gl = this.gl;
     let disposable = this.disposable;
     
@@ -75,8 +79,8 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     // Compile the shaders
-    let vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
-    let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
+    let vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader, stripVersion);
+    let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader, stripVersion);
 
     // Create the program
     let program = disposable.addNonDisposable(gl.createProgram(), p => gl.deleteProgram(p));
@@ -112,11 +116,16 @@ export abstract class FimGLProgram implements IDisposable {
     this.program = program;
   }
 
-  private compileShader(type: number, source: FimGLShader): WebGLShader {
+  private compileShader(type: number, source: FimGLShader, stripVersion: boolean): WebGLShader {
     let gl = this.gl;
 
-    // Substitute const values into the shader source code
+    // Strip #version directives. These break the NodeJS implementation of WebGL.
     let code = source.sourceCode;
+    if (stripVersion) {
+      code = code.replace(/#version.+/, '');
+    }
+
+    // Substitute const values into the shader source code
     for (let name in source.consts) {
       let c = source.consts[name];
       let value: string;
@@ -135,8 +144,8 @@ export abstract class FimGLProgram implements IDisposable {
       code = code.replace(c.variableName, value);
     }
 
-    // TODO: Need to check the WebGL docs on createShader(). It appears to return null on failure instead of using
-    // glError(), but am currently without wifi to check...
+    // Docs don't seem to cover error handling of WebGL's createShader(). It appears to return null on failure instead
+    // of using glError(), but checking both just in case...
     let shader = gl.createShader(type);
     FimGLError.throwOnError(gl);
     if (!shader) {
