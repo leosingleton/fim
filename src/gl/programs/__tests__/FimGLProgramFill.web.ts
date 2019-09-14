@@ -30,7 +30,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
 
     it('Respects custom destination rectangles vertically', () => {
       DisposableSet.using(disposable => {
-        // Create a 300x200 red canvas
+        // Create a 100x200 red canvas
         let gl = disposable.addDisposable(new FimGLCanvas(100, 200, '#f00', offscreenCanvasFactory));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
@@ -41,6 +41,22 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
         // Ensure the pixels are the expected colors
         expect(gl.getPixel(50, 50)).toEqual(FimColor.fromString('#00f'));
         expect(gl.getPixel(50, 150)).toEqual(FimColor.fromString('#f00'));
+      });
+    });
+
+    it('Respects custom destination rectangles to the pixel', () => {
+      DisposableSet.using(disposable => {
+        // Create a 100x100 red canvas
+        let gl = disposable.addDisposable(new FimGLCanvas(100, 100, '#f00', offscreenCanvasFactory));
+
+        // Draw a blue on one specific pixel
+        let fill = disposable.addDisposable(new FimGLProgramFill(gl));
+        fill.setInputs(FimColor.fromString('#00f'));
+        fill.execute(null, FimRect.fromXYWidthHeight(25, 25, 1, 1));
+
+        // Ensure the pixels are the expected colors
+        expect(gl.getPixel(25, 25)).toEqual(FimColor.fromString('#00f'));
+        expect(gl.getPixel(26, 26)).toEqual(FimColor.fromString('#f00'));
       });
     });
   };
