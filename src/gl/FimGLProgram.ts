@@ -109,8 +109,17 @@ export abstract class FimGLProgram implements IDisposable {
     // Get the ID of any uniform variables. Be sure to use the minified name.
     for (let name in this.uniforms) {
       let desc = this.uniforms[name];
-      desc.uniformLocation = gl.getUniformLocation(program, desc.variableName);
+      let loc = gl.getUniformLocation(program, desc.variableName);
+
+      // Workaround for headless-gl bug... The WebGL docs say that for uniforms declared as arrays, the [0] suffix is
+      // optional. However, headless-gl requires it. We don't track which uniforms are arrays or not, so just try the
+      // suffix if it's not found without it.
+      if (!loc) {
+        loc = gl.getUniformLocation(program, desc.variableName + '[0]');
+      }
       FimGLError.throwOnError(gl);
+
+      desc.uniformLocation = loc;
     }
   
     this.program = program;
