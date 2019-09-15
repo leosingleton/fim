@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvasBase, FimDefaultOffscreenCanvasFactory } from './FimCanvasBase';
+import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from './FimCanvasBase';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
@@ -11,8 +11,55 @@ import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
+export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
+  /** Creates a new FimCanvas which is a duplicate of this one */
+  duplicateCanvas(): IFimCanvas;
+
+  /**
+   * Constructs a drawing context
+   * @param imageSmoothingEnabled Enables image smoothing
+   * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
+   * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
+   */
+  createDrawingContext(imageSmoothingEnabled?: boolean, operation?: string, alpha?: number):
+    CanvasRenderingContext2D & IDisposable;
+
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * 
+   * Note that for FimRgbaBuffer inputs, the Async version of this function may be significantly faster on some web
+   * browsers.
+   * 
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: IFimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFromAsync(srcImage: IFimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+    Promise<void>;
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
+   * only support cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+}
+
 /** An image consisting of an invisible HTML canvas on the DOM */
-export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
+export class FimCanvas extends FimCanvasBase implements IFimCanvas {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -41,39 +88,21 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     super.dispose();
   }
 
-  /** Creates a new FimCanvas which is a duplicate of this one */
-  public duplicateCanvas(): FimCanvas {
+  public duplicateCanvas(): IFimCanvas {
     let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h, null, this.offscreenCanvasFactory);
     dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
 
-  /**
-   * Constructs a drawing context
-   * @param imageSmoothingEnabled Enables image smoothing
-   * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
-   * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
-   */
   public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
       CanvasRenderingContext2D & IDisposable {
     return FimCanvasBase.createDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha);
   }
 
-  /** Fills the canvas with a solid color */
   public fillCanvas(color: FimColor | string): void {
     FimCanvasBase.fillCanvas(this.getCanvas(), color);
   }
 
-  /**
-   * Copies image from another. All inputs supports both cropping and rescaling.
-   * 
-   * Note that for FimRgbaBuffer inputs, the Async version of this function may be significantly faster on some web
-   * browsers.
-   * 
-   * @param srcImage Source image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
       this.copyFromCanvas(srcImage, srcCoords, destCoords);
@@ -84,12 +113,6 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     }
   }
 
-  /**
-   * Copies image from another. All inputs supports both cropping and rescaling.
-   * @param srcImage Source image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public async copyFromAsync(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): Promise<void> {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
@@ -190,16 +213,6 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     }
   }
 
-  /**
-   * Copies image to another.
-   * 
-   * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
-   * only support cropping.
-   * 
-   * @param destImage Destination image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof FimCanvas || destImage instanceof FimRgbaBuffer) {

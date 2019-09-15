@@ -2,14 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './FimGLCanvas';
+import { FimGLCanvas, IFimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose, recordTexImage2D } from '../debug/FimStats';
-import { FimCanvas } from '../image/FimCanvas';
+import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
-import { FimImage } from '../image/FimImage';
+import { FimImage, IFimImage } from '../image/FimImage';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColorChannels } from '../primitives/FimColorChannels';
@@ -59,8 +59,36 @@ export interface FimGLTextureOptions {
   textureFlags?: FimGLTextureFlags;
 }
 
+export interface IFimGLTexture extends IFimImage {
+  /** See FimGLTextureOptions */
+  readonly textureOptions: FimGLTextureOptions;
+
+  /**
+   * Copies image from another. Neither cropping nor rescaling is supported.
+   * @param srcImage Source image
+   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   */
+  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+    destCoords?: FimRect): void;
+
+  /**
+   * Copies to a WebGL canvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Returns whether the dimensions of this texture are a square power-of-two. Certain WebGL features, like texture
+   * wrapping, are only available on textures with square power-of-two dimensions.
+   */
+  isSquarePot(): boolean;
+}
+
 /** Wrapper class for WebGL textures */
-export class FimGLTexture extends FimImage {
+export class FimGLTexture extends FimImage implements IFimGLTexture {
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -177,12 +205,6 @@ export class FimGLTexture extends FimImage {
     FimGLError.throwOnError(gl);
   }
 
-  /**
-   * Copies image from another. Neither cropping nor rescaling is supported.
-   * @param srcImage Source image
-   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
-   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
-   */
   public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
@@ -286,12 +308,6 @@ export class FimGLTexture extends FimImage {
     }
   }
 
-  /**
-   * Copies to a WebGL canvas. Supports both cropping and rescaling.
-   * @param destImage Destination image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public copyTo(destImage: FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
@@ -323,15 +339,10 @@ export class FimGLTexture extends FimImage {
     return this.fb;
   }
 
-  /**
-   * Returns whether the dimensions of this texture are a square power-of-two. Certain WebGL features, like texture
-   * wrapping, are only available on textures with square power-of-two dimensions.
-   */
   public isSquarePot(): boolean {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }
 
-  /** See FimGLTextureOptions */
   public readonly textureOptions: FimGLTextureOptions;
 
   /** Returns the WebGL constant for the texture's format */

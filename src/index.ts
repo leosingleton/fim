@@ -6,11 +6,11 @@
 
 export { FimTestImages } from './debug/FimTestImages';
 export { FimTestPatterns } from './debug/FimTestPatterns';
-export { FimGLCanvas } from './gl/FimGLCanvas';
+export { FimGLCanvas, IFimGLCanvas } from './gl/FimGLCanvas';
 export { FimGLCapabilities } from './gl/FimGLCapabilities';
 export { FimGLError, FimGLErrorCode } from './gl/FimGLError';
 export { FimGLProgram } from './gl/FimGLProgram';
-export { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from './gl/FimGLTexture';
+export { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from './gl/FimGLTexture';
 export { FimGLImageProcessor } from './gl/processor/FimGLImageProcessor';
 export { FimGLPreservedTexture } from './gl/processor/FimGLPreservedTexture';
 export { FimGLProgramAlphaBlend } from './gl/programs/FimGLProgramAlphaBlend';
@@ -22,10 +22,10 @@ export { FimGLProgramImageStacking } from './gl/programs/FimGLProgramImageStacki
 export { FimGLProgramLinearTransform } from './gl/programs/FimGLProgramLinearTransform';
 export { FimGLProgramMatrixOperation1D } from './gl/programs/FimGLProgramMatrixOperation1D';
 export { FimGLProgramMatrixOperation1DFast } from './gl/programs/FimGLProgramMatrixOperation1DFast';
-export { FimCanvas } from './image/FimCanvas';
+export { FimCanvas, IFimCanvas } from './image/FimCanvas';
 export { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from './image/FimCanvasBase';
 export { FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
-export { FimImage } from './image/FimImage';
+export { FimImage, IFimImage } from './image/FimImage';
 export { FimRgbaBuffer } from './image/FimRgbaBuffer';
 export { IFimGetSetPixel } from './image/IFimGetSetPixel';
 export { GaussianKernel } from './math/GaussianKernel';

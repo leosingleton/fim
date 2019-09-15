@@ -4,19 +4,30 @@
 
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
-import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
+import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from '../FimGLTexture';
 import { FimCanvas } from '../../image/FimCanvas';
 import { FimImage } from '../../image/FimImage';
 import { FimGreyscaleBuffer } from '../../image/FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
 import { FimRect } from '../../primitives/FimRect';
 
+export interface IFimGLPreservedTexture extends IFimGLTexture {
+  /** Gets the FimGLTexture to read/write from */
+  getTexture(): IFimGLTexture;
+
+  /**
+   * Saves the current texture to a backing 2D canvas. If the WebGL context is lost, the texture will be automatically
+   * restored from this point.
+   */
+  preserve(): void;
+}
+
 /**
  * When the WebGL context is lost, so is any data that may be held in WebGL textures. This class creates a texture that
  * is also backed by in-memory storage on a 2D canvas, so the texture contents can be recreated once the context is
  * restored.
  */
-export class FimGLPreservedTexture extends FimImage {
+export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTexture {
   /**
    * Creates a WebGL texture whose contents are preserved even if the WebGL context is lost
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -94,10 +105,6 @@ export class FimGLPreservedTexture extends FimImage {
     return this.texture;
   }
 
-  /**
-   * Saves the current texture to a backing 2D canvas. If the WebGL context is lost, the texture will be automatically
-   * restored from this point.
-   */
   public preserve(): void {
     let texture = this.texture;
     let glCanvas = this.glCanvas;
@@ -124,24 +131,16 @@ export class FimGLPreservedTexture extends FimImage {
   // The remainder of this class just duplicates FimGLTexture methods so the two can be used interchangeably
   //
 
-  /**
-   * Copies image from another. Neither cropping nor rescaling is supported.
-   * @param srcImage Source image
-   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
-   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
-   */
   public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     this.getTexture().copyFrom(srcImage, srcCoords, destCoords);
   }
 
-  /**
-   * Copies to a WebGL canvas. Supports both cropping and rescaling.
-   * @param destImage Destination image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public copyTo(destImage: FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
+  }
+
+  public isSquarePot() {
+    return this.getTexture().isSquarePot();
   }
 }

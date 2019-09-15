@@ -6,11 +6,32 @@ import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
 import { IDisposable } from '@leosingleton/commonlibs';
 
+export interface IFimImage {
+  /** 
+   * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
+   * constructor.
+   */
+  readonly realDimensions: FimRect;
+
+  /**
+   * Ratio of the downscaled resolution to the original resolution. 1 if the dimensions have not been downscaled.
+   * Member functions which operate on coordinates should multiply values by this ratio to get coordinates of the
+   * underlying image.
+   */
+  readonly downscaleRatio: number;
+
+  /**
+   * A unique ID assigned to each instance of a FimImage object. Useful for debugging, or comparing two images for
+   * equality.
+   */
+  readonly imageId: number;
+}
+
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
  * of the image itself may be changed with copyFrom() or other functions.
  */
-export abstract class FimImage implements IDisposable, IFimDimensions {
+export abstract class FimImage implements IDisposable, IFimDimensions, IFimImage {
   /**
    * Constructor
    * @param width Image width, in pixels
@@ -40,27 +61,14 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly h: number;
   public readonly imageDimensions: FimRect;
 
-  /** 
-   * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
-   * constructor.
-   */
+  // IFimImage implementation
   public readonly realDimensions: FimRect;
-
-  /**
-   * Ratio of the downscaled resolution to the original resolution. 1 if the dimensions have not been downscaled.
-   * Member functions which operate on coordinates should multiply values by this ratio to get coordinates of the
-   * underlying image.
-   */
   public readonly downscaleRatio: number;
-
-  /**
-   * A unique ID assigned to each instance of a FimImage object. Useful for debugging, or comparing two images for
-   * equality.
-   */
   public readonly imageId: number;
 
   private static imageIdCounter = 0;
 
+  // IDisposable implementation
   public abstract dispose(): void;
 
   /**

@@ -5,23 +5,73 @@
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
-import { FimGLTexture } from './FimGLTexture';
+import { FimGLTexture, IFimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
 import { ContextLost } from '../debug/ContextLost';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
-import { FimCanvas } from '../image/FimCanvas';
-import { FimCanvasBase, FimDefaultOffscreenCanvasFactory } from '../image/FimCanvasBase';
+import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
+import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from '../image/FimCanvasBase';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
-import { using } from '@leosingleton/commonlibs';
+
+export interface IFimGLCanvas extends IFimCanvasBase {
+  /** Registers a lambda function to be executed on WebGL context lost */
+  registerForContextLost(eventHandler: () => void): void;
+
+  /** Registers a lambda function to be executed on WebGL context restored */
+  registerForContextRestored(eventHandler: () => void): void;
+
+  /** Returns whether the context is currently lost */
+  isContextLost(): boolean;
+
+  /** WebGL rendering context */
+  readonly gl: WebGLRenderingContext;
+
+  /**
+   * A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance.
+   */
+  renderQuality: number;
+
+  /**
+   * Determines the color depth for a FimGLTexture. Returns both the bits per pixel and correspoding WebGL constant.
+   * The parameter is supplied as a maximum--the result may be lower than requested depending on WebGL capabilities and
+   * performance.
+   * @param maxBpp Maximum bits per pixel
+   * @param linear True if linear filtering is required; false for nearest
+   * @returns Object with two properties: {
+   *    bpp: FimBitsPerPixel,
+   *    glConstant: FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
+   * }
+   */
+  getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number };
+
+  /**
+   * Copies from a texture. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: IFimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas and HtmlCanvasElement support both cropping and rescaling, while FimRgbaBuffer only supports cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+}
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
-export class FimGLCanvas extends FimCanvasBase {
+export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
    * @param width Width, in pixels
@@ -126,40 +176,21 @@ export class FimGLCanvas extends FimCanvasBase {
     super.dispose();
   }
 
-  /** Registers a lambda function to be executed on WebGL context lost */
   public registerForContextLost(eventHandler: () => void): void {
     this.contextLostNotifications.push(eventHandler);
   }
 
-  /** Registers a lambda function to be executed on WebGL context restored */
   public registerForContextRestored(eventHandler: () => void): void {
     this.contextRestoredNotifications.push(eventHandler);
   }
 
-  /** Returns whether the context is currently lost */
   public isContextLost(): boolean {
     return this.gl.isContextLost();
   }
 
-  /** WebGL rendering context */
   public readonly gl: WebGLRenderingContext;
-
-  /**
-   * A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance.
-   */
   public renderQuality: number;
 
-  /**
-   * Determines the color depth for a FimGLTexture. Returns both the bits per pixel and correspoding WebGL constant.
-   * The parameter is supplied as a maximum--the result may be lower than requested depending on WebGL capabilities and
-   * performance.
-   * @param maxBpp Maximum bits per pixel
-   * @param linear True if linear filtering is required; false for nearest
-   * @returns Object with two properties: {
-   *    bpp: FimBitsPerPixel,
-   *    glConstant: FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
-   * }
-   */
   public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
     // If a lower BPP limit was set for debugging, use that instead
     let debugMaxBpp = FimConfig.config.maxGLBpp;
@@ -261,12 +292,6 @@ export class FimGLCanvas extends FimCanvasBase {
 
   private fillProgram: FimGLProgramFill;
 
-  /**
-   * Copies from a texture. Supports both cropping and rescaling.
-   * @param srcImage Source image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public copyFrom(srcImage: FimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Handle FimGLPreservedTexture by getting the underlying texture
     if (srcImage instanceof FimGLPreservedTexture) {
@@ -293,15 +318,6 @@ export class FimGLCanvas extends FimCanvasBase {
     program.execute(null, destCoords);
   }
 
-  /**
-   * Copies image to another.
-   * 
-   * FimCanvas and HtmlCanvasElement support both cropping and rescaling, while FimRgbaBuffer only supports cropping.
-   * 
-   * @param destImage Destination image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
   public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof HTMLCanvasElement) {

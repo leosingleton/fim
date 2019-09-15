@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas } from './FimCanvas';
-import { FimImage } from './FimImage';
+import { FimImage, IFimImage } from './FimImage';
 import { FimConfig } from '../debug/FimConfig';
 import { recordDrawImage } from '../debug/FimStats';
 import { FimColor } from '../primitives/FimColor';
@@ -38,8 +38,29 @@ export function FimDefaultOffscreenCanvasFactory(width: number, height: number):
   return new OffscreenCanvas(width, height);
 }
 
+export interface IFimCanvasBase extends IFimImage {
+  /** Creates a new canvas which is a duplicate of this one */
+  duplicateCanvas(): IFimCanvasBase;
+
+  /** Fills the canvas with a solid color */
+  fillCanvas(color: FimColor | string): void;
+
+  /**
+   * Exports the canvas to a PNG file
+   * @returns Array containing PNG data
+   */
+  toPng(): Promise<Uint8Array>;
+
+  /**
+   * Exports the canvas to a JPEG file
+   * @param quality JPEG quality, 0 to 1
+   * @returns Array containing JPEG data
+   */
+  toJpeg(quality?: number): Promise<Uint8Array>;
+}
+
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
-export abstract class FimCanvasBase extends FimImage {
+export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
   /**
    * Creates an invisible canvas in the DOM
    * @param width Canvas width, in pixels
@@ -99,10 +120,8 @@ export abstract class FimCanvasBase extends FimImage {
   /** If offscreenCanvas is true, a reference to the factory object used to create the canvas */
   public readonly offscreenCanvasFactory: FimOffscreenCanvasFactory;
 
-  /** Creates a new FimCanvas which is a duplicate of this one */
-  public abstract duplicateCanvas(): FimCanvas;
-
-  /** Fills the canvas with a solid color */
+  // IFimCanvasBase implementation
+  public abstract duplicateCanvas(): IFimCanvasBase;
   public abstract fillCanvas(color: FimColor | string): void;
 
   /**
@@ -121,10 +140,6 @@ export abstract class FimCanvasBase extends FimImage {
     }
   }
 
-  /**
-   * Exports the canvas to a PNG file
-   * @returns Array containing PNG data
-   */
   public async toPng(): Promise<Uint8Array> {
     let blob = await this.toPngBlob();
     let buffer = await new Response(blob).arrayBuffer();
@@ -148,11 +163,6 @@ export abstract class FimCanvasBase extends FimImage {
     }
   }
 
-  /**
-   * Exports the canvas to a JPEG file
-   * @param quality JPEG quality, 0 to 1
-   * @returns Array containing JPEG data
-   */
   public async toJpeg(quality = 0.95): Promise<Uint8Array> {
     let blob = await this.toJpegBlob(quality);
     let buffer = await new Response(blob).arrayBuffer();
