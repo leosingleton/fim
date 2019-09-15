@@ -296,7 +296,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
 }
 
 /** Internal version of the class only for unit testing */
-export class InternalFimCanvas extends FimCanvas {
+export class _FimCanvas extends FimCanvas {
   public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): Promise<void> {
     return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);

@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, InternalFimCanvas } from '../FimCanvas';
+import { FimCanvas, _FimCanvas } from '../FimCanvas';
 import { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../FimCanvasBase';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { FimTestImages } from '../../debug/FimTestImages';
@@ -93,7 +93,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
      * Generic test case for copying a FimRgbaBuffer to a FimCanvas
      * @param copy Lambda function that performs the copy
      */
-    async function copyFromRgbaBuffer(copy: (dest: InternalFimCanvas, src: FimRgbaBuffer) => Promise<void>):
+    async function copyFromRgbaBuffer(copy: (dest: _FimCanvas, src: FimRgbaBuffer) => Promise<void>):
         Promise<void> {
       let rand = new SeededRandom(0);
 
@@ -107,7 +107,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
         }
 
         // Copy the RGBA buffer to an FimCanvas
-        let dest = disposable.addDisposable(new InternalFimCanvas(100, 100, undefined, offscreenCanvasFactory));
+        let dest = disposable.addDisposable(new _FimCanvas(100, 100, undefined, offscreenCanvasFactory));
         await copy(dest, src);
 
         // Ensure the two are the same
