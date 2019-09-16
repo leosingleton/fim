@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage, IFimImage } from './FimImage';
+import { IFimCanvas } from './FimCanvas';
 import { IFim } from '../Fim';
 import { FimConfig } from '../debug/FimConfig';
 import { recordDrawImage } from '../debug/FimStats';
@@ -40,7 +41,7 @@ export function FimDefaultOffscreenCanvasFactory(width: number, height: number):
 
 export interface IFimCanvasBase extends IFimImage {
   /** Creates a new canvas which is a duplicate of this one */
-  duplicateCanvas(): IFimCanvasBase;
+  duplicateCanvas(): IFimCanvas;
 
   /** Fills the canvas with a solid color */
   fillCanvas(color: FimColor | string): void;
@@ -122,7 +123,7 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
   public readonly offscreenCanvasFactory: FimOffscreenCanvasFactory;
 
   // IFimCanvasBase implementation
-  public abstract duplicateCanvas(): IFimCanvasBase;
+  public abstract duplicateCanvas(): IFimCanvas;
   public abstract fillCanvas(color: FimColor | string): void;
 
   /**

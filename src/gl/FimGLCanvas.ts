@@ -14,12 +14,13 @@ import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from '../image/FimCanvasBase';
-import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { FimRgbaBuffer, IFimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 
+/** IFimCanvas which leverages WebGL to do accelerated rendering */
 export interface IFimGLCanvas extends IFimCanvasBase {
   /** Registers a lambda function to be executed on WebGL context lost */
   registerForContextLost(eventHandler: () => void): void;
@@ -68,7 +69,7 @@ export interface IFimGLCanvas extends IFimCanvasBase {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  copyTo(destImage: IFimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+  copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
 }
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
@@ -343,5 +344,12 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     FimGLError.throwOnError(gl);
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
+  }
+}
+
+/** Internal-only version of the FimGLCanvas class */
+export class _FimGLCanvas extends FimGLCanvas {
+  public constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height, initialColor);
   }
 }

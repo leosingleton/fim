@@ -5,13 +5,12 @@
 import { FimGLCanvas, IFimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { IFim } from '../Fim';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose, recordTexImage2D } from '../debug/FimStats';
 import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
-import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
+import { FimGreyscaleBuffer, IFimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage, IFimImage } from '../image/FimImage';
-import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { FimRgbaBuffer, IFimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimRect } from '../primitives/FimRect';
@@ -60,6 +59,7 @@ export interface FimGLTextureOptions {
   textureFlags?: FimGLTextureFlags;
 }
 
+/** Wrapper for WebGL textures */
 export interface IFimGLTexture extends IFimImage {
   /** See FimGLTextureOptions */
   readonly textureOptions: FimGLTextureOptions;
@@ -70,7 +70,7 @@ export interface IFimGLTexture extends IFimImage {
    * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
    * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
    */
-  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
     destCoords?: FimRect): void;
 
   /**
@@ -442,5 +442,12 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     options = this.applyDefaults(options);
 
     return `${width}:${height}:${options.bpp}:${options.channels}:${options.textureFlags}`;
+  }
+}
+
+/** Internal-only version of the FimGLTexture class */
+export class _FimGLTexture extends FimGLTexture {
+  public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+    super(glCanvas, width, height, options);
   }
 }

@@ -3,19 +3,17 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from './FimCanvasBase';
-import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { FimRgbaBuffer, IFimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { Fim, IFim } from '../Fim';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
-import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
+/** An image consisting of a 2D canvas */
 export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
-  /** Creates a new FimCanvas which is a duplicate of this one */
-  duplicateCanvas(): IFimCanvas;
-
   /**
    * Constructs a drawing context
    * @param imageSmoothingEnabled Enables image smoothing
@@ -35,7 +33,7 @@ export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  copyFrom(srcImage: IFimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
 
   /**
    * Copies image from another. All inputs supports both cropping and rescaling.
@@ -43,7 +41,7 @@ export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  copyFromAsync(srcImage: IFimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+  copyFromAsync(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
     Promise<void>;
 
   /**
@@ -56,7 +54,7 @@ export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  copyTo(destImage: IFimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+  copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
 }
 
 /** An image consisting of an invisible HTML canvas on the DOM */

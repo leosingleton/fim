@@ -2,18 +2,60 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas } from './FimCanvas';
-import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
-import { FimImage } from './FimImage';
+import { FimCanvas, IFimCanvas } from './FimCanvas';
+import { FimGreyscaleBuffer, IFimGreyscaleBuffer } from './FimGreyscaleBuffer';
+import { FimImage, IFimImage } from './FimImage';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { IFim } from '../Fim';
-import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
-export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
+export interface IFimRgbaBuffer extends IFimImage, IFimGetSetPixel {
+  /** Returns the underlying Uint8Array of RGBA pixel data */
+  getBuffer(): Uint8ClampedArray;
+
+  /** Fills the canvas with a solid color */
+  fillCanvas(color: FimColor | string): void;
+
+  /**
+   * Copies image from another. Supports cropping, but rescaling is only supported on some input types.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
+    destCoords?: FimRect): void;
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas supports both cropping and rescaling, however FimRgbaBuffer supports only cropping.
+   * 
+   * Note that for FimCanvas destinations, the copyToAsync() version of this function is faster on most web browsers!
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas supports both cropping and rescaling, however FimRgbaBuffer supports only cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyToAsync(destImage: IFimCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): Promise<void>;
+}
+
+/** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */
+export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param fim FIM canvas factory
@@ -234,5 +276,12 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
     this._buffer[offset++] = color.g;
     this._buffer[offset++] = color.b;
     this._buffer[offset] = color.a;
+  }
+}
+
+/** Internal-only version of the FimGreyscaleBuffer class */
+export class _FimRgbaBuffer extends FimRgbaBuffer {
+  public constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height, initialColor);
   }
 }
