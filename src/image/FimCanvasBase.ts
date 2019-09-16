@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas } from './FimCanvas';
 import { FimImage, IFimImage } from './FimImage';
+import { IFim } from '../Fim';
 import { FimConfig } from '../debug/FimConfig';
 import { recordDrawImage } from '../debug/FimStats';
 import { FimColor } from '../primitives/FimColor';
@@ -63,6 +63,7 @@ export interface IFimCanvasBase extends IFimImage {
 export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
   /**
    * Creates an invisible canvas in the DOM
+   * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
@@ -71,10 +72,10 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
    * @param maxDimension WebGL framebuffers have maximum sizes, which can be as low as 2048x2048. If the canvas width
    *    or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(width: number, height: number, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
+  public constructor(fim: IFim, width: number, height: number, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
       FimDefaultOffscreenCanvasFactory : null, maxDimension = 0) {
     // Call the parent constructor. Read the new dimensions as they may get downscaled.
-    super(width, height, maxDimension);
+    super(fim, width, height, maxDimension);
     let realDimensions = this.realDimensions;
 
     // We have an option to disable offscreen canvas support via the query string. This can be useful for debugging,

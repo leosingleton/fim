@@ -3,19 +3,23 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLCapabilities } from '../FimGLCapabilities';
+import { Fim } from '../../Fim';
+import { using } from '@leosingleton/commonlibs';
 
 describe('FimGLCapabilities', () => {
   it('Reads WebGL capabilities', () => {
-    let caps = FimGLCapabilities.getCapabilities();
-    expect(caps.renderer.length).toBeGreaterThan(0);
-    expect(caps.vendor.length).toBeGreaterThan(0);
-    expect(caps.unmaskedRenderer.length).toBeGreaterThan(0);
-    expect(caps.unmaskedVendor.length).toBeGreaterThan(0);
-    expect(caps.shadingLanguageVersion.length).toBeGreaterThan(0);
-    expect(caps.glVersion.length).toBeGreaterThan(0);
-    expect(caps.maxRenderBufferSize).toBeGreaterThanOrEqual(1024);
-    expect(caps.maxTextureImageUnits).toBeGreaterThanOrEqual(4);
-    expect(caps.maxTextureSize).toBeGreaterThanOrEqual(1024);
-    expect(caps.extensions.length).toBeGreaterThan(0);
+    using(new Fim(), fim => {
+      let caps = FimGLCapabilities.getCapabilities(fim);
+      expect(caps.renderer.length).toBeGreaterThan(0);
+      expect(caps.vendor.length).toBeGreaterThan(0);
+      expect(caps.unmaskedRenderer.length).toBeGreaterThan(0);
+      expect(caps.unmaskedVendor.length).toBeGreaterThan(0);
+      expect(caps.shadingLanguageVersion.length).toBeGreaterThan(0);
+      expect(caps.glVersion.length).toBeGreaterThan(0);
+      expect(caps.maxRenderBufferSize).toBeGreaterThanOrEqual(1024);
+      expect(caps.maxTextureImageUnits).toBeGreaterThanOrEqual(4);
+      expect(caps.maxTextureSize).toBeGreaterThanOrEqual(1024);
+      expect(caps.extensions.length).toBeGreaterThan(0);  
+    });
   });
 });

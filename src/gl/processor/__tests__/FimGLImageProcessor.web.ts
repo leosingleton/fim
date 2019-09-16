@@ -4,6 +4,7 @@
 
 import { FimGLImageProcessor } from '../FimGLImageProcessor';
 import { FimGLProgramLinearTransform } from '../../programs/FimGLProgramLinearTransform';
+import { Fim, IFim } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
 import { FimCanvas } from '../../../image/FimCanvas';
 import { FimColor } from '../../../primitives/FimColor';
@@ -22,11 +23,11 @@ enum ObjectID {
 }
 
 class SampleProcessor extends FimGLImageProcessor {
-  public constructor(width: number, height: number) {
-    super(width, height);
+  public constructor(fim: IFim, width: number, height: number) {
+    super(fim, width, height);
 
     // Initialize the preserved texture to black
-    using(new FimCanvas(width, height, '#000'), black => {
+    using(new FimCanvas(fim, width, height, '#000'), black => {
       let texture = this.getPreservedTexture(ObjectID.Texture);
       texture.copyFrom(black);
     })
@@ -62,29 +63,33 @@ class SampleProcessor extends FimGLImageProcessor {
 describe('FimGLImageProcessor', () => {
 
   it('Performs a basic test', async () => {
-    await usingAsync(new SampleProcessor(480, 480), async processor => {
-      for (let n = 0; n < 10; n++) {
-        // Increase brightness by 5%
-        processor.linearTransformation(1, 0.05);
-      }
-
-      // We expect the texture to be 50% grey
-      expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
+    await usingAsync(new Fim(), async fim => {
+      await usingAsync(new SampleProcessor(fim, 480, 480), async processor => {
+        for (let n = 0; n < 10; n++) {
+          // Increase brightness by 5%
+          processor.linearTransformation(1, 0.05);
+        }
+  
+        // We expect the texture to be 50% grey
+        expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
+      });  
     });
   });
 
   it('Works across context loss', async () => {
-    await usingAsync(new SampleProcessor(480, 480), async processor => {
-      for (let n = 0; n < 10; n++) {
-        // Increase brightness by 5%
-        processor.linearTransformation(1, 0.05);
-
-        // Simulate context loss
-        await processor.simulateContextLoss();
-      }
-
-      // We expect the texture to be 50% grey
-      expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
+    await usingAsync(new Fim(), async fim => {
+      await usingAsync(new SampleProcessor(fim, 480, 480), async processor => {
+        for (let n = 0; n < 10; n++) {
+          // Increase brightness by 5%
+          processor.linearTransformation(1, 0.05);
+  
+          // Simulate context loss
+          await processor.simulateContextLoss();
+        }
+  
+        // We expect the texture to be 50% grey
+        expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
+      });  
     });
   });
 

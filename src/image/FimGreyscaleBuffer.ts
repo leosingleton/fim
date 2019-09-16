@@ -4,18 +4,20 @@
 
 import { FimImage } from './FimImage';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { IFim } from '../Fim';
 import { FimRect } from '../primitives/FimRect';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
 export class FimGreyscaleBuffer extends FimImage {
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
+   * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
-  constructor(width: number, height: number, initialColor?: number) {
-    super(width, height);
+  constructor(fim: IFim, width: number, height: number, initialColor?: number) {
+    super(fim, width, height);
     this._buffer = new Uint8ClampedArray(width * height);
 
     if (initialColor) {

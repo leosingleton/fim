@@ -8,6 +8,7 @@ import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
 import { FimGLTexture, IFimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
+import { IFim } from '../Fim';
 import { ContextLost } from '../debug/ContextLost';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
@@ -74,6 +75,7 @@ export interface IFimGLCanvas extends IFimCanvasBase {
 export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
+   * @param fim FIM canvas factory
    * @param width Width, in pixels
    * @param height Height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
@@ -83,12 +85,12 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  constructor(width: number, height: number, initialColor?: FimColor | string,
+  constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string,
       offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ? FimDefaultOffscreenCanvasFactory : null,
       quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
-    let caps = FimGLCapabilities.getCapabilities(offscreenCanvasFactory);
+    let caps = FimGLCapabilities.getCapabilities(fim, offscreenCanvasFactory);
     let maxDimension = caps.maxRenderBufferSize;
 
     // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
@@ -105,7 +107,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     }
 
     // Call the parent constructor
-    super(width, height, offscreenCanvasFactory, maxDimension);
+    super(fim, width, height, offscreenCanvasFactory, maxDimension);
 
     // Report telemetry for debugging
     recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
@@ -242,7 +244,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.w, this.h, null, this.offscreenCanvasFactory);
+    let dupe = new FimCanvas(this.fim, this.w, this.h, null, this.offscreenCanvasFactory);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }

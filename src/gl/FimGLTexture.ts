@@ -5,6 +5,7 @@
 import { FimGLCanvas, IFimGLCanvas } from './FimGLCanvas';
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
+import { IFim } from '../Fim';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose, recordTexImage2D } from '../debug/FimStats';
 import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
@@ -97,6 +98,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
    * @param options See FimGLTextureOptions
    */
   constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+    let fim = glCanvas.fim;
     let originalOptions = options;
 
     // Default values
@@ -106,7 +108,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
 
     // Mobile browsers may have limits as low as 4096x4096 for texture buffers. Large images, such as those from
     // cameras may actually exceed WebGL's capabilities and need to be downscaled.
-    let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
+    let maxDimension = FimGLCapabilities.getCapabilities(fim).maxTextureSize;
 
     // If a lower texture size limit was set for debugging, use that instead
     let debugMaxDimension = FimConfig.config.maxGLTextureSize;
@@ -123,7 +125,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     }
 
     // Call the parent constructor. Read the real dimensions as we may have to downscale.
-    super(width, height, maxDimension);
+    super(fim, width, height, maxDimension);
     let realDimensions = this.realDimensions;
 
     // Reduce requested color depth depending on GPU capabilities and desired quality
@@ -216,7 +218,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
-    let maxDimension = FimGLCapabilities.getCapabilities().maxTextureSize;
+    let maxDimension = FimGLCapabilities.getCapabilities(this.fim).maxTextureSize;
     if (srcImage.realDimensions.w > maxDimension || srcImage.realDimensions.h > maxDimension) {
       return this.copyFromWithDownscale(srcImage);
     }
@@ -295,13 +297,14 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
       //  1. FimGreyscaleBuffer => FimRgbaBuffer
       //  2. FimRgbaBuffer => Downscale => FimCanvas (using the slower, non-async version)
       //  3. FimCanvas => FimTexture
-      using(new FimRgbaBuffer(srcImage.realDimensions.w, srcImage.realDimensions.h), temp => {
+      using(new FimRgbaBuffer(this.fim, srcImage.realDimensions.w, srcImage.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });
     } else {
       // For all other object types, downscale to a FimCanvas of the target texture dimensions
-      using(new FimCanvas(this.realDimensions.w, this.realDimensions.h, null, glCanvas.offscreenCanvasFactory), temp => {
+      using(new FimCanvas(this.fim, this.realDimensions.w, this.realDimensions.h, null,
+          glCanvas.offscreenCanvasFactory), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });

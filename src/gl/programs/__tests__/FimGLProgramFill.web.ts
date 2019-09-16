@@ -4,6 +4,7 @@
 
 import { FimGLProgramFill } from '../FimGLProgramFill';
 import { FimGLCanvas } from '../../FimGLCanvas';
+import { Fim } from '../../../Fim';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimRect } from '../../../primitives/FimRect';
 import { DisposableSet } from '@leosingleton/commonlibs';
@@ -14,7 +15,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     it('Respects custom destination rectangles', () => {
       DisposableSet.using(disposable => {
         // Create a 300x200 red canvas
-        let gl = disposable.addDisposable(new FimGLCanvas(300, 200, '#f00', offscreenCanvasFactory));
+        let fim = disposable.addDisposable(new Fim());
+        let gl = disposable.addDisposable(new FimGLCanvas(fim, 300, 200, '#f00', offscreenCanvasFactory));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));
@@ -31,7 +33,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     it('Respects custom destination rectangles vertically', () => {
       DisposableSet.using(disposable => {
         // Create a 100x200 red canvas
-        let gl = disposable.addDisposable(new FimGLCanvas(100, 200, '#f00', offscreenCanvasFactory));
+        let fim = disposable.addDisposable(new Fim());
+        let gl = disposable.addDisposable(new FimGLCanvas(fim, 100, 200, '#f00', offscreenCanvasFactory));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));
@@ -47,7 +50,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     it('Respects custom destination rectangles to the pixel', () => {
       DisposableSet.using(disposable => {
         // Create a 100x100 red canvas
-        let gl = disposable.addDisposable(new FimGLCanvas(100, 100, '#f00', offscreenCanvasFactory));
+        let fim = disposable.addDisposable(new Fim());
+        let gl = disposable.addDisposable(new FimGLCanvas(fim, 100, 100, '#f00', offscreenCanvasFactory));
 
         // Draw a blue on one specific pixel
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));

@@ -7,6 +7,7 @@ import { FimGLTexturePool } from './FimGLTexturePool';
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTextureOptions } from '../FimGLTexture';
+import { IFim } from '../../Fim';
 import { FimRect } from '../../primitives/FimRect';
 import { IFimDimensions } from '../../primitives/IFimDimensions';
 import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
@@ -18,15 +19,16 @@ import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions {
   /**
    * Constructor
+   * @param fim FIM canvas factory
    * @param maxWidth Maximum width of the output or textures, whichever is largest, in pixels
    * @param maxHeight Maximum height of the output or textures, whichever is largest, in pixels
    */
-  public constructor(maxWidth: number, maxHeight: number) {
+  public constructor(fim: IFim, maxWidth: number, maxHeight: number) {
     this.w = maxWidth;
     this.h = maxHeight;
     this.imageDimensions = FimRect.fromWidthHeight(maxWidth, maxHeight);
 
-    let glCanvas = this.glCanvas = new FimGLCanvas(maxWidth, maxHeight);
+    let glCanvas = this.glCanvas = new FimGLCanvas(fim, maxWidth, maxHeight);
 
     this.disposeOnLostContext = new DisposableSet();
     this.disposeOnDispose = new DisposableSet();

@@ -5,6 +5,7 @@
 import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from './FimCanvasBase';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { Fim, IFim } from '../Fim';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
@@ -62,6 +63,7 @@ export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
 export class FimCanvas extends FimCanvasBase implements IFimCanvas {
   /**
    * Creates an invisible canvas in the DOM
+   * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
@@ -69,9 +71,9 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
    *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
    *    and uses Chrome's OffscreenCanvas functionality if supported.
    */
-  public constructor(width: number, height: number, initialColor?: FimColor | string,
+  public constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string,
     offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ? FimDefaultOffscreenCanvasFactory : null) {
-    super(width, height, offscreenCanvasFactory);
+    super(fim, width, height, offscreenCanvasFactory);
 
     // Report telemetry for debugging
     recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);
@@ -89,7 +91,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
   }
 
   public duplicateCanvas(): IFimCanvas {
-    let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h, null, this.offscreenCanvasFactory);
+    let dupe = new FimCanvas(this.fim, this.imageDimensions.w, this.imageDimensions.h, null, this.offscreenCanvasFactory);
     dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -206,7 +208,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
       });
     } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-      using(new FimCanvas(srcImage.w, srcImage.h, null, this.offscreenCanvasFactory), temp => {
+      using(new FimCanvas(this.fim, srcImage.w, srcImage.h, null, this.offscreenCanvasFactory), temp => {
         temp.copyFromRgbaBuffer(srcImage);
         this.copyFromCanvas(temp, srcCoords, destCoords);
       });
@@ -229,7 +231,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
     
-    using(new FimRgbaBuffer(1, 1), buffer => {
+    using(new FimRgbaBuffer(this.fim, 1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();
     });
@@ -242,7 +244,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
 
-    using(new FimRgbaBuffer(1, 1, color), buffer => {
+    using(new FimRgbaBuffer(this.fim, 1, 1, color), buffer => {
       this.copyFromRgbaBuffer(buffer, buffer.imageDimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
@@ -254,11 +256,11 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
    *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
    *    and uses Chrome's OffscreenCanvas functionality if supported.
    */
-  public static createFromJpeg(jpegFile: Uint8Array, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
+  public static createFromJpeg(fim: Fim, jpegFile: Uint8Array, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
       FimDefaultOffscreenCanvasFactory : null): Promise<FimCanvas> {
     // Create a Blob holding the binary data and load it onto an HTMLImageElement
     let blob = new Blob([jpegFile], { type: 'image/jpeg' });
-    return FimCanvas.createFromImageBlob(blob, offscreenCanvasFactory);
+    return FimCanvas.createFromImageBlob(fim, blob, offscreenCanvasFactory);
   }
 
   /**
@@ -268,7 +270,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
    *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
    *    and uses Chrome's OffscreenCanvas functionality if supported.
    */
-  public static async createFromImageBlob(blob: Blob, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
+  public static async createFromImageBlob(fim: Fim, blob: Blob, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
       FimDefaultOffscreenCanvasFactory : null): Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
       let url = (URL || webkitURL).createObjectURL(blob);
@@ -277,7 +279,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
-        let result = new FimCanvas(img.width, img.height, null, offscreenCanvasFactory);
+        let result = fim.createCanvas(img.width, img.height);
         using(result.createDrawingContext(), ctx => {
           ctx.drawImage(img, 0, 0);
         });

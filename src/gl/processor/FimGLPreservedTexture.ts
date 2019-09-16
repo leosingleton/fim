@@ -39,6 +39,8 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
    * @param options See FimGLTextureOptions
    */
   public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+    let fim = glCanvas.fim;
+
     // Default parameters
     width = width || glCanvas.w;
     height = height || glCanvas.h;
@@ -52,13 +54,13 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
     let texture = new FimGLTexture(glCanvas, width, height, options);
 
     // Call the FimImage constructor. We'll figure out the maxDimension property based on the texture's dimensions.
-    super(width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
+    super(fim, width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
     this.glCanvas = glCanvas;
     this.texture = texture;
     this.textureOptions = texture.textureOptions;
   
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.
-    this.backingCanvas = new FimCanvas(texture.realDimensions.w, texture.realDimensions.h, null,
+    this.backingCanvas = new FimCanvas(fim, texture.realDimensions.w, texture.realDimensions.h, null,
       glCanvas.offscreenCanvasFactory);
 
     // Register for context lost notifications

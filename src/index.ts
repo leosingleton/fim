@@ -4,6 +4,7 @@
  * Released under the MIT license
  */
 
+export { Fim, IFim } from './Fim';
 export { FimTestImages } from './debug/FimTestImages';
 export { FimTestPatterns } from './debug/FimTestPatterns';
 export { FimGLCanvas, IFimGLCanvas } from './gl/FimGLCanvas';

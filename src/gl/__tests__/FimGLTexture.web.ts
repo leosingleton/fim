@@ -6,6 +6,7 @@ import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
+import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
 import { FimCanvas } from '../../image/FimCanvas';
 import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
@@ -24,9 +25,10 @@ describe('FimGLTexture', () => {
   it('Supports all combinations of channels, bits per pixel, and flags', () => {
     DisposableSet.using(disposable => {
       // Create a WebGL canvas, plus a 2D grey canvas
-      let gl = disposable.addDisposable(new FimGLCanvas(240, 240));
+      let fim = disposable.addDisposable(new Fim());
+      let gl = disposable.addDisposable(new FimGLCanvas(fim, 240, 240));
       let program = disposable.addDisposable(new FimGLProgramCopy(gl));
-      let canvas = disposable.addDisposable(new FimCanvas(240, 240, '#888'));
+      let canvas = disposable.addDisposable(new FimCanvas(fim, 240, 240, '#888'));
 
       [FimColorChannels.Greyscale, FimColorChannels.RGB, FimColorChannels.RGBA].forEach(channels => {
         [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32].forEach(bpp => {
@@ -60,10 +62,11 @@ describe('FimGLTexture', () => {
 
   it('Downscales oversized textures', async () => {
     await DisposableSet.usingAsync(async disposable => {
-      let gl = disposable.addDisposable(new FimGLCanvas(480, 240));
+      let fim = disposable.addDisposable(new Fim());
+      let gl = disposable.addDisposable(new FimGLCanvas(fim, 480, 240));
       
       // Find a texture size bigger than the GPU can support and create a texture of that size
-      let caps = FimGLCapabilities.getCapabilities();
+      let caps = FimGLCapabilities.getCapabilities(fim);
       let textureSize = caps.maxTextureSize + 1000;
       let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8,
         {textureFlags: FimGLTextureFlags.AllowLargerThanCanvas}));
@@ -74,8 +77,8 @@ describe('FimGLTexture', () => {
 
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
-      let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(jpeg));
-      let srcImage = disposable.addDisposable(new FimCanvas(textureSize, textureSize / 8));
+      let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(fim, jpeg));
+      let srcImage = disposable.addDisposable(new FimCanvas(fim, textureSize, textureSize / 8));
       srcImage.copyFrom(buffer);
       texture.copyFrom(srcImage);
 
@@ -94,7 +97,8 @@ describe('FimGLTexture', () => {
 
   it('Automatically downscales to canvas size', () => {
     DisposableSet.using(async disposable => {
-      let gl = disposable.addDisposable(new FimGLCanvas(480, 240));
+      let fim = disposable.addDisposable(new Fim());
+      let gl = disposable.addDisposable(new FimGLCanvas(fim, 480, 240));
       let texture = disposable.addDisposable(new FimGLTexture(gl, 1024, 1024));
 
       // The texture should be automatically downscaled to fit on the canvas

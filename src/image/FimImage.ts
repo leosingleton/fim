@@ -2,11 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { IFim } from '../Fim';
 import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
 import { IDisposable } from '@leosingleton/commonlibs';
 
-export interface IFimImage {
+export interface IFimImage extends IDisposable, IFimDimensions {
+  /** FIM canvas factory */
+  readonly fim: IFim;
+
   /** 
    * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
    * constructor.
@@ -31,18 +35,20 @@ export interface IFimImage {
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
  * of the image itself may be changed with copyFrom() or other functions.
  */
-export abstract class FimImage implements IDisposable, IFimDimensions, IFimImage {
+export abstract class FimImage implements IFimImage {
   /**
    * Constructor
+   * @param fim FIM canvas factory
    * @param width Image width, in pixels
    * @param height Image height, in pixels
    * @param maxDimension Image implementations, particularly in WebGL, may have maximum supported dimensions. If the
    *    requested width or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(width: number, height: number, maxDimension = 0) {
+  public constructor(fim: IFim, width: number, height: number, maxDimension = 0) {
     this.w = width = Math.floor(width);
     this.h = height = Math.floor(height);
     this.imageDimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
+    this.fim = fim;
 
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.
@@ -62,6 +68,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions, IFimImage
   public readonly imageDimensions: FimRect;
 
   // IFimImage implementation
+  public readonly fim: IFim;
   public readonly realDimensions: FimRect;
   public readonly downscaleRatio: number;
   public readonly imageId: number;

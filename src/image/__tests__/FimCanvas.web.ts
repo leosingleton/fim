@@ -5,6 +5,7 @@
 import { FimCanvas, _FimCanvas } from '../FimCanvas';
 import { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../FimCanvasBase';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
+import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
 import { FimTestPatterns } from '../../debug/FimTestPatterns';
 import { FimRect } from '../../primitives/FimRect';
@@ -14,78 +15,88 @@ import { DisposableSet, SeededRandom, using, usingAsync } from '@leosingleton/co
 function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
   return () => {
     it('Creates and disposes', () => {
-      let b = new FimCanvas(640, 480, undefined, offscreenCanvasFactory);
-      expect(b.getCanvas()).toBeDefined();
-      expect(b.offscreenCanvas).toBe(offscreenCanvasFactory !== null);
-
-      b.dispose();
-      expect(b.getCanvas()).toBeUndefined();
-
-      // Double-dispose
-      b.dispose();
-      expect(b.getCanvas()).toBeUndefined();
+      using(new Fim(), fim => {
+        let b = new FimCanvas(fim, 640, 480, undefined, offscreenCanvasFactory);
+        expect(b.getCanvas()).toBeDefined();
+        expect(b.offscreenCanvas).toBe(offscreenCanvasFactory !== null);
+  
+        b.dispose();
+        expect(b.getCanvas()).toBeUndefined();
+  
+        // Double-dispose
+        b.dispose();
+        expect(b.getCanvas()).toBeUndefined();  
+      });
     });
 
     it('Fills with initial value', () => {
-      let color = FimColor.fromString('#abc');
-      using(new FimCanvas(640, 480, color, offscreenCanvasFactory), buffer => {
-        expect(buffer.getPixel(134, 413)).toEqual(color);
+      using(new Fim(), fim => {
+        let color = FimColor.fromString('#abc');
+        using(new FimCanvas(fim, 640, 480, color, offscreenCanvasFactory), buffer => {
+          expect(buffer.getPixel(134, 413)).toEqual(color);
+        });  
       });
     });
 
     it('Gets and sets pixel colors', () => {
-      let color1 = FimColor.fromString('#123');
-      let color2 = FimColor.fromString('#aaa');
-
-      using(new FimCanvas(640, 480, color1, offscreenCanvasFactory), buffer => {
-        buffer.setPixel(555, 123, color2);
-        expect(buffer.getPixel(134, 413)).toEqual(color1);
-        expect(buffer.getPixel(555, 123)).toEqual(color2);
+      using(new Fim(), fim => {
+        let color1 = FimColor.fromString('#123');
+        let color2 = FimColor.fromString('#aaa');
+  
+        using(new FimCanvas(fim, 640, 480, color1, offscreenCanvasFactory), buffer => {
+          buffer.setPixel(555, 123, color2);
+          expect(buffer.getPixel(134, 413)).toEqual(color1);
+          expect(buffer.getPixel(555, 123)).toEqual(color2);
+        });  
       });
     });
 
     it('Copies full image', () => {
-      let color1 = FimColor.fromString('#def');
-      let color2 = FimColor.fromString('#1234');
-      using(new FimCanvas(640, 480, color1, offscreenCanvasFactory), src => {
-        using(new FimCanvas(640, 480, undefined, offscreenCanvasFactory), dest => {
-          // Copy src to dest
-          dest.copyFrom(src);
-
-          // Modify src
-          src.fillCanvas(color2);
-
-          // Ensure dest is still copied from original src
-          expect(dest.getPixel(142, 373)).toEqual(color1);
-        });
+      using(new Fim(), fim => {
+        let color1 = FimColor.fromString('#def');
+        let color2 = FimColor.fromString('#1234');
+        using(new FimCanvas(fim, 640, 480, color1, offscreenCanvasFactory), src => {
+          using(new FimCanvas(fim, 640, 480, undefined, offscreenCanvasFactory), dest => {
+            // Copy src to dest
+            dest.copyFrom(src);
+  
+            // Modify src
+            src.fillCanvas(color2);
+  
+            // Ensure dest is still copied from original src
+            expect(dest.getPixel(142, 373)).toEqual(color1);
+          });
+        });  
       });
     });
 
     it('Copies to destination coordinates', () => {
-      using(new FimCanvas(200, 200, undefined, offscreenCanvasFactory), dest => {
-        using(new FimCanvas(100, 100, undefined, offscreenCanvasFactory), src => {
-          // Top-left => red
-          src.fillCanvas('#f00');
-          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
-
-          // Top-right => green
-          src.fillCanvas('#0f0');
-          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
-
-          // Bottom-left => blue
-          src.fillCanvas('#00f');
-          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
-
-          // Bottom-right => white
-          src.fillCanvas('#fff');
-          dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
-        });
-
-        // Check a pixel in each of the four quadrants for the expected color
-        expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#f00'));
-        expect(dest.getPixel(150, 50)).toEqual(FimColor.fromString('#0f0'));
-        expect(dest.getPixel(50, 150)).toEqual(FimColor.fromString('#00f'));
-        expect(dest.getPixel(150, 150)).toEqual(FimColor.fromString('#fff'));
+      using(new Fim(), fim => {
+        using(new FimCanvas(fim, 200, 200, undefined, offscreenCanvasFactory), dest => {
+          using(new FimCanvas(fim, 100, 100, undefined, offscreenCanvasFactory), src => {
+            // Top-left => red
+            src.fillCanvas('#f00');
+            dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
+  
+            // Top-right => green
+            src.fillCanvas('#0f0');
+            dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 0, 100, 100));
+  
+            // Bottom-left => blue
+            src.fillCanvas('#00f');
+            dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 100, 100, 100));
+  
+            // Bottom-right => white
+            src.fillCanvas('#fff');
+            dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(100, 100, 100, 100));
+          });
+  
+          // Check a pixel in each of the four quadrants for the expected color
+          expect(dest.getPixel(50, 50)).toEqual(FimColor.fromString('#f00'));
+          expect(dest.getPixel(150, 50)).toEqual(FimColor.fromString('#0f0'));
+          expect(dest.getPixel(50, 150)).toEqual(FimColor.fromString('#00f'));
+          expect(dest.getPixel(150, 150)).toEqual(FimColor.fromString('#fff'));
+        });  
       });
     });
 
@@ -99,7 +110,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
 
       // Create an RGBA buffer and fill it with gradiant values
       await DisposableSet.usingAsync(async disposable => {
-        let src = disposable.addDisposable(new FimRgbaBuffer(100, 100));
+        let fim = disposable.addDisposable(new Fim());
+        let src = disposable.addDisposable(new FimRgbaBuffer(fim, 100, 100));
         for (let x = 0; x < 100; x++) {
           for (let y = 0; y < 100; y++) {
             src.setPixel(x, y, FimColor.fromRGBABytes(x, y, 0, 255));
@@ -107,7 +119,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
         }
 
         // Copy the RGBA buffer to an FimCanvas
-        let dest = disposable.addDisposable(new _FimCanvas(100, 100, undefined, offscreenCanvasFactory));
+        let dest = disposable.addDisposable(new _FimCanvas(fim, 100, 100, undefined, offscreenCanvasFactory));
         await copy(dest, src);
 
         // Ensure the two are the same
@@ -141,13 +153,14 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
       await DisposableSet.usingAsync(async disposable => {
         // Create a buffer and fill it with gradient values. For speed, fill an RGBA buffer then copy it to the canvas.
         // FimCanvas.setPixel() is very slow.
-        let orig = disposable.addDisposable(new FimCanvas(300, 300, undefined, offscreenCanvasFactory));
-        let temp = disposable.addDisposable(new FimRgbaBuffer(300, 300));
+        let fim = disposable.addDisposable(new Fim());
+        let orig = disposable.addDisposable(new FimCanvas(fim, 300, 300, undefined, offscreenCanvasFactory));
+        let temp = disposable.addDisposable(new FimRgbaBuffer(fim, 300, 300));
         FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
         await orig.copyFrom(temp);
     
         // Copy the center 100x100 to another buffer
-        let crop = disposable.addDisposable(new FimCanvas(300, 300, '#000', offscreenCanvasFactory));
+        let crop = disposable.addDisposable(new FimCanvas(fim, 300, 300, '#000', offscreenCanvasFactory));
         let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
         crop.copyFrom(orig, rect, rect);
     
@@ -173,47 +186,53 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
       let jpeg = FimTestImages.fourSquaresJpeg();
 
       // Decompress the image
-      using(await FimCanvas.createFromJpeg(jpeg, offscreenCanvasFactory), canvas => {
-        expect(canvas.w).toEqual(128);
-        expect(canvas.h).toEqual(128);
-
-        function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
-          expect(actual.r).toBeCloseTo(expected.r, -0.5);
-          expect(actual.g).toBeCloseTo(expected.g, -0.5);
-          expect(actual.b).toBeCloseTo(expected.b, -0.5);  
-          expect(actual.a).toBeCloseTo(expected.a, -0.5);  
-        }
-
-        expectToBeCloseTo(canvas.getPixel(32, 32), FimColor.fromString('#f00'));
-        expectToBeCloseTo(canvas.getPixel(96, 32), FimColor.fromString('#0f0'));
-        expectToBeCloseTo(canvas.getPixel(32, 96), FimColor.fromString('#00f'));
-        expectToBeCloseTo(canvas.getPixel(96, 96), FimColor.fromString('#000'));
+      await usingAsync(new Fim(), async fim => {
+        using(await FimCanvas.createFromJpeg(fim, jpeg, offscreenCanvasFactory), canvas => {
+          expect(canvas.w).toEqual(128);
+          expect(canvas.h).toEqual(128);
+  
+          function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
+            expect(actual.r).toBeCloseTo(expected.r, -0.5);
+            expect(actual.g).toBeCloseTo(expected.g, -0.5);
+            expect(actual.b).toBeCloseTo(expected.b, -0.5);  
+            expect(actual.a).toBeCloseTo(expected.a, -0.5);  
+          }
+  
+          expectToBeCloseTo(canvas.getPixel(32, 32), FimColor.fromString('#f00'));
+          expectToBeCloseTo(canvas.getPixel(96, 32), FimColor.fromString('#0f0'));
+          expectToBeCloseTo(canvas.getPixel(32, 96), FimColor.fromString('#00f'));
+          expectToBeCloseTo(canvas.getPixel(96, 96), FimColor.fromString('#000'));
+        });  
       });
     });
 
     it('Encodes PNGs', async () => {
-      await usingAsync(new FimCanvas(320, 320, '#f00', offscreenCanvasFactory), async canvas => {
-        // Write to PNG
-        let png = await canvas.toPng();
-
-        // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
-        expect(png[0]).toBe(0x89);
-        expect(png[1]).toBe(0x50);
-        expect(png[2]).toBe(0x4e);
-        expect(png[3]).toBe(0x47);
+      await usingAsync(new Fim(), async fim => {
+        await usingAsync(new FimCanvas(fim, 320, 320, '#f00', offscreenCanvasFactory), async canvas => {
+          // Write to PNG
+          let png = await canvas.toPng();
+  
+          // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
+          expect(png[0]).toBe(0x89);
+          expect(png[1]).toBe(0x50);
+          expect(png[2]).toBe(0x4e);
+          expect(png[3]).toBe(0x47);
+        });  
       });
     });
 
     it('Encodes JPEGs', async () => {
-      await usingAsync(new FimCanvas(320, 320, '#f00', offscreenCanvasFactory), async canvas => {
-        // Write to JPEG
-        let jpeg = await canvas.toJpeg();
-
-        // JPEG magic number is FF D8 FF
-        expect(jpeg[0]).toBe(0xff);
-        expect(jpeg[1]).toBe(0xd8);
-        expect(jpeg[2]).toBe(0xff);
-      });
+      await usingAsync(new Fim(), async fim => {
+        await usingAsync(new FimCanvas(fim, 320, 320, '#f00', offscreenCanvasFactory), async canvas => {
+          // Write to JPEG
+          let jpeg = await canvas.toJpeg();
+  
+          // JPEG magic number is FF D8 FF
+          expect(jpeg[0]).toBe(0xff);
+          expect(jpeg[1]).toBe(0xd8);
+          expect(jpeg[2]).toBe(0xff);
+        });
+        });
     });
   };
 }

@@ -6,6 +6,7 @@ import { FimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage } from './FimImage';
 import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { IFim } from '../Fim';
 import { FimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
@@ -15,12 +16,13 @@ import { using } from '@leosingleton/commonlibs';
 export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
   /**
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
+   * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
    */
-  constructor(width: number, height: number, initialColor?: FimColor | string) {
-    super(width, height);
+  constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height);
     this._buffer = new Uint8ClampedArray(width * height * 4);
 
     if (initialColor) {
@@ -99,7 +101,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
 
     if (!destCoords.equals(this.imageDimensions)) {
       // Slow case: The destination is not the entire image. Use a temporary RgbaBuffer.
-      using(new FimRgbaBuffer(destCoords.w, destCoords.h), buffer => {
+      using(new FimRgbaBuffer(this.fim, destCoords.w, destCoords.h), buffer => {
         buffer.copyFromCanvas(srcImage, origSrcCoords);
         this.copyFromRgbaBuffer(buffer, undefined, destCoords);
       });
@@ -109,7 +111,7 @@ export class FimRgbaBuffer extends FimImage implements IFimGetSetPixel {
       this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
       // Slow case: Use a temporary canvas.
-      using(new FimCanvas(destCoords.w, destCoords.h, null, srcImage.offscreenCanvasFactory), canvas => {
+      using(new FimCanvas(this.fim, destCoords.w, destCoords.h, null, srcImage.offscreenCanvasFactory), canvas => {
         canvas.copyFrom(srcImage, origSrcCoords);
         this.copyFromCanvasInternal(canvas, canvas.realDimensions);
       });
