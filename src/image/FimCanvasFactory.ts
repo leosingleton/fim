@@ -10,26 +10,26 @@ import { IDisposable, makeDisposable } from '@leosingleton/commonlibs';
  * a mock object to support NodeJS or other platforms.
  * @param width Width of the canvas, in pixels
  * @param height Height of the canvas, in pixels
- * @param imageId Unique ID for logging and debugging
+ * @param canvasId Unique ID for logging and debugging
  * @returns HTMLCanvasElement or OffscreenCanvas object
  */
-export type FimCanvasFactory = (width: number, height: number, imageId: number) =>
+export type FimCanvasFactory = (width: number, height: number, canvasId: string) =>
   (HTMLCanvasElement | OffscreenCanvas) & IDisposable;
 
 /**
  * Constructs a hidden DOM canvas in a web browser.
  * @param width Width of the canvas, in pixels
  * @param height Height of the canvas, in pixels
- * @param imageId Unique ID for logging and debugging
+ * @param canvasId Unique ID for logging and debugging
  * @returns HTMLCanvasElement object
  */
-export function FimDomCanvasFactory(width: number, height: number, imageId?: number): HTMLCanvasElement & IDisposable {
+export function FimDomCanvasFactory(width: number, height: number, canvasId: string): HTMLCanvasElement & IDisposable {
   // Create a hidden canvas
   let canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   canvas.style.display = 'none';
-  canvas.id = `fim${imageId}`;
+  canvas.id = canvasId;
   document.body.appendChild(canvas);
 
   // Add a .dispose() method to remove the canvas from the DOM
@@ -43,10 +43,10 @@ export function FimDomCanvasFactory(width: number, height: number, imageId?: num
  * calling this function.
  * @param width Width of the canvas, in pixels
  * @param height Height of the canvas, in pixels
- * @param imageId Unique ID for logging and debugging
+ * @param canvasId Unique ID for logging and debugging
  * @returns OffscreenCanvas object
  */
-export function FimOffscreenCanvasFactory(width: number, height: number, imageId?: number):
+export function FimOffscreenCanvasFactory(width: number, height: number, canvasId: string):
     OffscreenCanvas & IDisposable {
   // Use Chrome's OffscreenCanvas object
   if (!Fim.supportsOffscreenCanvas) {
