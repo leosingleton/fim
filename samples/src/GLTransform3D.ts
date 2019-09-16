@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loadTestImage, handleError, renderOutput } from './Common';
+import { fim, loadTestImage, handleError, renderOutput } from './Common';
 import { FimGLCanvas, FimGLTexture, FimGLProgramCopy, FimGLTextureFlags,
   Transform3D } from '../../build/dist/index.js';
 import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
@@ -10,7 +10,7 @@ import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
 export async function glTransform3D(canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
   let srcImage = await loadTestImage();
-  let gl = new FimGLCanvas(srcImage.w, srcImage.h);
+  let gl = new FimGLCanvas(fim, srcImage.w, srcImage.h);
 
   while (true) {
     let disposable = new DisposableSet();

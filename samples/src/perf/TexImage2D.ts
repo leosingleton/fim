@@ -2,14 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerformanceValue } from '../Common';
-import { FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimRgbaBuffer, FimBitsPerPixel } from '../../../build/dist/index.js';
+import { fim, loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerformanceValue } from '../Common';
+import { FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimRgbaBuffer } from '../../../build/dist/index.js';
 import { DisposableSet, using, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfTexImage2D(): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
     let srcImage = disposable.addDisposable(await loadTestImage());
-    let gl = disposable.addDisposable(new FimGLCanvas(512, 512));
+    let gl = disposable.addDisposable(new FimGLCanvas(fim, 512, 512));
 
 
     //
@@ -76,7 +76,7 @@ export async function perfTexImage2D(): Promise<void> {
     //
     async function testTexFromBuffer(id: string, width: number, height: number, flags: FimGLTextureFlags):
         Promise<void> {
-      usingAsync(new FimRgbaBuffer(srcImage.w, srcImage.h), async buffer => {
+      usingAsync(new FimRgbaBuffer(fim, srcImage.w, srcImage.h), async buffer => {
         // Copy the source image to a buffer
         buffer.copyFrom(srcImage);
 

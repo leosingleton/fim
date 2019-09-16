@@ -2,12 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
+import { Fim, FimCanvas, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
   FimRect } from '../../build/dist/index.js';
 import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
 let qs = parseQueryString();
+
+/** Global instance of FIM */
+export var fim = new Fim();
 
 /** Loads a test image and returns the JPEG as a byte array */
 export async function loadTestImageToArray(): Promise<Uint8Array> {
@@ -21,7 +24,7 @@ export async function loadTestImageToArray(): Promise<Uint8Array> {
 /** Loads a test image onto a FimCanvas */
 export async function loadTestImage(): Promise<FimCanvas> {
   let jpeg = await loadTestImageToArray();
-  return FimCanvas.createFromJpeg(jpeg);
+  return FimCanvas.createFromJpeg(fim, jpeg);
 }
 
 /** Blocks execution until the browser is ready to render another frame */
@@ -297,7 +300,7 @@ export function recordPerformanceValue(id: string, results: IPerformanceResults,
 $(() => {
   let gpuDiv = $('#gpu');
   if (gpuDiv) {
-    gpuDiv.text(JSON.stringify(FimGLCapabilities.getCapabilities(), null, 4));
+    gpuDiv.text(JSON.stringify(FimGLCapabilities.getCapabilities(fim), null, 4));
   }  
 });
 

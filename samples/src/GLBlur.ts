@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loadTestImage, renderOutput } from './Common';
+import { fim, loadTestImage, renderOutput } from './Common';
 import { FimCanvas, FimGLCanvas, FimGLProgramMatrixOperation1D, GaussianKernel, FimGLImageProcessor,
   FimGLTextureFlags } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, DisposableSet } from '@leosingleton/commonlibs';
@@ -17,7 +17,7 @@ const enum ObjectIDs {
 
 class BlurImageProcessor extends FimGLImageProcessor {
   public constructor(input: FimCanvas) {
-    super(input.w, input.h);
+    super(fim, input.w, input.h);
 
     // Create a preserved texture with a sample JPEG image
     let inputTexture = this.getPreservedTexture(ObjectIDs.InputTexture, input.w, input.h,

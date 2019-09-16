@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { fim } from './Common';
 import { FimCanvas, FimRgbaBuffer, FimGLCanvas, FimGLTexture, FimGLTextureFlags,
   FimGLProgramDownscale, FimTestPatterns } from '../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
@@ -9,11 +10,11 @@ import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 export async function downscale(): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
     // Build the test pattern
-    let testBuffer = disposable.addDisposable(new FimRgbaBuffer(512, 512));
+    let testBuffer = disposable.addDisposable(new FimRgbaBuffer(fim, 512, 512));
     FimTestPatterns.render(testBuffer, FimTestPatterns.downscaleStress);
 
     // Copy the test pattern to a canvas and draw it
-    let test = disposable.addDisposable(new FimCanvas(testBuffer.w, testBuffer.h));
+    let test = disposable.addDisposable(new FimCanvas(fim, testBuffer.w, testBuffer.h));
     await test.copyFromAsync(testBuffer);
     await renderOutput(test, 'Test Pattern:');
 
@@ -73,7 +74,7 @@ function renderOutput(canvas: FimCanvas | FimGLCanvas, message: string): void {
 }
 
 async function testDownscaleWithCanvas(test: FimCanvas, ratio: number): Promise<void> {
-  await usingAsync(new FimCanvas(test.w / ratio, test.h / ratio), async output => {
+  await usingAsync(new FimCanvas(fim, test.w / ratio, test.h / ratio), async output => {
     output.copyFrom(test);
     await renderOutput(output, `Downscaled ${ratio}x using FimCanvas.copyFrom():`);
   });
@@ -81,7 +82,7 @@ async function testDownscaleWithCanvas(test: FimCanvas, ratio: number): Promise<
 
 async function testDownscaleWithGLCopy(test: FimCanvas, ratio: number): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
-    let output = disposable.addDisposable(new FimGLCanvas(test.w / ratio, test.h / ratio));
+    let output = disposable.addDisposable(new FimGLCanvas(fim, test.w / ratio, test.h / ratio));
 
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
     let input = disposable.addDisposable(FimGLTexture.createFrom(output, test, flags));
@@ -93,7 +94,7 @@ async function testDownscaleWithGLCopy(test: FimCanvas, ratio: number): Promise<
 
 async function testDownscaleWithGL(test: FimCanvas, ratio: number): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
-    let output = disposable.addDisposable(new FimGLCanvas(test.w / ratio, test.h / ratio));
+    let output = disposable.addDisposable(new FimGLCanvas(fim, test.w / ratio, test.h / ratio));
 
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
     let input = disposable.addDisposable(FimGLTexture.createFrom(output, test, flags));
