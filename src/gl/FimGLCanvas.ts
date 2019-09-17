@@ -239,7 +239,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.fim, this.w, this.h);
+    let dupe = this.fim.createCanvas(this.w, this.h);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }

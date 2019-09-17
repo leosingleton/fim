@@ -16,7 +16,7 @@ function spec(canvasFactory: FimCanvasFactory) {
   return () => {
     it('Creates and disposes', () => {
       using(new Fim(canvasFactory), fim => {
-        let b = new FimCanvas(fim, 640, 480);
+        let b = fim.createCanvas(640, 480);
         expect(b.getCanvas()).toBeDefined();
         expect(b.offscreenCanvas).toBe(canvasFactory === FimOffscreenCanvasFactory);
   
@@ -32,7 +32,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Fills with initial value', () => {
       using(new Fim(canvasFactory), fim => {
         let color = FimColor.fromString('#abc');
-        using(new FimCanvas(fim, 640, 480, color), buffer => {
+        using(fim.createCanvas(640, 480, color), buffer => {
           expect(buffer.getPixel(134, 413)).toEqual(color);
         });  
       });
@@ -43,7 +43,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         let color1 = FimColor.fromString('#123');
         let color2 = FimColor.fromString('#aaa');
   
-        using(new FimCanvas(fim, 640, 480, color1), buffer => {
+        using(fim.createCanvas(640, 480, color1), buffer => {
           buffer.setPixel(555, 123, color2);
           expect(buffer.getPixel(134, 413)).toEqual(color1);
           expect(buffer.getPixel(555, 123)).toEqual(color2);
@@ -55,8 +55,8 @@ function spec(canvasFactory: FimCanvasFactory) {
       using(new Fim(canvasFactory), fim => {
         let color1 = FimColor.fromString('#def');
         let color2 = FimColor.fromString('#1234');
-        using(new FimCanvas(fim, 640, 480, color1), src => {
-          using(new FimCanvas(fim, 640, 480), dest => {
+        using(fim.createCanvas(640, 480, color1), src => {
+          using(fim.createCanvas(640, 480), dest => {
             // Copy src to dest
             dest.copyFrom(src);
   
@@ -72,8 +72,8 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     it('Copies to destination coordinates', () => {
       using(new Fim(canvasFactory), fim => {
-        using(new FimCanvas(fim, 200, 200), dest => {
-          using(new FimCanvas(fim, 100, 100), src => {
+        using(fim.createCanvas(200, 200), dest => {
+          using(fim.createCanvas(100, 100), src => {
             // Top-left => red
             src.fillCanvas('#f00');
             dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
@@ -154,13 +154,13 @@ function spec(canvasFactory: FimCanvasFactory) {
         // Create a buffer and fill it with gradient values. For speed, fill an RGBA buffer then copy it to the canvas.
         // FimCanvas.setPixel() is very slow.
         let fim = disposable.addDisposable(new Fim(canvasFactory));
-        let orig = disposable.addDisposable(new FimCanvas(fim, 300, 300));
+        let orig = disposable.addDisposable(fim.createCanvas(300, 300));
         let temp = disposable.addDisposable(fim.createRgbaBuffer(300, 300));
         FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
         await orig.copyFrom(temp);
     
         // Copy the center 100x100 to another buffer
-        let crop = disposable.addDisposable(new FimCanvas(fim, 300, 300, '#000'));
+        let crop = disposable.addDisposable(fim.createCanvas(300, 300, '#000'));
         let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
         crop.copyFrom(orig, rect, rect);
     
@@ -208,7 +208,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     it('Encodes PNGs', async () => {
       await usingAsync(new Fim(canvasFactory), async fim => {
-        await usingAsync(new FimCanvas(fim, 320, 320, '#f00'), async canvas => {
+        await usingAsync(fim.createCanvas(320, 320, '#f00'), async canvas => {
           // Write to PNG
           let png = await canvas.toPng();
   
@@ -223,7 +223,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     it('Encodes JPEGs', async () => {
       await usingAsync(new Fim(canvasFactory), async fim => {
-        await usingAsync(new FimCanvas(fim, 320, 320, '#f00'), async canvas => {
+        await usingAsync(fim.createCanvas(320, 320, '#f00'), async canvas => {
           // Write to JPEG
           let jpeg = await canvas.toJpeg();
   

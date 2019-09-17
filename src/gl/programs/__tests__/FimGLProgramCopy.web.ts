@@ -6,7 +6,6 @@ import { FimGLProgramCopy } from '../FimGLProgramCopy';
 import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
 import { Fim } from '../../../Fim';
-import { FimCanvas } from '../../../image/FimCanvas';
 import { FimColor } from '../../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
@@ -18,7 +17,7 @@ describe('FimGLProgramCopy', () => {
       let fim = disposable.addDisposable(new Fim());
       let canvas = disposable.addDisposable(new FimGLCanvas(fim, 640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
-      let orig = disposable.addDisposable(new FimCanvas(fim, 640, 480, '#1f2'));
+      let orig = disposable.addDisposable(fim.createCanvas(640, 480, '#1f2'));
       let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, orig));
 
       // Copy the texture

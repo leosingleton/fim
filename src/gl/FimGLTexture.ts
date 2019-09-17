@@ -307,7 +307,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
       });
     } else if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas || srcImage instanceof FimRgbaBuffer) {
       // For all other object types, downscale to a FimCanvas of the target texture dimensions
-      using(new FimCanvas(this.fim, this.realDimensions.w, this.realDimensions.h), temp => {
+      using(this.fim.createCanvas(this.realDimensions.w, this.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });

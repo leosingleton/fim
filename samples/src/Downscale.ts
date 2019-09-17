@@ -14,7 +14,7 @@ export async function downscale(): Promise<void> {
     FimTestPatterns.render(testBuffer, FimTestPatterns.downscaleStress);
 
     // Copy the test pattern to a canvas and draw it
-    let test = disposable.addDisposable(new FimCanvas(fim, testBuffer.w, testBuffer.h));
+    let test = disposable.addDisposable(fim.createCanvas(testBuffer.w, testBuffer.h));
     await test.copyFromAsync(testBuffer);
     await renderOutput(test, 'Test Pattern:');
 
@@ -74,7 +74,7 @@ function renderOutput(canvas: FimCanvas | FimGLCanvas, message: string): void {
 }
 
 async function testDownscaleWithCanvas(test: FimCanvas, ratio: number): Promise<void> {
-  await usingAsync(new FimCanvas(fim, test.w / ratio, test.h / ratio), async output => {
+  await usingAsync(fim.createCanvas(test.w / ratio, test.h / ratio), async output => {
     output.copyFrom(test);
     await renderOutput(output, `Downscaled ${ratio}x using FimCanvas.copyFrom():`);
   });

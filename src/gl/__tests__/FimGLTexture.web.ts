@@ -28,7 +28,7 @@ describe('FimGLTexture', () => {
       let fim = disposable.addDisposable(new Fim());
       let gl = disposable.addDisposable(new FimGLCanvas(fim, 240, 240));
       let program = disposable.addDisposable(new FimGLProgramCopy(gl));
-      let canvas = disposable.addDisposable(new FimCanvas(fim, 240, 240, '#888'));
+      let canvas = disposable.addDisposable(fim.createCanvas(240, 240, '#888'));
 
       [FimColorChannels.Greyscale, FimColorChannels.RGB, FimColorChannels.RGBA].forEach(channels => {
         [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32].forEach(bpp => {
@@ -78,7 +78,7 @@ describe('FimGLTexture', () => {
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
       let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(fim, jpeg));
-      let srcImage = disposable.addDisposable(new FimCanvas(fim, textureSize, textureSize / 8));
+      let srcImage = disposable.addDisposable(fim.createCanvas(textureSize, textureSize / 8));
       srcImage.copyFrom(buffer);
       texture.copyFrom(srcImage);
 

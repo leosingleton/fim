@@ -38,7 +38,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
 
   // Break the large image into 2048x2048 pieces for processing
   let grid = new ImageGrid(canvas.w, canvas.h, gl.w, gl.h, kernelSize * reps);
-  let input = new FimCanvas(fim, gl.w, gl.h);
+  let input = fim.createCanvas(gl.w, gl.h);
   let texture = new FimGLTexture(gl, gl.w, gl.h);
   console.log(`Tiles=${grid.tiles.length} Efficiency=${grid.getEfficiency()}`);
 

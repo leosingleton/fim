@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
+import { FimGLCanvas, IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from '../FimGLTexture';
-import { FimCanvas } from '../../image/FimCanvas';
+import { FimCanvas, IFimCanvas } from '../../image/FimCanvas';
 import { FimImage } from '../../image/FimImage';
-import { FimGreyscaleBuffer } from '../../image/FimGreyscaleBuffer';
-import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
+import { IFimGreyscaleBuffer } from '../../image/FimGreyscaleBuffer';
+import { IFimRgbaBuffer } from '../../image/FimRgbaBuffer';
 import { FimRect } from '../../primitives/FimRect';
 
 export interface IFimGLPreservedTexture extends IFimGLTexture {
@@ -60,7 +60,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
     this.textureOptions = texture.textureOptions;
   
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.
-    this.backingCanvas = new FimCanvas(fim, texture.realDimensions.w, texture.realDimensions.h);
+    this.backingCanvas = fim.createCanvas(texture.realDimensions.w, texture.realDimensions.h);
 
     // Register for context lost notifications
     glCanvas.registerForContextLost(() => {
@@ -136,12 +136,12 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
   // The remainder of this class just duplicates FimGLTexture methods so the two can be used interchangeably
   //
 
-  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+  public copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     this.getTexture().copyFrom(srcImage, srcCoords, destCoords);
   }
 
-  public copyTo(destImage: FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyTo(destImage: IFimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
 

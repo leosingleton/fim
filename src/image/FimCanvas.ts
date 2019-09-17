@@ -3,9 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvasBase, IFimCanvasBase } from './FimCanvasBase';
-import { FimCanvasFactory } from './FimCanvasFactory';
 import { FimRgbaBuffer, IFimRgbaBuffer } from './FimRgbaBuffer';
-import { Fim, IFim } from '../Fim';
+import { Fim } from '../Fim';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
@@ -67,7 +66,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color
    */
-  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
+  protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
     super(fim, width, height);
 
     // Report telemetry for debugging
@@ -289,6 +288,10 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
 
 /** Internal version of the class only for unit testing */
 export class _FimCanvas extends FimCanvas {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height, initialColor);
+  }
+
   public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: IFimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): Promise<void> {
     return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);

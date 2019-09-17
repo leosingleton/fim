@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { fim, loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerformanceValue } from '../Common';
-import { FimCanvas, FimGLCanvas, FimGLTexture } from '../../../build/dist/index.js';
+import { FimGLCanvas, FimGLTexture } from '../../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfCanvasCopy(): Promise<void> {
@@ -15,11 +15,11 @@ export async function perfCanvasCopy(): Promise<void> {
         inputHeight: number): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
         // Rescale the input image
-        let input = disposable.addDisposable(new FimCanvas(fim, inputWidth, inputHeight));
+        let input = disposable.addDisposable(fim.createCanvas(inputWidth, inputHeight));
         input.copyFrom(srcImage);
 
         // Create the output canvas
-        let canvas = disposable.addDisposable(new FimCanvas(fim, outputWidth, outputHeight));
+        let canvas = disposable.addDisposable(fim.createCanvas(outputWidth, outputHeight));
 
         // Run performance test
         let d = `Copy ${inputWidth}x${inputHeight} 2D canvas to ${outputWidth}x${outputHeight} 2D canvas`;
@@ -52,7 +52,7 @@ export async function perfCanvasCopy(): Promise<void> {
         let gl = disposable.addDisposable(new FimGLCanvas(fim, width, height));
         let t = disposable.addDisposable(FimGLTexture.createFrom(gl, srcImage));
         textureToCanvas(gl, t);
-        let canvas = disposable.addDisposable(new FimCanvas(fim, width, height));
+        let canvas = disposable.addDisposable(fim.createCanvas(width, height));
 
         // Run performance test
         let d = `Copy ${width}x${height} WebGL canvas to 2D canvas`;

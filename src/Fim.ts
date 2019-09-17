@@ -5,8 +5,8 @@
 import { FimConfig } from './debug/FimConfig';
 import { FimCanvas, IFimCanvas, _FimCanvas } from './image/FimCanvas';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
-import { IFimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
-import { IFimRgbaBuffer, _FimRgbaBuffer } from './image/FimRgbaBuffer';
+import { FimGreyscaleBuffer, IFimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
+import { FimRgbaBuffer, IFimRgbaBuffer, _FimRgbaBuffer } from './image/FimRgbaBuffer';
 import { FimColor } from './primitives/FimColor';
 import { IDisposable } from '@leosingleton/commonlibs';
 
@@ -69,7 +69,7 @@ export class Fim implements IFim {
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
-  public createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer {
+  public createGreyscaleBuffer(width: number, height: number, initialColor?: number): FimGreyscaleBuffer {
     return new _FimGreyscaleBuffer(this, width, height, initialColor);
   }
 
@@ -79,7 +79,7 @@ export class Fim implements IFim {
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
    */
-  public createRgbaBuffer(width: number, height: number, initialColor?: FimColor | string): IFimRgbaBuffer {
+  public createRgbaBuffer(width: number, height: number, initialColor?: FimColor | string): FimRgbaBuffer {
     return new _FimRgbaBuffer(this, width, height, initialColor);
   }
 

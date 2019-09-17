@@ -6,7 +6,6 @@ import { FimGLImageProcessor } from '../FimGLImageProcessor';
 import { FimGLProgramLinearTransform } from '../../programs/FimGLProgramLinearTransform';
 import { Fim, IFim } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
-import { FimCanvas } from '../../../image/FimCanvas';
 import { FimColor } from '../../../primitives/FimColor';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 
@@ -27,7 +26,7 @@ class SampleProcessor extends FimGLImageProcessor {
     super(fim, width, height);
 
     // Initialize the preserved texture to black
-    using(new FimCanvas(fim as Fim, width, height, '#000'), black => {
+    using(fim.createCanvas(width, height, '#000'), black => {
       let texture = this.getPreservedTexture(ObjectID.Texture);
       texture.copyFrom(black);
     })

@@ -153,7 +153,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
       this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
       // Slow case: Use a temporary canvas.
-      using(new FimCanvas(this.fim, destCoords.w, destCoords.h), canvas => {
+      using(this.fim.createCanvas(destCoords.w, destCoords.h), canvas => {
         canvas.copyFrom(srcImage, origSrcCoords);
         this.copyFromCanvasInternal(canvas, canvas.realDimensions);
       });
