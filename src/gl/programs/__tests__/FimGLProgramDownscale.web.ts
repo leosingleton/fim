@@ -3,8 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramDownscale } from '../FimGLProgramDownscale';
-import { FimGLCanvas } from '../../FimGLCanvas';
-import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
+import { FimGLTextureFlags } from '../../FimGLTexture';
 import { Fim } from '../../../Fim';
 import { FimTestPatterns } from '../../../debug/FimTestPatterns';
 import { DisposableSet } from '@leosingleton/commonlibs';
@@ -24,7 +23,7 @@ async function testDownscale(ratio: number): Promise<void> {
     let canvas = disposable.addDisposable(fim.createGLCanvas(512 / ratio, 16));
     let program = disposable.addDisposable(new FimGLProgramDownscale(canvas, ratio, 1));
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
-    let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, test, flags));
+    let texture = disposable.addDisposable(canvas.createTextureFrom(test, flags));
 
     program.setInputs(texture);
     program.execute();

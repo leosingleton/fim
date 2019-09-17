@@ -294,7 +294,7 @@ export abstract class FimGLProgram implements IDisposable {
 
           // Handle FimGLPreservedTexture by getting the underlying texture
           if (t instanceof FimGLPreservedTexture) {
-            t = t.getTexture();
+            t = t.getTexture() as FimGLTexture;
           }
 
           if (!t.hasImage) {
@@ -375,7 +375,7 @@ export abstract class FimGLProgram implements IDisposable {
         if (uniform.variableType.indexOf('sampler') !== -1) {
           let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
           if (t instanceof FimGLPreservedTexture) {
-            t = t.getTexture(); // Handle FimGLPreservedTexture by getting the underlying texture
+            t = t.getTexture() as FimGLTexture; // Handle FimGLPreservedTexture by getting the underlying texture
           }
           t.unbind(uniform.textureUnit);
         }

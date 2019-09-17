@@ -3,8 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { fim } from './Common';
-import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel,
-  ImageGrid } from '../../build/dist/index.js';
+import { FimGLProgramMatrixOperation1D, GaussianKernel, ImageGrid } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, parseQueryString } from '@leosingleton/commonlibs';
 
 const kernelSize = 31;
@@ -39,7 +38,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
   // Break the large image into 2048x2048 pieces for processing
   let grid = new ImageGrid(canvas.w, canvas.h, gl.w, gl.h, kernelSize * reps);
   let input = fim.createCanvas(gl.w, gl.h);
-  let texture = new FimGLTexture(gl as FimGLCanvas, gl.w, gl.h);
+  let texture = gl.createTexture();
   console.log(`Tiles=${grid.tiles.length} Efficiency=${grid.getEfficiency()}`);
 
   // Animation loop

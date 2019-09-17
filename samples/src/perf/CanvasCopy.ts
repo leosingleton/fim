@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { fim, loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerformanceValue } from '../Common';
-import { FimGLCanvas, FimGLTexture } from '../../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfCanvasCopy(): Promise<void> {
@@ -50,7 +49,7 @@ export async function perfCanvasCopy(): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
         // Create a WebGL canvas and copy an image onto it
         let gl = disposable.addDisposable(fim.createGLCanvas(width, height));
-        let t = disposable.addDisposable(FimGLTexture.createFrom(gl as FimGLCanvas, srcImage));
+        let t = disposable.addDisposable(gl.createTextureFrom(srcImage));
         textureToCanvas(gl, t);
         let canvas = disposable.addDisposable(fim.createCanvas(width, height));
 

@@ -2,9 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLCapabilities } from '../FimGLCapabilities';
-import { FimGLTexture } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
@@ -57,7 +55,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
         let jpeg = FimTestImages.fourSquaresJpeg();
         let buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
-        let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, buffer));
+        let texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
 
         // Copy the texture
         program.setInputs(texture);
@@ -94,7 +92,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         expect(gl.getCanvas().height).toBe(gl.realDimensions.h);
 
         // Create a test image the original size of the canvas
-        let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, canvasSize, canvasSize / 8));
+        let texture = disposable.addDisposable(gl.createTexture(canvasSize, canvasSize / 8));
         let jpeg = FimTestImages.fourSquaresJpeg();
         let buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
         texture.copyFrom(buffer);
@@ -122,7 +120,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         let gl = disposable.addDisposable(fim.createGLCanvas(240, 240));
 
         // Create a test image the size of the canvas
-        let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, 240, 240));
+        let texture = disposable.addDisposable(gl.createTexture(240, 240));
         let jpeg = FimTestImages.fourSquaresJpeg();
         let buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
         texture.copyFrom(buffer);
@@ -144,7 +142,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         let gl = disposable.addDisposable(fim.createGLCanvas(240, 240));
 
         // Create a test image the size of the canvas
-        let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, 240, 240));
+        let texture = disposable.addDisposable(gl.createTexture(240, 240));
         let jpeg = FimTestImages.fourSquaresJpeg();
         let buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
         texture.copyFrom(buffer);
@@ -166,7 +164,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         let gl = disposable.addDisposable(fim.createGLCanvas(240, 240, '#00f'));
 
         // Create a test image the size of the canvas
-        let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, 240, 240));
+        let texture = disposable.addDisposable(gl.createTexture(240, 240));
         let jpeg = FimTestImages.fourSquaresJpeg();
         let buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
         texture.copyFrom(buffer);

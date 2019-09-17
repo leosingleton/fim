@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { fim } from './Common';
-import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimGLProgramDownscale, FimTestPatterns, IFimCanvas,
+import { FimCanvas, FimGLTextureFlags, FimGLProgramDownscale, FimTestPatterns, IFimCanvas,
   IFimGLCanvas } from '../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
@@ -85,7 +85,7 @@ async function testDownscaleWithGLCopy(test: FimCanvas, ratio: number): Promise<
     let output = disposable.addDisposable(fim.createGLCanvas(test.w / ratio, test.h / ratio));
 
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
-    let input = disposable.addDisposable(FimGLTexture.createFrom(output as FimGLCanvas, test, flags));
+    let input = disposable.addDisposable(output.createTextureFrom(test, flags));
     output.copyFrom(input);
 
     await renderOutput(output, `Downscaled ${ratio}x using WebGL copy:`);
@@ -97,7 +97,7 @@ async function testDownscaleWithGL(test: FimCanvas, ratio: number): Promise<void
     let output = disposable.addDisposable(fim.createGLCanvas(test.w / ratio, test.h / ratio));
 
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
-    let input = disposable.addDisposable(FimGLTexture.createFrom(output as FimGLCanvas, test, flags));
+    let input = disposable.addDisposable(output.createTextureFrom(test, flags));
 
     let program = disposable.addDisposable(new FimGLProgramDownscale(output, ratio, ratio));
     program.setInputs(input);

@@ -3,8 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramMatrixOperation1D } from '../FimGLProgramMatrixOperation1D';
-import { FimGLCanvas } from '../../FimGLCanvas';
-import { FimGLTexture } from '../../FimGLTexture';
 import { Fim } from '../../../Fim';
 import { GaussianKernel } from '../../../math/GaussianKernel';
 import { FimColor } from '../../../primitives/FimColor';
@@ -22,7 +20,7 @@ describe('FimGLProgramMatrixOperation1D', () => {
       let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramMatrixOperation1D(canvas, kernel.length));
       let orig = disposable.addDisposable(fim.createCanvas(640, 480, '#21f'));
-      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, orig));
+      let texture = disposable.addDisposable(canvas.createTextureFrom(orig));
 
       // Blur the texture
       program.setInputs(texture, kernel);

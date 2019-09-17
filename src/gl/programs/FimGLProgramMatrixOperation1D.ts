@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLCanvas, FimGLCanvas } from '../FimGLCanvas';
+import { IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
-import { FimGLTexture, IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
+import { IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { using } from '@leosingleton/commonlibs';
 
@@ -48,7 +48,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
       let flags = inputTexture.textureOptions.textureFlags & ~FimGLTextureFlags.InputOnly;
 
       let outTexture = outputTexture;
-      using(new FimGLTexture(gl as FimGLCanvas, width, height, { textureFlags: flags }), temp => {
+      using(gl.createTexture(width, height, { textureFlags: flags }), temp => {
         this.executeInternal(temp, outTexture);
       });
     }

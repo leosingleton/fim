@@ -4,7 +4,7 @@
 
 import { FimGLCanvas, IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
-import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from '../FimGLTexture';
+import { FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from '../FimGLTexture';
 import { Fim } from '../../Fim';
 import { FimCanvas, IFimCanvas } from '../../image/FimCanvas';
 import { FimImage } from '../../image/FimImage';
@@ -52,7 +52,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
     }
 
     // Create the WebGL texture according to the requested options
-    let texture = new FimGLTexture(glCanvas as FimGLCanvas, width, height, options);
+    let texture = glCanvas.createTexture(width, height, options);
 
     // Call the FimImage constructor. We'll figure out the maxDimension property based on the texture's dimensions.
     super(fim, width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
@@ -89,7 +89,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
   }
 
   /** Gets the FimGLTexture to read/write from */
-  public getTexture(): FimGLTexture {
+  public getTexture(): IFimGLTexture {
     let glCanvas = this.glCanvas;
 
     // Ensure the WebGL context is not currently lost
@@ -99,7 +99,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
 
     if (!this.texture) {
       // The context was lost but has been restored. Recreate the texture.
-      let texture = new FimGLTexture(glCanvas, this.w, this.h, this.textureOptions);
+      let texture = glCanvas.createTexture(this.w, this.h, this.textureOptions);
       texture.copyFrom(this.backingCanvas);
       this.texture = texture;
     }
@@ -126,7 +126,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
     this.backingCanvas.copyFrom(glCanvas, glRect);
   }
 
-  private texture: FimGLTexture;
+  private texture: IFimGLTexture;
   private backingCanvas: FimCanvas;
 
   // Settings for re-creating the texture

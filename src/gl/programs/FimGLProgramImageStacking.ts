@@ -3,9 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramCopy } from './FimGLProgramCopy';
-import { FimGLCanvas, IFimGLCanvas } from '../FimGLCanvas';
+import { IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimGLTexture, IFimGLTexture } from '../FimGLTexture';
+import { IFimGLTexture } from '../FimGLTexture';
 import { using } from '@leosingleton/commonlibs';
 
 /** GL program which stacks images to reduce noise */
@@ -20,7 +20,7 @@ export class FimGLProgramImageStacking extends FimGLProgram {
     this.compileProgram();
 
     // Image stacking requires the previous result, so create a canvas to store it
-    this.oldCanvas = this.disposable.addDisposable(new FimGLTexture(canvas as FimGLCanvas));
+    this.oldCanvas = this.disposable.addDisposable(canvas.createTexture());
     this.fragmentShader.uniforms.u_old.variableValue = this.oldCanvas;
 
     this.copyProgram = this.disposable.addDisposable(new FimGLProgramCopy(canvas));
@@ -38,7 +38,7 @@ export class FimGLProgramImageStacking extends FimGLProgram {
   }
 
   public execute(outputTexture?: IFimGLTexture): void {
-    using(new FimGLTexture(this.glCanvas as FimGLCanvas), temp => {
+    using(this.glCanvas.createTexture(), temp => {
       // Perform image stacking (temp = old + input)
       super.execute(temp);
 

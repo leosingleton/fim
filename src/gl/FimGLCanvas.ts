@@ -4,7 +4,7 @@
 
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { IFimGLTexture } from './FimGLTexture';
+import { FimGLTexture, FimGLTextureOptions, FimGLTextureFlags, IFimGLTexture, _FimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
 import { Fim } from '../Fim';
@@ -13,6 +13,7 @@ import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase, IFimCanvasBase } from '../image/FimCanvasBase';
+import { IFimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { IFimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
@@ -68,6 +69,22 @@ export interface IFimGLCanvas extends IFimCanvasBase, IFimGetPixel {
    * @param destCoords Coordinates of destination image to copy to
    */
   copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Creates a WebGL texture
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param options See FimGLTextureOptions
+   */
+  createTexture(width?: number, height?: number, options?: FimGLTextureOptions): IFimGLTexture;
+
+  /**
+   * Creates a WebGL texture from another image
+   * @param srcImage Source image
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
+   */
+  createTextureFrom(srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas | IFimGLCanvas,
+    extraFlags?: FimGLTextureFlags): IFimGLTexture;
 }
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
@@ -364,6 +381,26 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     FimGLError.throwOnError(gl);
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
+  }
+
+  /**
+   * Creates a WebGL texture
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param options See FimGLTextureOptions
+   */
+  public createTexture(width?: number, height?: number, options?: FimGLTextureOptions): FimGLTexture {
+    return new _FimGLTexture(this, width, height, options);
+  }
+
+  /**
+   * Creates a WebGL texture from another image
+   * @param srcImage Source image
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
+   */
+  public createTextureFrom(srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas | IFimGLCanvas,
+      extraFlags = FimGLTextureFlags.None): FimGLTexture {
+    return _FimGLTexture.createFrom(this, srcImage, extraFlags);
   }
 }
 

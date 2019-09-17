@@ -2,9 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLCapabilities } from '../FimGLCapabilities';
-import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
+import { FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
@@ -39,7 +38,7 @@ describe('FimGLTexture', () => {
               textureFlags: flags | FimGLTextureFlags.InputOnly
             };
 
-            using(new FimGLTexture(gl as FimGLCanvas, 240, 240, options), texture => {
+            using(gl.createTexture(240, 240, options), texture => {
               // Copy the 2D grey canvas to the texture
               texture.copyFrom(canvas);
     
@@ -67,7 +66,7 @@ describe('FimGLTexture', () => {
       // Find a texture size bigger than the GPU can support and create a texture of that size
       let caps = FimGLCapabilities.getCapabilities(fim);
       let textureSize = caps.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, textureSize, textureSize / 8,
+      let texture = disposable.addDisposable(gl.createTexture(textureSize, textureSize / 8,
         {textureFlags: FimGLTextureFlags.AllowLargerThanCanvas}));
       expect(texture.realDimensions).toBeDefined();
       expect(texture.realDimensions.w).toBe(caps.maxTextureSize);
@@ -98,7 +97,7 @@ describe('FimGLTexture', () => {
     DisposableSet.using(async disposable => {
       let fim = disposable.addDisposable(new Fim());
       let gl = disposable.addDisposable(fim.createGLCanvas(480, 240));
-      let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, 1024, 1024));
+      let texture = disposable.addDisposable(gl.createTexture(1024, 1024));
 
       // The texture should be automatically downscaled to fit on the canvas
       expect(texture.realDimensions.w).toBe(240);

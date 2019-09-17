@@ -2,12 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas, IFimGLCanvas } from '../FimGLCanvas';
-import { FimGLTexture, FimGLTextureOptions } from '../FimGLTexture';
+import { IFimGLCanvas } from '../FimGLCanvas';
+import { FimGLTexture, FimGLTextureOptions, IFimGLTexture } from '../FimGLTexture';
 import { ResourcePool } from '@leosingleton/commonlibs';
 
 /** Pool of temporary textures */
-export class FimGLTexturePool extends ResourcePool<FimGLTexture> {
+export class FimGLTexturePool extends ResourcePool<IFimGLTexture> {
   /**
    * Constructor
    * @param canvas FimGLCanvas from which the textures will be created
@@ -25,9 +25,9 @@ export class FimGLTexturePool extends ResourcePool<FimGLTexture> {
    * @param options See FimGLTextureOptions
    */
   public getTexture(width?: number, height?: number, options?: FimGLTextureOptions):
-      FimGLTexture {
+      IFimGLTexture {
     let id = FimGLTexture.describeTexture(this.glCanvas, width, height, options);
-    return this.getOrCreateObject(id, () => new FimGLTexture(this.glCanvas as FimGLCanvas, width, height, options));
+    return this.getOrCreateObject(id, () => this.glCanvas.createTexture(width, height, options));
   }
 
   public readonly glCanvas: IFimGLCanvas;

@@ -3,8 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramCopy } from '../FimGLProgramCopy';
-import { FimGLCanvas } from '../../FimGLCanvas';
-import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
+import { FimGLTextureFlags } from '../../FimGLTexture';
 import { Fim } from '../../../Fim';
 import { FimColor } from '../../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
@@ -18,7 +17,7 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let orig = disposable.addDisposable(fim.createCanvas(640, 480, '#1f2'));
-      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, orig));
+      let texture = disposable.addDisposable(canvas.createTextureFrom(orig));
 
       // Copy the texture
       program.setInputs(texture);
@@ -36,7 +35,7 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let buffer = disposable.addDisposable(fim.createRgbaBuffer(640, 480, '#f31'));
-      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, buffer));
+      let texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
 
       // Copy the texture
       program.setInputs(texture);
@@ -59,7 +58,7 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let buffer = disposable.addDisposable(fim.createGreyscaleBuffer(640, 480, 128));
-      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, buffer));
+      let texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
 
       // Copy the texture
       program.setInputs(texture);
@@ -77,9 +76,8 @@ describe('FimGLProgramCopy', () => {
       let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
       let buffer = disposable.addDisposable(fim.createGreyscaleBuffer(640, 480, 128));
-      let t1 = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, buffer,
-        FimGLTextureFlags.LinearSampling));
-      let t2 = disposable.addDisposable(new FimGLTexture(canvas as FimGLCanvas, 640, 480,
+      let t1 = disposable.addDisposable(canvas.createTextureFrom(buffer, FimGLTextureFlags.LinearSampling));
+      let t2 = disposable.addDisposable(canvas.createTexture(640, 480,
         { textureFlags: FimGLTextureFlags.LinearSampling }));
 
       // Copy t1 to t2
