@@ -4,7 +4,7 @@
 
 import { FimConfig } from './debug/FimConfig';
 import { IFimGLCapabilities, _getGLCapabilities } from './gl/FimGLCapabilities';
-import { IFimGLCanvas, _FimGLCanvas } from './gl/FimGLCanvas';
+import { FimGLCanvas, IFimGLCanvas, _FimGLCanvas } from './gl/FimGLCanvas';
 import { FimCanvas, IFimCanvas, _FimCanvas } from './image/FimCanvas';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
 import { FimGreyscaleBuffer, IFimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
@@ -81,7 +81,7 @@ export class Fim implements IFim {
   /** Determines whether the current browser supports offscreen canvases */
   public static readonly supportsOffscreenCanvas = (typeof OffscreenCanvas !== 'undefined');
 
-  /** If offscreenCanvas is true, a reference to the factory object used to create the canvas */
+  /** A factory method used to create invisible canvases */
   public readonly canvasFactory: FimCanvasFactory;
 
   /**
@@ -138,7 +138,7 @@ export class Fim implements IFim {
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  public createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality = 1): IFimGLCanvas {
+  public createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality = 1): FimGLCanvas {
     return new _FimGLCanvas(this, width, height, initialColor, quality);
   }
 

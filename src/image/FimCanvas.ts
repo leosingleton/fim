@@ -279,7 +279,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
   }
 }
 
-/** Internal version of the class only for unit testing */
+/** Internal only version of the class */
 export class _FimCanvas extends FimCanvas {
   public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
     super(fim, width, height, initialColor);

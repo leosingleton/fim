@@ -34,6 +34,14 @@ export interface IFimCanvasBase extends IFimImage {
    * @returns Array containing JPEG data
    */
   toJpeg(quality?: number): Promise<Uint8Array>;
+
+  /**
+   * Copies image to an HTML canvas. Supports both cropping and rescaling.
+   * @param destImage Destination HTML canvas or OffscreenCanvas
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  toHtmlCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect, destCoords?: FimRect): void;
 }
 
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */

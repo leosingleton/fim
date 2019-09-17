@@ -93,7 +93,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
    * @param fim FIM canvas factory
    * @param width Width, in pixels
    * @param height Height, in pixels
-   * @param initialColor If specified, the canvas is initalized to this color.
+   * @param initialColor If specified, the canvas is initalized to this color
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */

@@ -467,7 +467,7 @@ export class _FimGLTexture extends FimGLTexture {
     let bpp = FimBitsPerPixel.BPP8;
     let flags = FimGLTextureFlags.InputOnly | extraFlags;
 
-    let texture = new FimGLTexture(glCanvas, srcImage.w, srcImage.h, { channels, bpp, textureFlags: flags });
+    let texture = glCanvas.createTexture(srcImage.w, srcImage.h, { channels, bpp, textureFlags: flags });
     texture.copyFrom(srcImage);
     return texture;
   }
