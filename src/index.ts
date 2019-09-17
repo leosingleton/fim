@@ -28,7 +28,6 @@ export { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from
 export { FimGreyscaleBuffer, IFimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
 export { FimImage, IFimImage } from './image/FimImage';
 export { FimRgbaBuffer, IFimRgbaBuffer } from './image/FimRgbaBuffer';
-export { IFimGetSetPixel } from './image/IFimGetSetPixel';
 export { GaussianKernel } from './math/GaussianKernel';
 export { ImageGrid } from './math/ImageGrid';
 export { Transform2D } from './math/Transform2D';
@@ -40,3 +39,4 @@ export { FimColorChannels } from './primitives/FimColorChannels';
 export { FimPoint } from './primitives/FimPoint';
 export { FimRect } from './primitives/FimRect';
 export { IFimDimensions } from './primitives/IFimDimensions';
+export { IFimGetSetPixel } from './primitives/IFimGetSetPixel';

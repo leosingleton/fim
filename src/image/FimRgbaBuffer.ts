@@ -5,11 +5,11 @@
 import { FimCanvas, IFimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer, IFimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage, IFimImage } from './FimImage';
-import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { IFim } from '../Fim';
 import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
+import { IFimGetSetPixel } from '../primitives/IFimGetSetPixel';
 import { using } from '@leosingleton/commonlibs';
 
 /** An image consisting of 8-bit RGBA pixel data in a Uint8ClampedArray */

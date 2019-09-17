@@ -4,12 +4,12 @@
 
 import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from './FimCanvasBase';
 import { FimRgbaBuffer, IFimRgbaBuffer } from './FimRgbaBuffer';
-import { IFimGetSetPixel } from './IFimGetSetPixel';
 import { Fim, IFim } from '../Fim';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
+import { IFimGetSetPixel } from '../primitives/IFimGetSetPixel';
 import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** An image consisting of a 2D canvas */
