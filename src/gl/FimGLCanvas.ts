@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLTexture, FimGLTextureOptions, FimGLTextureFlags, IFimGLTexture, _FimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
@@ -101,7 +100,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
   protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
-    let caps = FimGLCapabilities.getCapabilities(fim);
+    let caps = fim.getGLCapabilities();
     let maxDimension = caps.maxRenderBufferSize;
 
     // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is

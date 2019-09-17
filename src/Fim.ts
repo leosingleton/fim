@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimConfig } from './debug/FimConfig';
+import { IFimGLCapabilities, _getGLCapabilities } from './gl/FimGLCapabilities';
 import { IFimGLCanvas, _FimGLCanvas } from './gl/FimGLCanvas';
 import { FimCanvas, IFimCanvas, _FimCanvas } from './image/FimCanvas';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
@@ -52,6 +53,9 @@ export interface IFim extends IDisposable {
    *    performance.
    */
   createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality?: number): IFimGLCanvas;
+
+  /** Returns the WebGL capabilities of the current browser */
+  getGLCapabilities(): IFimGLCapabilities;
 }
 
 /** Implementation of canvas factory for web browsers */
@@ -136,6 +140,11 @@ export class Fim implements IFim {
    */
   public createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality = 1): IFimGLCanvas {
     return new _FimGLCanvas(this, width, height, initialColor, quality);
+  }
+
+  /** Returns the WebGL capabilities of the current browser */
+  public getGLCapabilities(): IFimGLCapabilities {
+    return _getGLCapabilities(this);
   }
 
   public dispose() {}

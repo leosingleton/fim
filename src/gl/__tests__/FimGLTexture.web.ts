@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { Fim } from '../../Fim';
@@ -64,7 +63,7 @@ describe('FimGLTexture', () => {
       let gl = disposable.addDisposable(fim.createGLCanvas(480, 240));
       
       // Find a texture size bigger than the GPU can support and create a texture of that size
-      let caps = FimGLCapabilities.getCapabilities(fim);
+      let caps = fim.getGLCapabilities();
       let textureSize = caps.maxTextureSize + 1000;
       let texture = disposable.addDisposable(gl.createTexture(textureSize, textureSize / 8,
         {textureFlags: FimGLTextureFlags.AllowLargerThanCanvas}));

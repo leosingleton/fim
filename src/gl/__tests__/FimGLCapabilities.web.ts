@@ -2,14 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCapabilities } from '../FimGLCapabilities';
 import { Fim } from '../../Fim';
 import { using } from '@leosingleton/commonlibs';
 
 describe('FimGLCapabilities', () => {
   it('Reads WebGL capabilities', () => {
     using(new Fim(), fim => {
-      let caps = FimGLCapabilities.getCapabilities(fim);
+      let caps = fim.getGLCapabilities();
       expect(caps.renderer.length).toBeGreaterThan(0);
       expect(caps.vendor.length).toBeGreaterThan(0);
       expect(caps.unmaskedRenderer.length).toBeGreaterThan(0);

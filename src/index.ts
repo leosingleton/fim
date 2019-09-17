@@ -8,7 +8,7 @@ export { Fim, IFim } from './Fim';
 export { FimTestImages } from './debug/FimTestImages';
 export { FimTestPatterns } from './debug/FimTestPatterns';
 export { FimGLCanvas, IFimGLCanvas } from './gl/FimGLCanvas';
-export { FimGLCapabilities } from './gl/FimGLCapabilities';
+export { IFimGLCapabilities } from './gl/FimGLCapabilities';
 export { FimGLError, FimGLErrorCode } from './gl/FimGLError';
 export { FimGLProgram } from './gl/FimGLProgram';
 export { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from './gl/FimGLTexture';

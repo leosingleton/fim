@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCapabilities } from '../../FimGLCapabilities';
 import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
 import { Fim } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
@@ -102,7 +101,7 @@ describe('FimGLPreservedTexture', () => {
     await DisposableSet.usingAsync(async disposable => {
       // Find a canvas size bigger than the GPU can support and create a canvas of that size
       let fim = disposable.addDisposable(new Fim());
-      let caps = FimGLCapabilities.getCapabilities(fim);
+      let caps = fim.getGLCapabilities();
       let canvasSize = caps.maxRenderBufferSize + 1000;
       let gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));
 

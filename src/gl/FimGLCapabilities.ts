@@ -31,56 +31,51 @@ class WebGLHelper extends FimCanvasBase {
 }
 
 /** WebGL capabilities of the current browser */
-export class FimGLCapabilities {
-  public readonly glVersion: string;
-  public readonly shadingLanguageVersion: string;
-  public readonly vendor: string;
-  public readonly renderer: string;
-  public readonly unmaskedVendor: string;
-  public readonly unmaskedRenderer: string;
-  public readonly maxRenderBufferSize: number;
-  public readonly maxTextureImageUnits: number;
-  public readonly maxTextureSize: number;
-  public readonly extensions: string[];
-
-  private constructor(fim: Fim) {
-    let helper = new WebGLHelper(fim);
-    try {
-      let gl = helper.gl;
-
-      this.glVersion = gl.getParameter(gl.VERSION);
-      this.shadingLanguageVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
-      this.vendor = gl.getParameter(gl.VENDOR);
-      this.renderer = gl.getParameter(gl.RENDERER);
-      this.unmaskedVendor = '';
-      this.unmaskedRenderer = '';
-      this.maxRenderBufferSize = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
-      this.maxTextureImageUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-      this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-      this.extensions = gl.getSupportedExtensions().sort();
-
-      let dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
-      if (dbgRenderInfo) {
-        this.unmaskedVendor = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
-        this.unmaskedRenderer = gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL);
-      }
-    } finally {
-      helper.dispose();
-    }
-  }
-
-  private static caps: FimGLCapabilities;
-
-  /**
-   * Returns the WebGL capabilities of the current browser
-   * @param fim FIM canvas factory
-   */
-  public static getCapabilities(fim: Fim): FimGLCapabilities {
-    // For performance, only read capabilities on the first call and cache the results.
-    if (!this.caps) {
-      this.caps = new FimGLCapabilities(fim);
-    }
-
-    return this.caps;
-  }
+export interface IFimGLCapabilities {
+  readonly glVersion: string;
+  readonly shadingLanguageVersion: string;
+  readonly vendor: string;
+  readonly renderer: string;
+  readonly unmaskedVendor: string;
+  readonly unmaskedRenderer: string;
+  readonly maxRenderBufferSize: number;
+  readonly maxTextureImageUnits: number;
+  readonly maxTextureSize: number;
+  readonly extensions: string[];
 }
+
+/**
+ * Returns the WebGL capabilities of the current browser
+ * @param fim FIM canvas factory
+ */
+export function _getGLCapabilities(fim: Fim): IFimGLCapabilities {
+  // For performance, only read capabilities on the first call and cache the results.
+  if (caps) {
+    return caps;
+  }
+
+  let helper = new WebGLHelper(fim);
+  try {
+    let gl = helper.gl;
+    let dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
+
+    caps = {
+      glVersion: gl.getParameter(gl.VERSION),
+      shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+      vendor: gl.getParameter(gl.VENDOR),
+      renderer: gl.getParameter(gl.RENDERER),
+      unmaskedVendor: dbgRenderInfo ? gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL) : '',
+      unmaskedRenderer: dbgRenderInfo ? gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL) : '',
+      maxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
+      maxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
+      maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      extensions: gl.getSupportedExtensions().sort()
+    };
+  } finally {
+    helper.dispose();
+  }
+
+  return caps;
+}
+
+let caps: IFimGLCapabilities;

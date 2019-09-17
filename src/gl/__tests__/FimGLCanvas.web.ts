@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCapabilities } from '../FimGLCapabilities';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
@@ -81,7 +80,7 @@ function spec(canvasFactory: FimCanvasFactory) {
       await DisposableSet.usingAsync(async disposable => {
         // Find a canvas size bigger than the GPU can support and create a canvas of that size
         let fim = disposable.addDisposable(new Fim(canvasFactory));
-        let caps = FimGLCapabilities.getCapabilities(fim);
+        let caps = fim.getGLCapabilities();
         let canvasSize = caps.maxRenderBufferSize + 1000;
         let gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));
         expect(gl.realDimensions).toBeDefined();

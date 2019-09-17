@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim, FimCanvas, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimRect, IFimCanvas, IFimGLCanvas,
+import { Fim, FimCanvas, FimGLProgramCopy, FimRect, IFimCanvas, IFimGLCanvas,
   IFimGLTexture } from '../../build/dist/index.js';
 import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
@@ -300,7 +300,7 @@ export function recordPerformanceValue(id: string, results: IPerformanceResults,
 $(() => {
   let gpuDiv = $('#gpu');
   if (gpuDiv) {
-    gpuDiv.text(JSON.stringify(FimGLCapabilities.getCapabilities(fim), null, 4));
+    gpuDiv.text(JSON.stringify(fim.getGLCapabilities(), null, 4));
   }  
 });
 
