@@ -240,6 +240,6 @@ function spec(canvasFactory: FimCanvasFactory) {
 describe('FimCanvas(OffscreenCanvas=false)', spec(FimDomCanvasFactory));
 
 // Only run OffscreenCanvas tests on browsers that support it
-if (FimCanvas.supportsOffscreenCanvas) {
+if (Fim.supportsOffscreenCanvas) {
   describe('FimCanvas(OffscreenCanvas=true)', spec(FimOffscreenCanvasFactory));
 }

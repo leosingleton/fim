@@ -142,9 +142,6 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
     FimCanvasBase.copyCanvasToCanvas(this.getCanvas(), destCanvas, srcCoords, destCoords);
   }
 
-  /** Determines whether the current browser supports offscreen canvases */
-  public static readonly supportsOffscreenCanvas = (typeof OffscreenCanvas !== 'undefined');
-
   /**
    * Helper function to construct a drawing context
    * @param destCanvas HTML or offscreen canvas to create drawing context of

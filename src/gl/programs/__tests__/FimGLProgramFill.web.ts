@@ -69,6 +69,6 @@ function spec(canvasFactory: FimCanvasFactory) {
 describe('FimGLProgramFill(OffScreenCanvas=false)', spec(FimDomCanvasFactory));
 
 // Only run OffscreenCanvas tests on browsers that support it
-if (FimGLCanvas.supportsOffscreenCanvas) {
+if (Fim.supportsOffscreenCanvas) {
   describe('FimGLProgramFill(OffScreenCanvas=true)', spec(FimOffscreenCanvasFactory));
 }
