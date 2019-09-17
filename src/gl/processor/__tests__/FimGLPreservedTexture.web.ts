@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLCapabilities } from '../../FimGLCapabilities';
 import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
 import { Fim } from '../../../Fim';
@@ -24,7 +23,7 @@ describe('FimGLPreservedTexture', () => {
   it('Preserves texture across context loss', async () => {
     await DisposableSet.usingAsync(async disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let gl = disposable.addDisposable(new FimGLCanvas(fim, 480, 480));
+      let gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
 
       // Create a preserved texture from the test pattern
       let jpeg = FimTestImages.fourSquaresJpeg();
@@ -63,7 +62,7 @@ describe('FimGLPreservedTexture', () => {
     // use scissoring to render the texture only on one corner of the canvas to preserve it.
     await DisposableSet.usingAsync(async disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let gl = disposable.addDisposable(new FimGLCanvas(fim, 480, 480));
+      let gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
 
       // Create a preserved texture from the test pattern
       let jpeg = FimTestImages.fourSquaresJpeg();
@@ -105,7 +104,7 @@ describe('FimGLPreservedTexture', () => {
       let fim = disposable.addDisposable(new Fim());
       let caps = FimGLCapabilities.getCapabilities(fim);
       let canvasSize = caps.maxRenderBufferSize + 1000;
-      let gl = disposable.addDisposable(new FimGLCanvas(fim, canvasSize, canvasSize / 8));
+      let gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));
 
       // Create a preserved texture from the test pattern. Make this one small.
       let jpeg = FimTestImages.fourSquaresJpeg();

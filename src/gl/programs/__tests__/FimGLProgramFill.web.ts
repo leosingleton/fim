@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramFill } from '../FimGLProgramFill';
-import { FimGLCanvas } from '../../FimGLCanvas';
 import { Fim } from '../../../Fim';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from '../../../image/FimCanvasFactory';
 import { FimColor } from '../../../primitives/FimColor';
@@ -16,7 +15,7 @@ function spec(canvasFactory: FimCanvasFactory) {
       DisposableSet.using(disposable => {
         // Create a 300x200 red canvas
         let fim = disposable.addDisposable(new Fim(canvasFactory));
-        let gl = disposable.addDisposable(new FimGLCanvas(fim, 300, 200, '#f00'));
+        let gl = disposable.addDisposable(fim.createGLCanvas(300, 200, '#f00'));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));
@@ -34,7 +33,7 @@ function spec(canvasFactory: FimCanvasFactory) {
       DisposableSet.using(disposable => {
         // Create a 100x200 red canvas
         let fim = disposable.addDisposable(new Fim(canvasFactory));
-        let gl = disposable.addDisposable(new FimGLCanvas(fim, 100, 200, '#f00'));
+        let gl = disposable.addDisposable(fim.createGLCanvas(100, 200, '#f00'));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));
@@ -51,7 +50,7 @@ function spec(canvasFactory: FimCanvasFactory) {
       DisposableSet.using(disposable => {
         // Create a 100x100 red canvas
         let fim = disposable.addDisposable(new Fim(canvasFactory));
-        let gl = disposable.addDisposable(new FimGLCanvas(fim, 100, 100, '#f00'));
+        let gl = disposable.addDisposable(fim.createGLCanvas(100, 100, '#f00'));
 
         // Draw a blue on one specific pixel
         let fill = disposable.addDisposable(new FimGLProgramFill(gl));

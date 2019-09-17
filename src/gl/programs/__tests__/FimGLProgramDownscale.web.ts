@@ -21,10 +21,10 @@ async function testDownscale(ratio: number): Promise<void> {
     let test = disposable.addDisposable(fim.createCanvas(testBuffer.w, testBuffer.h));
     await test.copyFromAsync(testBuffer);
 
-    let canvas = disposable.addDisposable(new FimGLCanvas(fim, 512 / ratio, 16));
+    let canvas = disposable.addDisposable(fim.createGLCanvas(512 / ratio, 16));
     let program = disposable.addDisposable(new FimGLProgramDownscale(canvas, ratio, 1));
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
-    let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, test, flags));
+    let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, test, flags));
 
     program.setInputs(texture);
     program.execute();

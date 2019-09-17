@@ -5,6 +5,7 @@
 import { FimGLCanvas, IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions, IFimGLTexture } from '../FimGLTexture';
+import { Fim } from '../../Fim';
 import { FimCanvas, IFimCanvas } from '../../image/FimCanvas';
 import { FimImage } from '../../image/FimImage';
 import { IFimGreyscaleBuffer } from '../../image/FimGreyscaleBuffer';
@@ -38,8 +39,8 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
    *    browser and GPU's WebGL capabilities and the current performance.
    * @param options See FimGLTextureOptions
    */
-  public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
-    let fim = glCanvas.fim;
+  public constructor(glCanvas: IFimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+    let fim = glCanvas.fim as Fim;
 
     // Default parameters
     width = width || glCanvas.w;
@@ -51,11 +52,11 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
     }
 
     // Create the WebGL texture according to the requested options
-    let texture = new FimGLTexture(glCanvas, width, height, options);
+    let texture = new FimGLTexture(glCanvas as FimGLCanvas, width, height, options);
 
     // Call the FimImage constructor. We'll figure out the maxDimension property based on the texture's dimensions.
     super(fim, width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
-    this.glCanvas = glCanvas;
+    this.glCanvas = glCanvas as FimGLCanvas;
     this.texture = texture;
     this.textureOptions = texture.textureOptions;
   

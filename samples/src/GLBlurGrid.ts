@@ -33,13 +33,13 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
 
   // Create a WebGL canvas and program to perform Gaussian blurs. We'll process everything as 2048x2048 tiles,
   // regardless of the input and output dimensions.
-  let gl = new FimGLCanvas(fim, tileSize, tileSize);
+  let gl = fim.createGLCanvas(tileSize, tileSize);
   let program = new FimGLProgramMatrixOperation1D(gl, kernelSize);
 
   // Break the large image into 2048x2048 pieces for processing
   let grid = new ImageGrid(canvas.w, canvas.h, gl.w, gl.h, kernelSize * reps);
   let input = fim.createCanvas(gl.w, gl.h);
-  let texture = new FimGLTexture(gl, gl.w, gl.h);
+  let texture = new FimGLTexture(gl as FimGLCanvas, gl.w, gl.h);
   console.log(`Tiles=${grid.tiles.length} Efficiency=${grid.getEfficiency()}`);
 
   // Animation loop

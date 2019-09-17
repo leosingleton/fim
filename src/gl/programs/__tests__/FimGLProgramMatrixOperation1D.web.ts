@@ -19,10 +19,10 @@ describe('FimGLProgramMatrixOperation1D', () => {
 
       // Initialize the WebGL canvas, program, and a solid blue texture from canvas
       let fim = disposable.addDisposable(new Fim());
-      let canvas = disposable.addDisposable(new FimGLCanvas(fim, 640, 480));
+      let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
       let program = disposable.addDisposable(new FimGLProgramMatrixOperation1D(canvas, kernel.length));
       let orig = disposable.addDisposable(fim.createCanvas(640, 480, '#21f'));
-      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, orig));
+      let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas as FimGLCanvas, orig));
 
       // Blur the texture
       program.setInputs(texture, kernel);

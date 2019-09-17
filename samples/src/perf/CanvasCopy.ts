@@ -49,8 +49,8 @@ export async function perfCanvasCopy(): Promise<void> {
     async function testGLCopy(id: string, width: number, height: number): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
         // Create a WebGL canvas and copy an image onto it
-        let gl = disposable.addDisposable(new FimGLCanvas(fim, width, height));
-        let t = disposable.addDisposable(FimGLTexture.createFrom(gl, srcImage));
+        let gl = disposable.addDisposable(fim.createGLCanvas(width, height));
+        let t = disposable.addDisposable(FimGLTexture.createFrom(gl as FimGLCanvas, srcImage));
         textureToCanvas(gl, t);
         let canvas = disposable.addDisposable(fim.createCanvas(width, height));
 

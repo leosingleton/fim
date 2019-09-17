@@ -4,8 +4,8 @@
 
 import { FimColor } from '../primitives/FimColor';
 
-/** Interface implemented by images that can get and set individual pixels */
-export interface IFimGetSetPixel {
+/** Interface implemented by images that can get individual pixels */
+export interface IFimGetPixel {
   /**
    * Returns the value of one pixel
    * @param x X-offset, in pixels
@@ -13,7 +13,10 @@ export interface IFimGetSetPixel {
    * @returns RGBA color value
    */
   getPixel(x: number, y: number): FimColor;
+}
 
+/** Interface implemented by images that can get and set individual pixels */
+export interface IFimGetSetPixel extends IFimGetPixel {
   /**
    * Sets the value of one pixel
    * @param x X-offset, in pixels

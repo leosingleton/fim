@@ -25,7 +25,7 @@ describe('FimGLTexture', () => {
     DisposableSet.using(disposable => {
       // Create a WebGL canvas, plus a 2D grey canvas
       let fim = disposable.addDisposable(new Fim());
-      let gl = disposable.addDisposable(new FimGLCanvas(fim, 240, 240));
+      let gl = disposable.addDisposable(fim.createGLCanvas(240, 240));
       let program = disposable.addDisposable(new FimGLProgramCopy(gl));
       let canvas = disposable.addDisposable(fim.createCanvas(240, 240, '#888'));
 
@@ -39,7 +39,7 @@ describe('FimGLTexture', () => {
               textureFlags: flags | FimGLTextureFlags.InputOnly
             };
 
-            using(new FimGLTexture(gl, 240, 240, options), texture => {
+            using(new FimGLTexture(gl as FimGLCanvas, 240, 240, options), texture => {
               // Copy the 2D grey canvas to the texture
               texture.copyFrom(canvas);
     
@@ -62,12 +62,12 @@ describe('FimGLTexture', () => {
   it('Downscales oversized textures', async () => {
     await DisposableSet.usingAsync(async disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let gl = disposable.addDisposable(new FimGLCanvas(fim, 480, 240));
+      let gl = disposable.addDisposable(fim.createGLCanvas(480, 240));
       
       // Find a texture size bigger than the GPU can support and create a texture of that size
       let caps = FimGLCapabilities.getCapabilities(fim);
       let textureSize = caps.maxTextureSize + 1000;
-      let texture = disposable.addDisposable(new FimGLTexture(gl, textureSize, textureSize / 8,
+      let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, textureSize, textureSize / 8,
         {textureFlags: FimGLTextureFlags.AllowLargerThanCanvas}));
       expect(texture.realDimensions).toBeDefined();
       expect(texture.realDimensions.w).toBe(caps.maxTextureSize);
@@ -97,8 +97,8 @@ describe('FimGLTexture', () => {
   it('Automatically downscales to canvas size', () => {
     DisposableSet.using(async disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let gl = disposable.addDisposable(new FimGLCanvas(fim, 480, 240));
-      let texture = disposable.addDisposable(new FimGLTexture(gl, 1024, 1024));
+      let gl = disposable.addDisposable(fim.createGLCanvas(480, 240));
+      let texture = disposable.addDisposable(new FimGLTexture(gl as FimGLCanvas, 1024, 1024));
 
       // The texture should be automatically downscaled to fit on the canvas
       expect(texture.realDimensions.w).toBe(240);

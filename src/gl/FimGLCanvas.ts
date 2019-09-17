@@ -18,9 +18,10 @@ import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
+import { IFimGetPixel } from '../primitives/IFimGetSetPixel';
 
 /** IFimCanvas which leverages WebGL to do accelerated rendering */
-export interface IFimGLCanvas extends IFimCanvasBase {
+export interface IFimGLCanvas extends IFimCanvasBase, IFimGetPixel {
   /** Registers a lambda function to be executed on WebGL context lost */
   registerForContextLost(eventHandler: () => void): void;
 
@@ -80,7 +81,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
+  protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
     let caps = FimGLCapabilities.getCapabilities(fim);
@@ -368,7 +369,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
 /** Internal-only version of the FimGLCanvas class */
 export class _FimGLCanvas extends FimGLCanvas {
-  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
-    super(fim, width, height, initialColor);
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
+    super(fim, width, height, initialColor, quality);
   }
 }

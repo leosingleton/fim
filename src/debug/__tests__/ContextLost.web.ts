@@ -4,14 +4,13 @@
 
 import { ContextLost } from '../ContextLost';
 import { Fim } from '../../Fim';
-import { FimGLCanvas } from '../../gl/FimGLCanvas';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 describe('ContextLost', () => {
 
   it('Simulates losing context and restoring', async () => {
     await usingAsync(new Fim(), async fim => {
-      await usingAsync(new FimGLCanvas(fim, 640, 480), async gl => {
+      await usingAsync(fim.createGLCanvas(640, 480), async gl => {
         // Register handlers to detect context lost
         let contextLost: boolean;
         let contextRestored: boolean;

@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { fim, loadTestImage, renderOutput } from './Common';
-import { FimCanvas, FimGLCanvas, FimGLProgramMatrixOperation1D, GaussianKernel, FimGLImageProcessor,
-  FimGLTextureFlags } from '../../build/dist/index.js';
+import { FimCanvas, FimGLProgramMatrixOperation1D, GaussianKernel, FimGLImageProcessor, FimGLTextureFlags,
+  IFimGLCanvas } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, DisposableSet } from '@leosingleton/commonlibs';
 
 const kernelSize = 31;
@@ -26,7 +26,7 @@ class BlurImageProcessor extends FimGLImageProcessor {
     inputTexture.preserve();
   }
 
-  public async render(sigma: number): Promise<FimGLCanvas> {
+  public async render(sigma: number): Promise<IFimGLCanvas> {
     // Cannot render if WebGL context is lost
     if (this.glCanvas.isContextLost()) {
       return null;

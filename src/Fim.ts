@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimConfig } from './debug/FimConfig';
+import { IFimGLCanvas, _FimGLCanvas } from './gl/FimGLCanvas';
 import { FimCanvas, IFimCanvas, _FimCanvas } from './image/FimCanvas';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
 import { FimGreyscaleBuffer, IFimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
@@ -16,7 +17,7 @@ export interface IFim extends IDisposable {
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
-   * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
+   * @param initialColor If specified, the canvas is initalized to this value (0 to 255)
    */
   createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer;
 
@@ -24,7 +25,7 @@ export interface IFim extends IDisposable {
    * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
-   * @param initialColor If specified, the canvas is initalized to this color.
+   * @param initialColor If specified, the canvas is initalized to this color
    */
   createRgbaBuffer(width: number, height: number, initialColor?: FimColor | string): IFimRgbaBuffer;
 
@@ -32,7 +33,7 @@ export interface IFim extends IDisposable {
    * Creates a 2D canvas
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
-   * @param initialColor If specified, the canvas is initalized to this color.
+   * @param initialColor If specified, the canvas is initalized to this color
    */
   createCanvas(width: number, height: number, initialColor?: FimColor | string): IFimCanvas;
 
@@ -41,6 +42,16 @@ export interface IFim extends IDisposable {
    * @param jpegFile JPEG file, loaded into a byte array
    */
   createCanvasFromJpegAsync(jpegFile: Uint8Array): Promise<IFimCanvas>;
+
+  /**
+   * Creates a WebGL canvas
+   * @param width Width, in pixels
+   * @param height Height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this color
+   * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
+   *    performance.
+   */
+  createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality?: number): IFimGLCanvas;
 }
 
 /** Implementation of canvas factory for web browsers */
@@ -113,6 +124,18 @@ export class Fim implements IFim {
    */
   public createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
     return _FimCanvas.createFromImageBlobAsync(this, blob);
+  }
+
+  /**
+   * Creates a WebGL canvas
+   * @param width Width, in pixels
+   * @param height Height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this color
+   * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
+   *    performance.
+   */
+  public createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality = 1): IFimGLCanvas {
+    return new _FimGLCanvas(this, width, height, initialColor, quality);
   }
 
   public dispose() {}
