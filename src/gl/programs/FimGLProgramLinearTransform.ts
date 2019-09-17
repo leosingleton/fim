@@ -2,20 +2,19 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
+import { IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { IFimGLTexture } from '../FimGLTexture';
-import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 
 /** GL program to apply a y = mx + b transformation */
 export class FimGLProgramLinearTransform extends FimGLProgram {
-  constructor(canvas: FimGLCanvas) {
+  constructor(canvas: IFimGLCanvas) {
     let fragmentShader = require('./glsl/LinearTransform.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: IFimGLTexture | FimGLPreservedTexture, m: number, b: number) {
+  public setInputs(inputTexture: IFimGLTexture, m: number, b: number) {
     let uniforms = this.fragmentShader.uniforms;
     uniforms.u_input.variableValue = inputTexture;
     uniforms.u_m.variableValue = m;

@@ -4,8 +4,7 @@
 
 import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
-import { FimGLTexture, IFimGLTexture } from './FimGLTexture';
+import { IFimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
 import { IFim } from '../Fim';
@@ -58,7 +57,7 @@ export interface IFimGLCanvas extends IFimCanvasBase {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  copyFrom(srcImage: IFimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void;
+  copyFrom(srcImage: IFimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void;
 
   /**
    * Copies image to another.
@@ -295,12 +294,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
   private fillProgram: FimGLProgramFill;
 
-  public copyFrom(srcImage: IFimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (srcImage instanceof FimGLPreservedTexture) {
-      srcImage = srcImage.getTexture();
-    }
-
+  public copyFrom(srcImage: IFimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Validate source texture
     FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
 

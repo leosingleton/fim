@@ -226,13 +226,8 @@ export abstract class FimGLProgram implements IDisposable {
    *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
    *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
    */
-  public execute(outputTexture?: IFimGLTexture | FimGLPreservedTexture, destCoords?: FimRect): void {
+  public execute(outputTexture?: IFimGLTexture, destCoords?: FimRect): void {
     let gl = this.gl;
-
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (outputTexture instanceof FimGLPreservedTexture) {
-      outputTexture = outputTexture.getTexture();
-    }
 
     // Validate source texture
     if (outputTexture) {

@@ -7,7 +7,6 @@ import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
 import { FimGLTexture, IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
-import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 import { using } from '@leosingleton/commonlibs';
 
 /** GL program which creates a Gaussian blur */
@@ -25,13 +24,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   /** Size of the kernel */
   public readonly kernelSize: number;
 
-  public setInputs(inputTexture: IFimGLTexture | FimGLPreservedTexture, kernel: number[],
-      tempTexture?: IFimGLTexture): void {
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (inputTexture instanceof FimGLPreservedTexture) {
-      inputTexture = inputTexture.getTexture();
-    }
-
+  public setInputs(inputTexture: IFimGLTexture, kernel: number[], tempTexture?: IFimGLTexture): void {
     this.inputTexture = inputTexture;
     this.tempTexture = tempTexture;
 
@@ -42,14 +35,9 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;
   }
 
-  public execute(outputTexture?: IFimGLTexture | FimGLPreservedTexture): void {
+  public execute(outputTexture?: IFimGLTexture): void {
     let gl = this.glCanvas;
 
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (outputTexture instanceof FimGLPreservedTexture) {
-      outputTexture = outputTexture.getTexture();
-    }
-    
     if (this.tempTexture) {
       this.executeInternal(this.tempTexture, outputTexture);
     } else {
