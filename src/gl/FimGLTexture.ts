@@ -213,6 +213,12 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     FimGLError.throwOnError(gl);
   }
 
+  /**
+   * Copies image from another. Neither cropping nor rescaling is supported.
+   * @param srcImage Source image
+   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
+   */
   public copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
@@ -316,6 +322,12 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     }
   }
 
+  /**
+   * Copies to a WebGL canvas. Supports both cropping and rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
   public copyTo(destImage: IFimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
@@ -339,6 +351,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     this.gl = undefined;
   }
 
+  /** Returns the underlying WebGL framebuffer backing this texture */
   public getFramebuffer(): WebGLFramebuffer {
     if (this.textureOptions.textureFlags & FimGLTextureFlags.InputOnly) {
       // Cannot write to an input only texture
@@ -347,6 +360,10 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     return this.fb;
   }
 
+  /**
+   * Returns whether the dimensions of this texture are a square power-of-two. Certain WebGL features, like texture
+   * wrapping, are only available on textures with square power-of-two dimensions.
+   */
   public isSquarePot(): boolean {
     return ((this.w & (this.w - 1)) === 0) && ((this.h & (this.h - 1)) === 0);
   }

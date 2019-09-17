@@ -33,9 +33,7 @@ export interface IFimGLCanvas extends IFimCanvasBase {
   /** WebGL rendering context */
   readonly gl: WebGLRenderingContext;
 
-  /**
-   * A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance.
-   */
+  /** A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance. */
   renderQuality: number;
 
   /**
@@ -173,21 +171,38 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     super.dispose();
   }
 
+  /** Registers a lambda function to be executed on WebGL context lost */
   public registerForContextLost(eventHandler: () => void): void {
     this.contextLostNotifications.push(eventHandler);
   }
 
+  /** Registers a lambda function to be executed on WebGL context restored */
   public registerForContextRestored(eventHandler: () => void): void {
     this.contextRestoredNotifications.push(eventHandler);
   }
 
+  /** Returns whether the context is currently lost */
   public isContextLost(): boolean {
     return this.gl.isContextLost();
   }
 
+  /** WebGL rendering context */
   public readonly gl: WebGLRenderingContext;
+
+  /** A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance. */
   public renderQuality: number;
 
+  /**
+   * Determines the color depth for a FimGLTexture. Returns both the bits per pixel and correspoding WebGL constant.
+   * The parameter is supplied as a maximum--the result may be lower than requested depending on WebGL capabilities and
+   * performance.
+   * @param maxBpp Maximum bits per pixel
+   * @param linear True if linear filtering is required; false for nearest
+   * @returns Object with two properties: {
+   *    bpp: FimBitsPerPixel,
+   *    glConstant: FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
+   * }
+   */
   public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
     // If a lower BPP limit was set for debugging, use that instead
     let debugMaxBpp = FimConfig.config.maxGLBpp;
@@ -289,6 +304,12 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
   private fillProgram: FimGLProgramFill;
 
+  /**
+   * Copies from a texture. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
   public copyFrom(srcImage: IFimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Validate source texture
     FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
@@ -310,6 +331,15 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     program.execute(null, destCoords);
   }
 
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas and HtmlCanvasElement support both cropping and rescaling, while FimRgbaBuffer only supports cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
   public copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof HTMLCanvasElement) {

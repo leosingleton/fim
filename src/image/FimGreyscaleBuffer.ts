@@ -124,10 +124,22 @@ export class FimGreyscaleBuffer extends FimImage implements IFimGreyscaleBuffer 
     destImage.copyFrom(this, srcCoords, destCoords);
   }
   
+  /**
+   * Returns the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @returns Greyscale color value (0-255)
+   */
   public getPixel(x: number, y: number): number {
     return this._buffer[y * this.w + x];
   }
 
+  /**
+   * Sets the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @param color Greyscale color value (0-255)
+   */
   public setPixel(x: number, y: number, color: number): void {
     this._buffer[y * this.w + x] = color;
   }

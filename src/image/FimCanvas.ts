@@ -90,6 +90,12 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     return dupe;
   }
 
+  /**
+   * Constructs a drawing context
+   * @param imageSmoothingEnabled Enables image smoothing
+   * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
+   * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
+   */
   public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
       CanvasRenderingContext2D & IDisposable {
     return FimCanvasBase.createDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha);
@@ -99,6 +105,16 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     FimCanvasBase.fillCanvas(this.getCanvas(), color);
   }
 
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * 
+   * Note that for FimRgbaBuffer inputs, the Async version of this function may be significantly faster on some web
+   * browsers.
+   * 
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
   public copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
       void {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
@@ -110,6 +126,12 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     }
   }
 
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
   public async copyFromAsync(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): Promise<void> {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
@@ -210,6 +232,16 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     }
   }
 
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
+   * only support cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
   public copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof FimCanvas || destImage instanceof FimRgbaBuffer) {
