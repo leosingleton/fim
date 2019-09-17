@@ -4,7 +4,7 @@
 
 import { FimCanvas, _FimCanvas } from '../FimCanvas';
 import { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../FimCanvasBase';
-import { FimRgbaBuffer } from '../FimRgbaBuffer';
+import { IFimRgbaBuffer } from '../FimRgbaBuffer';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
 import { FimTestPatterns } from '../../debug/FimTestPatterns';
@@ -104,14 +104,14 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
      * Generic test case for copying a FimRgbaBuffer to a FimCanvas
      * @param copy Lambda function that performs the copy
      */
-    async function copyFromRgbaBuffer(copy: (dest: _FimCanvas, src: FimRgbaBuffer) => Promise<void>):
+    async function copyFromRgbaBuffer(copy: (dest: _FimCanvas, src: IFimRgbaBuffer) => Promise<void>):
         Promise<void> {
       let rand = new SeededRandom(0);
 
       // Create an RGBA buffer and fill it with gradiant values
       await DisposableSet.usingAsync(async disposable => {
         let fim = disposable.addDisposable(new Fim());
-        let src = disposable.addDisposable(new FimRgbaBuffer(fim, 100, 100));
+        let src = disposable.addDisposable(fim.createRgbaBuffer(100, 100));
         for (let x = 0; x < 100; x++) {
           for (let y = 0; y < 100; y++) {
             src.setPixel(x, y, FimColor.fromRGBABytes(x, y, 0, 255));
@@ -155,7 +155,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
         // FimCanvas.setPixel() is very slow.
         let fim = disposable.addDisposable(new Fim());
         let orig = disposable.addDisposable(new FimCanvas(fim, 300, 300, undefined, offscreenCanvasFactory));
-        let temp = disposable.addDisposable(new FimRgbaBuffer(fim, 300, 300));
+        let temp = disposable.addDisposable(fim.createRgbaBuffer(300, 300));
         FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
         await orig.copyFrom(temp);
     

@@ -7,7 +7,6 @@ import { FimGLCanvas } from '../../FimGLCanvas';
 import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
 import { Fim } from '../../../Fim';
 import { FimCanvas } from '../../../image/FimCanvas';
-import { FimRgbaBuffer } from '../../../image/FimRgbaBuffer';
 import { FimColor } from '../../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
@@ -37,7 +36,7 @@ describe('FimGLProgramCopy', () => {
       let fim = disposable.addDisposable(new Fim());
       let canvas = disposable.addDisposable(new FimGLCanvas(fim, 640, 480));
       let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
-      let buffer = disposable.addDisposable(new FimRgbaBuffer(fim, 640, 480, '#f31'));
+      let buffer = disposable.addDisposable(fim.createRgbaBuffer(640, 480, '#f31'));
       let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, buffer));
 
       // Copy the texture
@@ -48,7 +47,7 @@ describe('FimGLProgramCopy', () => {
       expect(canvas.getPixel(100, 100)).toEqual(FimColor.fromString('#f31'));
 
       // For additional test coverage, copy the output to an RGBA buffer and ensure it is also red
-      let out = disposable.addDisposable(new FimRgbaBuffer(fim, 640, 480));
+      let out = disposable.addDisposable(fim.createRgbaBuffer(640, 480));
       out.copyFrom(canvas);
       expect(canvas.getPixel(200, 300)).toEqual(FimColor.fromString('#f31'));
     });

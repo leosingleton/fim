@@ -6,6 +6,7 @@ import { FimConfig } from './debug/FimConfig';
 import { FimCanvas, IFimCanvas, _FimCanvas } from './image/FimCanvas';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
 import { IFimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
+import { IFimRgbaBuffer, _FimRgbaBuffer } from './image/FimRgbaBuffer';
 import { FimColor } from './primitives/FimColor';
 import { IDisposable } from '@leosingleton/commonlibs';
 
@@ -18,6 +19,14 @@ export interface IFim extends IDisposable {
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
   createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer;
+
+  /**
+   * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
+   * @param width Canvas width, in pixels
+   * @param height Canvas height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this color.
+   */
+  createRgbaBuffer(width: number, height: number, initialColor?: FimColor | string): IFimRgbaBuffer;
 
   /**
    * Creates a 2D canvas
@@ -59,8 +68,18 @@ export class Fim implements IFim {
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
-  createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer {
+  public createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer {
     return new _FimGreyscaleBuffer(this, width, height, initialColor);
+  }
+
+  /**
+   * Creates an image consisting of 8-bit RGBA pixel data in a Uint8Array
+   * @param width Canvas width, in pixels
+   * @param height Canvas height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this color.
+   */
+  public createRgbaBuffer(width: number, height: number, initialColor?: FimColor | string): IFimRgbaBuffer {
+    return new _FimRgbaBuffer(this, width, height, initialColor);
   }
 
   /**

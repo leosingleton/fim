@@ -4,7 +4,6 @@
 
 import { ImageGrid } from '../ImageGrid';
 import { Fim } from '../../Fim';
-import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
 import { FimColor } from '../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
@@ -13,8 +12,8 @@ describe('ImageGrid', () => {
   it('Ensures output covers the full image', () => {
     DisposableSet.using(disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let output = disposable.addDisposable(new FimRgbaBuffer(fim, 576, 384, '#000'));
-      let redTile = disposable.addDisposable(new FimRgbaBuffer(fim, 128, 128, '#f00'));
+      let output = disposable.addDisposable(fim.createRgbaBuffer(576, 384, '#000'));
+      let redTile = disposable.addDisposable(fim.createRgbaBuffer(128, 128, '#f00'));
 
       let grid = new ImageGrid(output.w, output.h, redTile.w, redTile.h, 12);
       grid.tiles.forEach(tile => {

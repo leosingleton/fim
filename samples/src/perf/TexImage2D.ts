@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { fim, loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerformanceValue } from '../Common';
-import { FimGLCanvas, FimGLTexture, FimGLTextureFlags, FimRgbaBuffer } from '../../../build/dist/index.js';
+import { FimGLCanvas, FimGLTexture, FimGLTextureFlags } from '../../../build/dist/index.js';
 import { DisposableSet, using, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfTexImage2D(): Promise<void> {
@@ -76,7 +76,7 @@ export async function perfTexImage2D(): Promise<void> {
     //
     async function testTexFromBuffer(id: string, width: number, height: number, flags: FimGLTextureFlags):
         Promise<void> {
-      usingAsync(new FimRgbaBuffer(fim, srcImage.w, srcImage.h), async buffer => {
+      usingAsync(fim.createRgbaBuffer(srcImage.w, srcImage.h), async buffer => {
         // Copy the source image to a buffer
         buffer.copyFrom(srcImage);
 

@@ -63,7 +63,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
    */
-  constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+  protected constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
     super(fim, width, height);
     this._buffer = new Uint8ClampedArray(width * height * 4);
 

@@ -8,7 +8,6 @@ import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
 import { Fim } from '../../../Fim';
 import { FimTestPatterns } from '../../../debug/FimTestPatterns';
 import { FimCanvas } from '../../../image/FimCanvas';
-import { FimRgbaBuffer } from '../../../image/FimRgbaBuffer';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 async function testDownscale(ratio: number): Promise<void> {
@@ -16,7 +15,7 @@ async function testDownscale(ratio: number): Promise<void> {
     let fim = disposable.addDisposable(new Fim());
 
     // Build the test pattern
-    let testBuffer = disposable.addDisposable(new FimRgbaBuffer(fim, 512, 16));
+    let testBuffer = disposable.addDisposable(fim.createRgbaBuffer(512, 16));
     FimTestPatterns.render(testBuffer, FimTestPatterns.downscaleStress);
 
     // Copy the test pattern to a canvas and draw it

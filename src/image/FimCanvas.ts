@@ -232,7 +232,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
     
-    using(new FimRgbaBuffer(this.fim, 1, 1), buffer => {
+    using(this.fim.createRgbaBuffer(1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();
     });
@@ -245,7 +245,7 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
 
-    using(new FimRgbaBuffer(this.fim, 1, 1, color), buffer => {
+    using(this.fim.createRgbaBuffer(1, 1, color), buffer => {
       this.copyFromRgbaBuffer(buffer, buffer.imageDimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }

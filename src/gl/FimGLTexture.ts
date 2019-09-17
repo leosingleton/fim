@@ -301,7 +301,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
       //  1. FimGreyscaleBuffer => FimRgbaBuffer
       //  2. FimRgbaBuffer => Downscale => FimCanvas (using the slower, non-async version)
       //  3. FimCanvas => FimTexture
-      using(new FimRgbaBuffer(this.fim, srcImage.realDimensions.w, srcImage.realDimensions.h), temp => {
+      using(this.fim.createRgbaBuffer(srcImage.realDimensions.w, srcImage.realDimensions.h), temp => {
         temp.copyFrom(srcImage);
         this.copyFrom(temp);
       });

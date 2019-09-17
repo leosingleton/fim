@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { Fim } from '../../Fim';
 import { FimColor } from '../../primitives/FimColor';
 import { FimRect } from '../../primitives/FimRect';
@@ -12,7 +11,7 @@ describe('FimRgbaBuffer', () => {
 
   it('Creates and disposes', () => {
     using(new Fim(), fim => {
-      let b = new FimRgbaBuffer(fim, 640, 480);
+      let b = fim.createRgbaBuffer(640, 480);
       expect(b.getBuffer().length).toEqual(640 * 480 * 4);
   
       b.dispose();
@@ -27,7 +26,7 @@ describe('FimRgbaBuffer', () => {
   it('Fills with initial value', () => {
     using(new Fim(), fim => {
       let color = FimColor.fromString('#abc');
-      using(new FimRgbaBuffer(fim, 640, 480, color), buffer => {
+      using(fim.createRgbaBuffer(640, 480, color), buffer => {
         expect(buffer.getPixel(134, 413)).toEqual(color);
       });  
     });
@@ -38,7 +37,7 @@ describe('FimRgbaBuffer', () => {
       let color1 = FimColor.fromString('#123');
       let color2 = FimColor.fromString('#aaa');
   
-      using(new FimRgbaBuffer(fim, 640, 480, color1), buffer => {
+      using(fim.createRgbaBuffer(640, 480, color1), buffer => {
         buffer.setPixel(555, 123, color2);
         expect(buffer.getPixel(134, 413)).toEqual(color1);
         expect(buffer.getPixel(555, 123)).toEqual(color2);
@@ -52,8 +51,8 @@ describe('FimRgbaBuffer', () => {
 
     DisposableSet.using(disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let src = disposable.addDisposable(new FimRgbaBuffer(fim, 640, 480, color1));
-      let dest = disposable.addDisposable(new FimRgbaBuffer(fim, 640, 480));
+      let src = disposable.addDisposable(fim.createRgbaBuffer(640, 480, color1));
+      let dest = disposable.addDisposable(fim.createRgbaBuffer(640, 480));
 
       // Copy src to dest
       dest.copyFrom(src);
@@ -69,8 +68,8 @@ describe('FimRgbaBuffer', () => {
   it('Copies to destination coordinates', () => {
     DisposableSet.using(disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let dest = disposable.addDisposable(new FimRgbaBuffer(fim, 200, 200));
-      let src = disposable.addDisposable(new FimRgbaBuffer(fim, 100, 100));
+      let dest = disposable.addDisposable(fim.createRgbaBuffer(200, 200));
+      let src = disposable.addDisposable(fim.createRgbaBuffer(100, 100));
 
       // Top-left => red
       src.fillCanvas('#f00');
@@ -103,14 +102,14 @@ describe('FimRgbaBuffer', () => {
       let fim = disposable.addDisposable(new Fim());
 
       // Create a buffer and fill it with random values
-      let orig = disposable.addDisposable(new FimRgbaBuffer(fim, 300, 300));
+      let orig = disposable.addDisposable(fim.createRgbaBuffer(300, 300));
       let buffer = orig.getBuffer();
       for (let n = 0; n < buffer.length; n++) {
         buffer[n] = rand.nextInt() % 256;
       }
   
       // Copy the center 100x100 to another buffer
-      let crop = disposable.addDisposable(new FimRgbaBuffer(fim, 300, 300, '#000'));
+      let crop = disposable.addDisposable(fim.createRgbaBuffer(300, 300, '#000'));
       let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
       crop.copyFrom(orig, rect, rect);
   
@@ -136,7 +135,7 @@ describe('FimRgbaBuffer', () => {
   it('Copies from FimGreyscaleBuffer', () => {
     DisposableSet.using(disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let dest = disposable.addDisposable(new FimRgbaBuffer(fim, 200, 200));
+      let dest = disposable.addDisposable(fim.createRgbaBuffer(200, 200));
       let src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
 
       // Top-left => 0x00
