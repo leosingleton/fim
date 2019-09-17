@@ -40,6 +40,9 @@ export function FimDefaultOffscreenCanvasFactory(width: number, height: number):
 }
 
 export interface IFimCanvasBase extends IFimImage {
+  /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
+  getCanvas(): HTMLCanvasElement | OffscreenCanvas;
+
   /** Creates a new canvas which is a duplicate of this one */
   duplicateCanvas(): IFimCanvas;
 
@@ -102,8 +105,8 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
   }
 
   /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
-  public getCanvas(): HTMLCanvasElement {
-    return this.canvasElement as HTMLCanvasElement;
+  public getCanvas(): HTMLCanvasElement | OffscreenCanvas {
+    return this.canvasElement;
   }
   protected canvasElement: HTMLCanvasElement | OffscreenCanvas;
 
@@ -248,7 +251,7 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
    * @param destCanvas Destination canvas
    * @param color Fill color
    */
-  protected static fillCanvas(destCanvas: HTMLCanvasElement, color: FimColor | string): void {
+  protected static fillCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, color: FimColor | string): void {
     // Force color to be a string
     let colorString = (typeof(color) === 'string') ? color : color.string;
 

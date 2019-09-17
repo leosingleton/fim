@@ -4,7 +4,7 @@
 
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimGLTexture } from '../FimGLTexture';
+import { IFimGLTexture } from '../FimGLTexture';
 import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 
 /** GL program to combine two textures and return the darker of the two */
@@ -15,7 +15,7 @@ export class FimGLProgramDarker extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInputs(input1: FimGLTexture | FimGLPreservedTexture, input2: FimGLTexture | FimGLPreservedTexture): void {
+  public setInputs(input1: IFimGLTexture | FimGLPreservedTexture, input2: IFimGLTexture | FimGLPreservedTexture): void {
     let uniforms = this.fragmentShader.uniforms;
     uniforms.u_input1.variableValue = input1;
     uniforms.u_input2.variableValue = input2;

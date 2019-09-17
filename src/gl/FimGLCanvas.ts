@@ -295,7 +295,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
   private fillProgram: FimGLProgramFill;
 
-  public copyFrom(srcImage: FimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFrom(srcImage: IFimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Handle FimGLPreservedTexture by getting the underlying texture
     if (srcImage instanceof FimGLPreservedTexture) {
       srcImage = srcImage.getTexture();
@@ -321,7 +321,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     program.execute(null, destCoords);
   }
 
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
+  public copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof HTMLCanvasElement) {
       this.toHtmlCanvas(destImage, srcCoords, destCoords);

@@ -5,7 +5,7 @@
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
+import { IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 
 /** GL program to downscale a texture to a lower resolution */
@@ -28,7 +28,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture): void {
+  public setInputs(inputTexture: IFimGLTexture | FimGLPreservedTexture): void {
     // Ensure the input texture has linear filtering enabled
     if ((inputTexture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
       throw new FimGLError(FimGLErrorCode.AppError, 'NotLinear');

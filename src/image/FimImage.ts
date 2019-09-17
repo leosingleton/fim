@@ -95,7 +95,7 @@ export abstract class FimImage implements IFimImage {
    * source image does not have the same dimensions as this image.
    * @param srcImage Source image
    */
-  protected throwOnMismatchedDimensions(srcImage: FimImage): void {
+  protected throwOnMismatchedDimensions(srcImage: IFimImage): void {
     if (!this.imageDimensions.equals(srcImage.imageDimensions)) {
       throw new Error(`Crop and rescale not supported: ${this.imageDimensions} ${srcImage.imageDimensions}`);
     }
@@ -106,7 +106,7 @@ export abstract class FimImage implements IFimImage {
    * TypeScript's never type to generate compile-time warnings for unhandled types.
    * @param fimImage Invalid FimImage object
    */
-  protected throwOnInvalidImageKind(fimImage: never): never {
+  protected throwOnInvalidImageKind(fimImage: IFimImage): never {
     throw new Error(`Invalid kind: ${fimImage}`);
   }
 }

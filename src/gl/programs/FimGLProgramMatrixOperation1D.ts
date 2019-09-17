@@ -2,17 +2,17 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
+import { IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
-import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
+import { FimGLTexture, IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 import { using } from '@leosingleton/commonlibs';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLProgramMatrixOperation1D extends FimGLProgram {
-  constructor(canvas: FimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
+  constructor(canvas: IFimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
     fragmentShader = fragmentShader || require('./glsl/MatrixOperation1D.glsl');
     super(canvas, fragmentShader);
 
@@ -25,8 +25,8 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   /** Size of the kernel */
   public readonly kernelSize: number;
 
-  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture, kernel: number[],
-      tempTexture?: FimGLTexture): void {
+  public setInputs(inputTexture: IFimGLTexture | FimGLPreservedTexture, kernel: number[],
+      tempTexture?: IFimGLTexture): void {
     // Handle FimGLPreservedTexture by getting the underlying texture
     if (inputTexture instanceof FimGLPreservedTexture) {
       inputTexture = inputTexture.getTexture();
@@ -42,7 +42,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;
   }
 
-  public execute(outputTexture?: FimGLTexture | FimGLPreservedTexture): void {
+  public execute(outputTexture?: IFimGLTexture | FimGLPreservedTexture): void {
     let gl = this.glCanvas;
 
     // Handle FimGLPreservedTexture by getting the underlying texture
@@ -66,7 +66,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     }
   }
 
-  private executeInternal(tempTexture: FimGLTexture, outputTexture?: FimGLTexture): void {
+  private executeInternal(tempTexture: IFimGLTexture, outputTexture?: IFimGLTexture): void {
     let uniforms = this.fragmentShader.uniforms;
 
     // Make the first pass in the X direction
@@ -83,6 +83,6 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     super.execute(outputTexture);
   }
 
-  private inputTexture: FimGLTexture;
-  private tempTexture?: FimGLTexture;
+  private inputTexture: IFimGLTexture;
+  private tempTexture?: IFimGLTexture;
 }

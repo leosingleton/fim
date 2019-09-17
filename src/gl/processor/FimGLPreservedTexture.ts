@@ -107,6 +107,10 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
     return this.texture;
   }
 
+  public getFramebuffer(): WebGLFramebuffer {
+    return this.getTexture().getFramebuffer();
+  }
+
   public preserve(): void {
     let texture = this.texture;
     let glCanvas = this.glCanvas;
@@ -126,7 +130,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLPreservedTe
   private backingCanvas: FimCanvas;
 
   // Settings for re-creating the texture
-  private glCanvas: FimGLCanvas;
+  public readonly glCanvas: FimGLCanvas;
   public readonly textureOptions: FimGLTextureOptions;
 
   //
