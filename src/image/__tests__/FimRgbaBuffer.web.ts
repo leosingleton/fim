@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGreyscaleBuffer } from '../FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../FimRgbaBuffer';
 import { Fim } from '../../Fim';
 import { FimColor } from '../../primitives/FimColor';
@@ -138,7 +137,7 @@ describe('FimRgbaBuffer', () => {
     DisposableSet.using(disposable => {
       let fim = disposable.addDisposable(new Fim());
       let dest = disposable.addDisposable(new FimRgbaBuffer(fim, 200, 200));
-      let src = disposable.addDisposable(new FimGreyscaleBuffer(fim, 100, 100));
+      let src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
 
       // Top-left => 0x00
       src.fillCanvas(0x00);

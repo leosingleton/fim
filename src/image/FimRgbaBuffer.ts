@@ -113,7 +113,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
+  public copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
       this.copyFromCanvas(srcImage, srcCoords, destCoords);
@@ -204,7 +204,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  private copyFromRgbaBuffer(srcImage: IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.imageDimensions;
     destCoords = destCoords || this.imageDimensions;
@@ -215,12 +215,12 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
     // Optimization: If images have the same dimensions, just copy the entire byte array
     if (srcCoords.equals(destCoords) && srcImage.imageDimensions.equals(srcCoords) &&
         this.imageDimensions.equals(destCoords)) {
-      this._buffer.set(srcImage._buffer);
+      this._buffer.set(srcImage.getBuffer());
       return;
     }
 
     // Perform a copy of the image data
-    let srcBuf = srcImage._buffer;
+    let srcBuf = srcImage.getBuffer();
     let destBuf = this._buffer;
     for (let y = 0; y < destCoords.h; y++) {
       let srcOffset = ((y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft) * 4;
@@ -240,7 +240,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyTo(destImage: IFimCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
 
@@ -253,7 +253,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public async copyToAsync(destImage: FimCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+  public async copyToAsync(destImage: IFimCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
       Promise<void> {
     if (destImage instanceof FimCanvas) {
       destImage.copyFromAsync(this, srcCoords, destCoords);

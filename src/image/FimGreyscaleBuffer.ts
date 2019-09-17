@@ -57,7 +57,7 @@ export class FimGreyscaleBuffer extends FimImage implements IFimGreyscaleBuffer 
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
-  constructor(fim: IFim, width: number, height: number, initialColor?: number) {
+  protected constructor(fim: IFim, width: number, height: number, initialColor?: number) {
     super(fim, width, height);
     this._buffer = new Uint8ClampedArray(width * height);
 

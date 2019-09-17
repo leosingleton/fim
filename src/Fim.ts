@@ -5,11 +5,20 @@
 import { FimConfig } from './debug/FimConfig';
 import { FimCanvas, IFimCanvas, _FimCanvas } from './image/FimCanvas';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
+import { IFimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
 import { FimColor } from './primitives/FimColor';
 import { IDisposable } from '@leosingleton/commonlibs';
 
 /** Factory methods for creating canvases */
 export interface IFim extends IDisposable {
+  /**
+   * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
+   * @param width Canvas width, in pixels
+   * @param height Canvas height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
+   */
+  createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer;
+
   /**
    * Creates a 2D canvas
    * @param width Canvas width, in pixels
@@ -43,6 +52,16 @@ export class Fim implements IFim {
 
   /** If offscreenCanvas is true, a reference to the factory object used to create the canvas */
   public readonly canvasFactory: FimCanvasFactory;
+
+  /**
+   * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
+   * @param width Canvas width, in pixels
+   * @param height Canvas height, in pixels
+   * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
+   */
+  createGreyscaleBuffer(width: number, height: number, initialColor?: number): IFimGreyscaleBuffer {
+    return new _FimGreyscaleBuffer(this, width, height, initialColor);
+  }
 
   /**
    * Creates a 2D canvas

@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGreyscaleBuffer } from '../FimGreyscaleBuffer';
 import { Fim } from '../../Fim';
 import { FimRect } from '../../primitives/FimRect';
 import { using, DisposableSet } from '@leosingleton/commonlibs';
@@ -11,7 +10,7 @@ describe('FimGreyscaleBuffer', () => {
 
   it('Creates and disposes', () => {
     using(new Fim(), fim => {
-      let b = new FimGreyscaleBuffer(fim, 640, 480);
+      let b = fim.createGreyscaleBuffer(640, 480);
       expect(b.getBuffer().length).toEqual(640 * 480);
   
       b.dispose();
@@ -25,7 +24,7 @@ describe('FimGreyscaleBuffer', () => {
 
   it('Fills with initial value', () => {
     using(new Fim(), fim => {
-      using(new FimGreyscaleBuffer(fim, 640, 480, 42), buffer => {
+      using(fim.createGreyscaleBuffer(640, 480, 42), buffer => {
         expect(buffer.getPixel(134, 413)).toEqual(42);
       });  
     });
@@ -33,7 +32,7 @@ describe('FimGreyscaleBuffer', () => {
 
   it('Gets and sets pixel colors', () => {
     using(new Fim(), fim => {
-      using(new FimGreyscaleBuffer(fim, 640, 480, 12), buffer => {
+      using(fim.createGreyscaleBuffer(640, 480, 12), buffer => {
         buffer.setPixel(555, 123, 233);
         expect(buffer.getPixel(134, 413)).toEqual(12);
         expect(buffer.getPixel(555, 123)).toEqual(233);
@@ -44,8 +43,8 @@ describe('FimGreyscaleBuffer', () => {
   it('Copies to destination coordinates', () => {
     DisposableSet.using(disposable => {
       let fim = disposable.addDisposable(new Fim());
-      let dest = disposable.addDisposable(new FimGreyscaleBuffer(fim, 200, 200));
-      let src = disposable.addDisposable(new FimGreyscaleBuffer(fim, 100, 100));
+      let dest = disposable.addDisposable(fim.createGreyscaleBuffer(200, 200));
+      let src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
 
       // Top-left => 0
       src.fillCanvas(0);
