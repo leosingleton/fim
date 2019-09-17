@@ -8,7 +8,6 @@ import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
 import { Fim } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
 import { FimTestImages } from '../../../debug/FimTestImages';
-import { FimCanvas } from '../../../image/FimCanvas';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimRect } from '../../../primitives/FimRect';
 import { DisposableSet } from '@leosingleton/commonlibs';
@@ -29,7 +28,7 @@ describe('FimGLPreservedTexture', () => {
 
       // Create a preserved texture from the test pattern
       let jpeg = FimTestImages.fourSquaresJpeg();
-      let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(fim, jpeg));
+      let canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
       texture.copyFrom(canvas);
       texture.preserve();
@@ -68,7 +67,7 @@ describe('FimGLPreservedTexture', () => {
 
       // Create a preserved texture from the test pattern
       let jpeg = FimTestImages.fourSquaresJpeg();
-      let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(fim, jpeg));
+      let canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 120, 120));
       texture.copyFrom(canvas);
       texture.preserve();
@@ -110,7 +109,7 @@ describe('FimGLPreservedTexture', () => {
 
       // Create a preserved texture from the test pattern. Make this one small.
       let jpeg = FimTestImages.fourSquaresJpeg();
-      let canvas = disposable.addDisposable(await FimCanvas.createFromJpeg(fim, jpeg));
+      let canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
       let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 480, 480));
       texture.copyFrom(canvas);
       texture.preserve();

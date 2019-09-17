@@ -8,7 +8,6 @@ import { FimGLTexture, FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTe
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
-import { FimCanvas } from '../../image/FimCanvas';
 import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
 import { FimColor } from '../../primitives/FimColor';
 import { FimColorChannels } from '../../primitives/FimColorChannels';
@@ -77,7 +76,7 @@ describe('FimGLTexture', () => {
 
       // Create a test image bigger than the GPU can support and load it onto the texture
       let jpeg = FimTestImages.fourSquaresJpeg();
-      let buffer = disposable.addDisposable(await FimCanvas.createFromJpeg(fim, jpeg));
+      let buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
       let srcImage = disposable.addDisposable(fim.createCanvas(textureSize, textureSize / 8));
       srcImage.copyFrom(buffer);
       texture.copyFrom(srcImage);

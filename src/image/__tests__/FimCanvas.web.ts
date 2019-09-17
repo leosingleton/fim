@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, _FimCanvas } from '../FimCanvas';
+import { IFimCanvas, _FimCanvas } from '../FimCanvas';
 import { IFimRgbaBuffer } from '../FimRgbaBuffer';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
@@ -104,7 +104,7 @@ function spec(canvasFactory: FimCanvasFactory) {
      * Generic test case for copying a FimRgbaBuffer to a FimCanvas
      * @param copy Lambda function that performs the copy
      */
-    async function copyFromRgbaBuffer(copy: (dest: _FimCanvas, src: IFimRgbaBuffer) => Promise<void>):
+    async function copyFromRgbaBuffer(copy: (dest: IFimCanvas, src: IFimRgbaBuffer) => Promise<void>):
         Promise<void> {
       let rand = new SeededRandom(0);
 
@@ -119,7 +119,7 @@ function spec(canvasFactory: FimCanvasFactory) {
         }
 
         // Copy the RGBA buffer to an FimCanvas
-        let dest = disposable.addDisposable(new _FimCanvas(fim, 100, 100));
+        let dest = disposable.addDisposable(fim.createCanvas(100, 100));
         await copy(dest, src);
 
         // Ensure the two are the same
@@ -136,7 +136,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     // We need an internal scope like .NET...
     it('Copies from FimRgbaBuffer with ImageBitmap', async () => {
-      await copyFromRgbaBuffer((dest, src) => dest.internalCopyFromRgbaBufferWithImageBitmapAsync(src));
+      await copyFromRgbaBuffer((dest, src) => (dest as _FimCanvas).internalCopyFromRgbaBufferWithImageBitmapAsync(src));
     });
 
     it('Copies from FimRgbaBuffer with PutImageData', async () => {
@@ -187,7 +187,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
       // Decompress the image
       await usingAsync(new Fim(canvasFactory), async fim => {
-        using(await FimCanvas.createFromJpeg(fim, jpeg), canvas => {
+        using(await fim.createCanvasFromJpegAsync(jpeg), canvas => {
           expect(canvas.w).toEqual(128);
           expect(canvas.h).toEqual(128);
   

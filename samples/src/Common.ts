@@ -24,7 +24,7 @@ export async function loadTestImageToArray(): Promise<Uint8Array> {
 /** Loads a test image onto a FimCanvas */
 export async function loadTestImage(): Promise<FimCanvas> {
   let jpeg = await loadTestImageToArray();
-  return FimCanvas.createFromJpeg(fim, jpeg);
+  return fim.createCanvasFromJpegAsync(jpeg);
 }
 
 /** Blocks execution until the browser is ready to render another frame */

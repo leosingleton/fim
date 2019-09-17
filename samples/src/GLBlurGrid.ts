@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { fim } from './Common';
-import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel,
+import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel,
   ImageGrid } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, parseQueryString } from '@leosingleton/commonlibs';
 
@@ -19,7 +19,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
   let jpeg = await fetchResponse.arrayBuffer();
 
   // Load the JPEG onto a FimCanvas
-  let canvas = await FimCanvas.createFromJpeg(fim, new Uint8Array(jpeg));
+  let canvas = await fim.createCanvasFromJpegAsync(new Uint8Array(jpeg));
 
   // Get the output canvas and scale it to the same size as the input
   let output = document.getElementById(canvasId) as HTMLCanvasElement;

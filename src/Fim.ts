@@ -35,6 +35,12 @@ export interface IFim extends IDisposable {
    * @param initialColor If specified, the canvas is initalized to this color.
    */
   createCanvas(width: number, height: number, initialColor?: FimColor | string): IFimCanvas;
+
+  /**
+   * Creates a 2D canvas from a JPEG file
+   * @param jpegFile JPEG file, loaded into a byte array
+   */
+  createCanvasFromJpegAsync(jpegFile: Uint8Array): Promise<IFimCanvas>;
 }
 
 /** Implementation of canvas factory for web browsers */
@@ -91,6 +97,22 @@ export class Fim implements IFim {
    */
   public createCanvas(width: number, height: number, initialColor?: FimColor | string): FimCanvas {
     return new _FimCanvas(this, width, height, initialColor);
+  }
+
+  /**
+   * Creates a 2D canvas from a JPEG file
+   * @param jpegFile JPEG file, loaded into a byte array
+   */
+  public createCanvasFromJpegAsync(jpegFile: Uint8Array): Promise<FimCanvas> {
+    return _FimCanvas.createFromJpegAsync(this, jpegFile);
+  }
+
+  /**
+   * Creates a 2D canvas from a Blob containing an image
+   * @param blob Blob of type 'image/*'
+   */
+  public createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
+    return _FimCanvas.createFromImageBlobAsync(this, blob);
   }
 
   public dispose() {}

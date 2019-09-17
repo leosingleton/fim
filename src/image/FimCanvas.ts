@@ -245,22 +245,36 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
       this.copyFromRgbaBuffer(buffer, buffer.imageDimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
   }
+}
+
+/** Internal version of the class only for unit testing */
+export class _FimCanvas extends FimCanvas {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height, initialColor);
+  }
+
+  public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: IFimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): Promise<void> {
+    return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
+  }
 
   /**
    * Creates a FimCanvas from a JPEG file
+   * @param fim FIM canvas factory
    * @param jpegFile JPEG file, loaded into a byte array
    */
-  public static createFromJpeg(fim: Fim, jpegFile: Uint8Array): Promise<FimCanvas> {
+  public static createFromJpegAsync(fim: Fim, jpegFile: Uint8Array): Promise<FimCanvas> {
     // Create a Blob holding the binary data and load it onto an HTMLImageElement
     let blob = new Blob([jpegFile], { type: 'image/jpeg' });
-    return FimCanvas.createFromImageBlob(fim, blob);
+    return _FimCanvas.createFromImageBlobAsync(fim, blob);
   }
 
   /**
    * Creates a FimCanvas from a Blob containing an image
+   * @param fim FIM canvas factory
    * @param blob Blob of type 'image/*'
    */
-  public static async createFromImageBlob(fim: Fim, blob: Blob): Promise<FimCanvas> {
+  public static async createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
       let url = (URL || webkitURL).createObjectURL(blob);
       let img = new Image();
@@ -283,17 +297,5 @@ export class FimCanvas extends FimCanvasBase implements IFimCanvas {
         reject(err);
       };
     });
-  }
-}
-
-/** Internal version of the class only for unit testing */
-export class _FimCanvas extends FimCanvas {
-  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
-    super(fim, width, height, initialColor);
-  }
-
-  public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: IFimRgbaBuffer, srcCoords?: FimRect,
-      destCoords?: FimRect): Promise<void> {
-    return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
   }
 }
