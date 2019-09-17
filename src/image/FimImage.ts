@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFim } from '../Fim';
+import { IFim, Fim } from '../Fim';
 import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
 import { IDisposable } from '@leosingleton/commonlibs';
@@ -44,7 +44,7 @@ export abstract class FimImage implements IFimImage {
    * @param maxDimension Image implementations, particularly in WebGL, may have maximum supported dimensions. If the
    *    requested width or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(fim: IFim, width: number, height: number, maxDimension = 0) {
+  public constructor(fim: Fim, width: number, height: number, maxDimension = 0) {
     this.w = width = Math.floor(width);
     this.h = height = Math.floor(height);
     this.imageDimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
@@ -68,7 +68,7 @@ export abstract class FimImage implements IFimImage {
   public readonly imageDimensions: FimRect;
 
   // IFimImage implementation
-  public readonly fim: IFim;
+  public readonly fim: Fim;
   public readonly realDimensions: FimRect;
   public readonly downscaleRatio: number;
   public readonly imageId: number;

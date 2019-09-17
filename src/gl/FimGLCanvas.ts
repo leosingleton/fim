@@ -7,13 +7,13 @@ import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { IFimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
-import { IFim } from '../Fim';
+import { Fim } from '../Fim';
 import { ContextLost } from '../debug/ContextLost';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
-import { FimCanvasBase, FimDefaultOffscreenCanvasFactory, IFimCanvasBase } from '../image/FimCanvasBase';
-import { FimRgbaBuffer, IFimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { FimCanvasBase, IFimCanvasBase } from '../image/FimCanvasBase';
+import { IFimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
@@ -79,18 +79,13 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
    * @param width Width, in pixels
    * @param height Height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
-   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
-   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
-   *    and uses Chrome's OffscreenCanvas functionality if supported.
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string,
-      offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ? FimDefaultOffscreenCanvasFactory : null,
-      quality = 1) {
+  constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
-    let caps = FimGLCapabilities.getCapabilities(fim, offscreenCanvasFactory);
+    let caps = FimGLCapabilities.getCapabilities(fim);
     let maxDimension = caps.maxRenderBufferSize;
 
     // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
@@ -107,7 +102,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
     }
 
     // Call the parent constructor
-    super(fim, width, height, offscreenCanvasFactory, maxDimension);
+    super(fim, width, height, maxDimension);
 
     // Report telemetry for debugging
     recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
@@ -244,7 +239,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.fim, this.w, this.h, null, this.offscreenCanvasFactory);
+    let dupe = new FimCanvas(this.fim, this.w, this.h);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -343,7 +338,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
 
 /** Internal-only version of the FimGLCanvas class */
 export class _FimGLCanvas extends FimGLCanvas {
-  public constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
     super(fim, width, height, initialColor);
   }
 }

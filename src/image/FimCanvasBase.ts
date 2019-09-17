@@ -4,41 +4,14 @@
 
 import { FimImage, IFimImage } from './FimImage';
 import { IFimCanvas } from './FimCanvas';
-import { IFim } from '../Fim';
-import { FimConfig } from '../debug/FimConfig';
+import { FimDomCanvasFactory } from './FimCanvasFactory';
+import { Fim } from '../Fim';
 import { recordDrawImage } from '../debug/FimStats';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, using } from '@leosingleton/commonlibs';
 
-/**
- * Factory method to create OffscreenCanvas objects. These could be Chrome's OffscreenCanvas support, or a mock object
- * to support NodeJS or other platforms.
- * @param width Width of the canvas, in pixels
- * @param height Height of the canvas, in pixels
- * @returns OffscreenCanvas object
- */
-export type FimOffscreenCanvasFactory = (width: number, height: number) => OffscreenCanvas;
-
-/**
- * Constructs an OffscreenCanvas using Chrome's implementation. Be sure to check FimCanvasBase.supportsOffscreenCanvas
- * before calling this function.
- * @param width Width of the canvas, in pixels
- * @param height Height of the canvas, in pixels
- * @returns OffscreenCanvas object
- */
-export function FimDefaultOffscreenCanvasFactory(width: number, height: number): OffscreenCanvas {
-  // Use Chrome's OffscreenCanvas object
-  if (!FimCanvasBase.supportsOffscreenCanvas) {
-    // The browser does not support OffscreenCanvas
-    throw new Error('No OffScreenCanvas');
-  }
-
-  // uglify-js is not yet aware of OffscreenCanvas and name mangles it
-  // @nomangle OffscreenCanvas convertToBlob
-  return new OffscreenCanvas(width, height);
-}
-
+/** Base interface for IFimCanvas and IFimGLCanvas */
 export interface IFimCanvasBase extends IFimImage {
   /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
   getCanvas(): HTMLCanvasElement | OffscreenCanvas;
@@ -70,38 +43,17 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
    * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
-   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
-   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
-   *    and uses Chrome's OffscreenCanvas functionality if supported.
    * @param maxDimension WebGL framebuffers have maximum sizes, which can be as low as 2048x2048. If the canvas width
    *    or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(fim: IFim, width: number, height: number, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
-      FimDefaultOffscreenCanvasFactory : null, maxDimension = 0) {
+  public constructor(fim: Fim, width: number, height: number, maxDimension = 0) {
     // Call the parent constructor. Read the new dimensions as they may get downscaled.
     super(fim, width, height, maxDimension);
+
     let realDimensions = this.realDimensions;
-
-    // We have an option to disable offscreen canvas support via the query string. This can be useful for debugging,
-    // since regular canvases can be made visible in the browser's debugging tools.
-    let enableOC = FimConfig.config.enableOffscreenCanvas;
-
-    let useOffscreenCanvas = (offscreenCanvasFactory !== null) && enableOC;
-    if (useOffscreenCanvas) {
-      this.canvasElement = offscreenCanvasFactory(realDimensions.w, realDimensions.h);
-    } else {
-      // Create a hidden canvas
-      let canvas = document.createElement('canvas');
-      canvas.width = realDimensions.w;
-      canvas.height = realDimensions.h;
-      canvas.style.display = 'none';
-      canvas.id = `fim${this.imageId}`;
-      document.body.appendChild(canvas);
-      this.canvasElement = canvas;
-    }
-
-    this.offscreenCanvas = useOffscreenCanvas;
-    this.offscreenCanvasFactory = useOffscreenCanvas ? offscreenCanvasFactory : null;
+    let canvasFactory = fim.canvasFactory;
+    this.canvasElement = canvasFactory(realDimensions.w, realDimensions.h, `fim${this.imageId}`);
+    this.offscreenCanvas = canvasFactory !== FimDomCanvasFactory;
   }
 
   /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
@@ -121,9 +73,6 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
 
   /** True if this object is backed by an OffscreenCanvas; false for a standard 2D canvas */
   public readonly offscreenCanvas: boolean;
-
-  /** If offscreenCanvas is true, a reference to the factory object used to create the canvas */
-  public readonly offscreenCanvasFactory: FimOffscreenCanvasFactory;
 
   // IFimCanvasBase implementation
   public abstract duplicateCanvas(): IFimCanvas;

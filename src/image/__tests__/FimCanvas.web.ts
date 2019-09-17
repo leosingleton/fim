@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvas, _FimCanvas } from '../FimCanvas';
-import { FimOffscreenCanvasFactory, FimDefaultOffscreenCanvasFactory } from '../FimCanvasBase';
 import { IFimRgbaBuffer } from '../FimRgbaBuffer';
 import { Fim } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
@@ -11,14 +10,15 @@ import { FimTestPatterns } from '../../debug/FimTestPatterns';
 import { FimRect } from '../../primitives/FimRect';
 import { FimColor } from '../../primitives/FimColor';
 import { DisposableSet, SeededRandom, using, usingAsync } from '@leosingleton/commonlibs';
+import { FimOffscreenCanvasFactory, FimDomCanvasFactory, FimCanvasFactory } from '../FimCanvasFactory';
 
-function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
+function spec(canvasFactory: FimCanvasFactory) {
   return () => {
     it('Creates and disposes', () => {
-      using(new Fim(), fim => {
-        let b = new FimCanvas(fim, 640, 480, undefined, offscreenCanvasFactory);
+      using(new Fim(canvasFactory), fim => {
+        let b = new FimCanvas(fim, 640, 480);
         expect(b.getCanvas()).toBeDefined();
-        expect(b.offscreenCanvas).toBe(offscreenCanvasFactory !== null);
+        expect(b.offscreenCanvas).toBe(canvasFactory === FimOffscreenCanvasFactory);
   
         b.dispose();
         expect(b.getCanvas()).toBeUndefined();
@@ -30,20 +30,20 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     });
 
     it('Fills with initial value', () => {
-      using(new Fim(), fim => {
+      using(new Fim(canvasFactory), fim => {
         let color = FimColor.fromString('#abc');
-        using(new FimCanvas(fim, 640, 480, color, offscreenCanvasFactory), buffer => {
+        using(new FimCanvas(fim, 640, 480, color), buffer => {
           expect(buffer.getPixel(134, 413)).toEqual(color);
         });  
       });
     });
 
     it('Gets and sets pixel colors', () => {
-      using(new Fim(), fim => {
+      using(new Fim(canvasFactory), fim => {
         let color1 = FimColor.fromString('#123');
         let color2 = FimColor.fromString('#aaa');
   
-        using(new FimCanvas(fim, 640, 480, color1, offscreenCanvasFactory), buffer => {
+        using(new FimCanvas(fim, 640, 480, color1), buffer => {
           buffer.setPixel(555, 123, color2);
           expect(buffer.getPixel(134, 413)).toEqual(color1);
           expect(buffer.getPixel(555, 123)).toEqual(color2);
@@ -52,11 +52,11 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     });
 
     it('Copies full image', () => {
-      using(new Fim(), fim => {
+      using(new Fim(canvasFactory), fim => {
         let color1 = FimColor.fromString('#def');
         let color2 = FimColor.fromString('#1234');
-        using(new FimCanvas(fim, 640, 480, color1, offscreenCanvasFactory), src => {
-          using(new FimCanvas(fim, 640, 480, undefined, offscreenCanvasFactory), dest => {
+        using(new FimCanvas(fim, 640, 480, color1), src => {
+          using(new FimCanvas(fim, 640, 480), dest => {
             // Copy src to dest
             dest.copyFrom(src);
   
@@ -71,9 +71,9 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     });
 
     it('Copies to destination coordinates', () => {
-      using(new Fim(), fim => {
-        using(new FimCanvas(fim, 200, 200, undefined, offscreenCanvasFactory), dest => {
-          using(new FimCanvas(fim, 100, 100, undefined, offscreenCanvasFactory), src => {
+      using(new Fim(canvasFactory), fim => {
+        using(new FimCanvas(fim, 200, 200), dest => {
+          using(new FimCanvas(fim, 100, 100), src => {
             // Top-left => red
             src.fillCanvas('#f00');
             dest.copyFrom(src, src.imageDimensions, FimRect.fromXYWidthHeight(0, 0, 100, 100));
@@ -110,7 +110,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
 
       // Create an RGBA buffer and fill it with gradiant values
       await DisposableSet.usingAsync(async disposable => {
-        let fim = disposable.addDisposable(new Fim());
+        let fim = disposable.addDisposable(new Fim(canvasFactory));
         let src = disposable.addDisposable(fim.createRgbaBuffer(100, 100));
         for (let x = 0; x < 100; x++) {
           for (let y = 0; y < 100; y++) {
@@ -119,7 +119,7 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
         }
 
         // Copy the RGBA buffer to an FimCanvas
-        let dest = disposable.addDisposable(new _FimCanvas(fim, 100, 100, undefined, offscreenCanvasFactory));
+        let dest = disposable.addDisposable(new _FimCanvas(fim, 100, 100));
         await copy(dest, src);
 
         // Ensure the two are the same
@@ -153,14 +153,14 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
       await DisposableSet.usingAsync(async disposable => {
         // Create a buffer and fill it with gradient values. For speed, fill an RGBA buffer then copy it to the canvas.
         // FimCanvas.setPixel() is very slow.
-        let fim = disposable.addDisposable(new Fim());
-        let orig = disposable.addDisposable(new FimCanvas(fim, 300, 300, undefined, offscreenCanvasFactory));
+        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let orig = disposable.addDisposable(new FimCanvas(fim, 300, 300));
         let temp = disposable.addDisposable(fim.createRgbaBuffer(300, 300));
         FimTestPatterns.render(temp, FimTestPatterns.horizontalGradient);
         await orig.copyFrom(temp);
     
         // Copy the center 100x100 to another buffer
-        let crop = disposable.addDisposable(new FimCanvas(fim, 300, 300, '#000', offscreenCanvasFactory));
+        let crop = disposable.addDisposable(new FimCanvas(fim, 300, 300, '#000'));
         let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
         crop.copyFrom(orig, rect, rect);
     
@@ -186,8 +186,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
       let jpeg = FimTestImages.fourSquaresJpeg();
 
       // Decompress the image
-      await usingAsync(new Fim(), async fim => {
-        using(await FimCanvas.createFromJpeg(fim, jpeg, offscreenCanvasFactory), canvas => {
+      await usingAsync(new Fim(canvasFactory), async fim => {
+        using(await FimCanvas.createFromJpeg(fim, jpeg), canvas => {
           expect(canvas.w).toEqual(128);
           expect(canvas.h).toEqual(128);
   
@@ -207,8 +207,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     });
 
     it('Encodes PNGs', async () => {
-      await usingAsync(new Fim(), async fim => {
-        await usingAsync(new FimCanvas(fim, 320, 320, '#f00', offscreenCanvasFactory), async canvas => {
+      await usingAsync(new Fim(canvasFactory), async fim => {
+        await usingAsync(new FimCanvas(fim, 320, 320, '#f00'), async canvas => {
           // Write to PNG
           let png = await canvas.toPng();
   
@@ -222,8 +222,8 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
     });
 
     it('Encodes JPEGs', async () => {
-      await usingAsync(new Fim(), async fim => {
-        await usingAsync(new FimCanvas(fim, 320, 320, '#f00', offscreenCanvasFactory), async canvas => {
+      await usingAsync(new Fim(canvasFactory), async fim => {
+        await usingAsync(new FimCanvas(fim, 320, 320, '#f00'), async canvas => {
           // Write to JPEG
           let jpeg = await canvas.toJpeg();
   
@@ -237,9 +237,9 @@ function spec(offscreenCanvasFactory: FimOffscreenCanvasFactory) {
   };
 }
 
-describe('FimCanvas(OffscreenCanvas=false)', spec(null));
+describe('FimCanvas(OffscreenCanvas=false)', spec(FimDomCanvasFactory));
 
 // Only run OffscreenCanvas tests on browsers that support it
 if (FimCanvas.supportsOffscreenCanvas) {
-  describe('FimCanvas(OffscreenCanvas=true)', spec(FimDefaultOffscreenCanvasFactory));
+  describe('FimCanvas(OffscreenCanvas=true)', spec(FimOffscreenCanvasFactory));
 }

@@ -27,7 +27,7 @@ class SampleProcessor extends FimGLImageProcessor {
     super(fim, width, height);
 
     // Initialize the preserved texture to black
-    using(new FimCanvas(fim, width, height, '#000'), black => {
+    using(new FimCanvas(fim as Fim, width, height, '#000'), black => {
       let texture = this.getPreservedTexture(ObjectID.Texture);
       texture.copyFrom(black);
     })

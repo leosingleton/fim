@@ -103,7 +103,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
    */
-  constructor(glCanvas: IFimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+  constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
     let fim = glCanvas.fim;
     let originalOptions = options;
 
@@ -382,7 +382,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
    * @param srcImage Source image
    * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
    */
-  public static createFrom(canvas: IFimGLCanvas, srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas |
+  public static createFrom(canvas: FimGLCanvas, srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas |
       IFimGLCanvas, extraFlags = FimGLTextureFlags.None): FimGLTexture {
     // Calculate parameters with defaults and extras
     let channels = (srcImage instanceof FimGreyscaleBuffer) ? FimColorChannels.Greyscale : FimColorChannels.RGBA;
@@ -452,7 +452,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
 
 /** Internal-only version of the FimGLTexture class */
 export class _FimGLTexture extends FimGLTexture {
-  public constructor(glCanvas: IFimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+  public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
     super(glCanvas, width, height, options);
   }
 }

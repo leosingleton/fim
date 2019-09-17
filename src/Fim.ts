@@ -45,7 +45,8 @@ export class Fim implements IFim {
    *    we check the browser's capabilities, and use Chrome's OffscreenCanvas functionality if supported, otherwise we
    *    create a canvas on the DOM.
    */
-  public constructor(canvasFactory = Fim.supportsOffscreenCanvas ? FimOffscreenCanvasFactory : FimDomCanvasFactory) {
+  public constructor(canvasFactory: FimCanvasFactory = Fim.supportsOffscreenCanvas ? FimOffscreenCanvasFactory :
+      FimDomCanvasFactory) {
     // We have an option to disable offscreen canvas support via the query string. This can be useful for debugging,
     // since regular canvases can be made visible in the browser's debugging tools.
     let enableOC = FimConfig.config.enableOffscreenCanvas;

@@ -5,7 +5,7 @@
 import { FimCanvas, IFimCanvas } from './FimCanvas';
 import { FimGreyscaleBuffer, IFimGreyscaleBuffer } from './FimGreyscaleBuffer';
 import { FimImage, IFimImage } from './FimImage';
-import { IFim } from '../Fim';
+import { Fim } from '../Fim';
 import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
@@ -63,7 +63,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this color.
    */
-  protected constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+  protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
     super(fim, width, height);
     this._buffer = new Uint8ClampedArray(width * height * 4);
 
@@ -153,7 +153,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
       this.copyFromCanvasInternal(srcImage, srcCoords);
     } else {
       // Slow case: Use a temporary canvas.
-      using(new FimCanvas(this.fim, destCoords.w, destCoords.h, null, srcImage.offscreenCanvasFactory), canvas => {
+      using(new FimCanvas(this.fim, destCoords.w, destCoords.h), canvas => {
         canvas.copyFrom(srcImage, origSrcCoords);
         this.copyFromCanvasInternal(canvas, canvas.realDimensions);
       });
@@ -281,7 +281,7 @@ export class FimRgbaBuffer extends FimImage implements IFimRgbaBuffer {
 
 /** Internal-only version of the FimGreyscaleBuffer class */
 export class _FimRgbaBuffer extends FimRgbaBuffer {
-  public constructor(fim: IFim, width: number, height: number, initialColor?: FimColor | string) {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
     super(fim, width, height, initialColor);
   }
 }
