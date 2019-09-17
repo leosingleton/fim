@@ -3,27 +3,27 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramDownscale } from '../FimGLProgramDownscale';
-import { FimGLCanvas } from '../../FimGLCanvas';
-import { FimGLTexture, FimGLTextureFlags } from '../../FimGLTexture';
+import { FimGLTextureFlags } from '../../FimGLTexture';
+import { Fim } from '../../../Fim';
 import { FimTestPatterns } from '../../../debug/FimTestPatterns';
-import { FimCanvas } from '../../../image/FimCanvas';
-import { FimRgbaBuffer } from '../../../image/FimRgbaBuffer';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 async function testDownscale(ratio: number): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
+    let fim = disposable.addDisposable(new Fim());
+
     // Build the test pattern
-    let testBuffer = disposable.addDisposable(new FimRgbaBuffer(512, 16));
+    let testBuffer = disposable.addDisposable(fim.createRgbaBuffer(512, 16));
     FimTestPatterns.render(testBuffer, FimTestPatterns.downscaleStress);
 
     // Copy the test pattern to a canvas and draw it
-    let test = disposable.addDisposable(new FimCanvas(testBuffer.w, testBuffer.h));
+    let test = disposable.addDisposable(fim.createCanvas(testBuffer.w, testBuffer.h));
     await test.copyFromAsync(testBuffer);
 
-    let canvas = disposable.addDisposable(new FimGLCanvas(512 / ratio, 16));
+    let canvas = disposable.addDisposable(fim.createGLCanvas(512 / ratio, 16));
     let program = disposable.addDisposable(new FimGLProgramDownscale(canvas, ratio, 1));
     let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
-    let texture = disposable.addDisposable(FimGLTexture.createFrom(canvas, test, flags));
+    let texture = disposable.addDisposable(canvas.createTextureFrom(test, flags));
 
     program.setInputs(texture);
     program.execute();

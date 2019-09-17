@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimGLError } from '../gl/FimGLError';
 import { AsyncManualResetEvent } from '@leosingleton/commonlibs';
 
 export namespace ContextLost {
   /** Forces a WebGL context loss for test purposes */
-  export function loseContextAsync(glCanvas: FimGLCanvas): Promise<void> {
+  export function loseContextAsync(glCanvas: IFimGLCanvas): Promise<void> {
     // The WebGL extension to simulate context loss doesn't exectute the handlers before resuming JavaScript execution.
     // Work around this by registering a handler and waiting on it.
     let contextLostEvent = new AsyncManualResetEvent();
@@ -28,7 +28,7 @@ export namespace ContextLost {
   }
 
   /** Forces the WebGL context to be restored for test purposes */
-  export function restoreContextAsync(glCanvas: FimGLCanvas): Promise<void> {
+  export function restoreContextAsync(glCanvas: IFimGLCanvas): Promise<void> {
     // restoreContext() doesn't seem to have the same problem as loseContext(), but we also wait on the handler for
     // consistency.
     let contextRestoredEvent = new AsyncManualResetEvent();
@@ -49,7 +49,7 @@ export namespace ContextLost {
    * @param interval Interval of WebGL context loss, in seconds. The context is automatically restored one second
    *    later, then the interval repeats.
    */
-  export function simulateContextLoss(gl: FimGLCanvas, interval: number): void {
+  export function simulateContextLoss(gl: IFimGLCanvas, interval: number): void {
     async function loseContext(): Promise<void> {
       await ContextLost.loseContextAsync(gl);
       setTimeout(restoreContext, 1000);

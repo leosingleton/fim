@@ -3,12 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimConfig } from './FimConfig';
-import { FimImage } from '../image/FimImage';
-import { FimGLTexture } from '../gl/FimGLTexture';
+import { FimImage, IFimImage } from '../image/FimImage';
+import { FimGLTexture, IFimGLTexture } from '../gl/FimGLTexture';
 import { FimGLProgram, UniformDefinitionMap } from '../gl/FimGLProgram';
-import { FimGLPreservedTexture } from '../gl/processor/FimGLPreservedTexture';
 import { FimRect } from '../primitives/FimRect';
-import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { IFimGLCanvas } from '../gl/FimGLCanvas';
 
 /** Object types that we track statistics on */
 export const enum FimObjectType {
@@ -148,7 +147,7 @@ let totalMemory = 0;
  * @param src Source image
  * @param dest Destination texture
  */
-export function recordTexImage2D(src: FimImage, dest: FimGLTexture): void {
+export function recordTexImage2D(src: IFimImage, dest: IFimGLTexture): void {
   if (FimConfig.config.debugLoggingEnabled) {
     let srcClassName = getClassName(src);
     let destClassName = getClassName(dest);
@@ -164,7 +163,7 @@ export function recordTexImage2D(src: FimImage, dest: FimGLTexture): void {
  * @param outputTexture Output texture or WebGL canvas
  */
 export function recordWebGLRender(program: FimGLProgram, uniforms: UniformDefinitionMap, destCoords: FimRect,
-    outputTexture: FimGLTexture | FimGLPreservedTexture | FimGLCanvas): void {
+    outputTexture: IFimGLTexture | IFimGLCanvas): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
     let className = getClassName(program);
@@ -180,7 +179,7 @@ export function recordWebGLRender(program: FimGLProgram, uniforms: UniformDefini
           inputTextures += ', ';
         }
 
-        let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
+        let t = uniform.variableValue as FimGLTexture;
         let textureClassName = getClassName(t);
         inputTextures += `${textureClassName} (${t.imageId})`;
       }

@@ -2,42 +2,49 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGreyscaleBuffer } from '../FimGreyscaleBuffer';
+import { Fim } from '../../Fim';
 import { FimRect } from '../../primitives/FimRect';
 import { using, DisposableSet } from '@leosingleton/commonlibs';
 
 describe('FimGreyscaleBuffer', () => {
 
   it('Creates and disposes', () => {
-    let b = new FimGreyscaleBuffer(640, 480);
-    expect(b.getBuffer().length).toEqual(640 * 480);
-
-    b.dispose();
-    expect(b.getBuffer()).toBeUndefined();
-
-    // Double-dispose
-    b.dispose();
-    expect(b.getBuffer()).toBeUndefined();
+    using(new Fim(), fim => {
+      let b = fim.createGreyscaleBuffer(640, 480);
+      expect(b.getBuffer().length).toEqual(640 * 480);
+  
+      b.dispose();
+      expect(b.getBuffer()).toBeUndefined();
+  
+      // Double-dispose
+      b.dispose();
+      expect(b.getBuffer()).toBeUndefined();  
+    });
   });
 
   it('Fills with initial value', () => {
-    using(new FimGreyscaleBuffer(640, 480, 42), buffer => {
-      expect(buffer.getPixel(134, 413)).toEqual(42);
+    using(new Fim(), fim => {
+      using(fim.createGreyscaleBuffer(640, 480, 42), buffer => {
+        expect(buffer.getPixel(134, 413)).toEqual(42);
+      });  
     });
   });
 
   it('Gets and sets pixel colors', () => {
-    using(new FimGreyscaleBuffer(640, 480, 12), buffer => {
-      buffer.setPixel(555, 123, 233);
-      expect(buffer.getPixel(134, 413)).toEqual(12);
-      expect(buffer.getPixel(555, 123)).toEqual(233);
+    using(new Fim(), fim => {
+      using(fim.createGreyscaleBuffer(640, 480, 12), buffer => {
+        buffer.setPixel(555, 123, 233);
+        expect(buffer.getPixel(134, 413)).toEqual(12);
+        expect(buffer.getPixel(555, 123)).toEqual(233);
+      });  
     });
   });
 
   it('Copies to destination coordinates', () => {
     DisposableSet.using(disposable => {
-      let dest = disposable.addDisposable(new FimGreyscaleBuffer(200, 200));
-      let src = disposable.addDisposable(new FimGreyscaleBuffer(100, 100));
+      let fim = disposable.addDisposable(new Fim());
+      let dest = disposable.addDisposable(fim.createGreyscaleBuffer(200, 200));
+      let src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
 
       // Top-left => 0
       src.fillCanvas(0);

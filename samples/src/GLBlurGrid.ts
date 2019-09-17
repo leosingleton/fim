@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1D, GaussianKernel,
-  ImageGrid } from '../../build/dist/index.js';
+import { fim } from './Common';
+import { FimGLProgramMatrixOperation1D, GaussianKernel, ImageGrid } from '../../build/dist/index.js';
 import { Stopwatch, TaskScheduler, parseQueryString } from '@leosingleton/commonlibs';
 
 const kernelSize = 31;
@@ -18,7 +18,7 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
   let jpeg = await fetchResponse.arrayBuffer();
 
   // Load the JPEG onto a FimCanvas
-  let canvas = await FimCanvas.createFromJpeg(new Uint8Array(jpeg));
+  let canvas = await fim.createCanvasFromJpegAsync(new Uint8Array(jpeg));
 
   // Get the output canvas and scale it to the same size as the input
   let output = document.getElementById(canvasId) as HTMLCanvasElement;
@@ -32,13 +32,13 @@ export async function glBlurGrid(canvasId: string): Promise<void> {
 
   // Create a WebGL canvas and program to perform Gaussian blurs. We'll process everything as 2048x2048 tiles,
   // regardless of the input and output dimensions.
-  let gl = new FimGLCanvas(tileSize, tileSize);
+  let gl = fim.createGLCanvas(tileSize, tileSize);
   let program = new FimGLProgramMatrixOperation1D(gl, kernelSize);
 
   // Break the large image into 2048x2048 pieces for processing
   let grid = new ImageGrid(canvas.w, canvas.h, gl.w, gl.h, kernelSize * reps);
-  let input = new FimCanvas(gl.w, gl.h);
-  let texture = new FimGLTexture(gl, gl.w, gl.h);
+  let input = fim.createCanvas(gl.w, gl.h);
+  let texture = gl.createTexture();
   console.log(`Tiles=${grid.tiles.length} Efficiency=${grid.getEfficiency()}`);
 
   // Animation loop

@@ -2,11 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
+import { IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLProgram } from '../FimGLProgram';
-import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
-import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
+import { IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 
 /** GL program to downscale a texture to a lower resolution */
 export class FimGLProgramDownscale extends FimGLProgram {
@@ -16,7 +15,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
    * @param xRatio Downscale ratio of the x-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    * @param yRatio Downscale ratio of the y-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    */
-  constructor(canvas: FimGLCanvas, xRatio: number, yRatio: number) {
+  constructor(canvas: IFimGLCanvas, xRatio: number, yRatio: number) {
     let fragmentShader = require('./glsl/Downscale.glsl');
     super(canvas, fragmentShader);
 
@@ -28,7 +27,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture): void {
+  public setInputs(inputTexture: IFimGLTexture): void {
     // Ensure the input texture has linear filtering enabled
     if ((inputTexture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
       throw new FimGLError(FimGLErrorCode.AppError, 'NotLinear');

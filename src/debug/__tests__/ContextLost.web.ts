@@ -3,35 +3,37 @@
 // See LICENSE in the project root for license information.
 
 import { ContextLost } from '../ContextLost';
-import { FimGLCanvas } from '../../gl/FimGLCanvas';
+import { Fim } from '../../Fim';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 describe('ContextLost', () => {
 
   it('Simulates losing context and restoring', async () => {
-    await usingAsync(new FimGLCanvas(640, 480), async gl => {
-      // Register handlers to detect context lost
-      let contextLost: boolean;
-      let contextRestored: boolean;
-      gl.registerForContextLost(() => contextLost = true);
-      gl.registerForContextRestored(() => contextRestored = true);
+    await usingAsync(new Fim(), async fim => {
+      await usingAsync(fim.createGLCanvas(640, 480), async gl => {
+        // Register handlers to detect context lost
+        let contextLost: boolean;
+        let contextRestored: boolean;
+        gl.registerForContextLost(() => contextLost = true);
+        gl.registerForContextRestored(() => contextRestored = true);
 
-      // Repeat the test 3 times
-      for (let n = 0; n < 3; n++) {
-        contextLost = contextRestored = false;
+        // Repeat the test 3 times
+        for (let n = 0; n < 3; n++) {
+          contextLost = contextRestored = false;
 
-        // Simulate a context loss
-        await ContextLost.loseContextAsync(gl);
-        expect(contextLost).toBeTruthy();
-        expect(contextRestored).toBeFalsy();
-        expect(gl.isContextLost()).toBeTruthy();
+          // Simulate a context loss
+          await ContextLost.loseContextAsync(gl);
+          expect(contextLost).toBeTruthy();
+          expect(contextRestored).toBeFalsy();
+          expect(gl.isContextLost()).toBeTruthy();
 
-        // Simulate a context restored
-        await ContextLost.restoreContextAsync(gl);
-        expect(contextLost).toBeTruthy();
-        expect(contextRestored).toBeTruthy();
-        expect(gl.isContextLost()).toBeFalsy();
-      }
+          // Simulate a context restored
+          await ContextLost.restoreContextAsync(gl);
+          expect(contextLost).toBeTruthy();
+          expect(contextRestored).toBeTruthy();
+          expect(gl.isContextLost()).toBeFalsy();
+        }
+      });
     });
   });
 

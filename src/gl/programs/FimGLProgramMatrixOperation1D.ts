@@ -2,17 +2,16 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from '../FimGLCanvas';
+import { IFimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLShader } from '../FimGLShader';
-import { FimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
+import { IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
-import { FimGLPreservedTexture } from '../processor/FimGLPreservedTexture';
 import { using } from '@leosingleton/commonlibs';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLProgramMatrixOperation1D extends FimGLProgram {
-  constructor(canvas: FimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
+  constructor(canvas: IFimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
     fragmentShader = fragmentShader || require('./glsl/MatrixOperation1D.glsl');
     super(canvas, fragmentShader);
 
@@ -25,13 +24,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   /** Size of the kernel */
   public readonly kernelSize: number;
 
-  public setInputs(inputTexture: FimGLTexture | FimGLPreservedTexture, kernel: number[],
-      tempTexture?: FimGLTexture): void {
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (inputTexture instanceof FimGLPreservedTexture) {
-      inputTexture = inputTexture.getTexture();
-    }
-
+  public setInputs(inputTexture: IFimGLTexture, kernel: number[], tempTexture?: IFimGLTexture): void {
     this.inputTexture = inputTexture;
     this.tempTexture = tempTexture;
 
@@ -42,14 +35,9 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     this.fragmentShader.uniforms.u_kernel.variableValue = kernel;
   }
 
-  public execute(outputTexture?: FimGLTexture | FimGLPreservedTexture): void {
+  public execute(outputTexture?: IFimGLTexture): void {
     let gl = this.glCanvas;
 
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (outputTexture instanceof FimGLPreservedTexture) {
-      outputTexture = outputTexture.getTexture();
-    }
-    
     if (this.tempTexture) {
       this.executeInternal(this.tempTexture, outputTexture);
     } else {
@@ -60,13 +48,13 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
       let flags = inputTexture.textureOptions.textureFlags & ~FimGLTextureFlags.InputOnly;
 
       let outTexture = outputTexture;
-      using(new FimGLTexture(gl, width, height, { textureFlags: flags }), temp => {
+      using(gl.createTexture(width, height, { textureFlags: flags }), temp => {
         this.executeInternal(temp, outTexture);
       });
     }
   }
 
-  private executeInternal(tempTexture: FimGLTexture, outputTexture?: FimGLTexture): void {
+  private executeInternal(tempTexture: IFimGLTexture, outputTexture?: IFimGLTexture): void {
     let uniforms = this.fragmentShader.uniforms;
 
     // Make the first pass in the X direction
@@ -83,6 +71,6 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     super.execute(outputTexture);
   }
 
-  private inputTexture: FimGLTexture;
-  private tempTexture?: FimGLTexture;
+  private inputTexture: IFimGLTexture;
+  private tempTexture?: IFimGLTexture;
 }

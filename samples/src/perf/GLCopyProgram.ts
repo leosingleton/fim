@@ -2,9 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loadTestImage, perfTest, renderOutput, recordPerformanceValue } from '../Common';
-import { FimBitsPerPixel, FimGLCanvas, FimGLTexture, FimGLTextureFlags,
-  FimGLProgramCopy } from '../../../build/dist/index.js';
+import { fim, loadTestImage, perfTest, renderOutput, recordPerformanceValue } from '../Common';
+import { FimBitsPerPixel, FimGLTextureFlags, FimGLProgramCopy } from '../../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfGLCopyProgram(): Promise<void> {
@@ -19,8 +18,8 @@ export async function perfGLCopyProgram(): Promise<void> {
         flags |= linearSampling ? FimGLTextureFlags.LinearSampling : 0;
         flags |= inputOnly ? FimGLTextureFlags.InputOnly : 0;
         
-        let gl = disposable.addDisposable(new FimGLCanvas(canvasWidth, canvasHeight));
-        let t = disposable.addDisposable(new FimGLTexture(gl, textureWidth, textureHeight,
+        let gl = disposable.addDisposable(fim.createGLCanvas(canvasWidth, canvasHeight));
+        let t = disposable.addDisposable(gl.createTexture(textureWidth, textureHeight,
           { bpp: FimBitsPerPixel.BPP8, textureFlags: flags }));
         t.copyFrom(srcImage);
         let program = disposable.addDisposable(new FimGLProgramCopy(gl));

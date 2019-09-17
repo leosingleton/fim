@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './FimGLCanvas';
+import { IFimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
-import { FimGLTexture } from './FimGLTexture';
+import { FimGLTexture, IFimGLTexture, _FimGLTexture } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
 import { FimObjectType, recordCreate, recordDispose, recordWebGLRender } from '../debug/FimStats';
 import { Transform2D } from '../math/Transform2D';
@@ -41,7 +41,7 @@ export type UniformDefinitionMap = { [name: string]: UniformDefinition };
  *    execute().
  */
 export abstract class FimGLProgram implements IDisposable {
-  constructor(canvas: FimGLCanvas, fragmentShader: GlslShader, vertexShader = defaultVertexShader) {
+  constructor(canvas: IFimGLCanvas, fragmentShader: GlslShader, vertexShader = defaultVertexShader) {
     this.glCanvas = canvas;
     this.gl = canvas.gl;
 
@@ -226,13 +226,8 @@ export abstract class FimGLProgram implements IDisposable {
    *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
    *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
    */
-  public execute(outputTexture?: FimGLTexture | FimGLPreservedTexture, destCoords?: FimRect): void {
+  public execute(outputTexture?: IFimGLTexture, destCoords?: FimRect): void {
     let gl = this.gl;
-
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (outputTexture instanceof FimGLPreservedTexture) {
-      outputTexture = outputTexture.getTexture();
-    }
 
     // Validate source texture
     if (outputTexture) {
@@ -299,7 +294,7 @@ export abstract class FimGLProgram implements IDisposable {
 
           // Handle FimGLPreservedTexture by getting the underlying texture
           if (t instanceof FimGLPreservedTexture) {
-            t = t.getTexture();
+            t = t.getTexture() as FimGLTexture;
           }
 
           if (!t.hasImage) {
@@ -364,7 +359,7 @@ export abstract class FimGLProgram implements IDisposable {
 
       if (outputTexture) {
         // The texture now has an image. Set the boolean so it may be used as an input texture in the future.
-        outputTexture.hasImage = true;
+        (outputTexture as _FimGLTexture).hasImage = true;
       }
     } finally {
       // Unbind the program. This doesn't seem to be strictly necessary, but helps to catch bugs.
@@ -380,7 +375,7 @@ export abstract class FimGLProgram implements IDisposable {
         if (uniform.variableType.indexOf('sampler') !== -1) {
           let t = uniform.variableValue as FimGLTexture | FimGLPreservedTexture;
           if (t instanceof FimGLPreservedTexture) {
-            t = t.getTexture(); // Handle FimGLPreservedTexture by getting the underlying texture
+            t = t.getTexture() as FimGLTexture; // Handle FimGLPreservedTexture by getting the underlying texture
           }
           t.unbind(uniform.textureUnit);
         }
@@ -388,7 +383,7 @@ export abstract class FimGLProgram implements IDisposable {
     }
   }
 
-  protected readonly glCanvas: FimGLCanvas;
+  protected readonly glCanvas: IFimGLCanvas;
   protected readonly gl: WebGLRenderingContext;
   protected readonly fragmentShader: FimGLShader;
   protected readonly vertexShader: FimGLShader;

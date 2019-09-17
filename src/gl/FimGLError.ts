@@ -2,11 +2,11 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas } from './FimGLCanvas';
+import { IFimGLCanvas } from './FimGLCanvas';
 
 /** Exception class thrown when a WebGL error occurs */
 export class FimGLError extends Error {
-  constructor(code: FimGLErrorCode, message?: string) {
+  public constructor(code: FimGLErrorCode, message?: string) {
     if (!message) {
       message = code;
     }
@@ -15,9 +15,9 @@ export class FimGLError extends Error {
   }
 
   /** Error code */
-  readonly code: FimGLErrorCode;
+  public readonly code: FimGLErrorCode;
 
-  static throwOnError(gl: WebGLRenderingContext): void {
+  public static throwOnError(gl: WebGLRenderingContext): void {
     let errCode = gl.getError();
     switch (errCode) {
       case gl.NO_ERROR:
@@ -47,7 +47,7 @@ export class FimGLError extends Error {
   }
 
   /** Validates the result of gl.checkFramebufferStatus() and throws on a non-complete value */
-  static throwOnFrameBufferStatus(gl: WebGLRenderingContext, target: number): void {
+  public static throwOnFrameBufferStatus(gl: WebGLRenderingContext, target: number): void {
     let status = gl.checkFramebufferStatus(target);
     let code = FimGLErrorCode.FrameBufferStatus;
     switch (status) {
@@ -72,7 +72,7 @@ export class FimGLError extends Error {
   }
 
   /** Ensures both gl1 and gl2 are the same FimGLCanvas */
-  static throwOnMismatchedGLCanvas(gl1: FimGLCanvas, gl2: FimGLCanvas): void {
+  public static throwOnMismatchedGLCanvas(gl1: IFimGLCanvas, gl2: IFimGLCanvas): void {
     if (gl1.imageId !== gl2.imageId) {
       // WebGL objects such as programs and textures are tied to the specific WebGL canvas on which they were created.
       // You can't just take a texture from one and use it with another.

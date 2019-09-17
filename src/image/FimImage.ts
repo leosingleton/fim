@@ -2,26 +2,53 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { IFim, Fim } from '../Fim';
 import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
 import { IDisposable } from '@leosingleton/commonlibs';
+
+export interface IFimImage extends IDisposable, IFimDimensions {
+  /** FIM canvas factory */
+  readonly fim: IFim;
+
+  /** 
+   * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
+   * constructor.
+   */
+  readonly realDimensions: FimRect;
+
+  /**
+   * Ratio of the downscaled resolution to the original resolution. 1 if the dimensions have not been downscaled.
+   * Member functions which operate on coordinates should multiply values by this ratio to get coordinates of the
+   * underlying image.
+   */
+  readonly downscaleRatio: number;
+
+  /**
+   * A unique ID assigned to each instance of a FimImage object. Useful for debugging, or comparing two images for
+   * equality.
+   */
+  readonly imageId: number;
+}
 
 /**
  * Base class for FIM classes that hold images. Once created, the image dimensions are immutable, however the contents
  * of the image itself may be changed with copyFrom() or other functions.
  */
-export abstract class FimImage implements IDisposable, IFimDimensions {
+export abstract class FimImage implements IFimImage {
   /**
    * Constructor
+   * @param fim FIM canvas factory
    * @param width Image width, in pixels
    * @param height Image height, in pixels
    * @param maxDimension Image implementations, particularly in WebGL, may have maximum supported dimensions. If the
    *    requested width or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(width: number, height: number, maxDimension = 0) {
+  public constructor(fim: Fim, width: number, height: number, maxDimension = 0) {
     this.w = width = Math.floor(width);
     this.h = height = Math.floor(height);
     this.imageDimensions = this.realDimensions = FimRect.fromWidthHeight(width, height);
+    this.fim = fim;
 
     // Some resources, like WebGL textures, have limited dimensions. If the requested width and height exceed this,
     // automatically downscale the requested resolution.
@@ -40,27 +67,15 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   public readonly h: number;
   public readonly imageDimensions: FimRect;
 
-  /** 
-   * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
-   * constructor.
-   */
+  // IFimImage implementation
+  public readonly fim: Fim;
   public readonly realDimensions: FimRect;
-
-  /**
-   * Ratio of the downscaled resolution to the original resolution. 1 if the dimensions have not been downscaled.
-   * Member functions which operate on coordinates should multiply values by this ratio to get coordinates of the
-   * underlying image.
-   */
   public readonly downscaleRatio: number;
-
-  /**
-   * A unique ID assigned to each instance of a FimImage object. Useful for debugging, or comparing two images for
-   * equality.
-   */
   public readonly imageId: number;
 
   private static imageIdCounter = 0;
 
+  // IDisposable implementation
   public abstract dispose(): void;
 
   /**
@@ -80,7 +95,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * source image does not have the same dimensions as this image.
    * @param srcImage Source image
    */
-  protected throwOnMismatchedDimensions(srcImage: FimImage): void {
+  protected throwOnMismatchedDimensions(srcImage: IFimImage): void {
     if (!this.imageDimensions.equals(srcImage.imageDimensions)) {
       throw new Error(`Crop and rescale not supported: ${this.imageDimensions} ${srcImage.imageDimensions}`);
     }
@@ -91,7 +106,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * TypeScript's never type to generate compile-time warnings for unhandled types.
    * @param fimImage Invalid FimImage object
    */
-  protected throwOnInvalidImageKind(fimImage: never): never {
+  protected throwOnInvalidImageKind(fimImage: IFimImage): never {
     throw new Error(`Invalid kind: ${fimImage}`);
   }
 }

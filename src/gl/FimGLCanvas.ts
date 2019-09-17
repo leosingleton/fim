@@ -2,43 +2,105 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCapabilities } from './FimGLCapabilities';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
-import { FimGLTexture } from './FimGLTexture';
+import { FimGLTexture, FimGLTextureOptions, FimGLTextureFlags, IFimGLTexture, _FimGLTexture } from './FimGLTexture';
 import { FimGLProgramCopy } from './programs/FimGLProgramCopy';
 import { FimGLProgramFill } from './programs/FimGLProgramFill';
+import { Fim } from '../Fim';
 import { ContextLost } from '../debug/ContextLost';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
-import { FimCanvas } from '../image/FimCanvas';
-import { FimCanvasBase, FimDefaultOffscreenCanvasFactory } from '../image/FimCanvasBase';
-import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
+import { FimCanvasBase, IFimCanvasBase } from '../image/FimCanvasBase';
+import { IFimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
+import { IFimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
-import { using } from '@leosingleton/commonlibs';
+import { IFimGetPixel } from '../primitives/IFimGetSetPixel';
+
+/** IFimCanvas which leverages WebGL to do accelerated rendering */
+export interface IFimGLCanvas extends IFimCanvasBase, IFimGetPixel {
+  /** Registers a lambda function to be executed on WebGL context lost */
+  registerForContextLost(eventHandler: () => void): void;
+
+  /** Registers a lambda function to be executed on WebGL context restored */
+  registerForContextRestored(eventHandler: () => void): void;
+
+  /** Returns whether the context is currently lost */
+  isContextLost(): boolean;
+
+  /** WebGL rendering context */
+  readonly gl: WebGLRenderingContext;
+
+  /** A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance. */
+  renderQuality: number;
+
+  /**
+   * Determines the color depth for a FimGLTexture. Returns both the bits per pixel and correspoding WebGL constant.
+   * The parameter is supplied as a maximum--the result may be lower than requested depending on WebGL capabilities and
+   * performance.
+   * @param maxBpp Maximum bits per pixel
+   * @param linear True if linear filtering is required; false for nearest
+   * @returns Object with two properties: {
+   *    bpp: FimBitsPerPixel,
+   *    glConstant: FLOAT, HALF_FLOAT_OES, or UNSIGNED_BYTE
+   * }
+   */
+  getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number };
+
+  /**
+   * Copies from a texture. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: IFimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas and HtmlCanvasElement support both cropping and rescaling, while FimRgbaBuffer only supports cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Creates a WebGL texture
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param options See FimGLTextureOptions
+   */
+  createTexture(width?: number, height?: number, options?: FimGLTextureOptions): IFimGLTexture;
+
+  /**
+   * Creates a WebGL texture from another image
+   * @param srcImage Source image
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
+   */
+  createTextureFrom(srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas | IFimGLCanvas,
+    extraFlags?: FimGLTextureFlags): IFimGLTexture;
+}
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
-export class FimGLCanvas extends FimCanvasBase {
+export class FimGLCanvas extends FimCanvasBase implements IFimGLCanvas {
   /**
    * Creates an invisible canvas in the DOM that supports WebGL
+   * @param fim FIM canvas factory
    * @param width Width, in pixels
    * @param height Height, in pixels
-   * @param initialColor If specified, the canvas is initalized to this color.
-   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
-   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
-   *    and uses Chrome's OffscreenCanvas functionality if supported.
+   * @param initialColor If specified, the canvas is initalized to this color
    * @param quality A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve
    *    performance.
    */
-  constructor(width: number, height: number, initialColor?: FimColor | string,
-      offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ? FimDefaultOffscreenCanvasFactory : null,
-      quality = 1) {
+  protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
-    let caps = FimGLCapabilities.getCapabilities(offscreenCanvasFactory);
+    let caps = fim.getGLCapabilities();
     let maxDimension = caps.maxRenderBufferSize;
 
     // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
@@ -55,7 +117,7 @@ export class FimGLCanvas extends FimCanvasBase {
     }
 
     // Call the parent constructor
-    super(width, height, offscreenCanvasFactory, maxDimension);
+    super(fim, width, height, maxDimension);
 
     // Report telemetry for debugging
     recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
@@ -144,9 +206,7 @@ export class FimGLCanvas extends FimCanvasBase {
   /** WebGL rendering context */
   public readonly gl: WebGLRenderingContext;
 
-  /**
-   * A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance.
-   */
+  /** A 0 to 1 value controlling the quality of rendering. Lower values can be used to improve performance. */
   public renderQuality: number;
 
   /**
@@ -211,7 +271,7 @@ export class FimGLCanvas extends FimCanvasBase {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.w, this.h, null, this.offscreenCanvasFactory);
+    let dupe = this.fim.createCanvas(this.w, this.h);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -267,12 +327,7 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFrom(srcImage: FimGLTexture | FimGLPreservedTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
-    // Handle FimGLPreservedTexture by getting the underlying texture
-    if (srcImage instanceof FimGLPreservedTexture) {
-      srcImage = srcImage.getTexture();
-    }
-
+  public copyFrom(srcImage: IFimGLTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Validate source texture
     FimGLError.throwOnMismatchedGLCanvas(this, srcImage.glCanvas);
 
@@ -302,7 +357,7 @@ export class FimGLCanvas extends FimCanvasBase {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
+  public copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof HTMLCanvasElement) {
       this.toHtmlCanvas(destImage, srcCoords, destCoords);
@@ -325,5 +380,32 @@ export class FimGLCanvas extends FimCanvasBase {
     FimGLError.throwOnError(gl);
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
+  }
+
+  /**
+   * Creates a WebGL texture
+   * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
+   * @param options See FimGLTextureOptions
+   */
+  public createTexture(width?: number, height?: number, options?: FimGLTextureOptions): FimGLTexture {
+    return new _FimGLTexture(this, width, height, options);
+  }
+
+  /**
+   * Creates a WebGL texture from another image
+   * @param srcImage Source image
+   * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
+   */
+  public createTextureFrom(srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas | IFimGLCanvas,
+      extraFlags = FimGLTextureFlags.None): FimGLTexture {
+    return _FimGLTexture.createFrom(this, srcImage, extraFlags);
+  }
+}
+
+/** Internal-only version of the FimGLCanvas class */
+export class _FimGLCanvas extends FimGLCanvas {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
+    super(fim, width, height, initialColor, quality);
   }
 }

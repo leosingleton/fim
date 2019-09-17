@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { ImageGrid } from '../ImageGrid';
-import { FimRgbaBuffer } from '../../image/FimRgbaBuffer';
+import { Fim } from '../../Fim';
 import { FimColor } from '../../primitives/FimColor';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
@@ -11,8 +11,9 @@ describe('ImageGrid', () => {
 
   it('Ensures output covers the full image', () => {
     DisposableSet.using(disposable => {
-      let output = disposable.addDisposable(new FimRgbaBuffer(576, 384, '#000'));
-      let redTile = disposable.addDisposable(new FimRgbaBuffer(128, 128, '#f00'));
+      let fim = disposable.addDisposable(new Fim());
+      let output = disposable.addDisposable(fim.createRgbaBuffer(576, 384, '#000'));
+      let redTile = disposable.addDisposable(fim.createRgbaBuffer(128, 128, '#f00'));
 
       let grid = new ImageGrid(output.w, output.h, redTile.w, redTile.h, 12);
       grid.tiles.forEach(tile => {

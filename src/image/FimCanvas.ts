@@ -2,29 +2,72 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvasBase, FimDefaultOffscreenCanvasFactory } from './FimCanvasBase';
-import { FimRgbaBuffer } from './FimRgbaBuffer';
-import { IFimGetSetPixel } from './IFimGetSetPixel';
+import { FimCanvasBase, IFimCanvasBase } from './FimCanvasBase';
+import { FimRgbaBuffer, IFimRgbaBuffer } from './FimRgbaBuffer';
+import { Fim } from '../Fim';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
-import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { FimGLCanvas, IFimGLCanvas } from '../gl/FimGLCanvas';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
+import { IFimGetSetPixel } from '../primitives/IFimGetSetPixel';
 import { using, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
+/** An image consisting of a 2D canvas */
+export interface IFimCanvas extends IFimCanvasBase, IFimGetSetPixel {
+  /**
+   * Constructs a drawing context
+   * @param imageSmoothingEnabled Enables image smoothing
+   * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
+   * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
+   */
+  createDrawingContext(imageSmoothingEnabled?: boolean, operation?: string, alpha?: number):
+    CanvasRenderingContext2D & IDisposable;
+
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * 
+   * Note that for FimRgbaBuffer inputs, the Async version of this function may be significantly faster on some web
+   * browsers.
+   * 
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Copies image from another. All inputs supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFromAsync(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+    Promise<void>;
+
+  /**
+   * Copies image to another.
+   * 
+   * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
+   * only support cropping.
+   * 
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void;
+}
+
 /** An image consisting of an invisible HTML canvas on the DOM */
-export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
+export class FimCanvas extends FimCanvasBase implements IFimCanvas {
   /**
    * Creates an invisible canvas in the DOM
+   * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
-   * @param initialColor If specified, the canvas is initalized to this color.
-   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
-   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
-   *    and uses Chrome's OffscreenCanvas functionality if supported.
+   * @param initialColor If specified, the canvas is initalized to this color
    */
-  public constructor(width: number, height: number, initialColor?: FimColor | string,
-    offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ? FimDefaultOffscreenCanvasFactory : null) {
-    super(width, height, offscreenCanvasFactory);
+  protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height);
 
     // Report telemetry for debugging
     recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);
@@ -41,9 +84,8 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     super.dispose();
   }
 
-  /** Creates a new FimCanvas which is a duplicate of this one */
-  public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.imageDimensions.w, this.imageDimensions.h, null, this.offscreenCanvasFactory);
+  public duplicateCanvas(): IFimCanvas {
+    let dupe = new FimCanvas(this.fim, this.imageDimensions.w, this.imageDimensions.h);
     dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -59,7 +101,6 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     return FimCanvasBase.createDrawingContext(this.canvasElement, imageSmoothingEnabled, operation, alpha);
   }
 
-  /** Fills the canvas with a solid color */
   public fillCanvas(color: FimColor | string): void {
     FimCanvasBase.fillCanvas(this.getCanvas(), color);
   }
@@ -74,7 +115,8 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect):
+      void {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
       this.copyFromCanvas(srcImage, srcCoords, destCoords);
     } else if (srcImage instanceof FimRgbaBuffer) {
@@ -90,7 +132,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public async copyFromAsync(srcImage: FimCanvas | FimGLCanvas | FimRgbaBuffer, srcCoords?: FimRect,
+  public async copyFromAsync(srcImage: IFimCanvas | IFimGLCanvas | IFimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): Promise<void> {
     if (srcImage instanceof FimCanvas || srcImage instanceof FimGLCanvas) {
       this.copyFromCanvas(srcImage, srcCoords, destCoords);
@@ -108,7 +150,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     }
   }
 
-  protected copyFromCanvas(srcImage: FimCanvas | FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  protected copyFromCanvas(srcImage: IFimCanvas | IFimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.imageDimensions;
     destCoords = destCoords || this.imageDimensions;
@@ -131,7 +173,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  protected async copyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?:
+  protected async copyFromRgbaBufferWithImageBitmapAsync(srcImage: IFimRgbaBuffer, srcCoords?: FimRect, destCoords?:
       FimRect): Promise<void> {
     // Default parameters
     srcCoords = srcCoords || srcImage.imageDimensions;
@@ -165,7 +207,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
+  private copyFromRgbaBuffer(srcImage: IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
     srcCoords = srcCoords || srcImage.imageDimensions;
     destCoords = destCoords || this.imageDimensions;
@@ -183,7 +225,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
       });
     } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-      using(new FimCanvas(srcImage.w, srcImage.h, null, this.offscreenCanvasFactory), temp => {
+      using(new FimCanvas(this.fim, srcImage.w, srcImage.h), temp => {
         temp.copyFromRgbaBuffer(srcImage);
         this.copyFromCanvas(temp, srcCoords, destCoords);
       });
@@ -200,12 +242,14 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: FimCanvas | FimRgbaBuffer | HTMLCanvasElement, srcCoords?: FimRect,
+  public copyTo(destImage: IFimCanvas | IFimRgbaBuffer | HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     if (destImage instanceof FimCanvas || destImage instanceof FimRgbaBuffer) {
       destImage.copyFrom(this, srcCoords, destCoords);
-    } else {
+    } else if (destImage instanceof HTMLCanvasElement || destImage instanceof OffscreenCanvas) {
       this.toHtmlCanvas(destImage, srcCoords, destCoords);
+    } else {
+      this.throwOnInvalidImageKind(destImage);
     }
   }
 
@@ -216,7 +260,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
     
-    using(new FimRgbaBuffer(1, 1), buffer => {
+    using(this.fim.createRgbaBuffer(1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();
     });
@@ -229,34 +273,40 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
 
-    using(new FimRgbaBuffer(1, 1, color), buffer => {
+    using(this.fim.createRgbaBuffer(1, 1, color), buffer => {
       this.copyFromRgbaBuffer(buffer, buffer.imageDimensions, FimRect.fromXYWidthHeight(x, y, 1, 1));
     });
+  }
+}
+
+/** Internal only version of the class */
+export class _FimCanvas extends FimCanvas {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
+    super(fim, width, height, initialColor);
+  }
+
+  public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: IFimRgbaBuffer, srcCoords?: FimRect,
+      destCoords?: FimRect): Promise<void> {
+    return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
   }
 
   /**
    * Creates a FimCanvas from a JPEG file
+   * @param fim FIM canvas factory
    * @param jpegFile JPEG file, loaded into a byte array
-   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
-   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
-   *    and uses Chrome's OffscreenCanvas functionality if supported.
    */
-  public static createFromJpeg(jpegFile: Uint8Array, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
-      FimDefaultOffscreenCanvasFactory : null): Promise<FimCanvas> {
+  public static createFromJpegAsync(fim: Fim, jpegFile: Uint8Array): Promise<FimCanvas> {
     // Create a Blob holding the binary data and load it onto an HTMLImageElement
     let blob = new Blob([jpegFile], { type: 'image/jpeg' });
-    return FimCanvas.createFromImageBlob(blob, offscreenCanvasFactory);
+    return _FimCanvas.createFromImageBlobAsync(fim, blob);
   }
 
   /**
    * Creates a FimCanvas from a Blob containing an image
+   * @param fim FIM canvas factory
    * @param blob Blob of type 'image/*'
-   * @param offscreenCanvasFactory If provided, this function is used to instantiate an OffscreenCanvas object. If
-   *    null or undefined, we create a canvas on the DOM instead. The default value checks the browser's capabilities,
-   *    and uses Chrome's OffscreenCanvas functionality if supported.
    */
-  public static async createFromImageBlob(blob: Blob, offscreenCanvasFactory = FimCanvasBase.supportsOffscreenCanvas ?
-      FimDefaultOffscreenCanvasFactory : null): Promise<FimCanvas> {
+  public static async createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
       let url = (URL || webkitURL).createObjectURL(blob);
       let img = new Image();
@@ -264,7 +314,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
-        let result = new FimCanvas(img.width, img.height, null, offscreenCanvasFactory);
+        let result = fim.createCanvas(img.width, img.height);
         using(result.createDrawingContext(), ctx => {
           ctx.drawImage(img, 0, 0);
         });
@@ -279,13 +329,5 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
         reject(err);
       };
     });
-  }
-}
-
-/** Internal version of the class only for unit testing */
-export class InternalFimCanvas extends FimCanvas {
-  public internalCopyFromRgbaBufferWithImageBitmapAsync(srcImage: FimRgbaBuffer, srcCoords?: FimRect,
-      destCoords?: FimRect): Promise<void> {
-    return this.copyFromRgbaBufferWithImageBitmapAsync(srcImage, srcCoords, destCoords);
   }
 }

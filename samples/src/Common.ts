@@ -2,12 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas, FimGLCanvas, FimGLCapabilities, FimGLProgramCopy, FimGLTexture,
-  FimRect } from '../../build/dist/index.js';
+import { Fim, FimCanvas, FimGLProgramCopy, FimRect, IFimCanvas, IFimGLCanvas,
+  IFimGLTexture } from '../../build/dist/index.js';
 import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
 let qs = parseQueryString();
+
+/** Global instance of FIM */
+export var fim = new Fim();
 
 /** Loads a test image and returns the JPEG as a byte array */
 export async function loadTestImageToArray(): Promise<Uint8Array> {
@@ -21,7 +24,7 @@ export async function loadTestImageToArray(): Promise<Uint8Array> {
 /** Loads a test image onto a FimCanvas */
 export async function loadTestImage(): Promise<FimCanvas> {
   let jpeg = await loadTestImageToArray();
-  return FimCanvas.createFromJpeg(jpeg);
+  return fim.createCanvasFromJpegAsync(jpeg);
 }
 
 /** Blocks execution until the browser is ready to render another frame */
@@ -195,7 +198,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
  */
-export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, maxDimension?: number,
+export function renderOutput(canvas: IFimCanvas | IFimGLCanvas, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
   let outputDimensions = canvas.imageDimensions;
@@ -215,7 +218,7 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
   output.height = outputDimensions.h;
 
   // Copy the input canvas to the DOM one
-  canvas.toHtmlCanvas(output);
+  canvas.copyTo(output);
 
   // If we rescaled the output, show a full-resolution detail in the bottom-right corner
   if (maxDimension) {
@@ -231,7 +234,7 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
     let inputRect = FimRect.fromXYWidthHeight(inputLeft, inputTop, outputRect.w, outputRect.h);
 
     // Draw the detail view
-    canvas.toHtmlCanvas(output, inputRect, outputRect);
+    canvas.copyTo(output, inputRect, outputRect);
   }
 
   // Overlay text
@@ -257,7 +260,7 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
 }
 
 /** Copies a FimGLTexture onto a FimGLCanvas */
-export function textureToCanvas(gl: FimGLCanvas, texture: FimGLTexture): void {
+export function textureToCanvas(gl: IFimGLCanvas, texture: IFimGLTexture): void {
   using(new FimGLProgramCopy(gl), program => {
     program.setInputs(texture);
     program.execute();
@@ -297,7 +300,7 @@ export function recordPerformanceValue(id: string, results: IPerformanceResults,
 $(() => {
   let gpuDiv = $('#gpu');
   if (gpuDiv) {
-    gpuDiv.text(JSON.stringify(FimGLCapabilities.getCapabilities(), null, 4));
+    gpuDiv.text(JSON.stringify(fim.getGLCapabilities(), null, 4));
   }  
 });
 

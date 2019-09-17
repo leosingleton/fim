@@ -2,25 +2,24 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas, FimGLTexture, FimGLProgramMatrixOperation1DFast,
-  FimGLTextureFlags, GaussianKernel, FimGLProgramCopy } from '../../build/dist/index.js';
-import { handleError, loadTestImage, renderOutput } from './Common';
+import { fim, handleError, loadTestImage, renderOutput } from './Common';
+import { FimGLProgramMatrixOperation1DFast, FimGLTextureFlags, FimGLProgramCopy,
+  GaussianKernel } from '../../build/dist/index.js';
 import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
 
 export async function glStress(testCase: string, canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
   let srcImage = await loadTestImage();
-  let gl = new FimGLCanvas(srcImage.w, srcImage.h);
+  let gl = fim.createGLCanvas(srcImage.w, srcImage.h);
 
   let count = 1;
   while (true) {
     let disposable = new DisposableSet();
     try {
-      let input = disposable.addDisposable(FimGLTexture.createFrom(gl, srcImage,
-        FimGLTextureFlags.LinearSampling));
-      let texture = disposable.addDisposable(new FimGLTexture(gl, srcImage.w, srcImage.h,
+      let input = disposable.addDisposable(gl.createTextureFrom(srcImage, FimGLTextureFlags.LinearSampling));
+      let texture = disposable.addDisposable(gl.createTexture(srcImage.w, srcImage.h,
         { textureFlags: FimGLTextureFlags.LinearSampling }));
-      let temp = disposable.addDisposable(new FimGLTexture(gl, srcImage.w, srcImage.h,
+      let temp = disposable.addDisposable(gl.createTexture(srcImage.w, srcImage.h,
         { textureFlags: FimGLTextureFlags.LinearSampling }));
   
       // Create a Gaussian blur

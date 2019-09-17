@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimCanvas } from '../../build/dist/index.js';
+import { fim } from './Common';
 import { Stopwatch, TaskScheduler, using } from '@leosingleton/commonlibs';
 
 export async function jpegLoadStress(canvasId: string): Promise<void> {
@@ -24,7 +24,7 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
 
     // Load the JPEG onto a FimCanvas
     let timer = Stopwatch.startNew();
-    let canvas = await FimCanvas.createFromJpeg(new Uint8Array(jpeg));
+    let canvas = await fim.createCanvasFromJpegAsync(new Uint8Array(jpeg));
     let decodeTime = timer.getElapsedMilliseconds();
     totalTime += decodeTime;
 

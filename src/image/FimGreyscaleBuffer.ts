@@ -2,20 +2,63 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimImage } from './FimImage';
-import { FimRgbaBuffer } from './FimRgbaBuffer';
+import { FimImage, IFimImage } from './FimImage';
+import { FimRgbaBuffer, IFimRgbaBuffer } from './FimRgbaBuffer';
+import { Fim } from '../Fim';
 import { FimRect } from '../primitives/FimRect';
 
 /** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
-export class FimGreyscaleBuffer extends FimImage {
+export interface IFimGreyscaleBuffer extends IFimImage {
+  /** Returns the underlying Uint8Array of RGBA pixel data */
+  getBuffer(): Uint8ClampedArray;
+
+  /** Fills the canvas with a solid color (0 to 255) */
+  fillCanvas(color: number): void;
+
+  /**
+   * Copies image from another FimGreyscaleBuffer. Supports cropping, but not rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: IFimGreyscaleBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Copies image to another. Supports cropping, but not rescaling.
+   * @param destImage Destination image
+   * @param srcCoords Coordinates of source image to copy
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyTo(destImage: IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void;
+
+  /**
+   * Returns the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @returns Greyscale color value (0-255)
+   */
+  getPixel(x: number, y: number): number;
+
+  /**
+   * Sets the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @param color Greyscale color value (0-255)
+   */
+  setPixel(x: number, y: number, color: number): void;
+}
+
+/** An image consisting of 8-bit greyscale pixel data in a Uint8ClampedArray */
+export class FimGreyscaleBuffer extends FimImage implements IFimGreyscaleBuffer {
   /**
    * Creates an image consisting of 8-bit greyscale pixel data in a Uint8Array
+   * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
-  constructor(width: number, height: number, initialColor?: number) {
-    super(width, height);
+  protected constructor(fim: Fim, width: number, height: number, initialColor?: number) {
+    super(fim, width, height);
     this._buffer = new Uint8ClampedArray(width * height);
 
     if (initialColor) {
@@ -81,11 +124,30 @@ export class FimGreyscaleBuffer extends FimImage {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
   
+  /**
+   * Returns the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @returns Greyscale color value (0-255)
+   */
   public getPixel(x: number, y: number): number {
     return this._buffer[y * this.w + x];
   }
 
+  /**
+   * Sets the value of one pixel
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @param color Greyscale color value (0-255)
+   */
   public setPixel(x: number, y: number, color: number): void {
     this._buffer[y * this.w + x] = color;
+  }
+}
+
+/** Internal-only version of the FimGreyscaleBuffer class */
+export class _FimGreyscaleBuffer extends FimGreyscaleBuffer {
+  public constructor(fim: Fim, width: number, height: number, initialColor?: number) {
+    super(fim, width, height, initialColor);
   }
 }
