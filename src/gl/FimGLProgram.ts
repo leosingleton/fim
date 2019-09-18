@@ -113,7 +113,7 @@ export abstract class FimGLProgram implements IDisposable {
 
       // Workaround for headless-gl bug... The WebGL docs say that for uniforms declared as arrays, the [0] suffix is
       // optional. However, headless-gl requires it. We don't track which uniforms are arrays or not, so just try the
-      // suffix if it's not found without it.
+      // suffix if it's not found without it. https://github.com/stackgl/headless-gl/issues/170
       if (!loc) {
         loc = gl.getUniformLocation(program, desc.variableName + '[0]');
       }
