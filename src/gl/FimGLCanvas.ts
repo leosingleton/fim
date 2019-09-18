@@ -118,12 +118,22 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
   }
 
   public dispose(): void {
-    // Report telemetry for debugging
-    recordDispose(this, FimObjectType.GLCanvas);
+    if (this.canvasElement) {
+      // Report telemetry for debugging
+      recordDispose(this, FimObjectType.GLCanvas);
 
-    super.dispose();
+      if (this.copyProgram) {
+        this.copyProgram.dispose();
+        delete this.copyProgram;
+      }
+      if (this.fillProgram) {
+        this.fillProgram.dispose();
+        delete this.fillProgram;
+      }
 
-    this.disposable.dispose();
+      this.disposable.dispose();
+      super.dispose();
+    }
   }
 
   /** Registers a lambda function to be executed on WebGL context lost */
