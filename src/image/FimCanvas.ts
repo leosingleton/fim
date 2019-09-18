@@ -33,10 +33,12 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
   }
 
   public dispose(): void {
-    // Report telemetry for debugging
-    recordDispose(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D);
+    if (this.canvasElement) {
+      // Report telemetry for debugging
+      recordDispose(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D);
 
-    super.dispose();
+      super.dispose();
+    }
   }
 
   /** Creates a new canvas which is a duplicate of this one */

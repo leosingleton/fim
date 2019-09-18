@@ -311,21 +311,22 @@ export class FimGLTexture extends FimImage implements IFimGLTextureLike {
 
   public dispose(): void {
     let gl = this.gl;
+    if (gl) {
+      // Report telemetry for debugging
+      recordDispose(this, FimObjectType.GLTexture);
 
-    // Report telemetry for debugging
-    recordDispose(this, FimObjectType.GLTexture);
+      if (this.texture) {
+        gl.deleteTexture(this.texture);
+        delete this.texture;
+      }
 
-    if (this.texture) {
-      gl.deleteTexture(this.texture);
-      this.texture = undefined;
+      if (this.fb) {
+        gl.deleteFramebuffer(this.fb);
+        delete this.fb;
+      }
+
+      delete this.gl;
     }
-
-    if (this.fb) {
-      gl.deleteFramebuffer(this.fb);
-      this.fb = undefined;
-    }
-
-    this.gl = undefined;
   }
 
   /** Returns the underlying WebGL framebuffer backing this texture */
