@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimImage, IFimImage } from './FimImage';
-import { IFimCanvas } from './FimCanvas';
+import { FimImage } from './FimImage';
+import { FimCanvas } from './FimCanvas';
 import { FimDomCanvasFactory } from './FimCanvasFactory';
 import { Fim } from '../Fim';
 import { recordDrawImage } from '../debug/FimStats';
@@ -11,41 +11,8 @@ import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { IDisposable, makeDisposable, using } from '@leosingleton/commonlibs';
 
-/** Base interface for IFimCanvas and IFimGLCanvas */
-export interface IFimCanvasBase extends IFimImage {
-  /** Returns the underlying HTMLCanvasElement or OffscreenCanvas */
-  getCanvas(): HTMLCanvasElement | OffscreenCanvas;
-
-  /** Creates a new canvas which is a duplicate of this one */
-  duplicateCanvas(): IFimCanvas;
-
-  /** Fills the canvas with a solid color */
-  fillCanvas(color: FimColor | string): void;
-
-  /**
-   * Exports the canvas to a PNG file
-   * @returns Array containing PNG data
-   */
-  toPng(): Promise<Uint8Array>;
-
-  /**
-   * Exports the canvas to a JPEG file
-   * @param quality JPEG quality, 0 to 1
-   * @returns Array containing JPEG data
-   */
-  toJpeg(quality?: number): Promise<Uint8Array>;
-
-  /**
-   * Copies image to an HTML canvas. Supports both cropping and rescaling.
-   * @param destImage Destination HTML canvas or OffscreenCanvas
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
-  toHtmlCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords?: FimRect, destCoords?: FimRect): void;
-}
-
 /** Base class for FimCanvas and FimGLCanvas. They both share the same underlying hidden canvas on the DOM. */
-export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
+export abstract class FimCanvasBase extends FimImage {
   /**
    * Creates an invisible canvas in the DOM
    * @param fim FIM canvas factory
@@ -82,8 +49,10 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
   /** True if this object is backed by an OffscreenCanvas; false for a standard 2D canvas */
   public readonly offscreenCanvas: boolean;
 
-  // IFimCanvasBase implementation
-  public abstract duplicateCanvas(): IFimCanvas;
+  /** Creates a new canvas which is a duplicate of this one */
+  public abstract duplicateCanvas(): FimCanvas;
+
+  /** Fills the canvas with a solid color */
   public abstract fillCanvas(color: FimColor | string): void;
 
   /**
@@ -102,6 +71,10 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
     }
   }
 
+  /**
+   * Exports the canvas to a PNG file
+   * @returns Array containing PNG data
+   */
   public async toPng(): Promise<Uint8Array> {
     let blob = await this.toPngBlob();
     let buffer = await new Response(blob).arrayBuffer();
@@ -125,6 +98,11 @@ export abstract class FimCanvasBase extends FimImage implements IFimCanvasBase {
     }
   }
 
+  /**
+   * Exports the canvas to a JPEG file
+   * @param quality JPEG quality, 0 to 1
+   * @returns Array containing JPEG data
+   */
   public async toJpeg(quality = 0.95): Promise<Uint8Array> {
     let blob = await this.toJpegBlob(quality);
     let buffer = await new Response(blob).arrayBuffer();

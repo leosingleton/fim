@@ -2,14 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimGLCanvas, IFimGLCanvas } from './FimGLCanvas';
+import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose, recordTexImage2D } from '../debug/FimStats';
-import { FimCanvas, IFimCanvas } from '../image/FimCanvas';
-import { FimGreyscaleBuffer, IFimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
-import { FimImage, IFimImage } from '../image/FimImage';
-import { FimRgbaBuffer, IFimRgbaBuffer } from '../image/FimRgbaBuffer';
+import { FimCanvas } from '../image/FimCanvas';
+import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
+import { FimImage } from '../image/FimImage';
+import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimRect } from '../primitives/FimRect';
@@ -58,43 +58,17 @@ export interface FimGLTextureOptions {
   textureFlags?: FimGLTextureFlags;
 }
 
-/** Wrapper for WebGL textures */
-export interface IFimGLTexture extends IFimImage {
-  /** The FimGLCanvas object which was used to create this texture */
-  readonly glCanvas: IFimGLCanvas;
-
-  /** See FimGLTextureOptions */
-  readonly textureOptions: FimGLTextureOptions;
-
-  /**
-   * Copies image from another. Neither cropping nor rescaling is supported.
-   * @param srcImage Source image
-   * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
-   * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
-   */
-  copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
-    destCoords?: FimRect): void;
-
-  /**
-   * Copies to a WebGL canvas. Supports both cropping and rescaling.
-   * @param destImage Destination image
-   * @param srcCoords Coordinates of source image to copy
-   * @param destCoords Coordinates of destination image to copy to
-   */
-  copyTo(destImage: IFimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void;
-
-  /** Returns the underlying WebGL framebuffer backing this texture */
-  getFramebuffer(): WebGLFramebuffer;
-
-  /**
-   * Returns whether the dimensions of this texture are a square power-of-two. Certain WebGL features, like texture
-   * wrapping, are only available on textures with square power-of-two dimensions.
-   */
-  isSquarePot(): boolean;
+/**
+ * Interface for objects that act like a WebGL texture. Used by FimGLPreservedTexture to implement a variation of a
+ * WebGL texture that is backed up to an in-memory canvas.
+ */
+export interface IFimGLTextureLike {
+  /** Gets the underlying FimGLTexture that backs this object */
+  getTexture(): FimGLTexture;
 }
 
 /** Wrapper class for WebGL textures */
-export class FimGLTexture extends FimImage implements IFimGLTexture {
+export class FimGLTexture extends FimImage implements IFimGLTextureLike {
   /**
    * Creates a WebGL texture
    * @param glCanvas FimGLCanvas to which this texture belongs
@@ -195,6 +169,10 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     }
   }
 
+  public getTexture(): FimGLTexture {
+    return this;
+  }
+
   public bind(textureUnit: number): void {
     this.bindInternal(textureUnit, this.texture);
   }
@@ -218,7 +196,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
    * @param srcCoords Provided for consistency with other copyFrom() functions. Must be undefined.
    * @param destCoords Provided for consistency with other copyFrom() functions. Must be undefined.
    */
-  public copyFrom(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer, srcCoords?: FimRect,
+  public copyFrom(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     // Coordinates are purely for consistency with other classes' copyFrom() functions. Throw an error if they're
     // actually used.
@@ -245,7 +223,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     }
   }
   
-  private copyFromCanvas(srcImage: IFimCanvas | IFimGLCanvas): void {
+  private copyFromCanvas(srcImage: FimCanvas | FimGLCanvas): void {
     let gl = this.gl;
 
     // Report telemetry for debugging
@@ -262,7 +240,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     this.hasImage = true;
   }
 
-  private copyFromGreyscaleBuffer(srcImage: IFimGreyscaleBuffer): void {
+  private copyFromGreyscaleBuffer(srcImage: FimGreyscaleBuffer): void {
     let gl = this.gl;
 
     // Report telemetry for debugging
@@ -280,7 +258,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     this.hasImage = true;
   }
 
-  private copyFromRgbaBuffer(srcImage: IFimRgbaBuffer): void {
+  private copyFromRgbaBuffer(srcImage: FimRgbaBuffer): void {
     let gl = this.gl;
 
     // Report telemetry for debugging
@@ -298,7 +276,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
     this.hasImage = true;
   }
 
-  private copyFromWithDownscale(srcImage: IFimCanvas | IFimGLCanvas | IFimGreyscaleBuffer | IFimRgbaBuffer): void {
+  private copyFromWithDownscale(srcImage: FimCanvas | FimGLCanvas | FimGreyscaleBuffer | FimRgbaBuffer): void {
     if (srcImage instanceof FimGreyscaleBuffer) {
       // This code path needs to be optimized, but it will likely rarely, if ever, get used. FimGreyscaleBuffer
       // doesn't support resizing, nor does FimCanvas support copyFrom() a FimGreyscaleBuffer. So, we do multiple
@@ -327,7 +305,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
    */
-  public copyTo(destImage: IFimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public copyTo(destImage: FimGLCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
 
@@ -386,7 +364,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
   public hasImage: boolean;
 
   /** The FimGLCanvas object which was used to create this texture */
-  public readonly glCanvas: IFimGLCanvas;
+  public readonly glCanvas: FimGLCanvas;
 
   private gl: WebGLRenderingContext;
   private texture: WebGLTexture;
@@ -437,7 +415,7 @@ export class FimGLTexture extends FimImage implements IFimGLTexture {
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
    */
-  public static describeTexture(canvas: IFimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions):
+  public static describeTexture(canvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions):
       string {
     // Default values
     width = width || canvas.w;
@@ -460,8 +438,8 @@ export class _FimGLTexture extends FimGLTexture {
    * @param srcImage Source image
    * @param extraFlags Additional flags. InputOnly is always enabled for textures created via this function.
    */
-  public static createFrom(glCanvas: FimGLCanvas, srcImage: IFimGreyscaleBuffer | IFimRgbaBuffer | IFimCanvas |
-      IFimGLCanvas, extraFlags = FimGLTextureFlags.None): FimGLTexture {
+  public static createFrom(glCanvas: FimGLCanvas, srcImage: FimGreyscaleBuffer | FimRgbaBuffer | FimCanvas |
+      FimGLCanvas, extraFlags = FimGLTextureFlags.None): FimGLTexture {
     // Calculate parameters with defaults and extras
     let channels = (srcImage instanceof FimGreyscaleBuffer) ? FimColorChannels.Greyscale : FimColorChannels.RGBA;
     let bpp = FimBitsPerPixel.BPP8;

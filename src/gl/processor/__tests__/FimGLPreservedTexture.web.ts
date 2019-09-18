@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
-import { Fim } from '../../../Fim';
+import { FimWeb } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
 import { FimTestImages } from '../../../debug/FimTestImages';
 import { FimColor } from '../../../primitives/FimColor';
@@ -21,7 +21,7 @@ describe('FimGLPreservedTexture', () => {
 
   it('Preserves texture across context loss', async () => {
     await DisposableSet.usingAsync(async disposable => {
-      let fim = disposable.addDisposable(new Fim());
+      let fim = disposable.addDisposable(new FimWeb());
       let gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
 
       // Create a preserved texture from the test pattern
@@ -60,7 +60,7 @@ describe('FimGLPreservedTexture', () => {
     // This test case creates a smaller texture than the WebGL canvas to test the case where FimGLPreservedTexture must
     // use scissoring to render the texture only on one corner of the canvas to preserve it.
     await DisposableSet.usingAsync(async disposable => {
-      let fim = disposable.addDisposable(new Fim());
+      let fim = disposable.addDisposable(new FimWeb());
       let gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
 
       // Create a preserved texture from the test pattern
@@ -100,7 +100,7 @@ describe('FimGLPreservedTexture', () => {
     // downscaled from the requested dimensions in order to not exceed GPU limits.
     await DisposableSet.usingAsync(async disposable => {
       // Find a canvas size bigger than the GPU can support and create a canvas of that size
-      let fim = disposable.addDisposable(new Fim());
+      let fim = disposable.addDisposable(new FimWeb());
       let caps = fim.getGLCapabilities();
       let canvasSize = caps.maxRenderBufferSize + 1000;
       let gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));

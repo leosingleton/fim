@@ -3,11 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimConfig } from './FimConfig';
-import { FimImage, IFimImage } from '../image/FimImage';
-import { FimGLTexture, IFimGLTexture } from '../gl/FimGLTexture';
+import { FimImage } from '../image/FimImage';
+import { FimGLCanvas } from '../gl/FimGLCanvas';
+import { FimGLTexture } from '../gl/FimGLTexture';
 import { FimGLProgram, UniformDefinitionMap } from '../gl/FimGLProgram';
 import { FimRect } from '../primitives/FimRect';
-import { IFimGLCanvas } from '../gl/FimGLCanvas';
 
 /** Object types that we track statistics on */
 export const enum FimObjectType {
@@ -147,7 +147,7 @@ let totalMemory = 0;
  * @param src Source image
  * @param dest Destination texture
  */
-export function recordTexImage2D(src: IFimImage, dest: IFimGLTexture): void {
+export function recordTexImage2D(src: FimImage, dest: FimGLTexture): void {
   if (FimConfig.config.debugLoggingEnabled) {
     let srcClassName = getClassName(src);
     let destClassName = getClassName(dest);
@@ -163,7 +163,7 @@ export function recordTexImage2D(src: IFimImage, dest: IFimGLTexture): void {
  * @param outputTexture Output texture or WebGL canvas
  */
 export function recordWebGLRender(program: FimGLProgram, uniforms: UniformDefinitionMap, destCoords: FimRect,
-    outputTexture: IFimGLTexture | IFimGLCanvas): void {
+    outputTexture: FimGLTexture | FimGLCanvas): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
     let className = getClassName(program);

@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { fim } from './Common';
-import { FimCanvas, FimGLTextureFlags, FimGLProgramDownscale, FimTestPatterns, IFimCanvas,
-  IFimGLCanvas } from '../../build/dist/index.js';
+import { FimCanvas, FimGLTextureFlags, FimGLProgramDownscale, FimTestPatterns,
+  FimGLCanvas } from '../../build/dist/index.js';
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function downscale(): Promise<void> {
@@ -57,7 +57,7 @@ export async function downscale(): Promise<void> {
   });
 }
 
-function renderOutput(canvas: IFimCanvas | IFimGLCanvas, message: string): void {
+function renderOutput(canvas: FimCanvas | FimGLCanvas, message: string): void {
   // Write the message
   let text = document.createElement('p');
   text.innerText = message;

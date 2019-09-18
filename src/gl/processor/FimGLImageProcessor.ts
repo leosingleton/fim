@@ -4,10 +4,10 @@
 
 import { FimGLPreservedTexture } from './FimGLPreservedTexture';
 import { FimGLTexturePool } from './FimGLTexturePool';
-import { IFimGLCanvas } from '../FimGLCanvas';
+import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTextureOptions } from '../FimGLTexture';
-import { IFim } from '../../Fim';
+import { Fim } from '../../Fim';
 import { FimRect } from '../../primitives/FimRect';
 import { IFimDimensions } from '../../primitives/IFimDimensions';
 import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
@@ -23,7 +23,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
    * @param maxWidth Maximum width of the output or textures, whichever is largest, in pixels
    * @param maxHeight Maximum height of the output or textures, whichever is largest, in pixels
    */
-  public constructor(fim: IFim, maxWidth: number, maxHeight: number) {
+  public constructor(fim: Fim, maxWidth: number, maxHeight: number) {
     this.w = maxWidth;
     this.h = maxHeight;
     this.imageDimensions = FimRect.fromWidthHeight(maxWidth, maxHeight);
@@ -68,7 +68,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
    * @param createProgram Lambda function to create the program when needed. This should call the FimGLProgram's
    *    constructor with the required parameters.
    */
-  protected getProgram<T extends FimGLProgram>(programId: number, createProgram: (glCanvas: IFimGLCanvas) => T): T {
+  protected getProgram<T extends FimGLProgram>(programId: number, createProgram: (glCanvas: FimGLCanvas) => T): T {
     let programs = this.programs;
 
     // Check the program cache
@@ -108,7 +108,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
   }
 
   /** The WebGL canvas to use for rendering */
-  protected readonly glCanvas: IFimGLCanvas;
+  protected readonly glCanvas: FimGLCanvas;
 
   /** Objects added to this set are automatically disposed whenever the WebGL context is lost */
   protected readonly disposeOnLostContext: DisposableSet;

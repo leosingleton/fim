@@ -2,19 +2,19 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLCanvas } from '../FimGLCanvas';
+import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
-import { IFimGLTexture } from '../FimGLTexture';
+import { IFimGLTextureLike } from '../FimGLTexture';
 
 /** GL program to apply a y = mx + b transformation */
 export class FimGLProgramLinearTransform extends FimGLProgram {
-  constructor(canvas: IFimGLCanvas) {
+  constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/LinearTransform.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: IFimGLTexture, m: number, b: number) {
+  public setInputs(inputTexture: IFimGLTextureLike, m: number, b: number) {
     let uniforms = this.fragmentShader.uniforms;
     uniforms.u_input.variableValue = inputTexture;
     uniforms.u_m.variableValue = m;
@@ -22,7 +22,7 @@ export class FimGLProgramLinearTransform extends FimGLProgram {
   }
 
   /** Adjusts brightness and contrast.  (Range of input values is -1 to 1, where 0 is no change) */
-  public setBrightnessContrast(inputTexture: IFimGLTexture, brightness: number, contrast: number): void {
+  public setBrightnessContrast(inputTexture: IFimGLTextureLike, brightness: number, contrast: number): void {
     // To adjust contrast (c), we multiply to increase the slope, however we want to keep the midpoint at 0.5.
     //   Solving y = mx + b, we get: y = cx + (0.5 - 0.5c)
     // The contrast parameter is -1 to 1 and needs to be scaled to 0 to Infinity

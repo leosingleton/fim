@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
-import { Fim } from '../../Fim';
+import { FimWeb } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from '../../image/FimCanvasFactory';
 import { FimColor } from '../../primitives/FimColor';
@@ -20,7 +20,7 @@ function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
 function spec(canvasFactory: FimCanvasFactory) {
   return () => {
     it('Creates and disposes', () => {
-      using(new Fim(canvasFactory), fim => {
+      using(new FimWeb(canvasFactory), fim => {
         let b = fim.createGLCanvas(640, 480);
         expect(b.getCanvas()).toBeDefined();
   
@@ -34,7 +34,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     });
 
     it('Fills with a solid color', () => {
-      using(new Fim(canvasFactory), fim => {
+      using(new FimWeb(canvasFactory), fim => {
         using(fim.createGLCanvas(640, 480), c => {
           c.fillCanvas('#f00');
           expect(c.getPixel(300, 200)).toEqual(FimColor.fromString('#f00'));
@@ -49,7 +49,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Renders a JPEG texture', async () => {
       await DisposableSet.usingAsync(async disposable => {
         // Initialize the WebGL canvas, program, and a texture loaded from a JPEG image
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let canvas = disposable.addDisposable(fim.createGLCanvas(128, 128));
         let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
         let jpeg = FimTestImages.fourSquaresJpeg();
@@ -79,7 +79,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Downscales oversized canvases', async () => {
       await DisposableSet.usingAsync(async disposable => {
         // Find a canvas size bigger than the GPU can support and create a canvas of that size
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let caps = fim.getGLCapabilities();
         let canvasSize = caps.maxRenderBufferSize + 1000;
         let gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));
@@ -115,7 +115,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     it('Copies from textures', async () => {
       await DisposableSet.usingAsync(async disposable => {
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let gl = disposable.addDisposable(fim.createGLCanvas(240, 240));
 
         // Create a test image the size of the canvas
@@ -137,7 +137,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     it('Copies from textures with srcCoords', async () => {
       await DisposableSet.usingAsync(async disposable => {
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let gl = disposable.addDisposable(fim.createGLCanvas(240, 240));
 
         // Create a test image the size of the canvas
@@ -159,7 +159,7 @@ function spec(canvasFactory: FimCanvasFactory) {
 
     it('Copies from textures with srcCoords and destCoords', async () => {
       await DisposableSet.usingAsync(async disposable => {
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let gl = disposable.addDisposable(fim.createGLCanvas(240, 240, '#00f'));
 
         // Create a test image the size of the canvas
@@ -186,6 +186,6 @@ function spec(canvasFactory: FimCanvasFactory) {
 describe('FimGLCanvas(OffScreenCanvas=false)', spec(FimDomCanvasFactory));
 
 // Only run OffscreenCanvas tests on browsers that support it
-if (Fim.supportsOffscreenCanvas) {
+if (FimWeb.supportsOffscreenCanvas) {
   describe('FimGLCanvas(OffScreenCanvas=true)', spec(FimOffscreenCanvasFactory));
 }

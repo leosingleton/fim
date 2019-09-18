@@ -4,7 +4,7 @@
 
 import { FimGLImageProcessor } from '../FimGLImageProcessor';
 import { FimGLProgramLinearTransform } from '../../programs/FimGLProgramLinearTransform';
-import { Fim, IFim } from '../../../Fim';
+import { FimWeb } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
 import { FimColor } from '../../../primitives/FimColor';
 import { using, usingAsync } from '@leosingleton/commonlibs';
@@ -22,7 +22,7 @@ enum ObjectID {
 }
 
 class SampleProcessor extends FimGLImageProcessor {
-  public constructor(fim: IFim, width: number, height: number) {
+  public constructor(fim: FimWeb, width: number, height: number) {
     super(fim, width, height);
 
     // Initialize the preserved texture to black
@@ -62,7 +62,7 @@ class SampleProcessor extends FimGLImageProcessor {
 describe('FimGLImageProcessor', () => {
 
   it('Performs a basic test', async () => {
-    await usingAsync(new Fim(), async fim => {
+    await usingAsync(new FimWeb(), async fim => {
       await usingAsync(new SampleProcessor(fim, 480, 480), async processor => {
         for (let n = 0; n < 10; n++) {
           // Increase brightness by 5%
@@ -76,7 +76,7 @@ describe('FimGLImageProcessor', () => {
   });
 
   it('Works across context loss', async () => {
-    await usingAsync(new Fim(), async fim => {
+    await usingAsync(new FimWeb(), async fim => {
       await usingAsync(new SampleProcessor(fim, 480, 480), async processor => {
         for (let n = 0; n < 10; n++) {
           // Increase brightness by 5%

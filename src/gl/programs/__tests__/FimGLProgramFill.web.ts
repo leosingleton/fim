@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramFill } from '../FimGLProgramFill';
-import { Fim } from '../../../Fim';
+import { FimWeb } from '../../../Fim';
 import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from '../../../image/FimCanvasFactory';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimRect } from '../../../primitives/FimRect';
@@ -14,7 +14,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Respects custom destination rectangles', () => {
       DisposableSet.using(disposable => {
         // Create a 300x200 red canvas
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let gl = disposable.addDisposable(fim.createGLCanvas(300, 200, '#f00'));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
@@ -32,7 +32,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Respects custom destination rectangles vertically', () => {
       DisposableSet.using(disposable => {
         // Create a 100x200 red canvas
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let gl = disposable.addDisposable(fim.createGLCanvas(100, 200, '#f00'));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
@@ -49,7 +49,7 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Respects custom destination rectangles to the pixel', () => {
       DisposableSet.using(disposable => {
         // Create a 100x100 red canvas
-        let fim = disposable.addDisposable(new Fim(canvasFactory));
+        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
         let gl = disposable.addDisposable(fim.createGLCanvas(100, 100, '#f00'));
 
         // Draw a blue on one specific pixel
@@ -68,6 +68,6 @@ function spec(canvasFactory: FimCanvasFactory) {
 describe('FimGLProgramFill(OffScreenCanvas=false)', spec(FimDomCanvasFactory));
 
 // Only run OffscreenCanvas tests on browsers that support it
-if (Fim.supportsOffscreenCanvas) {
+if (FimWeb.supportsOffscreenCanvas) {
   describe('FimGLProgramFill(OffScreenCanvas=true)', spec(FimOffscreenCanvasFactory));
 }

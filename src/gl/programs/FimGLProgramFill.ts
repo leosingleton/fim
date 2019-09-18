@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLCanvas } from '../FimGLCanvas';
+import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimColor } from '../../primitives/FimColor';
 
 /** GL program to fill a texture or canvas with a solid color */
 export class FimGLProgramFill extends FimGLProgram {
-  constructor(canvas: IFimGLCanvas) {
+  constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/Fill.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();

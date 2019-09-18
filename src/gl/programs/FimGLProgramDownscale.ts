@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLCanvas } from '../FimGLCanvas';
+import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from '../FimGLError';
 import { FimGLProgram } from '../FimGLProgram';
-import { IFimGLTexture, FimGLTextureFlags } from '../FimGLTexture';
+import { FimGLTextureFlags, IFimGLTextureLike } from '../FimGLTexture';
 
 /** GL program to downscale a texture to a lower resolution */
 export class FimGLProgramDownscale extends FimGLProgram {
@@ -15,7 +15,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
    * @param xRatio Downscale ratio of the x-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    * @param yRatio Downscale ratio of the y-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    */
-  constructor(canvas: IFimGLCanvas, xRatio: number, yRatio: number) {
+  constructor(canvas: FimGLCanvas, xRatio: number, yRatio: number) {
     let fragmentShader = require('./glsl/Downscale.glsl');
     super(canvas, fragmentShader);
 
@@ -27,16 +27,18 @@ export class FimGLProgramDownscale extends FimGLProgram {
     this.compileProgram();
   }
 
-  public setInputs(inputTexture: IFimGLTexture): void {
+  public setInputs(inputTexture: IFimGLTextureLike): void {
+    let texture = inputTexture.getTexture();
+  
     // Ensure the input texture has linear filtering enabled
-    if ((inputTexture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
+    if ((texture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
       throw new FimGLError(FimGLErrorCode.AppError, 'NotLinear');
     }
     this.fragmentShader.uniforms.uInput.variableValue = inputTexture;
 
     // The X and Y of the sample pixels must be scaled based on the actual input resolution
     this.fragmentShader.uniforms.uPixels.variableValue = FimGLProgramDownscale.scaleSamplePixels(this.pixelCount,
-      this.pixels, inputTexture.w, inputTexture.h);
+      this.pixels, texture.w, texture.h);
   }
 
   private pixels: number[];
