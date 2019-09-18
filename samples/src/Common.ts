@@ -2,15 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim, FimCanvas, FimGLProgramCopy, FimRect, IFimCanvas, IFimGLCanvas,
-  IFimGLTexture } from '../../build/dist/index.js';
+import { FimWeb, FimCanvas, FimGLProgramCopy, FimRect, FimGLCanvas, IFimGLTextureLike } from '../../build/dist/index.js';
 import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
 let qs = parseQueryString();
 
 /** Global instance of FIM */
-export var fim = new Fim();
+export var fim = new FimWeb();
 
 /** Loads a test image and returns the JPEG as a byte array */
 export async function loadTestImageToArray(): Promise<Uint8Array> {
@@ -198,7 +197,7 @@ export function perfTestAsync(description: string, test: () => Promise<void>, bl
  *    the input canvas.
  * @param domCanvasId ID of the canvas element on the DOM. If unspecified, a new one is created.
  */
-export function renderOutput(canvas: IFimCanvas | IFimGLCanvas, message?: string, maxDimension?: number,
+export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, maxDimension?: number,
     domCanvasId?: string): Promise<void> {
   // Calculate width and height
   let outputDimensions = canvas.imageDimensions;
@@ -260,7 +259,7 @@ export function renderOutput(canvas: IFimCanvas | IFimGLCanvas, message?: string
 }
 
 /** Copies a FimGLTexture onto a FimGLCanvas */
-export function textureToCanvas(gl: IFimGLCanvas, texture: IFimGLTexture): void {
+export function textureToCanvas(gl: FimGLCanvas, texture: IFimGLTextureLike): void {
   using(new FimGLProgramCopy(gl), program => {
     program.setInputs(texture);
     program.execute();

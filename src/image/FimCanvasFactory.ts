@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../Fim';
+import { FimWeb } from '../Fim';
 import { IDisposable, makeDisposable } from '@leosingleton/commonlibs';
 
 /**
@@ -49,7 +49,7 @@ export function FimDomCanvasFactory(width: number, height: number, canvasId: str
 export function FimOffscreenCanvasFactory(width: number, height: number, canvasId: string):
     OffscreenCanvas & IDisposable {
   // Use Chrome's OffscreenCanvas object
-  if (!Fim.supportsOffscreenCanvas) {
+  if (!FimWeb.supportsOffscreenCanvas) {
     // The browser does not support OffscreenCanvas
     throw new Error('No OffScreenCanvas');
   }

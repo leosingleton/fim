@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLTexture } from './FimGLTexture';
+import { IFimGLTextureLike } from './FimGLTexture';
 import { GlslVariable, GlslShader } from 'webpack-glsl-minify';
 
 /** One uniform or const variable in a shader minified by webpack-glsl-minify, with the addition of its value */
 export interface FimGLVariableDefinition extends GlslVariable {
   /** Sets the value of the const or uniform. Not set by the compiler. */
-  variableValue?: number | number[] | Float32Array | IFimGLTexture | boolean;
+  variableValue?: number | number[] | Float32Array | IFimGLTextureLike | boolean;
 }
 
 /** Map of original unminified names to their minified details */

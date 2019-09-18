@@ -4,13 +4,13 @@
 
 import { FimGLProgramDownscale } from '../FimGLProgramDownscale';
 import { FimGLTextureFlags } from '../../FimGLTexture';
-import { Fim } from '../../../Fim';
+import { FimWeb } from '../../../Fim';
 import { FimTestPatterns } from '../../../debug/FimTestPatterns';
 import { DisposableSet } from '@leosingleton/commonlibs';
 
 async function testDownscale(ratio: number): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
-    let fim = disposable.addDisposable(new Fim());
+    let fim = disposable.addDisposable(new FimWeb());
 
     // Build the test pattern
     let testBuffer = disposable.addDisposable(fim.createRgbaBuffer(512, 16));

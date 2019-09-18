@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IFimGLCanvas } from './FimGLCanvas';
+import { FimGLCanvas } from './FimGLCanvas';
 
 /** Exception class thrown when a WebGL error occurs */
 export class FimGLError extends Error {
@@ -72,7 +72,7 @@ export class FimGLError extends Error {
   }
 
   /** Ensures both gl1 and gl2 are the same FimGLCanvas */
-  public static throwOnMismatchedGLCanvas(gl1: IFimGLCanvas, gl2: IFimGLCanvas): void {
+  public static throwOnMismatchedGLCanvas(gl1: FimGLCanvas, gl2: FimGLCanvas): void {
     if (gl1.imageId !== gl2.imageId) {
       // WebGL objects such as programs and textures are tied to the specific WebGL canvas on which they were created.
       // You can't just take a texture from one and use it with another.

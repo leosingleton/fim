@@ -3,9 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLProgramCopy } from './FimGLProgramCopy';
-import { IFimGLCanvas } from '../FimGLCanvas';
+import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
-import { IFimGLTexture } from '../FimGLTexture';
+import { IFimGLTextureLike } from '../FimGLTexture';
 import { using } from '@leosingleton/commonlibs';
 
 /** GL program which stacks images to reduce noise */
@@ -14,7 +14,7 @@ export class FimGLProgramImageStacking extends FimGLProgram {
    * Constructor
    * @param canvas 
    */
-  constructor(canvas: IFimGLCanvas) {
+  constructor(canvas: FimGLCanvas) {
     let fragmentShader = require('./glsl/ImageStacking.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
@@ -31,13 +31,13 @@ export class FimGLProgramImageStacking extends FimGLProgram {
    * @param inputTexture Input texture
    * @param frames Approximate number of frames to average together
    */
-  public setInputs(inputTexture: IFimGLTexture, frames: number): void {
+  public setInputs(inputTexture: IFimGLTextureLike, frames: number): void {
     let uniforms = this.fragmentShader.uniforms;
     uniforms.u_input.variableValue = inputTexture;
     uniforms.u_newAlpha.variableValue = 1 / frames;
   }
 
-  public execute(outputTexture?: IFimGLTexture): void {
+  public execute(outputTexture?: IFimGLTextureLike): void {
     using(this.glCanvas.createTexture(), temp => {
       // Perform image stacking (temp = old + input)
       super.execute(temp);
@@ -51,6 +51,6 @@ export class FimGLProgramImageStacking extends FimGLProgram {
     });
   }
 
-  private oldCanvas: IFimGLTexture;
+  private oldCanvas: IFimGLTextureLike;
   private copyProgram: FimGLProgramCopy;
 }
