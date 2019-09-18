@@ -35,13 +35,11 @@ export abstract class FimCanvasBase extends FimImage {
   public getCanvas(): HTMLCanvasElement | OffscreenCanvas {
     return this.canvasElement;
   }
-  protected canvasElement: HTMLCanvasElement | OffscreenCanvas;
+  protected canvasElement: (HTMLCanvasElement | OffscreenCanvas) & IDisposable;
 
   public dispose(): void {
     if (this.canvasElement) {
-      if (!this.offscreenCanvas) {
-        document.body.removeChild(this.canvasElement as HTMLCanvasElement);
-      }
+      this.canvasElement.dispose();
       delete this.canvasElement;
     }
   }
