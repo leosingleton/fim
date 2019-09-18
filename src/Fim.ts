@@ -10,7 +10,7 @@ import { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from
 import { FimGreyscaleBuffer, _FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
 import { FimRgbaBuffer, _FimRgbaBuffer } from './image/FimRgbaBuffer';
 import { FimColor } from './primitives/FimColor';
-import { IDisposable } from '@leosingleton/commonlibs';
+import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 
 /** Factory methods for creating canvases */
 export abstract class Fim implements IDisposable {
@@ -28,7 +28,7 @@ export abstract class Fim implements IDisposable {
    * @param initialColor If specified, the canvas is initalized to this value (0 to 255).
    */
   public createGreyscaleBuffer(width: number, height: number, initialColor?: number): FimGreyscaleBuffer {
-    return new _FimGreyscaleBuffer(this, width, height, initialColor);
+    return this.disposable.addDisposable(new _FimGreyscaleBuffer(this, width, height, initialColor));
   }
 
   /**
@@ -38,7 +38,7 @@ export abstract class Fim implements IDisposable {
    * @param initialColor If specified, the canvas is initalized to this color.
    */
   public createRgbaBuffer(width: number, height: number, initialColor?: FimColor | string): FimRgbaBuffer {
-    return new _FimRgbaBuffer(this, width, height, initialColor);
+    return this.disposable.addDisposable(new _FimRgbaBuffer(this, width, height, initialColor));
   }
 
   /**
@@ -48,15 +48,15 @@ export abstract class Fim implements IDisposable {
    * @param initialColor If specified, the canvas is initalized to this color.
    */
   public createCanvas(width: number, height: number, initialColor?: FimColor | string): FimCanvas {
-    return new _FimCanvas(this, width, height, initialColor);
+    return this.disposable.addDisposable(new _FimCanvas(this, width, height, initialColor));
   }
 
   /**
    * Creates a 2D canvas from a JPEG file
    * @param jpegFile JPEG file, loaded into a byte array
    */
-  public createCanvasFromJpegAsync(jpegFile: Uint8Array): Promise<FimCanvas> {
-    return _FimCanvas.createFromJpegAsync(this, jpegFile);
+  public async createCanvasFromJpegAsync(jpegFile: Uint8Array): Promise<FimCanvas> {
+    return this.disposable.addDisposable(await _FimCanvas.createFromJpegAsync(this, jpegFile));
   }
 
   /**
@@ -68,7 +68,7 @@ export abstract class Fim implements IDisposable {
    *    performance.
    */
   public createGLCanvas(width: number, height: number, initialColor?: FimColor | string, quality = 1): FimGLCanvas {
-    return new _FimGLCanvas(this, width, height, initialColor, quality);
+    return this.disposable.addDisposable(new _FimGLCanvas(this, width, height, initialColor, quality));
   }
 
   /** Returns the WebGL capabilities of the current browser */
@@ -76,7 +76,11 @@ export abstract class Fim implements IDisposable {
     return _getGLCapabilities(this);
   }
 
-  public dispose() {}
+  public dispose() {
+    this.disposable.dispose();
+  }
+
+  protected disposable = new DisposableSet();
 }
 
 /** Implementation of canvas factory for web browsers */
@@ -106,7 +110,7 @@ export class FimWeb extends Fim {
    * Creates a 2D canvas from a Blob containing an image
    * @param blob Blob of type 'image/*'
    */
-  public createFromImageBlobAsync(blob: Blob): Promise<FimCanvas> {
-    return _FimCanvas.createFromImageBlobAsync(this, blob);
+  public async createFromImageBlobAsync(blob: Blob): Promise<FimCanvas> {
+    return this.disposable.addDisposable(await _FimCanvas.createFromImageBlobAsync(this, blob));
   }
 }

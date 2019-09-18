@@ -19,6 +19,7 @@ import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimRect } from '../primitives/FimRect';
 import { IFimGetPixel } from '../primitives/IFimGetSetPixel';
+import { DisposableSet } from '@leosingleton/commonlibs';
 
 /** FimCanvas which leverages WebGL to do accelerated rendering */
 export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
@@ -60,6 +61,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     this.contextLostNotifications = [];
     this.contextRestoredNotifications = [];
     this.workaroundChromeBug = false;
+    this.disposable = new DisposableSet();
 
     // Initialize WebGL
     let canvas = this.canvasElement;
@@ -120,6 +122,8 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     recordDispose(this, FimObjectType.GLCanvas);
 
     super.dispose();
+
+    this.disposable.dispose();
   }
 
   /** Registers a lambda function to be executed on WebGL context lost */
@@ -325,7 +329,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
    * @param options See FimGLTextureOptions
    */
   public createTexture(width?: number, height?: number, options?: FimGLTextureOptions): FimGLTexture {
-    return new _FimGLTexture(this, width, height, options);
+    return this.disposable.addDisposable(new _FimGLTexture(this, width, height, options));
   }
 
   /**
@@ -335,8 +339,10 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
    */
   public createTextureFrom(srcImage: FimGreyscaleBuffer | FimRgbaBuffer | FimCanvas | FimGLCanvas,
       extraFlags = FimGLTextureFlags.None): FimGLTexture {
-    return _FimGLTexture.createFrom(this, srcImage, extraFlags);
+    return this.disposable.addDisposable(_FimGLTexture.createFrom(this, srcImage, extraFlags));
   }
+
+  protected disposable: DisposableSet;
 }
 
 /** Internal-only version of the FimGLCanvas class */
