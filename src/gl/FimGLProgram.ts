@@ -4,8 +4,7 @@
 
 import { FimGLCanvas } from './FimGLCanvas';
 import { FimGLError, FimGLErrorCode } from './FimGLError';
-import { FimGLPreservedTexture } from './processor/FimGLPreservedTexture';
-import { FimGLTexture, _FimGLTexture, IFimGLTextureLike } from './FimGLTexture';
+import { IFimGLTextureLike } from './FimGLTexture';
 import { FimGLShader, FimGLVariableDefinition } from './FimGLShader';
 import { FimObjectType, recordCreate, recordDispose, recordWebGLRender } from '../debug/FimStats';
 import { Transform2D } from '../math/Transform2D';
@@ -354,7 +353,7 @@ export abstract class FimGLProgram implements IDisposable {
 
       if (outputTexture) {
         // The texture now has an image. Set the boolean so it may be used as an input texture in the future.
-        (outputTexture as _FimGLTexture).hasImage = true;
+        outputTexture.getTexture().hasImage = true;
       }
     } finally {
       // Unbind the program. This doesn't seem to be strictly necessary, but helps to catch bugs.
