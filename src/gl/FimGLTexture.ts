@@ -13,6 +13,7 @@ import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimRect } from '../primitives/FimRect';
+import { IFimDimensions } from '../primitives/IFimDimensions';
 import { using } from '@leosingleton/commonlibs';
 
 /** Flags for FimGLTexture creation */
@@ -62,7 +63,7 @@ export interface FimGLTextureOptions {
  * Interface for objects that act like a WebGL texture. Used by FimGLPreservedTexture to implement a variation of a
  * WebGL texture that is backed up to an in-memory canvas.
  */
-export interface IFimGLTextureLike {
+export interface IFimGLTextureLike extends IFimDimensions {
   /** Gets the underlying FimGLTexture that backs this object */
   getTexture(): FimGLTexture;
 }
