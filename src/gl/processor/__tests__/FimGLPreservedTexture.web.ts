@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimGLPreservedTexture } from '../FimGLPreservedTexture';
+import { FimGLProgramFill } from '../../programs/FimGLProgramFill';
 import { FimWeb } from '../../../Fim';
 import { ContextLost } from '../../../debug/ContextLost';
 import { FimTestImages } from '../../../debug/FimTestImages';
@@ -18,6 +19,26 @@ function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
 }
 
 describe('FimGLPreservedTexture', () => {
+
+  it('Reads and writes like a texture', async () => {
+    await DisposableSet.usingAsync(async disposable => {
+      let fim = disposable.addDisposable(new FimWeb());
+      let gl = disposable.addDisposable(fim.createGLCanvas(640, 480));
+
+      // Create a green preserved texture with the fill program
+      let texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
+      let fill = disposable.addDisposable(new FimGLProgramFill(gl));
+      let green = FimColor.fromString('#0f0');
+      fill.setInputs(green);
+      fill.execute(texture);
+
+      // Copy the preserved texture to the WebGL canvas
+      gl.copyFrom(texture);
+
+      // Ensure the output is green
+      expect(gl.getPixel(320, 240)).toEqual(green);
+    });
+  });
 
   it('Preserves texture across context loss', async () => {
     await DisposableSet.usingAsync(async disposable => {
