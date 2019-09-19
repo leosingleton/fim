@@ -1,3 +1,5 @@
+pr: none
+
 jobs:
 - job: Build
   timeoutInMinutes: 5
