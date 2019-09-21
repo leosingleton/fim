@@ -34,7 +34,7 @@
     "webpack-cli": "^3.3.8"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.1.0-alpha",
+    "@leosingleton/commonlibs": "^1.1.1-alpha",
     "webpack-glsl-minify": "^1.1.2"
   },
   "scripts": {
