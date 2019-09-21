@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimWeb, FimCanvas, FimGLProgramCopy, FimRect, FimGLCanvas, IFimGLTextureLike } from '../../build/dist/index.js';
-import { Stopwatch, parseQueryString, using } from '@leosingleton/commonlibs';
+import { Stopwatch, UnhandledError, DocumentReady, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
 let qs = parseQueryString();
@@ -308,66 +308,14 @@ $(() => {
 // Unhandled Exception Handling
 //
 
-/** To catch errors before the page load event, we queue them here */
-let errorQueue: string[] = [];
-let isLoaded = false;
-
-// Register an error handler to catch unhandled exceptions
-window.onerror = (event, source, lineno, colno, error) => {
-  // Convert the error to a string
-  let errorStr: string;
-  if (error) {
-    errorStr = `Error: ${error.message}\n${error.stack}`;
-  } else {
-    let eventStr = JSON.stringify(event, null, 4);
-    errorStr = `Error: ${eventStr}\n  at ${source}:${lineno}:${colno}`;
-  }
-
-  writeError(errorStr);
-};
-
-// With promises, this one normally fires instead
-window.addEventListener('unhandledrejection', event => {
-  // Convert the error to a string
-  let reason = event.reason;
-  let errorStr: string;
-  if (reason instanceof Error) {
-    errorStr = `Unhandled Promise Rejection: ${reason.message}\n${reason.stack}`;
-  } else {
-    errorStr = `Unhandled Promise Rejection: ${reason.toString()}`;
-  }
-  
-  writeError(errorStr);
-});
-
-// On page load, display any errors that occurred earlier
-$(() => {
-  isLoaded = true;
-  errorQueue.forEach(writeError);
-});
-
-function writeError(error: string): void {
-  if (!isLoaded) {
-    errorQueue.push(error);
-    return;
-  }
+UnhandledError.registerHandler(async (ue: UnhandledError) => {
+  // Block until we can show the error
+  await DocumentReady.waitUntilReady();
 
   // Append the error to <div id="errors">
   let div = $('#errors');
   if (div) {
-    div.text(div.text() + '\n\n' + error);
+    div.text(div.text() + '\n\n' + ue.toString());
     div.show(); // Unhide if display: none
   }
-}
-
-export function handleError(error: any): void {
-  // Convert the error to a string
-  let errorStr: string;
-  if (error instanceof Error) {
-    errorStr = `Error: ${error.message}\n${error.stack}`;
-  } else {
-    errorStr = `Error: ${error.toString()}`;
-  }
-  
-  writeError(errorStr);
-}
+})

@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { fim, loadTestImage, handleError, renderOutput } from './Common';
+import { fim, loadTestImage, renderOutput } from './Common';
 import { FimGLProgramCopy, FimGLTextureFlags, Transform2D } from '../../build/dist/index.js';
-import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
+import { DisposableSet, Stopwatch, Task, UnhandledError } from '@leosingleton/commonlibs';
 
 export async function glTransform2D(canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
@@ -77,7 +77,7 @@ export async function glTransform2D(canvasId: string): Promise<void> {
     } catch (ex) {
       // Log the error
       console.log(ex);
-      handleError(ex);
+      UnhandledError.reportError(ex);
 
       // Free resources
       disposable.dispose();
