@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { fim, handleError, loadTestImage, renderOutput } from './Common';
+import { fim, loadTestImage, renderOutput } from './Common';
 import { FimGLProgramMatrixOperation1DFast, FimGLTextureFlags, FimGLProgramCopy,
   GaussianKernel } from '../../build/dist/index.js';
-import { DisposableSet, Stopwatch, Task } from '@leosingleton/commonlibs';
+import { DisposableSet, Stopwatch, Task, UnhandledError } from '@leosingleton/commonlibs';
 
 export async function glStress(testCase: string, canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
@@ -79,7 +79,7 @@ export async function glStress(testCase: string, canvasId: string): Promise<void
     } catch (ex) {
       // Log the error
       console.log(ex);
-      handleError(ex);
+      UnhandledError.reportError(ex);
 
       // Free resources
       disposable.dispose();
