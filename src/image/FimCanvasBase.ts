@@ -5,6 +5,7 @@
 import { FimImage } from './FimImage';
 import { FimCanvas } from './FimCanvas';
 import { FimDomCanvasFactory } from './FimCanvasFactory';
+import { FimError, FimErrorCode } from './FimError';
 import { Fim } from '../Fim';
 import { recordDrawImage } from '../debug/FimStats';
 import { FimColor } from '../primitives/FimColor';
@@ -136,6 +137,13 @@ export abstract class FimCanvasBase extends FimImage {
   protected static createDrawingContext(destCanvas: HTMLCanvasElement | OffscreenCanvas, imageSmoothingEnabled = false,
       operation = 'copy', alpha = 1): CanvasRenderingContext2D & IDisposable {
     let ctx = (destCanvas as HTMLCanvasElement).getContext('2d');
+    if (!ctx) {
+      // Safari on iOS has a limit of 288 MB total for all canvases on a page. It logs this message to the console if
+      // connecting to a PC for debugging, but the only errror given to the JavaScript code is returning a null on
+      // getContext('2d'). This is most likely the cause of null here.
+      throw new FimError(FimErrorCode.OutOfMemory);
+    }
+
     ctx.save();
     ctx.globalCompositeOperation = operation;
     ctx.globalAlpha = alpha;
