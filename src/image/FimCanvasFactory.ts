@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from './FimError';
 import { FimWeb } from '../Fim';
 import { IDisposable, makeDisposable } from '@leosingleton/commonlibs';
 
@@ -51,7 +52,7 @@ export function FimOffscreenCanvasFactory(width: number, height: number, canvasI
   // Use Chrome's OffscreenCanvas object
   if (!FimWeb.supportsOffscreenCanvas) {
     // The browser does not support OffscreenCanvas
-    throw new Error('No OffScreenCanvas');
+    throw new FimError(FimErrorCode.AppError, 'NoOffScreenCanvas');
   }
 
   // uglify-js is not yet aware of OffscreenCanvas and name mangles it

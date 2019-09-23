@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Transform2D } from './Transform2D';
+import { FimError, FimErrorCode } from '../image/FimError';
 
 /**
  * Computes transformation matrices for vertexes in a 3-dimensional space.
@@ -44,7 +45,7 @@ export class Transform3D {
   public transformVertexArray(values: number[]): number[] {
     // Ensure the input is an array of size 4 vectors
     if (values.length % 4 !== 0) {
-      throw new Error('ArraySize');
+      throw new FimError(FimErrorCode.AppError, 'ArraySize');
     }
 
     let result = [];
@@ -149,7 +150,7 @@ export class Transform3D {
         o[6], o[7],    0, o[8]
       ];
     } else if (result.length !== 16) {
-      throw new Error(`Invalid length ${result.length}`);
+      throw new FimError(FimErrorCode.AppError, `Invalid length ${result.length}`);
     }
 
     return result;
