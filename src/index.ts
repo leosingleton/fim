@@ -25,6 +25,7 @@ export { FimGLProgramMatrixOperation1D } from './gl/programs/FimGLProgramMatrixO
 export { FimGLProgramMatrixOperation1DFast } from './gl/programs/FimGLProgramMatrixOperation1DFast';
 export { FimCanvas } from './image/FimCanvas';
 export { FimCanvasFactory, FimDomCanvasFactory, FimOffscreenCanvasFactory } from './image/FimCanvasFactory';
+export { FimError, FimErrorCode } from './image/FimError';
 export { FimGreyscaleBuffer } from './image/FimGreyscaleBuffer';
 export { FimImage } from './image/FimImage';
 export { FimRgbaBuffer } from './image/FimRgbaBuffer';

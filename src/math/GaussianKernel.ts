@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from '../image/FimError';
+
 /**
  * Calculates Gaussian Kernel matrices. Useful for Gaussian Blur filters.
  */
@@ -77,7 +79,7 @@ export class GaussianKernel {
 
     // Ensure kernelSize is odd and large enough
     if (kernelSize % 2 !== 1 || kernelSize < 3) {
-      throw new Error(`Invalid kernel size ${kernelSize}`);
+      throw new FimError(FimErrorCode.AppError, `Invalid kernel size ${kernelSize}`);
     }
     let halfKernelSize = Math.floor(kernelSize / 2);
 

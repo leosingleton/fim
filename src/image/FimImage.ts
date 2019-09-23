@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from './FimError';
 import { Fim } from '../Fim';
 import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
@@ -78,7 +79,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    */
   protected throwOnRescale(srcCoords: FimRect, destCoords: FimRect): void {
     if (!srcCoords.sameDimensions(destCoords)) {
-      throw new Error(`Rescale not supported: ${srcCoords} ${destCoords}`);
+      throw new FimError(FimErrorCode.AppError, `Rescale not supported: ${srcCoords} ${destCoords}`);
     }
   }
 
@@ -89,7 +90,8 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    */
   protected throwOnMismatchedDimensions(srcImage: FimImage): void {
     if (!this.imageDimensions.equals(srcImage.imageDimensions)) {
-      throw new Error(`Crop and rescale not supported: ${this.imageDimensions} ${srcImage.imageDimensions}`);
+      throw new FimError(FimErrorCode.AppError,
+        `Crop and rescale not supported: ${this.imageDimensions} ${srcImage.imageDimensions}`);
     }
   }
 
@@ -99,6 +101,6 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
    * @param fimImage Invalid FimImage object
    */
   protected throwOnInvalidImageKind(fimImage: never): never {
-    throw new Error(`Invalid kind: ${fimImage}`);
+    throw new FimError(FimErrorCode.AppError, `Invalid kind: ${fimImage}`);
   }
 }

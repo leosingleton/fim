@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from '../image/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
@@ -47,13 +48,13 @@ export class ImageGrid implements IFimDimensions {
     // Enforce constraints on the max tiles based on the flags to zero center
     if (flags & ImageGridFlags.ZeroCenterX) {
       if (maxHorizontalTiles === 1) {
-        throw new Error('maxHorizontalTiles');
+        throw new FimError(FimErrorCode.AppError, 'maxHorizontalTiles');
       }
       maxHorizontalTiles += maxHorizontalTiles % 2; // Round up to an even number
     }
     if (flags & ImageGridFlags.ZeroCenterY) {
       if (maxVerticalTiles === 1) {
-        throw new Error('maxVerticalTiles');
+        throw new FimError(FimErrorCode.AppError, 'maxVerticalTiles');
       }
       maxVerticalTiles += maxVerticalTiles % 2; // Round up to an even number
     }

@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from '../image/FimError';
+
 /**
  * Class that represents an immutable RGBA color value
  */
@@ -54,10 +56,10 @@ export class FimColor {
     // Validate the input values are integers from 0 to 255
     function validateInput(value: number): void {
       if (value < 0 || value > 255) {
-        throw new Error(`Out of range: ${value}`);
+        throw new FimError(FimErrorCode.AppError, `Out of range: ${value}`);
       }
       if (value !== Math.floor(value)) {
-        throw new Error(`Not an int: ${value}`);
+        throw new FimError(FimErrorCode.AppError, `Not an int: ${value}`);
       }
     }
     validateInput(red);
@@ -96,7 +98,7 @@ export class FimColor {
    */
   public static fromString(color: string): FimColor {
     if (color[0] !== '#') {
-      throw new Error(`Invalid: ${color}`);
+      throw new FimError(FimErrorCode.AppError, `Invalid: ${color}`);
     }
 
     /** Parses a 1 character hex number */
@@ -125,7 +127,7 @@ export class FimColor {
         return this.fromRGBABytes(parse2(1), parse2(3), parse2(5), parse2(7));
       
       default:
-        throw new Error(`Invalid: ${color}`);
+        throw new FimError(FimErrorCode.AppError, `Invalid: ${color}`);
     }
   }
 

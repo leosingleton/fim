@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from '../image/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 
@@ -89,7 +90,7 @@ export class Transform2D {
   private static acceptMatrixOrArray(value: Transform2D | number[]): number[] {
     let result = (value instanceof Transform2D) ? value.matrixValue : value;
     if (result.length !== 9) {
-      throw new Error(`Invalid length ${result.length}`);
+      throw new FimError(FimErrorCode.AppError, `Invalid length ${result.length}`);
     }
 
     return result;
