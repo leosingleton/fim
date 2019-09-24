@@ -1,6 +1,6 @@
 {
   "name": "@leosingleton/fim",
-  "version": "1.1.0-alpha",
+  "version": "1.1.1-alpha",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "Fast Image Manipulation Library for JavaScript",
   "homepage": "https://github.com/leosingleton/fim",
