@@ -6,25 +6,34 @@ import { FimError, FimErrorCode } from './FimError';
 import { FimWeb } from '../Fim';
 import { IDisposable, makeDisposable } from '@leosingleton/commonlibs';
 
+/** Canvas types */
+export const enum FimCanvasType {
+  Canvas2D,
+  WebGL
+}
+
 /**
  * Factory method to create HTMLCanvasElement or OffscreenCanvas objects. These could be the actual browser objects, or
  * a mock object to support NodeJS or other platforms.
  * @param width Width of the canvas, in pixels
  * @param height Height of the canvas, in pixels
+ * @param canvasType Type of the canvas, either 2D or WebGL
  * @param canvasId Unique ID for logging and debugging
  * @returns HTMLCanvasElement or OffscreenCanvas object
  */
-export type FimCanvasFactory = (width: number, height: number, canvasId: string) =>
+export type FimCanvasFactory = (width: number, height: number, canvasType: FimCanvasType, canvasId: string) =>
   (HTMLCanvasElement | OffscreenCanvas) & IDisposable;
 
 /**
  * Constructs a hidden DOM canvas in a web browser.
  * @param width Width of the canvas, in pixels
  * @param height Height of the canvas, in pixels
+ * @param canvasType Type of the canvas, either 2D or WebGL
  * @param canvasId Unique ID for logging and debugging
  * @returns HTMLCanvasElement object
  */
-export function FimDomCanvasFactory(width: number, height: number, canvasId: string): HTMLCanvasElement & IDisposable {
+export function FimDomCanvasFactory(width: number, height: number, canvasType: FimCanvasType, canvasId: string):
+    HTMLCanvasElement & IDisposable {
   // Create a hidden canvas
   let canvas = document.createElement('canvas');
   canvas.width = width;
@@ -49,10 +58,11 @@ export function FimDomCanvasFactory(width: number, height: number, canvasId: str
  * calling this function.
  * @param width Width of the canvas, in pixels
  * @param height Height of the canvas, in pixels
+ * @param canvasType Type of the canvas, either 2D or WebGL
  * @param canvasId Unique ID for logging and debugging
  * @returns OffscreenCanvas object
  */
-export function FimOffscreenCanvasFactory(width: number, height: number, canvasId: string):
+export function FimOffscreenCanvasFactory(width: number, height: number, canvasType: FimCanvasType, canvasId: string):
     OffscreenCanvas & IDisposable {
   // Use Chrome's OffscreenCanvas object
   if (!FimWeb.supportsOffscreenCanvas) {

@@ -5,12 +5,13 @@
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { Fim } from '../Fim';
 import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimCanvasType } from '../image/FimCanvasFactory';
 
 /** Helper class to create a temporary WebGL canvas, just for reading capabilities */
 class WebGLHelper extends FimCanvasBase {
   public constructor(fim: Fim) {
     // Use a small canvas that any browser supporting WebGL can handle
-    super(fim, 240, 240);
+    super(fim, 240, 240, FimCanvasType.WebGL);
 
     this.gl = (this.canvasElement as HTMLCanvasElement).getContext('webgl');
     if (!this.gl) {

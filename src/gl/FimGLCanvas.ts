@@ -12,6 +12,7 @@ import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimCanvasType } from '../image/FimCanvasFactory';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
@@ -52,7 +53,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
 
     // Call the parent constructor
-    super(fim, width, height, maxDimension);
+    super(fim, width, height, FimCanvasType.WebGL, maxDimension);
 
     // Report telemetry for debugging
     recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
