@@ -35,6 +35,11 @@ export function FimDomCanvasFactory(width: number, height: number, canvasId: str
 
   // Add a .dispose() method to remove the canvas from the DOM
   return makeDisposable(canvas, canvas => {
+    // Resizing the canvas to zero seems to help Safari release memory without having to wait for the garbage
+    // collector. This helps prevent crashes, particularly on mobile devices.
+    canvas.width = 0;
+    canvas.height = 0;
+
     document.body.removeChild(canvas);
   });
 }
