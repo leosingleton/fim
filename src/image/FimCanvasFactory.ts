@@ -72,5 +72,10 @@ export function FimOffscreenCanvasFactory(width: number, height: number, canvasT
 
   // uglify-js is not yet aware of OffscreenCanvas and name mangles it
   // @nomangle OffscreenCanvas convertToBlob
-  return makeDisposable(new OffscreenCanvas(width, height), canvas => {});
+  return makeDisposable(new OffscreenCanvas(width, height), canvas => {
+    // Chrome is the only browser that currently supports OffscreenCanvas, and I've never actually hit an out-of-memory
+    // error with it, even on mobile, but it probably doesn't hurt to resize the canvas to zero.
+    canvas.width = 0;
+    canvas.height = 0;
+  });
 }
