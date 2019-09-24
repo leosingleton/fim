@@ -265,7 +265,7 @@ export class _FimCanvas extends FimCanvas {
    * @param fim FIM canvas factory
    * @param blob Blob of type 'image/*'
    */
-  public static async createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
+  public static createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
       let url = (URL || webkitURL).createObjectURL(blob);
       let img = new Image();
@@ -273,13 +273,19 @@ export class _FimCanvas extends FimCanvas {
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
-        let result = fim.createCanvas(img.width, img.height);
-        using(result.createDrawingContext(), ctx => {
-          ctx.drawImage(img, 0, 0);
-        });
+        try {
+          let result = fim.createCanvas(img.width, img.height);
+          using(result.createDrawingContext(), ctx => {
+            ctx.drawImage(img, 0, 0);
+          });
 
-        (URL || webkitURL).revokeObjectURL(url);
-        resolve(result);
+          resolve(result);
+        } catch (err) {
+          // The call to createCanvas() or createDrawingContext() could fail if we run out of memory
+          reject(err);
+        } finally {
+          (URL || webkitURL).revokeObjectURL(url);
+        }
       };
 
       // On error, return an exception via the Promise
