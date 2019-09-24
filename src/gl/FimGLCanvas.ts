@@ -92,9 +92,15 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
       this.contextRestoredNotifications.forEach(eh => eh());
     }, false);
 
+    // Get additional error details in case getContext('webgl') fails
+    let msg: string;
+    canvas.addEventListener('webglcontextcreationerror', (e: WebGLContextEvent) => {
+      msg = e.statusMessage;
+    }, false);
+
     let gl = this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL);
+      throw new FimGLError(FimGLErrorCode.NoWebGL, msg);
     }
 
     this.loadExtensions();

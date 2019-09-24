@@ -12,10 +12,17 @@ class WebGLHelper extends FimCanvasBase {
   public constructor(fim: Fim) {
     // Use a small canvas that any browser supporting WebGL can handle
     super(fim, 240, 240, FimCanvasType.WebGL);
+    let canvas = this.canvasElement;
 
-    this.gl = (this.canvasElement as HTMLCanvasElement).getContext('webgl');
+    // Get additional error details in case getContext('webgl') fails
+    let msg: string;
+    canvas.addEventListener('webglcontextcreationerror', (e: WebGLContextEvent) => {
+      msg = e.statusMessage;
+    }, false);
+
+    this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!this.gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL);
+      throw new FimGLError(FimGLErrorCode.NoWebGL, msg);
     }
   }
 
