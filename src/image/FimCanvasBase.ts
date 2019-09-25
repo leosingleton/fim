@@ -4,7 +4,7 @@
 
 import { FimImage } from './FimImage';
 import { FimCanvas } from './FimCanvas';
-import { FimDomCanvasFactory } from './FimCanvasFactory';
+import { FimDomCanvasFactory, FimCanvasType } from './FimCanvasFactory';
 import { FimError, FimErrorCode } from './FimError';
 import { Fim } from '../Fim';
 import { recordDrawImage } from '../debug/FimStats';
@@ -19,16 +19,17 @@ export abstract class FimCanvasBase extends FimImage {
    * @param fim FIM canvas factory
    * @param width Canvas width, in pixels
    * @param height Canvas height, in pixels
+   * @param canvasType Type of the canvas, either 2D or WebGL
    * @param maxDimension WebGL framebuffers have maximum sizes, which can be as low as 2048x2048. If the canvas width
    *    or height exceeds this, the image will be automatically downscaled.
    */
-  public constructor(fim: Fim, width: number, height: number, maxDimension = 0) {
+  public constructor(fim: Fim, width: number, height: number, canvasType: FimCanvasType, maxDimension = 0) {
     // Call the parent constructor. Read the new dimensions as they may get downscaled.
     super(fim, width, height, maxDimension);
 
     let realDimensions = this.realDimensions;
     let canvasFactory = fim.canvasFactory;
-    this.canvasElement = canvasFactory(realDimensions.w, realDimensions.h, `fim${this.imageId}`);
+    this.canvasElement = canvasFactory(realDimensions.w, realDimensions.h, canvasType, `fim${this.imageId}`);
     this.offscreenCanvas = canvasFactory !== FimDomCanvasFactory;
   }
 

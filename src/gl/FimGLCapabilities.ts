@@ -5,17 +5,37 @@
 import { FimGLError, FimGLErrorCode } from './FimGLError';
 import { Fim } from '../Fim';
 import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimCanvasType } from '../image/FimCanvasFactory';
 
 /** Helper class to create a temporary WebGL canvas, just for reading capabilities */
 class WebGLHelper extends FimCanvasBase {
   public constructor(fim: Fim) {
     // Use a small canvas that any browser supporting WebGL can handle
-    super(fim, 240, 240);
+    super(fim, 240, 240, FimCanvasType.WebGL);
+    let canvas = this.canvasElement;
 
-    this.gl = (this.canvasElement as HTMLCanvasElement).getContext('webgl');
+    canvas.addEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
+
+    this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!this.gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL);
+      throw new FimGLError(FimGLErrorCode.NoWebGL, this.contextFailMessage);
     }
+  }
+
+  /** Returns additional error details in case getContext('webgl') fails */
+  private contextFailMessage: string;
+
+  private onWebGLContextCreationError(event: WebGLContextEvent): void {
+    this.contextFailMessage = event.statusMessage;
+  }
+
+  public dispose(): void {
+    let canvas = this.canvasElement;
+    if (canvas) {
+      canvas.removeEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
+    }
+
+    super.dispose();
   }
 
   /** WebGL rendering context */

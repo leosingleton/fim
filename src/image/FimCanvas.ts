@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimCanvasBase } from './FimCanvasBase';
+import { FimCanvasType } from './FimCanvasFactory';
 import { FimRgbaBuffer } from './FimRgbaBuffer';
 import { Fim } from '../Fim';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
@@ -22,7 +23,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
    * @param initialColor If specified, the canvas is initalized to this color
    */
   protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string) {
-    super(fim, width, height);
+    super(fim, width, height, FimCanvasType.Canvas2D);
 
     // Report telemetry for debugging
     recordCreate(this, this.offscreenCanvas ? FimObjectType.OffscreenCanvas : FimObjectType.Canvas2D, null, 4, 8);

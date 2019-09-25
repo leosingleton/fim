@@ -12,6 +12,7 @@ import { FimConfig } from '../debug/FimConfig';
 import { FimObjectType, recordCreate, recordDispose } from '../debug/FimStats';
 import { FimCanvas } from '../image/FimCanvas';
 import { FimCanvasBase } from '../image/FimCanvasBase';
+import { FimCanvasType } from '../image/FimCanvasFactory';
 import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { Transform2D } from '../math/Transform2D';
@@ -52,7 +53,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
 
     // Call the parent constructor
-    super(fim, width, height, maxDimension);
+    super(fim, width, height, FimCanvasType.WebGL, maxDimension);
 
     // Report telemetry for debugging
     recordCreate(this, FimObjectType.GLCanvas, null, 4, 8);
@@ -66,34 +67,13 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     // Initialize WebGL
     let canvas = this.canvasElement;
 
-    canvas.addEventListener('webglcontextlost', event => {
-      console.log('Lost WebGL context');
-      event.preventDefault();
-
-      this.contextLostNotifications.forEach(eh => eh());
-
-      if (this.copyProgram) {
-        this.copyProgram.dispose();
-        delete this.copyProgram;
-      }
-      if (this.fillProgram) {
-        this.fillProgram.dispose();
-        delete this.fillProgram;
-      }
-    }, false);
-
-    canvas.addEventListener('webglcontextrestored', () => {
-      console.log('WebGL context restored');
-
-      // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
-      this.loadExtensions();
-
-      this.contextRestoredNotifications.forEach(eh => eh());
-    }, false);
+    canvas.addEventListener('webglcontextlost', this.onWebGLContextLost.bind(this), false);
+    canvas.addEventListener('webglcontextrestored', this.onWebGLContextRestored.bind(this), false);
+    canvas.addEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
 
     let gl = this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL);
+      throw new FimGLError(FimGLErrorCode.NoWebGL, this.contextFailMessage);
     }
 
     this.loadExtensions();
@@ -117,11 +97,48 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
   }
 
+  private onWebGLContextLost(event: Event): void {
+    console.log('Lost WebGL context');
+    event.preventDefault();
+
+    this.contextLostNotifications.forEach(eh => eh());
+
+    if (this.copyProgram) {
+      this.copyProgram.dispose();
+      delete this.copyProgram;
+    }
+    if (this.fillProgram) {
+      this.fillProgram.dispose();
+      delete this.fillProgram;
+    }
+  }
+
+  private onWebGLContextRestored(event: Event): void {
+    console.log('WebGL context restored');
+
+    // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
+    this.loadExtensions();
+
+    this.contextRestoredNotifications.forEach(eh => eh());
+  }
+
+  /** Returns additional error details in case getContext('webgl') fails */
+  private contextFailMessage: string;
+
+  private onWebGLContextCreationError(event: WebGLContextEvent): void {
+    this.contextFailMessage = event.statusMessage;
+  }
+
   public dispose(): void {
-    if (this.canvasElement) {
+    let canvas = this.canvasElement;
+    if (canvas) {
       // Report telemetry for debugging
       recordDispose(this, FimObjectType.GLCanvas);
 
+      canvas.removeEventListener('webglcontextlost', this.onWebGLContextLost.bind(this), false);
+      canvas.removeEventListener('webglcontextrestored', this.onWebGLContextRestored.bind(this), false);
+      canvas.removeEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
+  
       if (this.copyProgram) {
         this.copyProgram.dispose();
         delete this.copyProgram;
