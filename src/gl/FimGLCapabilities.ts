@@ -14,16 +14,28 @@ class WebGLHelper extends FimCanvasBase {
     super(fim, 240, 240, FimCanvasType.WebGL);
     let canvas = this.canvasElement;
 
-    // Get additional error details in case getContext('webgl') fails
-    let msg: string;
-    canvas.addEventListener('webglcontextcreationerror', (e: WebGLContextEvent) => {
-      msg = e.statusMessage;
-    }, false);
+    canvas.addEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
 
     this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!this.gl) {
-      throw new FimGLError(FimGLErrorCode.NoWebGL, msg);
+      throw new FimGLError(FimGLErrorCode.NoWebGL, this.contextFailMessage);
     }
+  }
+
+  /** Returns additional error details in case getContext('webgl') fails */
+  private contextFailMessage: string;
+
+  private onWebGLContextCreationError(event: WebGLContextEvent): void {
+    this.contextFailMessage = event.statusMessage;
+  }
+
+  public dispose(): void {
+    let canvas = this.canvasElement;
+    if (canvas) {
+      canvas.removeEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
+    }
+
+    super.dispose();
   }
 
   /** WebGL rendering context */
