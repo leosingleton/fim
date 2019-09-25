@@ -24,7 +24,7 @@ export const enum FimCanvasType {
 export type FimCanvasFactory = (width: number, height: number, canvasType: FimCanvasType, canvasId: string) =>
   (HTMLCanvasElement | OffscreenCanvas) & IDisposable;
 
-type DisposableCanvas = HTMLCanvasElement & IDisposable;
+type DisposableCanvas = HTMLCanvasElement & { canvasType: FimCanvasType } & IDisposable;
 
 /**
  * Constructs a hidden DOM canvas in a web browser.
@@ -60,7 +60,9 @@ class DomCanvasPool extends ResourcePool<DisposableCanvas> {
 
   public getCanvas(canvasType: FimCanvasType): DisposableCanvas {
     return this.getOrCreateObject(canvasType.toString(), () => {
-      let canvas = document.createElement('canvas');
+      let canvas = document.createElement('canvas') as DisposableCanvas;
+      canvas.canvasType = canvasType;
+
       return makeDisposable(canvas, canvas => {
         // Resizing the canvas to zero seems to help Safari release memory without having to wait for the garbage
         // collector. This helps prevent crashes, particularly on mobile devices.
@@ -72,11 +74,26 @@ class DomCanvasPool extends ResourcePool<DisposableCanvas> {
     });
   }
 
-  protected freeze(canvas: DisposableCanvas) {
+  protected freeze(canvas: DisposableCanvas): boolean {
     // Resizing the canvas to zero seems to help Safari release memory without having to wait for the garbage
     // collector. This helps prevent crashes, particularly on mobile devices.
     canvas.width = 0;
     canvas.height = 0;
+
+    return true;
+  }
+
+  protected defrost(canvas: DisposableCanvas): boolean {
+    // Ensure that WebGL canvases still have a valid context. Browsers may choose to lose it while it was in the pool
+    // if running low on resources.
+    if (canvas.canvasType === FimCanvasType.WebGL) {
+      let context = canvas.getContext('webgl');
+      if (context.isContextLost()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 
