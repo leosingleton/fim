@@ -51,7 +51,8 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
     this.onLostContext();
   }
 
-  private onLostContext(): void {
+  /** Handler for WebGL context loss. Can be explicitly invoked to free and recreate WebGL resources. */
+  protected onLostContext(): void {
     this.disposeOnLostContext.dispose();
     this.programs = {};
 
