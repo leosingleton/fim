@@ -4,7 +4,7 @@
 
 import { FimError, FimErrorCode } from './FimError';
 import { FimWeb } from '../Fim';
-import { IDisposable, makeDisposable } from '@leosingleton/commonlibs';
+import { ResourcePool, RetentionStrategy, IDisposable, makeDisposable } from '@leosingleton/commonlibs';
 
 /** Canvas types */
 export const enum FimCanvasType {
@@ -24,6 +24,8 @@ export const enum FimCanvasType {
 export type FimCanvasFactory = (width: number, height: number, canvasType: FimCanvasType, canvasId: string) =>
   (HTMLCanvasElement | OffscreenCanvas) & IDisposable;
 
+type DisposableCanvas = HTMLCanvasElement & IDisposable;
+
 /**
  * Constructs a hidden DOM canvas in a web browser.
  * @param width Width of the canvas, in pixels
@@ -33,25 +35,52 @@ export type FimCanvasFactory = (width: number, height: number, canvasType: FimCa
  * @returns HTMLCanvasElement object
  */
 export function FimDomCanvasFactory(width: number, height: number, canvasType: FimCanvasType, canvasId: string):
-    HTMLCanvasElement & IDisposable {
+    DisposableCanvas {
   // Create a hidden canvas
-  let canvas = document.createElement('canvas');
+  let canvas = domCanvasPool.getCanvas(canvasType);
   canvas.width = width;
   canvas.height = height;
   canvas.style.display = 'none';
   canvas.id = canvasId;
   document.body.appendChild(canvas);
 
-  // Add a .dispose() method to remove the canvas from the DOM
-  return makeDisposable(canvas, canvas => {
+  return canvas;
+}
+
+/**
+ * Safari has a hard limit of 15 WebGL contexts, at which point it logs an error to the JavaScript console and drops
+ * the least recently used. The Khronos specs say the lose_context extention is supposed to allow you to force dispose
+ * (https://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/) however it doesn't seem to work. Instead, we
+ * use a resource pool to reuse canvases rather than waiting for the garbage collector to dispose them.
+ */
+class DomCanvasPool extends ResourcePool<DisposableCanvas> {
+  public constructor() {
+    super(RetentionStrategy.KeepMaximum);
+  }
+
+  public getCanvas(canvasType: FimCanvasType): DisposableCanvas {
+    return this.getOrCreateObject(canvasType.toString(), () => {
+      let canvas = document.createElement('canvas');
+      return makeDisposable(canvas, canvas => {
+        // Resizing the canvas to zero seems to help Safari release memory without having to wait for the garbage
+        // collector. This helps prevent crashes, particularly on mobile devices.
+        canvas.width = 0;
+        canvas.height = 0;
+
+        document.body.removeChild(canvas);
+      });
+    });
+  }
+
+  protected freeze(canvas: DisposableCanvas) {
     // Resizing the canvas to zero seems to help Safari release memory without having to wait for the garbage
     // collector. This helps prevent crashes, particularly on mobile devices.
     canvas.width = 0;
     canvas.height = 0;
-
-    document.body.removeChild(canvas);
-  });
+  }
 }
+
+let domCanvasPool = new DomCanvasPool();
 
 /**
  * Constructs an OffscreenCanvas using Chrome's implementation. Be sure to check Fim.supportsOffscreenCanvas before
