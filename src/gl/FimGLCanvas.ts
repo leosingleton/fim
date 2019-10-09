@@ -260,6 +260,8 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
       }
     }
 
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    FimGLError.throwOnError(gl);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     FimGLError.throwOnError(gl);
     gl.disable(gl.SCISSOR_TEST);
