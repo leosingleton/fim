@@ -8,6 +8,7 @@ import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLProgram } from '../FimGLProgram';
 import { FimGLTextureOptions } from '../FimGLTexture';
 import { Fim } from '../../Fim';
+import { FimColor } from '../../primitives/FimColor';
 import { FimRect } from '../../primitives/FimRect';
 import { IFimDimensions } from '../../primitives/IFimDimensions';
 import { IDisposable, DisposableSet } from '@leosingleton/commonlibs';
@@ -92,16 +93,18 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
    * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
+   * @param initialColor If specified, the texture is initalized to this color
    */
-  protected getPreservedTexture(textureId: number, width?: number, height?: number,
-      options?: FimGLTextureOptions): FimGLPreservedTexture {
+  protected getPreservedTexture(textureId: number, width?: number, height?: number, options?: FimGLTextureOptions,
+      initialColor?: FimColor | string): FimGLPreservedTexture {
     let preservedTextures = this.preservedTextures;
 
     // Check the texture cache
     let t = preservedTextures[textureId];
     if (!t) {
       // The texture was not found in the cache. Create it.
-      t = this.disposeOnDispose.addDisposable(new FimGLPreservedTexture(this.glCanvas, width, height, options));
+      t = this.disposeOnDispose.addDisposable(new FimGLPreservedTexture(this.glCanvas, width, height, options,
+        initialColor));
       preservedTextures[textureId] = t;
     }
 

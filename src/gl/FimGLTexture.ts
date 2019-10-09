@@ -462,8 +462,9 @@ export class FimGLTexture extends FimImage implements IFimGLTextureLike {
 
 /** Internal-only version of the FimGLTexture class */
 export class _FimGLTexture extends FimGLTexture {
-  public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
-    super(glCanvas, width, height, options);
+  public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions,
+      initialColor?: FimColor | string) {
+    super(glCanvas, width, height, options, initialColor);
   }
 
   /**
