@@ -6,6 +6,7 @@ import { FimGLTextureFlags, FimGLTextureOptions } from '../FimGLTexture';
 import { FimGLProgramCopy } from '../programs/FimGLProgramCopy';
 import { FimWeb } from '../../Fim';
 import { FimTestImages } from '../../debug/FimTestImages';
+import { FimDomCanvasFactory, FimOffscreenCanvasFactory } from '../../image/FimCanvasFactory';
 import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
 import { FimColor } from '../../primitives/FimColor';
 import { FimColorChannels } from '../../primitives/FimColorChannels';
@@ -103,4 +104,48 @@ describe('FimGLTexture', () => {
       expect(texture.realDimensions.h).toBe(240);
     });
   });
+
+  it('Fills with solid colors (OffScreenCanvas=false)', () => {
+    DisposableSet.using(async disposable => {
+      let fim = disposable.addDisposable(new FimWeb(FimDomCanvasFactory));
+      let gl = disposable.addDisposable(fim.createGLCanvas(200, 200));
+      let texture = disposable.addDisposable(gl.createTexture());
+      let program = disposable.addDisposable(new FimGLProgramCopy(gl));
+
+      // Fill with red
+      texture.fillTexture('#f00');
+      program.setInputs(texture);
+      program.execute();
+      expect(gl.getPixel(100, 100)).toEqual(FimColor.fromString('#f00'));
+
+      // Fill with blue
+      texture.fillTexture('#00f');
+      program.setInputs(texture);
+      program.execute();
+      expect(gl.getPixel(100, 100)).toEqual(FimColor.fromString('#00f'));
+    });
+  });
+
+  if (FimWeb.supportsOffscreenCanvas) {
+    it('Fills with solid colors (OffScreenCanvas=true)', () => {
+      DisposableSet.using(async disposable => {
+        let fim = disposable.addDisposable(new FimWeb(FimOffscreenCanvasFactory));
+        let gl = disposable.addDisposable(fim.createGLCanvas(200, 200));
+        let texture = disposable.addDisposable(gl.createTexture());
+        let program = disposable.addDisposable(new FimGLProgramCopy(gl));
+
+        // Fill with red
+        texture.fillTexture('#f00');
+        program.setInputs(texture);
+        program.execute();
+        expect(gl.getPixel(100, 100)).toEqual(FimColor.fromString('#f00'));
+
+        // Fill with blue
+        texture.fillTexture('#00f');
+        program.setInputs(texture);
+        program.execute();
+        expect(gl.getPixel(100, 100)).toEqual(FimColor.fromString('#00f'));
+      });
+    });
+  }
 });

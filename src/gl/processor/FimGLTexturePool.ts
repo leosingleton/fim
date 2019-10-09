@@ -4,6 +4,7 @@
 
 import { FimGLCanvas } from '../FimGLCanvas';
 import { FimGLTexture, FimGLTextureOptions } from '../FimGLTexture';
+import { FimColor } from '../../primitives/FimColor';
 import { ResourcePool } from '@leosingleton/commonlibs';
 
 /** Pool of temporary textures */
@@ -23,10 +24,18 @@ export class FimGLTexturePool extends ResourcePool<FimGLTexture> {
    * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
+   * @param initialColor If specified, the texture is initalized to this color
    */
-  public getTexture(width?: number, height?: number, options?: FimGLTextureOptions): FimGLTexture {
+  public getTexture(width?: number, height?: number, options?: FimGLTextureOptions,
+      initialColor?: FimColor | string): FimGLTexture {
     let id = FimGLTexture.describeTexture(this.glCanvas, width, height, options);
-    return this.getOrCreateObject(id, () => this.glCanvas.createTexture(width, height, options));
+    let texture = this.getOrCreateObject(id, () => this.glCanvas.createTexture(width, height, options));
+
+    if (initialColor) {
+      texture.fillTexture(initialColor);
+    }
+
+    return texture;
   }
 
   public readonly glCanvas: FimGLCanvas;

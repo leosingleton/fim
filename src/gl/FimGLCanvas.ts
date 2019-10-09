@@ -260,6 +260,8 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
       }
     }
 
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    FimGLError.throwOnError(gl);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     FimGLError.throwOnError(gl);
     gl.disable(gl.SCISSOR_TEST);
@@ -354,9 +356,11 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
    * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
+   * @param initialColor If specified, the texture is initalized to this color
    */
-  public createTexture(width?: number, height?: number, options?: FimGLTextureOptions): FimGLTexture {
-    return this.disposable.addDisposable(new _FimGLTexture(this, width, height, options));
+  public createTexture(width?: number, height?: number, options?: FimGLTextureOptions,
+      initialColor?: FimColor | string): FimGLTexture {
+    return this.disposable.addDisposable(new _FimGLTexture(this, width, height, options, initialColor));
   }
 
   /**
