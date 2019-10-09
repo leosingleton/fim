@@ -11,6 +11,7 @@ import { FimGreyscaleBuffer } from '../image/FimGreyscaleBuffer';
 import { FimImage } from '../image/FimImage';
 import { FimRgbaBuffer } from '../image/FimRgbaBuffer';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
+import { FimColor } from '../primitives/FimColor';
 import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimRect } from '../primitives/FimRect';
 import { IFimDimensions } from '../primitives/IFimDimensions';
@@ -82,8 +83,10 @@ export class FimGLTexture extends FimImage implements IFimGLTextureLike {
    * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
+   * @param initialColor If specified, the texture is initalized to this color
    */
-  protected constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions) {
+  protected constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions,
+      initialColor?: FimColor | string) {
     let fim = glCanvas.fim;
     let originalOptions = options;
 
@@ -174,6 +177,10 @@ export class FimGLTexture extends FimImage implements IFimGLTextureLike {
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
+
+    if (initialColor) {
+      this.fillTexture(initialColor);
+    }
   }
 
   public getTexture(): FimGLTexture {
@@ -194,6 +201,24 @@ export class FimGLTexture extends FimImage implements IFimGLTextureLike {
     gl.activeTexture(gl.TEXTURE0 + textureUnit);
     FimGLError.throwOnError(gl);
     gl.bindTexture(gl.TEXTURE_2D, texture);    
+    FimGLError.throwOnError(gl);
+  }
+
+  /** Fills the texture with a solid color */
+  public fillTexture(color: FimColor | string): void {
+    let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    let gl = this.gl;
+    let destinationFramebuffer = this.getTexture().getFramebuffer();
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, destinationFramebuffer);
+    FimGLError.throwOnError(gl);
+    gl.viewport(0, 0, this.realDimensions.w, this.realDimensions.h);
+    FimGLError.throwOnError(gl);
+    gl.disable(gl.SCISSOR_TEST);
+    FimGLError.throwOnError(gl);
+    gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+    FimGLError.throwOnError(gl);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     FimGLError.throwOnError(gl);
   }
 
