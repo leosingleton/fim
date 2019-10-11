@@ -220,6 +220,8 @@ export class FimGLTexture extends FimImage implements IFimGLTextureLike {
     FimGLError.throwOnError(gl);
     gl.clear(gl.COLOR_BUFFER_BIT);
     FimGLError.throwOnError(gl);
+
+    this.hasImage = true;
   }
 
   /**
