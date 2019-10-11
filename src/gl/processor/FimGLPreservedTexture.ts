@@ -53,7 +53,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLTextureLike
     this.textureOptions = texture.textureOptions;
   
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.
-    this.backingCanvas = fim.createCanvas(texture.realDimensions.w, texture.realDimensions.h);
+    this.backingCanvas = fim.createCanvas(texture.realDimensions.w, texture.realDimensions.h, initialColor);
 
     // Register for context lost notifications
     glCanvas.registerForContextLost(() => {
