@@ -12,7 +12,7 @@ export interface FimGLVariableDefinition extends GlslVariable {
 }
 
 /** Map of original unminified names to their minified details */
-export type FimGLVariableDefinitionMap = { [original: string]: FimGLVariableDefinition };
+export interface FimGLVariableDefinitionMap { [original: string]: FimGLVariableDefinition }
 
 /** A minified shader created by webpack-glsl-minify, with the addition of values to consts and uniforms */
 export interface FimGLShader extends GlslShader {

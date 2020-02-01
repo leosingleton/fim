@@ -30,7 +30,7 @@ export class FimGreyscaleBuffer extends FimImage {
     return this._buffer;
   }
   private _buffer: Uint8ClampedArray;
-  
+
   public dispose(): void {
     if (this._buffer) {
       delete this._buffer;
@@ -64,11 +64,11 @@ export class FimGreyscaleBuffer extends FimImage {
     }
 
     // Perform a copy of the image data
-    let srcBuf = srcImage._buffer;
-    let destBuf = this._buffer;
+    const srcBuf = srcImage._buffer;
+    const destBuf = this._buffer;
     for (let y = 0; y < destCoords.h; y++) {
-      let srcOffset = (y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft;
-      let destOffset = (y + destCoords.yTop) * this.w + destCoords.xLeft;
+      const srcOffset = (y + srcCoords.yTop) * srcImage.w + srcCoords.xLeft;
+      const destOffset = (y + destCoords.yTop) * this.w + destCoords.xLeft;
       destBuf.set(srcBuf.subarray(srcOffset, srcOffset + destCoords.w), destOffset);
     }
   }
@@ -82,7 +82,7 @@ export class FimGreyscaleBuffer extends FimImage {
   public copyTo(destImage: FimGreyscaleBuffer | FimRgbaBuffer, srcCoords?: FimRect, destCoords?: FimRect): void {
     destImage.copyFrom(this, srcCoords, destCoords);
   }
-  
+
   /**
    * Returns the value of one pixel
    * @param x X-offset, in pixels

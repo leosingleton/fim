@@ -12,10 +12,10 @@ import { using } from '@leosingleton/commonlibs';
 export class FimGLProgramImageStacking extends FimGLProgram {
   /**
    * Constructor
-   * @param canvas 
+   * @param canvas
    */
-  constructor(canvas: FimGLCanvas) {
-    let fragmentShader = require('./glsl/ImageStacking.glsl');
+  public constructor(canvas: FimGLCanvas) {
+    const fragmentShader = require('./glsl/ImageStacking.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
 
@@ -32,7 +32,7 @@ export class FimGLProgramImageStacking extends FimGLProgram {
    * @param frames Approximate number of frames to average together
    */
   public setInputs(inputTexture: IFimGLTextureLike, frames: number): void {
-    let uniforms = this.fragmentShader.uniforms;
+    const uniforms = this.fragmentShader.uniforms;
     uniforms.u_input.variableValue = inputTexture;
     uniforms.u_newAlpha.variableValue = 1 / frames;
   }

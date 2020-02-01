@@ -12,7 +12,7 @@ export const enum ImageGridFlags {
   /** Default value */
   None = 0,
 
-  /** Centers tiles so that X=0 is the boundary between two tiles on the horizontal axis */  
+  /** Centers tiles so that X=0 is the boundary between two tiles on the horizontal axis */
   ZeroCenterX = (1 << 0),
 
   /** Centers tiles so that Y=0 is the boundary between two tiles on the vertical axis */
@@ -90,22 +90,22 @@ export class ImageGrid implements IFimDimensions {
       }
       return n;
     }
-    let tilesH = getTileCount(width, tileWidth, maxHorizontalTiles, (flags & ImageGridFlags.ZeroCenterX) !== 0);
-    let tilesV = getTileCount(height, tileHeight, maxVerticalTiles, (flags & ImageGridFlags.ZeroCenterY) !== 0);
+    const tilesH = getTileCount(width, tileWidth, maxHorizontalTiles, (flags & ImageGridFlags.ZeroCenterX) !== 0);
+    const tilesV = getTileCount(height, tileHeight, maxVerticalTiles, (flags & ImageGridFlags.ZeroCenterY) !== 0);
 
     // Next, calculate the size of the image represented by the tiles
     function getTotalTileSize(tileSize: number, tileCount: number): number {
       return (tileSize * tileCount) - (overlap * (tileCount - 1));
     }
-    let totalTileWidth = getTotalTileSize(tileWidth, tilesH);
-    let totalTileHeight = getTotalTileSize(tileHeight, tilesV);
+    const totalTileWidth = getTotalTileSize(tileWidth, tilesH);
+    const totalTileHeight = getTotalTileSize(tileHeight, tilesV);
 
     // Then, calculate the starting x/y offset for the top-left tile
-    let offsetX = (width - totalTileWidth) / 2;
-    let offsetY = (height - totalTileHeight) / 2;
+    const offsetX = (width - totalTileWidth) / 2;
+    const offsetY = (height - totalTileHeight) / 2;
 
     // Finally, calculate the individual tiles
-    let halfOverlap = overlap / 2; // integer, because overlapPixels must be even
+    const halfOverlap = overlap / 2; // integer, because overlapPixels must be even
     function getTile(parent: ImageGrid, srcX: number, srcY: number, isLeft: boolean, isTop: boolean, isRight: boolean,
         isBottom: boolean): ImageGridTile {
       // Calculate the input coordinates
@@ -125,11 +125,11 @@ export class ImageGrid implements IFimDimensions {
         inputTileY -= inputFullY;
         inputFullY = 0;
       }
-      let tooWide = inputFullX + inputWidth - width;
+      const tooWide = inputFullX + inputWidth - width;
       if (tooWide > 0) {
         inputWidth -= tooWide;
       }
-      let tooTall = inputFullY + inputHeight - height;
+      const tooTall = inputFullY + inputHeight - height;
       if (tooTall > 0) {
         inputHeight -= tooTall;
       }
@@ -164,7 +164,7 @@ export class ImageGrid implements IFimDimensions {
         FimRect.fromXYWidthHeight(outputTileX, outputTileY, outputWidth, outputHeight),
         FimRect.fromXYWidthHeight(outputFullX, outputFullY, outputWidth, outputHeight));
     }
-    let tiles: ImageGridTile[] = [];
+    const tiles: ImageGridTile[] = [];
     let y = offsetY;
     for (let tileY = 0; tileY < tilesV; tileY++) {
       let x = offsetX;
@@ -182,8 +182,8 @@ export class ImageGrid implements IFimDimensions {
    * original image divided by the sum of the area of the tiles.
    */
   public getEfficiency(): number {
-    let t = this;
-    let i = t.tiles;
+    const t = this;
+    const i = t.tiles;
     return t.imageDimensions.getArea() / (i.length * i[0].imageDimensions.getArea());
   }
 
@@ -216,7 +216,7 @@ export class ImageGridTile implements IFimDimensions {
   public readonly w: number;
   public readonly h: number;
   public readonly imageDimensions: FimRect;
-  
+
   /** Parent ImageGrid to which this tile belongs */
   public readonly parentGrid: ImageGrid;
 
@@ -240,8 +240,8 @@ export class ImageGridTile implements IFimDimensions {
    * @returns Coordinate on this tile
    */
   public fullToTile(point: FimPoint, checkBounds = false): FimPoint {
-    let x = point.x + this.inputTile.xLeft - this.inputFull.xLeft;
-    let y = point.y + this.inputTile.yTop - this.inputFull.yTop;
+    const x = point.x + this.inputTile.xLeft - this.inputFull.xLeft;
+    const y = point.y + this.inputTile.yTop - this.inputFull.yTop;
 
     if (checkBounds) {
       if (x < 0 || y < 0 || x >= this.w || y >= this.h) {
@@ -260,8 +260,8 @@ export class ImageGridTile implements IFimDimensions {
    * @returns Coordinate on the full-size image
    */
   public tileToFull(point: FimPoint, checkBounds = false): FimPoint {
-    let x = point.x + this.outputFull.xLeft - this.outputTile.xLeft;
-    let y = point.y + this.outputFull.yTop - this.outputTile.yTop;
+    const x = point.x + this.outputFull.xLeft - this.outputTile.xLeft;
+    const y = point.y + this.outputFull.yTop - this.outputTile.yTop;
 
     if (checkBounds) {
       if (x < 0 || y < 0 || x >= this.parentGrid.w || y >= this.parentGrid.h) {

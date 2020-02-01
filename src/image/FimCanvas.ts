@@ -44,7 +44,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   /** Creates a new canvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = new FimCanvas(this.fim, this.imageDimensions.w, this.imageDimensions.h);
+    const dupe = new FimCanvas(this.fim, this.imageDimensions.w, this.imageDimensions.h);
     dupe.copyFromCanvas(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
@@ -67,10 +67,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   /**
    * Copies image from another. All inputs supports both cropping and rescaling.
-   * 
+   *
    * Note that for FimRgbaBuffer inputs, the Async version of this function may be significantly faster on some web
    * browsers.
-   * 
+   *
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -125,10 +125,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   /**
    * Copies image from a FimRgbaBuffer using createImageBitmap(). Supports both cropping and rescaling.
-   * 
+   *
    * NOTE: This is generally faster than copyFromRgbaBufferWithPutImageData(), however it is not supported on all web
    *    browsers. As of March 2019, Safari and Edge do not yet support it.
-   * 
+   *
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -142,15 +142,15 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     // Scale the coordinates
     srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
     destCoords = destCoords.rescale(this.downscaleRatio);
-    
+
     // Enable image smoothing if we are rescaling the image
-    let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
+    const imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
     await DisposableSet.usingAsync(async disposable => {
-      let ctx = disposable.addDisposable(this.createDrawingContext(imageSmoothingEnabled));
+      const ctx = disposable.addDisposable(this.createDrawingContext(imageSmoothingEnabled));
 
-      let imageData = new ImageData(srcImage.getBuffer(), srcImage.realDimensions.w, srcImage.realDimensions.h);
-      let imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
+      const imageData = new ImageData(srcImage.getBuffer(), srcImage.realDimensions.w, srcImage.realDimensions.h);
+      const imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
 
       ctx.drawImage(imageBitmap, srcCoords.xLeft, srcCoords.yTop, srcCoords.w, srcCoords.h, destCoords.xLeft,
         destCoords.yTop, destCoords.w, destCoords.h);
@@ -159,10 +159,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   /**
    * Copies image from a FimRgbaBuffer using putImageData(). Supports both cropping and rescaling.
-   * 
+   *
    * NOTE: This method has good browser compatibility, however Chrome 72 has an issue where the pixel data gets
    *    slightly changed by putImageData() and results in lower quality.
-   * 
+   *
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -171,15 +171,15 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     // Default parameters
     srcCoords = srcCoords || srcImage.imageDimensions;
     destCoords = destCoords || this.imageDimensions;
-    
+
     // Scale the coordinates
     srcCoords = srcCoords.rescale(srcImage.downscaleRatio);
     destCoords = destCoords.rescale(this.downscaleRatio);
-    
+
     if (srcCoords.equals(srcImage.imageDimensions) && srcCoords.sameDimensions(destCoords)) {
       // Fast case: no cropping or rescaling
       using(this.createDrawingContext(), ctx => {
-        let pixels = ctx.createImageData(srcCoords.w, srcCoords.h);
+        const pixels = ctx.createImageData(srcCoords.w, srcCoords.h);
         pixels.data.set(srcImage.getBuffer());
         ctx.putImageData(pixels, destCoords.xLeft, destCoords.yTop);
       });
@@ -194,10 +194,10 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
 
   /**
    * Copies image to another.
-   * 
+   *
    * FimCanvas and HtmlCanvasElement destinations support both cropping and rescaling, while FimRgbaBuffer destinations
    * only support cropping.
-   * 
+   *
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -219,7 +219,7 @@ export class FimCanvas extends FimCanvasBase implements IFimGetSetPixel {
     // Scale the coordinates
     x *= Math.round(this.downscaleRatio);
     y *= Math.round(this.downscaleRatio);
-    
+
     using(this.fim.createRgbaBuffer(1, 1), buffer => {
       buffer.copyFrom(this, FimRect.fromXYWidthHeight(x, y, 1, 1));
       pixel = buffer.getBuffer();
@@ -257,7 +257,7 @@ export class _FimCanvas extends FimCanvas {
    */
   public static createFromJpegAsync(fim: Fim, jpegFile: Uint8Array): Promise<FimCanvas> {
     // Create a Blob holding the binary data and load it onto an HTMLImageElement
-    let blob = new Blob([jpegFile], { type: 'image/jpeg' });
+    const blob = new Blob([jpegFile], { type: 'image/jpeg' });
     return _FimCanvas.createFromImageBlobAsync(fim, blob);
   }
 
@@ -268,14 +268,14 @@ export class _FimCanvas extends FimCanvas {
    */
   public static createFromImageBlobAsync(fim: Fim, blob: Blob): Promise<FimCanvas> {
     return new Promise((resolve, reject) => {
-      let url = (URL || webkitURL).createObjectURL(blob);
-      let img = new Image();
+      const url = (URL || webkitURL).createObjectURL(blob);
+      const img = new Image();
       img.src = url;
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
         try {
-          let result = fim.createCanvas(img.width, img.height);
+          const result = fim.createCanvas(img.width, img.height);
           using(result.createDrawingContext(), ctx => {
             ctx.drawImage(img, 0, 0);
           });

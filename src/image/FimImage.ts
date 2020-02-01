@@ -31,7 +31,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
     // automatically downscale the requested resolution.
     this.downscaleRatio = 1;
     if (maxDimension > 0 && (width > maxDimension || height > maxDimension)) {
-      let newDimensions = FimRect.downscaleToMaxDimension(width, height, maxDimension);
+      const newDimensions = FimRect.downscaleToMaxDimension(width, height, maxDimension);
       this.realDimensions = newDimensions;
       this.downscaleRatio = newDimensions.w / width;
     }
@@ -47,7 +47,7 @@ export abstract class FimImage implements IDisposable, IFimDimensions {
   /** FIM canvas factory */
   public readonly fim: Fim;
 
-  /** 
+  /**
    * Set to the actual dimensions of the underlying image, which may have been downscaled from those requested in the
    * constructor.
    */

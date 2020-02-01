@@ -8,8 +8,8 @@ import { FimGLShader } from '../FimGLShader';
 
 /** GL program which creates a Gaussian blur (faster implementation based on using every other pixel) */
 export class FimGLProgramMatrixOperation1DFast extends FimGLProgramMatrixOperation1D {
-  constructor(canvas: FimGLCanvas, kernelSize: number) {
-    let fragmentShader = require('./glsl/MatrixOperation1DFast.glsl') as FimGLShader;
+  public constructor(canvas: FimGLCanvas, kernelSize: number) {
+    const fragmentShader = require('./glsl/MatrixOperation1DFast.glsl') as FimGLShader;
     super(canvas, kernelSize, fragmentShader);
   }
 }

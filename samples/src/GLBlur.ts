@@ -20,7 +20,7 @@ class BlurImageProcessor extends FimGLImageProcessor {
     super(fim, input.w, input.h);
 
     // Create a preserved texture with a sample JPEG image
-    let inputTexture = this.getPreservedTexture(ObjectIDs.InputTexture, input.w, input.h,
+    const inputTexture = this.getPreservedTexture(ObjectIDs.InputTexture, input.w, input.h,
       { textureFlags: FimGLTextureFlags.InputOnly });
     inputTexture.copyFrom(input);
     inputTexture.preserve();
@@ -34,17 +34,17 @@ class BlurImageProcessor extends FimGLImageProcessor {
 
     try {
       // Build a Gaussian kernel with the desired sigma
-      let kernel = GaussianKernel.calculate(sigma, kernelSize);
+      const kernel = GaussianKernel.calculate(sigma, kernelSize);
 
       // Get the input texture and blur program
-      let texture = this.getPreservedTexture(ObjectIDs.InputTexture);
-      let program = this.getProgram(ObjectIDs.BlurProgram, gl => new FimGLProgramMatrixOperation1D(gl, kernelSize));
+      const texture = this.getPreservedTexture(ObjectIDs.InputTexture);
+      const program = this.getProgram(ObjectIDs.BlurProgram, gl => new FimGLProgramMatrixOperation1D(gl, kernelSize));
 
       // Execute the blur program 5 times for a larger blur effect
       await DisposableSet.usingAsync(async disposable => {
         // Allocate two temporary textures
-        let temp1 = disposable.addDisposable(this.temporaryTextures.getTexture());
-        let temp2 = disposable.addDisposable(this.temporaryTextures.getTexture());
+        const temp1 = disposable.addDisposable(this.temporaryTextures.getTexture());
+        const temp2 = disposable.addDisposable(this.temporaryTextures.getTexture());
 
         // Use the input texture on the first run
         program.setInputs(texture, kernel, temp2);
@@ -72,28 +72,28 @@ class BlurImageProcessor extends FimGLImageProcessor {
 
 export async function glBlur(canvasId: string): Promise<void> {
   // Load a sample JPEG image
-  let canvas = await loadTestImage();
+  const canvas = await loadTestImage();
 
   // Animation loop
-  let clock = Stopwatch.startNew();
-  let frameCount = 0;  
-  let processor = new BlurImageProcessor(canvas);
+  const clock = Stopwatch.startNew();
+  let frameCount = 0;
+  const processor = new BlurImageProcessor(canvas);
   canvas.dispose();
 
   async function renderFrame(): Promise<void> {
     // Vary the sigma from 0 to 2 every 10 seconds
-    let time = clock.getElapsedMilliseconds() % 10000;
+    const time = clock.getElapsedMilliseconds() % 10000;
     let sigma = (time < 5000) ? time : (10000 - time);
     sigma *= 2 / 5000;
 
     // Render one frame
-    let output = await processor.render(sigma);
+    const output = await processor.render(sigma);
 
     // Copy the result to the screen
     if (output) {
-      let fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
-      let message = `Frame=${frameCount} FPS=${fps.toFixed(2)}`;
-      renderOutput(output, message, null, canvasId);
+      const fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
+      const message = `Frame=${frameCount} FPS=${fps.toFixed(2)}`;
+      await renderOutput(output, message, null, canvasId);
     }
 
     requestAnimationFrame(renderFrame);

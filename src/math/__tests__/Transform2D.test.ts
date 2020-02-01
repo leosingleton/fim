@@ -9,32 +9,32 @@ import { FimRect } from '../../primitives/FimRect';
 describe('Transform2D', () => {
 
   it('Initializes to an identity matrix', () => {
-    let mat1 = new Transform2D();
+    const mat1 = new Transform2D();
     mat1.matrixMultiply(mat1);
 
-    let mat2 = new Transform2D();
+    const mat2 = new Transform2D();
     expect(mat1.matrixValue).toEqual(mat2.matrixValue);
   });
 
   it('Multiplies by the identity matrix', () => {
-    let mat1 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const mat1 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     // Multiply by the identity matrix
-    let mat2 = new Transform2D(mat1);
+    const mat2 = new Transform2D(mat1);
     mat2.matrixMultiply(new Transform2D());
 
     expect(mat2.matrixValue).toEqual(mat1);
   });
 
   it('Leaves points unchanged by the identity matrix', () => {
-    let point = new FimPoint(12, 23);
-    let mat = new Transform2D();
+    const point = new FimPoint(12, 23);
+    const mat = new Transform2D();
     expect(mat.transformXY(point)).toEqual(point);
   });
 
   it('Translates points', () => {
     let point = new FimPoint(12, 23);
-    let mat = new Transform2D();
+    const mat = new Transform2D();
     mat.translation(-4, 3);
     point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(8, 8);
@@ -43,7 +43,7 @@ describe('Transform2D', () => {
 
   it('Rotates points', () => {
     let point = new FimPoint(12, 23);
-    let mat = new Transform2D();
+    const mat = new Transform2D();
     mat.rotation(Math.PI / 2);
     point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(-23, 8);
@@ -52,7 +52,7 @@ describe('Transform2D', () => {
 
   it('Scales points', () => {
     let point = new FimPoint(12, 23);
-    let mat = new Transform2D();
+    const mat = new Transform2D();
     mat.rescale(2, 0.5);
     point = mat.transformXY(point);
     expect(point.x).toBeCloseTo(24, 8);
@@ -62,7 +62,7 @@ describe('Transform2D', () => {
   it('Translates then rotates', () => {
     let point = new FimPoint(12, 23);
 
-    let mat = new Transform2D();
+    const mat = new Transform2D();
     mat.translation(-4, 3);
     mat.rotation(Math.PI / 2);
 
@@ -74,7 +74,7 @@ describe('Transform2D', () => {
   it('Rotates then translates', () => {
     let point = new FimPoint(12, 23);
 
-    let mat = new Transform2D();
+    const mat = new Transform2D();
     mat.rotation(Math.PI / 2);
     mat.translation(-4, 3);
 
@@ -84,7 +84,7 @@ describe('Transform2D', () => {
   });
 
   it('Calculates matrices based on source coordinates', () => {
-    let mat = Transform2D.fromSrcCoords(
+    const mat = Transform2D.fromSrcCoords(
       FimRect.fromXYWidthHeight(25, 50, 25, 25),
       FimRect.fromXYWidthHeight(0, 0, 100, 100));
 

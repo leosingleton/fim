@@ -8,8 +8,8 @@ import { FimColor } from '../../primitives/FimColor';
 
 /** GL program to fill a texture or canvas with a solid color */
 export class FimGLProgramFill extends FimGLProgram {
-  constructor(canvas: FimGLCanvas) {
-    let fragmentShader = require('./glsl/Fill.glsl');
+  public constructor(canvas: FimGLCanvas) {
+    const fragmentShader = require('./glsl/Fill.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
   }

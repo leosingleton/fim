@@ -1,7 +1,6 @@
-const webpack = require('webpack');
 const path = require('path');
 
-var config = {
+const config = {
   entry: './src/index.ts',
   devtool: 'source-map',
   module: {

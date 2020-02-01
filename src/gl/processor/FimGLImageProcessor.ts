@@ -29,7 +29,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
     this.h = maxHeight;
     this.imageDimensions = FimRect.fromWidthHeight(maxWidth, maxHeight);
 
-    let glCanvas = this.glCanvas = fim.createGLCanvas(maxWidth, maxHeight);
+    const glCanvas = this.glCanvas = fim.createGLCanvas(maxWidth, maxHeight);
 
     this.disposeOnLostContext = new DisposableSet();
     this.disposeOnDispose = new DisposableSet();
@@ -45,7 +45,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
   public readonly w: number;
   public readonly h: number;
   public readonly imageDimensions: FimRect;
-  
+
   public dispose(): void {
     this.glCanvas.dispose();
     this.disposeOnDispose.dispose();
@@ -71,7 +71,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
    *    constructor with the required parameters.
    */
   protected getProgram<T extends FimGLProgram>(programId: number, createProgram: (glCanvas: FimGLCanvas) => T): T {
-    let programs = this.programs;
+    const programs = this.programs;
 
     // Check the program cache
     let p = programs[programId];
@@ -97,7 +97,7 @@ export abstract class FimGLImageProcessor implements IDisposable, IFimDimensions
    */
   protected getPreservedTexture(textureId: number, width?: number, height?: number, options?: FimGLTextureOptions,
       initialColor?: FimColor | string): FimGLPreservedTexture {
-    let preservedTextures = this.preservedTextures;
+    const preservedTextures = this.preservedTextures;
 
     // Check the texture cache
     let t = preservedTextures[textureId];

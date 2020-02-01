@@ -12,7 +12,7 @@ class WebGLHelper extends FimCanvasBase {
   public constructor(fim: Fim) {
     // Use a small canvas that any browser supporting WebGL can handle
     super(fim, 240, 240, FimCanvasType.WebGL);
-    let canvas = this.canvasElement;
+    const canvas = this.canvasElement;
 
     canvas.addEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
 
@@ -30,7 +30,7 @@ class WebGLHelper extends FimCanvasBase {
   }
 
   public dispose(): void {
-    let canvas = this.canvasElement;
+    const canvas = this.canvasElement;
     if (canvas) {
       canvas.removeEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
     }
@@ -44,8 +44,8 @@ class WebGLHelper extends FimCanvasBase {
   public duplicateCanvas(): never {
     throw new FimGLError(FimGLErrorCode.AppError);
   }
-  
-  public fillCanvas(color: never): never {
+
+  public fillCanvas(_color: never): never {
     throw new FimGLError(FimGLErrorCode.AppError);
   }
 }
@@ -74,10 +74,10 @@ export function _getGLCapabilities(fim: Fim): IFimGLCapabilities {
     return caps;
   }
 
-  let helper = new WebGLHelper(fim);
+  const helper = new WebGLHelper(fim);
   try {
-    let gl = helper.gl;
-    let dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    const gl = helper.gl;
+    const dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
 
     caps = {
       glVersion: gl.getParameter(gl.VERSION),

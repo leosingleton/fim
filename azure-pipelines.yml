@@ -19,6 +19,10 @@ jobs:
     displayName: 'npm install'
 
   - script: |
+      npm run lint
+    displayName: 'Lint'
+
+  - script: |
       npm run build
     displayName: 'Compile Output'
 

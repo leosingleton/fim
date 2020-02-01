@@ -37,7 +37,7 @@ type DisposableCanvas = HTMLCanvasElement & { canvasType: FimCanvasType } & IDis
 export function FimDomCanvasFactory(width: number, height: number, canvasType: FimCanvasType, canvasId: string):
     DisposableCanvas {
   // Create a hidden canvas
-  let canvas = domCanvasPool.getCanvas(canvasType);
+  const canvas = domCanvasPool.getCanvas(canvasType);
   canvas.width = width;
   canvas.height = height;
   canvas.style.display = 'none';
@@ -60,7 +60,7 @@ class DomCanvasPool extends ResourcePool<DisposableCanvas> {
 
   public getCanvas(canvasType: FimCanvasType): DisposableCanvas {
     return this.getOrCreateObject(canvasType.toString(), () => {
-      let canvas = document.createElement('canvas') as DisposableCanvas;
+      const canvas = document.createElement('canvas') as DisposableCanvas;
       canvas.canvasType = canvasType;
 
       return makeDisposable(canvas, canvas => {
@@ -87,7 +87,7 @@ class DomCanvasPool extends ResourcePool<DisposableCanvas> {
     // Ensure that WebGL canvases still have a valid context. Browsers may choose to lose it while it was in the pool
     // if running low on resources.
     if (canvas.canvasType === FimCanvasType.WebGL) {
-      let context = canvas.getContext('webgl');
+      const context = canvas.getContext('webgl');
       if (context.isContextLost()) {
         return false;
       }
@@ -97,7 +97,7 @@ class DomCanvasPool extends ResourcePool<DisposableCanvas> {
   }
 }
 
-let domCanvasPool = new DomCanvasPool();
+const domCanvasPool = new DomCanvasPool();
 
 /**
  * Constructs an OffscreenCanvas using Chrome's implementation. Be sure to check Fim.supportsOffscreenCanvas before
@@ -108,7 +108,7 @@ let domCanvasPool = new DomCanvasPool();
  * @param canvasId Unique ID for logging and debugging
  * @returns OffscreenCanvas object
  */
-export function FimOffscreenCanvasFactory(width: number, height: number, canvasType: FimCanvasType, canvasId: string):
+export function FimOffscreenCanvasFactory(width: number, height: number, _canvasType: FimCanvasType, _canvasId: string):
     OffscreenCanvas & IDisposable {
   // Use Chrome's OffscreenCanvas object
   if (!FimWeb.supportsOffscreenCanvas) {

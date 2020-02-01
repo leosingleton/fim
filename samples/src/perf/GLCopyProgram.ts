@@ -7,7 +7,7 @@ import { FimBitsPerPixel, FimGLTextureFlags, FimGLProgramCopy } from '../../../b
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfGLCopyProgram(): Promise<void> {
-  usingAsync(await loadTestImage(), async srcImage => {
+  await usingAsync(await loadTestImage(), async srcImage => {
     //
     // Test case to copy from various sized textures and canvases
     //
@@ -17,20 +17,20 @@ export async function perfGLCopyProgram(): Promise<void> {
         let flags = FimGLTextureFlags.None;
         flags |= linearSampling ? FimGLTextureFlags.LinearSampling : 0;
         flags |= inputOnly ? FimGLTextureFlags.InputOnly : 0;
-        
-        let gl = disposable.addDisposable(fim.createGLCanvas(canvasWidth, canvasHeight));
-        let t = disposable.addDisposable(gl.createTexture(textureWidth, textureHeight,
+
+        const gl = disposable.addDisposable(fim.createGLCanvas(canvasWidth, canvasHeight));
+        const t = disposable.addDisposable(gl.createTexture(textureWidth, textureHeight,
           { bpp: FimBitsPerPixel.BPP8, textureFlags: flags }));
         t.copyFrom(srcImage);
-        let program = disposable.addDisposable(new FimGLProgramCopy(gl));
+        const program = disposable.addDisposable(new FimGLProgramCopy(gl));
 
         // Run performance test
-        let d = `Copy ${textureWidth}x${textureHeight} texture to ${canvasWidth}x${canvasHeight} WebGL canvas\n` +
+        const d = `Copy ${textureWidth}x${textureHeight} texture to ${canvasWidth}x${canvasHeight} WebGL canvas\n` +
           `(Sampling=${linearSampling ? 'Linear' : 'Nearest'}, InputOnly=${inputOnly})`;
-        let results = perfTest(d, () => {
+          const results = perfTest(d, () => {
           program.setInputs(t);
           program.execute();
-        })
+        });
 
         // Render output
         await renderOutput(gl, results.message, 360);

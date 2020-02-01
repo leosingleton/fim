@@ -13,11 +13,11 @@ describe('FimGLProgramCopy', () => {
   it('Copies canvas to texture to WebGL canvas', () => {
     DisposableSet.using(disposable => {
       // Initialize the WebGL canvas, program, and a solid green texture from canvas
-      let fim = disposable.addDisposable(new FimWeb());
-      let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
-      let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
-      let orig = disposable.addDisposable(fim.createCanvas(640, 480, '#1f2'));
-      let texture = disposable.addDisposable(canvas.createTextureFrom(orig));
+      const fim = disposable.addDisposable(new FimWeb());
+      const canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
+      const program = disposable.addDisposable(new FimGLProgramCopy(canvas));
+      const orig = disposable.addDisposable(fim.createCanvas(640, 480, '#1f2'));
+      const texture = disposable.addDisposable(canvas.createTextureFrom(orig));
 
       // Copy the texture
       program.setInputs(texture);
@@ -31,11 +31,11 @@ describe('FimGLProgramCopy', () => {
   it('Copies RGBA buffer to texture to WebGL canvas', () => {
     DisposableSet.using(disposable => {
       // Initialize the WebGL canvas, program, and a solid red texture from RGBA buffer
-      let fim = disposable.addDisposable(new FimWeb());
-      let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
-      let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
-      let buffer = disposable.addDisposable(fim.createRgbaBuffer(640, 480, '#f31'));
-      let texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
+      const fim = disposable.addDisposable(new FimWeb());
+      const canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
+      const program = disposable.addDisposable(new FimGLProgramCopy(canvas));
+      const buffer = disposable.addDisposable(fim.createRgbaBuffer(640, 480, '#f31'));
+      const texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
 
       // Copy the texture
       program.setInputs(texture);
@@ -45,7 +45,7 @@ describe('FimGLProgramCopy', () => {
       expect(canvas.getPixel(100, 100)).toEqual(FimColor.fromString('#f31'));
 
       // For additional test coverage, copy the output to an RGBA buffer and ensure it is also red
-      let out = disposable.addDisposable(fim.createRgbaBuffer(640, 480));
+      const out = disposable.addDisposable(fim.createRgbaBuffer(640, 480));
       out.copyFrom(canvas);
       expect(canvas.getPixel(200, 300)).toEqual(FimColor.fromString('#f31'));
     });
@@ -54,11 +54,11 @@ describe('FimGLProgramCopy', () => {
   it('Copies greyscale buffer to texture to WebGL canvas', () => {
     DisposableSet.using(disposable => {
       // Initialize the WebGL canvas, program, and a solid grey texture from RGBA buffer
-      let fim = disposable.addDisposable(new FimWeb());
-      let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
-      let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
-      let buffer = disposable.addDisposable(fim.createGreyscaleBuffer(640, 480, 128));
-      let texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
+      const fim = disposable.addDisposable(new FimWeb());
+      const canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
+      const program = disposable.addDisposable(new FimGLProgramCopy(canvas));
+      const buffer = disposable.addDisposable(fim.createGreyscaleBuffer(640, 480, 128));
+      const texture = disposable.addDisposable(canvas.createTextureFrom(buffer));
 
       // Copy the texture
       program.setInputs(texture);
@@ -72,12 +72,12 @@ describe('FimGLProgramCopy', () => {
   it('Copies from a texture to another texture when linear sampling is enabled', () => {
     DisposableSet.using(disposable => {
       // Initialize the WebGL canvas, program, and a solid grey texture from RGBA buffer
-      let fim = disposable.addDisposable(new FimWeb());
-      let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
-      let program = disposable.addDisposable(new FimGLProgramCopy(canvas));
-      let buffer = disposable.addDisposable(fim.createGreyscaleBuffer(640, 480, 128));
-      let t1 = disposable.addDisposable(canvas.createTextureFrom(buffer, FimGLTextureFlags.LinearSampling));
-      let t2 = disposable.addDisposable(canvas.createTexture(640, 480,
+      const fim = disposable.addDisposable(new FimWeb());
+      const canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
+      const program = disposable.addDisposable(new FimGLProgramCopy(canvas));
+      const buffer = disposable.addDisposable(fim.createGreyscaleBuffer(640, 480, 128));
+      const t1 = disposable.addDisposable(canvas.createTextureFrom(buffer, FimGLTextureFlags.LinearSampling));
+      const t2 = disposable.addDisposable(canvas.createTexture(640, 480,
         { textureFlags: FimGLTextureFlags.LinearSampling }));
 
       // Copy t1 to t2

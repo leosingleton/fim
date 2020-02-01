@@ -13,14 +13,14 @@ describe('FimGLProgramMatrixOperation1D', () => {
   it('Blurs a solid colored canvas', () => {
     DisposableSet.using(disposable => {
       // Build a Gaussian blur kernel
-      let kernel = GaussianKernel.calculate(5, 17);
+      const kernel = GaussianKernel.calculate(5, 17);
 
       // Initialize the WebGL canvas, program, and a solid blue texture from canvas
-      let fim = disposable.addDisposable(new FimWeb());
-      let canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
-      let program = disposable.addDisposable(new FimGLProgramMatrixOperation1D(canvas, kernel.length));
-      let orig = disposable.addDisposable(fim.createCanvas(640, 480, '#21f'));
-      let texture = disposable.addDisposable(canvas.createTextureFrom(orig));
+      const fim = disposable.addDisposable(new FimWeb());
+      const canvas = disposable.addDisposable(fim.createGLCanvas(640, 480));
+      const program = disposable.addDisposable(new FimGLProgramMatrixOperation1D(canvas, kernel.length));
+      const orig = disposable.addDisposable(fim.createCanvas(640, 480, '#21f'));
+      const texture = disposable.addDisposable(canvas.createTextureFrom(orig));
 
       // Blur the texture
       program.setInputs(texture, kernel);

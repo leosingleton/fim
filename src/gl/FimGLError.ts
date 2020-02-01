@@ -18,7 +18,7 @@ export class FimGLError extends Error {
   public readonly code: FimGLErrorCode;
 
   public static throwOnError(gl: WebGLRenderingContext): void {
-    let errCode = gl.getError();
+    const errCode = gl.getError();
     switch (errCode) {
       case gl.NO_ERROR:
         return;
@@ -48,8 +48,8 @@ export class FimGLError extends Error {
 
   /** Validates the result of gl.checkFramebufferStatus() and throws on a non-complete value */
   public static throwOnFrameBufferStatus(gl: WebGLRenderingContext, target: number): void {
-    let status = gl.checkFramebufferStatus(target);
-    let code = FimGLErrorCode.FrameBufferStatus;
+    const status = gl.checkFramebufferStatus(target);
+    const code = FimGLErrorCode.FrameBufferStatus;
     switch (status) {
       case gl.FRAMEBUFFER_COMPLETE:
         return;

@@ -103,13 +103,13 @@ export class FimColor {
 
     /** Parses a 1 character hex number */
     function parse1(offset: number): number {
-      let c = color.substr(offset, 1);
+      const c = color.substr(offset, 1);
       return Number.parseInt(c + c, 16);
     }
 
     /** Parses a 2 character hex number */
     function parse2(offset: number): number {
-      let num = color.substr(offset, 2);
+      const num = color.substr(offset, 2);
       return Number.parseInt(num, 16);
     }
 
@@ -125,7 +125,7 @@ export class FimColor {
 
       case 9: // "#rrggbbaa"
         return this.fromRGBABytes(parse2(1), parse2(3), parse2(5), parse2(7));
-      
+
       default:
         throw new FimError(FimErrorCode.AppError, `Invalid: ${color}`);
     }
@@ -133,7 +133,7 @@ export class FimColor {
 
   /** Uses the ITU-R BT.709 formula to calculate luminance from RGB */
   public getLuminance(): number {
-    let value =
+    const value =
       this.r * 0.2126 + // Red
       this.g * 0.7152 + // Green
       this.b * 0.0722;  // Blue

@@ -15,11 +15,11 @@ export class FimGLProgramDownscale extends FimGLProgram {
    * @param xRatio Downscale ratio of the x-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    * @param yRatio Downscale ratio of the y-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    */
-  constructor(canvas: FimGLCanvas, xRatio: number, yRatio: number) {
-    let fragmentShader = require('./glsl/Downscale.glsl');
+  public constructor(canvas: FimGLCanvas, xRatio: number, yRatio: number) {
+    const fragmentShader = require('./glsl/Downscale.glsl');
     super(canvas, fragmentShader);
 
-    let c = FimGLProgramDownscale.calculateSamplePixels(xRatio, yRatio);
+    const c = FimGLProgramDownscale.calculateSamplePixels(xRatio, yRatio);
     this.pixelCount = c.pixelCount;
     this.pixels = c.pixels;
 
@@ -28,8 +28,8 @@ export class FimGLProgramDownscale extends FimGLProgram {
   }
 
   public setInputs(inputTexture: IFimGLTextureLike): void {
-    let texture = inputTexture.getTexture();
-  
+    const texture = inputTexture.getTexture();
+
     // Ensure the input texture has linear filtering enabled
     if ((texture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
       throw new FimGLError(FimGLErrorCode.AppError, 'NotLinear');
@@ -55,17 +55,17 @@ export class FimGLProgramDownscale extends FimGLProgram {
    *    function to do so.
    */
   public static calculateSamplePixels(xRatio: number, yRatio: number): { pixelCount: number, pixels: number[] } {
-    let xPixels = this.calculateSamplePixelsOneAxis(xRatio);
-    let yPixels = this.calculateSamplePixelsOneAxis(yRatio);
+    const xPixels = this.calculateSamplePixelsOneAxis(xRatio);
+    const yPixels = this.calculateSamplePixelsOneAxis(yRatio);
 
-    let xCount = xPixels.length;
-    let yCount = yPixels.length;
-    
-    let pixels: number[] = [];
+    const xCount = xPixels.length;
+    const yCount = yPixels.length;
+
+    const pixels: number[] = [];
     for (let x = 0; x < xCount; x++) {
-      let xPixel = xPixels[x];
+      const xPixel = xPixels[x];
       for (let y = 0; y < yCount; y++) {
-        let yPixel = yPixels[y];
+        const yPixel = yPixels[y];
         pixels.push(xPixel[0]);             // X offset
         pixels.push(yPixel[0]);             // Y offset
         pixels.push(xPixel[1] * yPixel[1]); // Weight
@@ -74,7 +74,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
 
     return {
       pixelCount: xCount * yCount,
-      pixels: pixels
+      pixels
     };
   }
 
@@ -85,11 +85,11 @@ export class FimGLProgramDownscale extends FimGLProgram {
    */
   private static calculateSamplePixelsOneAxis(ratio: number): number[][] {
     // Ratio is conveniently the number of pixels we need to sample, centered on zero...
-    let halfRatio = ratio / 2;
+    const halfRatio = ratio / 2;
 
     // First, calculate the number of samples we must take. With linear filtering, we can get the weighted average of 4
     // adjacent pixels with each texture2D call.
-    let count = Math.ceil(halfRatio);
+    const count = Math.ceil(halfRatio);
 
     // If there's only one pixel to sample, there's no offset or weight. This happens whenever ratio <= 2.
     if (count === 1) {
@@ -97,16 +97,16 @@ export class FimGLProgramDownscale extends FimGLProgram {
     }
 
     // Calculate the offset of the rightmost point
-    let rightMost = halfRatio - 1;
+    const rightMost = halfRatio - 1;
 
     // Space the sample points equally
-    let spacing = (rightMost * 2) / (count - 1);
+    const spacing = (rightMost * 2) / (count - 1);
 
     // Create the points
-    let pixels = [];
-    let weight = 1 / count;
+    const pixels = [];
+    const weight = 1 / count;
     for (let n = 0; n < count; n++) {
-      let offset = -rightMost + spacing * n;
+      const offset = -rightMost + spacing * n;
       pixels.push([offset, weight]);
     }
 
@@ -123,11 +123,11 @@ export class FimGLProgramDownscale extends FimGLProgram {
    *    dimensions
    */
   public static scaleSamplePixels(pixelCount: number, pixels: number[], width: number, height: number): number[] {
-    let scaledPixels: number[] = [];
+    const scaledPixels: number[] = [];
     for (let n = 0; n < pixelCount; n++) {
-      let x = pixels[n * 3];
-      let y = pixels[n * 3 + 1];
-      let z = pixels[n * 3 + 2];
+      const x = pixels[n * 3];
+      const y = pixels[n * 3 + 1];
+      const z = pixels[n * 3 + 2];
       scaledPixels.push(x / width);
       scaledPixels.push(y / height);
       scaledPixels.push(z);

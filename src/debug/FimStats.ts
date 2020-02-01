@@ -64,18 +64,18 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
     channels?: number, bpp?: number): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let className = getClassName(object);
+    const className = getClassName(object);
     let message = `Create ${objectTypeToString(type)} ${className}`;
 
     if (object instanceof FimImage) {
-      let id = object.imageId;
-      let dimensions = object.imageDimensions;
-      let realDimensions = object.realDimensions;
+      const id = object.imageId;
+      const dimensions = object.imageDimensions;
+      const realDimensions = object.realDimensions;
       message += ` ID=${id} (${dimensions.w}x${dimensions.h} => ${realDimensions.w}x${realDimensions.h})`;
 
       if (channels && bpp) {
         // Estimate memory consumed, in MB
-        let memory = (realDimensions.getArea() * channels * bpp) / (1024 * 1024 * 8);
+        const memory = (realDimensions.getArea() * channels * bpp) / (1024 * 1024 * 8);
 
         // Store the value so we can subtract it on dispose
         memoryMap[id] = memory;
@@ -106,15 +106,15 @@ export function recordCreate(object: any, type: FimObjectType, requestedOptions?
 export function recordDispose(object: any, type: FimObjectType): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let className = getClassName(object);
+    const className = getClassName(object);
     let message = `Dispose ${objectTypeToString(type)} ${className}`;
 
     if (object instanceof FimImage) {
-      let id = object.imageId;
+      const id = object.imageId;
       message += ` ID=${id}`;
 
       // Update memory consumed
-      let memory = memoryMap[id];
+      const memory = memoryMap[id];
       if (memory) {
         totalMemory -= memory;
         if (objectTypeToFlags(type) & FimObjectTypeFlags.GpuMemory) {
@@ -134,7 +134,7 @@ function memoryToString(memory: number): string {
 }
 
 /** Map of FimImage.imageId to amount of memory consumed by that object, in MB */
-let memoryMap: { [id: number]: number } = {};
+const memoryMap: { [id: number]: number } = {};
 
 /** Estimated GPU memory consumed, in MB */
 let gpuMemory = 0;
@@ -149,8 +149,8 @@ let totalMemory = 0;
  */
 export function recordTexImage2D(src: FimImage, dest: FimGLTexture): void {
   if (FimConfig.config.debugLoggingEnabled) {
-    let srcClassName = getClassName(src);
-    let destClassName = getClassName(dest);
+    const srcClassName = getClassName(src);
+    const destClassName = getClassName(dest);
     console.log(`texImage2D ${srcClassName} (${src.imageId}) => ${destClassName} (${dest.imageId})`);
   }
 }
@@ -166,26 +166,26 @@ export function recordWebGLRender(program: FimGLProgram, uniforms: UniformDefini
     outputTexture: FimGLTexture | FimGLCanvas): void {
   if (FimConfig.config.debugLoggingEnabled) {
     // Build the console message
-    let className = getClassName(program);
+    const className = getClassName(program);
     let message = `Render ${className}`;
 
     // Extract any input textures from the uniforms
     let inputTextures = '';
-    for (let name in uniforms) {
-      let uniform = uniforms[name];
+    for (const name in uniforms) {
+      const uniform = uniforms[name];
 
       if (uniform.variableType.indexOf('sampler') !== -1) {
         if (inputTextures.length > 0) {
           inputTextures += ', ';
         }
 
-        let t = uniform.variableValue as FimGLTexture;
-        let textureClassName = getClassName(t);
+        const t = uniform.variableValue as FimGLTexture;
+        const textureClassName = getClassName(t);
         inputTextures += `${textureClassName} (${t.imageId})`;
       }
     }
 
-    let outputClassName = getClassName(outputTexture);
+    const outputClassName = getClassName(outputTexture);
     message += ` [${inputTextures}] => ${outputClassName} (${outputTexture.imageId}) ${destCoords.w}x${destCoords.h}`;
 
     console.log(message);
@@ -206,8 +206,8 @@ function coordsToString(coords: FimRect): string {
 export function recordDrawImage(srcCoords: FimRect, destCoords: FimRect, op: string,
     imageSmoothingEnabled: boolean): void {
   if (FimConfig.config.debugLoggingEnabled) {
-    let srcCoordsString = coordsToString(srcCoords);
-    let destCoordsString = coordsToString(destCoords);
+    const srcCoordsString = coordsToString(srcCoords);
+    const destCoordsString = coordsToString(destCoords);
     console.log(`drawImage ${op} (smoothing=${imageSmoothingEnabled}) ${srcCoordsString} => ${destCoordsString}`);
   }
 }

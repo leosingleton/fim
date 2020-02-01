@@ -20,7 +20,7 @@ export class FimGLTexturePool extends ResourcePool<FimGLTexture> {
 
   /**
    * Gets a texture from the texture pool
-   * 
+   *
    * @param width Texture width, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param height Texture height, in pixels. Defaults to the width of the FimGLCanvas if not specified.
    * @param options See FimGLTextureOptions
@@ -28,8 +28,8 @@ export class FimGLTexturePool extends ResourcePool<FimGLTexture> {
    */
   public getTexture(width?: number, height?: number, options?: FimGLTextureOptions,
       initialColor?: FimColor | string): FimGLTexture {
-    let id = FimGLTexture.describeTexture(this.glCanvas, width, height, options);
-    let texture = this.getOrCreateObject(id, () => this.glCanvas.createTexture(width, height, options));
+    const id = FimGLTexture.describeTexture(this.glCanvas, width, height, options);
+    const texture = this.getOrCreateObject(id, () => this.glCanvas.createTexture(width, height, options));
 
     if (initialColor) {
       texture.fillTexture(initialColor);

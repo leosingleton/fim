@@ -11,7 +11,7 @@ import { using } from '@leosingleton/commonlibs';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLProgramMatrixOperation1D extends FimGLProgram {
-  constructor(canvas: FimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
+  public constructor(canvas: FimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
     fragmentShader = fragmentShader || require('./glsl/MatrixOperation1D.glsl');
     super(canvas, fragmentShader);
 
@@ -28,7 +28,7 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
     this.inputTexture = inputTexture;
     this.tempTexture = tempTexture;
 
-    if (kernel.length != this.kernelSize) {
+    if (kernel.length !== this.kernelSize) {
       throw new FimGLError(FimGLErrorCode.AppError, `Expected kernel of size ${this.kernelSize}`);
     }
 
@@ -36,18 +36,18 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   }
 
   public execute(outputTexture?: IFimGLTextureLike): void {
-    let gl = this.glCanvas;
+    const gl = this.glCanvas;
 
     if (this.tempTexture) {
       this.executeInternal(this.tempTexture, outputTexture);
     } else {
       // If no temporary texture was specified, create one
-      let inputTexture = this.inputTexture.getTexture();
-      let width = Math.min(outputTexture ? outputTexture.getTexture().w : gl.w, inputTexture.w);
-      let height = Math.min(outputTexture ? outputTexture.getTexture().h : gl.h, inputTexture.h);
-      let flags = inputTexture.textureOptions.textureFlags & ~FimGLTextureFlags.InputOnly;
+      const inputTexture = this.inputTexture.getTexture();
+      const width = Math.min(outputTexture ? outputTexture.getTexture().w : gl.w, inputTexture.w);
+      const height = Math.min(outputTexture ? outputTexture.getTexture().h : gl.h, inputTexture.h);
+      const flags = inputTexture.textureOptions.textureFlags & ~FimGLTextureFlags.InputOnly;
 
-      let outTexture = outputTexture;
+      const outTexture = outputTexture;
       using(gl.createTexture(width, height, { textureFlags: flags }), temp => {
         this.executeInternal(temp, outTexture);
       });
@@ -55,8 +55,8 @@ export class FimGLProgramMatrixOperation1D extends FimGLProgram {
   }
 
   private executeInternal(tempTexture: IFimGLTextureLike, outputTexture?: IFimGLTextureLike): void {
-    let uniforms = this.fragmentShader.uniforms;
-    let inputTexture = this.inputTexture.getTexture();
+    const uniforms = this.fragmentShader.uniforms;
+    const inputTexture = this.inputTexture.getTexture();
 
     // Make the first pass in the X direction
     uniforms.u_input.variableValue = this.inputTexture;

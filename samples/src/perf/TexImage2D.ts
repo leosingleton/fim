@@ -8,8 +8,8 @@ import { DisposableSet, using, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfTexImage2D(): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
-    let srcImage = disposable.addDisposable(await loadTestImage());
-    let gl = disposable.addDisposable(fim.createGLCanvas(512, 512));
+    const srcImage = disposable.addDisposable(await loadTestImage());
+    const gl = disposable.addDisposable(fim.createGLCanvas(512, 512));
 
 
     //
@@ -18,7 +18,7 @@ export async function perfTexImage2D(): Promise<void> {
     async function testCreateTexDispose(id: string, width: number, height: number, flags: FimGLTextureFlags):
         Promise<void> {
       // Run performance test
-      let results = perfTest(`Create, texImage2D, and dispose ${width}x${height} textures`, () => {
+      const results = perfTest(`Create, texImage2D, and dispose ${width}x${height} textures`, () => {
         using(gl.createTexture(width, height, { textureFlags: flags }), t => {
           t.copyFrom(srcImage);
         });
@@ -33,7 +33,7 @@ export async function perfTexImage2D(): Promise<void> {
       });
     }
 
-    let createTexDisposeFlags = FimGLTextureFlags.InputOnly;
+    const createTexDisposeFlags = FimGLTextureFlags.InputOnly;
     await testCreateTexDispose('ctd-wh', srcImage.w, srcImage.h, createTexDisposeFlags);
     await testCreateTexDispose('ctd-22', 2048, 2048, createTexDisposeFlags);
     await testCreateTexDispose('ctd-44', 4096, 4096, createTexDisposeFlags);
@@ -48,7 +48,7 @@ export async function perfTexImage2D(): Promise<void> {
 
       await usingAsync(gl.createTexture(width, height, { textureFlags: flags }), async t => {
         // Run performance test
-        let results = perfTest(`texImage2D ${width}x${height} textures\n` +
+        const results = perfTest(`texImage2D ${width}x${height} textures\n` +
             `(reuse textures, InputOnly=${inputOnly})`, () => {
           t.copyFrom(srcImage);
         });
@@ -76,13 +76,13 @@ export async function perfTexImage2D(): Promise<void> {
     //
     async function testTexFromBuffer(id: string, width: number, height: number, flags: FimGLTextureFlags):
         Promise<void> {
-      usingAsync(fim.createRgbaBuffer(srcImage.w, srcImage.h), async buffer => {
+      await usingAsync(fim.createRgbaBuffer(srcImage.w, srcImage.h), async buffer => {
         // Copy the source image to a buffer
         buffer.copyFrom(srcImage);
 
         await usingAsync(gl.createTexture(width, height, { textureFlags: flags }), async t => {
           // Run performance test
-          let results = perfTest(`texImage2D ${width}x${height} textures from FimRgbaBuffer (reuse textures)`, () => {
+          const results = perfTest(`texImage2D ${width}x${height} textures from FimRgbaBuffer (reuse textures)`, () => {
             t.copyFrom(buffer);
           });
 
@@ -94,7 +94,7 @@ export async function perfTexImage2D(): Promise<void> {
       });
     }
 
-    let texFromBufferFlags = FimGLTextureFlags.InputOnly;
+    const texFromBufferFlags = FimGLTextureFlags.InputOnly;
     await testTexFromBuffer('buf-wh', srcImage.w, srcImage.h, texFromBufferFlags);
     await testTexFromBuffer('buf-22', 2048, 2048, texFromBufferFlags);
     await testTexFromBuffer('buf-44', 4096, 4096, texFromBufferFlags);

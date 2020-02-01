@@ -7,7 +7,7 @@ import { FimError, FimErrorCode } from '../image/FimError';
 
 /**
  * Computes transformation matrices for vertexes in a 3-dimensional space.
- * 
+ *
  * For details, see: https://webglfundamentals.org/webgl/lessons/webgl-3d-orthographic.html
  */
 export class Transform3D {
@@ -32,7 +32,7 @@ export class Transform3D {
    * @returns Array containing transformed vec4
    */
   public transformXYZW(x: number, y: number, z = 0, w = 1): number[] {
-    let matrix = this.matrixValue;
+    const matrix = this.matrixValue;
     return [
       x * matrix[0] + y * matrix[4] + z * matrix[8]  + w * matrix[12],
       x * matrix[1] + y * matrix[5] + z * matrix[9]  + w * matrix[13],
@@ -48,9 +48,9 @@ export class Transform3D {
       throw new FimError(FimErrorCode.AppError, 'ArraySize');
     }
 
-    let result = [];
+    const result = [];
     for (let n = 0; n < values.length; n += 4) {
-      let rr = this.transformXYZW(values[n], values[n + 1], values[n + 2], values[n + 3]);
+      const rr = this.transformXYZW(values[n], values[n + 1], values[n + 2], values[n + 3]);
       result[n] = rr[0];
       result[n + 1] = rr[1];
       result[n + 2] = rr[2];
@@ -65,8 +65,8 @@ export class Transform3D {
    * @param matrix Another 3x3 or 4x4 transformation matrix
    */
   public matrixMultiply(matrix: Transform2D | Transform3D | number[]): void {
-    let left = Transform3D.acceptMatrixOrArray(matrix);
-    let right = this.matrixValue;
+    const left = Transform3D.acceptMatrixOrArray(matrix);
+    const right = this.matrixValue;
 
     this.matrixValue = [
       left[0] * right[0]  + left[4] * right[1]  + left[8]  * right[2]  + left[12] * right[3],
@@ -103,8 +103,8 @@ export class Transform3D {
    * @param angle Angle, in radians
    */
   public rotateX(angle: number): void {
-    let s = Math.sin(angle);
-    let c = Math.cos(angle);
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
     this.matrixMultiply([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
   }
 
@@ -113,8 +113,8 @@ export class Transform3D {
    * @param angle Angle, in radians
    */
   public rotateY(angle: number): void {
-    let s = Math.sin(angle);
-    let c = Math.cos(angle);
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
     this.matrixMultiply([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
   }
 
@@ -123,8 +123,8 @@ export class Transform3D {
    * @param angle Angle, in radians
    */
   public rotateZ(angle: number): void {
-    let s = Math.sin(angle);
-    let c = Math.cos(angle);
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
     this.matrixMultiply([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   }
 
@@ -142,7 +142,7 @@ export class Transform3D {
     let result = (value instanceof Transform2D || value instanceof Transform3D) ? value.matrixValue : value;
     if (result.length === 9) {
       // Special case: We support 2D 3x3 matrices as inputs. Do the conversion to 4x4.
-      let o = result;
+      const o = result;
       result = [
         o[0], o[1],    0, o[2],
         o[3], o[4],    0, o[5],
