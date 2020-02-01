@@ -15,7 +15,7 @@ export class FimGLProgramDownscale extends FimGLProgram {
    * @param xRatio Downscale ratio of the x-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    * @param yRatio Downscale ratio of the y-axis, where 1 is unchanged, 2 is halved, 4 is quartered...
    */
-  constructor(canvas: FimGLCanvas, xRatio: number, yRatio: number) {
+  public constructor(canvas: FimGLCanvas, xRatio: number, yRatio: number) {
     const fragmentShader = require('./glsl/Downscale.glsl');
     super(canvas, fragmentShader);
 

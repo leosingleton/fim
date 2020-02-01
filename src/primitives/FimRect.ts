@@ -7,22 +7,22 @@ import { FimPoint } from './FimPoint';
 /** Simple class for holding the coordinates of a rectangle */
 export class FimRect {
   /** X-coordinate of the left side */
-  readonly xLeft: number;
+  public readonly xLeft: number;
 
   /** Y-coordinate of the top */
-  readonly yTop: number;
+  public readonly yTop: number;
 
   /** X-coordinate of the right side */
-  readonly xRight: number;
+  public readonly xRight: number;
 
   /** Y-coordinate of the bottom */
-  readonly yBottom: number;
+  public readonly yBottom: number;
 
   /** Width */
-  readonly w: number;
+  public readonly w: number;
 
   /** Height */
-  readonly h: number;
+  public readonly h: number;
 
   private constructor(xLeft: number, yTop: number, xRight: number, yBottom: number, w: number, h: number) {
     if (w >= 0) {
@@ -47,28 +47,28 @@ export class FimRect {
   }
 
   /** Compares two FimRect objects */
-  equals(rect: FimRect): boolean {
+  public equals(rect: FimRect): boolean {
     return (this.xRight === rect.xRight) && (this.yBottom === rect.yBottom) &&
       (this.xLeft === rect.xLeft) && (this.yTop === rect.yTop);
   }
 
   /** Returns whether two FimRect objects are the same width and height */
-  sameDimensions(rect: FimRect): boolean {
+  public sameDimensions(rect: FimRect): boolean {
     return (this.w === rect.w) && (this.h === rect.h);
   }
 
   /** Returns the top-left corner as a point object */
-  getTopLeft(): FimPoint {
+  public getTopLeft(): FimPoint {
     return new FimPoint(this.xLeft, this.yTop);
   }
 
   /** Returns the bottom-right corner as a point object */
-  getBottomRight(): FimPoint {
+  public getBottomRight(): FimPoint {
     return new FimPoint(this.xRight, this.yBottom);
   }
 
   /** Returns a FimRect whose top-left coordinate is less than its bottom-right */
-  toUpright(): FimRect {
+  public toUpright(): FimRect {
     return FimRect.fromCoordinates(
       Math.min(this.xLeft, this.xRight),
       Math.min(this.yTop, this.yBottom),
@@ -78,17 +78,17 @@ export class FimRect {
   }
 
   /** Returns the area of the rectangle, in pixels */
-  getArea(): number {
+  public getArea(): number {
     return this.w * this.h;
   }
 
   /** Returns the point at the center of the rectangle */
-  getCenter(): FimPoint {
+  public getCenter(): FimPoint {
     return new FimPoint((this.xLeft + this.xRight) / 2, (this.yTop + this.yBottom) / 2);
   }
 
   /** Scales a rectangle by a multiplier */
-  rescale(ratio: number): FimRect {
+  public rescale(ratio: number): FimRect {
     return FimRect.fromCoordinates(this.xLeft * ratio, this.yTop * ratio, this.xRight * ratio, this.yBottom * ratio);
   }
 
@@ -97,30 +97,30 @@ export class FimRect {
    * @param maxRect Rectangle to fit inside of
    * @returns A rectangle with the same aspect ratio as this, but whose coordinates fit inside of maxRect
    */
-  fit(maxRect: FimRect): FimRect {
+  public fit(maxRect: FimRect): FimRect {
     const scale = Math.min(maxRect.w / this.w, maxRect.h / this.h);
     const width = Math.floor(this.w * scale);
     const height = Math.floor(this.h * scale);
     return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
   }
 
-  static fromWidthHeight(width: number, height: number): FimRect {
+  public static fromWidthHeight(width: number, height: number): FimRect {
     return new FimRect(0, 0, width, height, width, height);
   }
 
-  static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
+  public static fromXYWidthHeight(x: number, y: number, width: number, height: number) {
     return new FimRect(x, y, x + width, y + height, width, height);
   }
 
-  static fromPointWidthHeight(topLeft: FimPoint, width: number, height: number) {
+  public static fromPointWidthHeight(topLeft: FimPoint, width: number, height: number) {
     return this.fromXYWidthHeight(topLeft.x, topLeft.y, width, height);
   }
 
-  static fromCoordinates(xLeft: number, yTop: number, xRight: number, yBottom: number): FimRect {
+  public static fromCoordinates(xLeft: number, yTop: number, xRight: number, yBottom: number): FimRect {
     return new FimRect(xLeft, yTop, xRight, yBottom, xRight - xLeft, yBottom - yTop);
   }
 
-  static fromPoints(topLeft: FimPoint, bottomRight: FimPoint) {
+  public static fromPoints(topLeft: FimPoint, bottomRight: FimPoint) {
     return this.fromCoordinates(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
   }
 
@@ -132,7 +132,7 @@ export class FimRect {
    * @returns Downscaled FimRect with the same aspect ratio as the original. Note that the dimensions are rounded
    *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
    */
-  static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimRect {
+  public static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimRect {
     const scale = Math.min(maxDimension / width, maxDimension / height);
     const w = Math.floor(width * scale);
     const h = Math.floor(height * scale);

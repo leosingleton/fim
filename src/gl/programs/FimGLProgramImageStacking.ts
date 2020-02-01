@@ -14,7 +14,7 @@ export class FimGLProgramImageStacking extends FimGLProgram {
    * Constructor
    * @param canvas
    */
-  constructor(canvas: FimGLCanvas) {
+  public constructor(canvas: FimGLCanvas) {
     const fragmentShader = require('./glsl/ImageStacking.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();

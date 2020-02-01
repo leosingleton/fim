@@ -8,7 +8,7 @@ import { IFimGLTextureLike } from '../FimGLTexture';
 
 /** GL program to apply a y = mx + b transformation */
 export class FimGLProgramLinearTransform extends FimGLProgram {
-  constructor(canvas: FimGLCanvas) {
+  public constructor(canvas: FimGLCanvas) {
     const fragmentShader = require('./glsl/LinearTransform.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();

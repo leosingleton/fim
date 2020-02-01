@@ -7,10 +7,10 @@ import { SeededRandom } from '@leosingleton/commonlibs';
 
 /** Simple class for holding a pair of coordinates */
 export class FimPoint {
-  x: number;
-  y: number;
+  public readonly x: number;
+  public readonly y: number;
 
-  constructor(x: number, y: number) {
+  public constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
   }

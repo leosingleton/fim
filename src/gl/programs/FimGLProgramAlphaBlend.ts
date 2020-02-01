@@ -8,7 +8,7 @@ import { IFimGLTextureLike } from '../FimGLTexture';
 
 /** GL program to copy from one texture to another */
 export class FimGLProgramAlphaBlend extends FimGLProgram {
-  constructor(canvas: FimGLCanvas) {
+  public constructor(canvas: FimGLCanvas) {
     const fragmentShader = require('./glsl/AlphaBlend.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();

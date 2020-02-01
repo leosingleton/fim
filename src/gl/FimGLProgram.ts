@@ -40,7 +40,7 @@ export interface UniformDefinitionMap { [name: string]: UniformDefinition }
  *    execute().
  */
 export abstract class FimGLProgram implements IDisposable {
-  constructor(canvas: FimGLCanvas, fragmentShader: GlslShader, vertexShader = defaultVertexShader) {
+  public constructor(canvas: FimGLCanvas, fragmentShader: GlslShader, vertexShader = defaultVertexShader) {
     this.glCanvas = canvas;
     this.gl = canvas.gl;
 

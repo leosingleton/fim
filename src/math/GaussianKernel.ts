@@ -69,7 +69,7 @@ export class GaussianKernel {
    * @param samples Number of samples to use when calculating each element in the kernel
    * @param quantize
    */
-  static calculate(sigma: number, kernelSize: number, samples = 100, quantize = true): number[] {
+  public static calculate(sigma: number, kernelSize: number, samples = 100, quantize = true): number[] {
     // Cache kernels once they are calculated, as we frequently reuse the same ones, and they are expensive to compute
     const kernelName = `${sigma}:${kernelSize}:${samples}:${quantize ? 'Q' : '-'}`;
     let kernel = this.kernelCache[kernelName];
@@ -118,7 +118,7 @@ export class GaussianKernel {
    * Quantizes a kernel so that the values are a multiple of 1/255, suitable for 8-bit canvas operations
    * @param kernel Any kernel
    */
-  static quantize(kernel: number[]): number[] {
+  public static quantize(kernel: number[]): number[] {
     const kernelSize = kernel.length;
     const halfKernelSize = Math.floor(kernelSize / 2);
     let sum = 0;
@@ -200,7 +200,7 @@ export class GaussianKernel {
    * Normalizes a kernel so the values sum to 1
    * @param kernel Any kernel
    */
-  static normalizeValues(kernel: number[]): number[] {
+  public static normalizeValues(kernel: number[]): number[] {
     const kernelSize = kernel.length;
     let sum = 0;
 

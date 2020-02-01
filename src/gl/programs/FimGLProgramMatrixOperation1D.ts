@@ -11,7 +11,7 @@ import { using } from '@leosingleton/commonlibs';
 
 /** GL program which creates a Gaussian blur */
 export class FimGLProgramMatrixOperation1D extends FimGLProgram {
-  constructor(canvas: FimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
+  public constructor(canvas: FimGLCanvas, kernelSize: number, fragmentShader?: FimGLShader) {
     fragmentShader = fragmentShader || require('./glsl/MatrixOperation1D.glsl');
     super(canvas, fragmentShader);
 
