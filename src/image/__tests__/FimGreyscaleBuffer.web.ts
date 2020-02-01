@@ -10,15 +10,15 @@ describe('FimGreyscaleBuffer', () => {
 
   it('Creates and disposes', () => {
     using(new FimWeb(), fim => {
-      let b = fim.createGreyscaleBuffer(640, 480);
+      const b = fim.createGreyscaleBuffer(640, 480);
       expect(b.getBuffer().length).toEqual(640 * 480);
-  
+
       b.dispose();
       expect(b.getBuffer()).toBeUndefined();
-  
+
       // Double-dispose
       b.dispose();
-      expect(b.getBuffer()).toBeUndefined();  
+      expect(b.getBuffer()).toBeUndefined();
     });
   });
 
@@ -26,7 +26,7 @@ describe('FimGreyscaleBuffer', () => {
     using(new FimWeb(), fim => {
       using(fim.createGreyscaleBuffer(640, 480, 42), buffer => {
         expect(buffer.getPixel(134, 413)).toEqual(42);
-      });  
+      });
     });
   });
 
@@ -36,15 +36,15 @@ describe('FimGreyscaleBuffer', () => {
         buffer.setPixel(555, 123, 233);
         expect(buffer.getPixel(134, 413)).toEqual(12);
         expect(buffer.getPixel(555, 123)).toEqual(233);
-      });  
+      });
     });
   });
 
   it('Copies to destination coordinates', () => {
     DisposableSet.using(disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let dest = disposable.addDisposable(fim.createGreyscaleBuffer(200, 200));
-      let src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
+      const fim = disposable.addDisposable(new FimWeb());
+      const dest = disposable.addDisposable(fim.createGreyscaleBuffer(200, 200));
+      const src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
 
       // Top-left => 0
       src.fillCanvas(0);

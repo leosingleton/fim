@@ -27,8 +27,8 @@ export abstract class FimCanvasBase extends FimImage {
     // Call the parent constructor. Read the new dimensions as they may get downscaled.
     super(fim, width, height, maxDimension);
 
-    let realDimensions = this.realDimensions;
-    let canvasFactory = fim.canvasFactory;
+    const realDimensions = this.realDimensions;
+    const canvasFactory = fim.canvasFactory;
     this.canvasElement = canvasFactory(realDimensions.w, realDimensions.h, canvasType, `fim${this.imageId}`);
     this.offscreenCanvas = canvasFactory !== FimDomCanvasFactory;
   }
@@ -61,12 +61,12 @@ export abstract class FimCanvasBase extends FimImage {
    */
   public async toPngBlob(): Promise<Blob> {
     if (!this.offscreenCanvas) {
-      let canvas = this.canvasElement as HTMLCanvasElement;
+      const canvas = this.canvasElement as HTMLCanvasElement;
       return new Promise<Blob>(resolve => {
         canvas.toBlob(blob => resolve(blob));
       });
     } else {
-      let canvas = this.canvasElement as OffscreenCanvas;
+      const canvas = this.canvasElement as OffscreenCanvas;
       return canvas.convertToBlob({});
     }
   }
@@ -76,8 +76,8 @@ export abstract class FimCanvasBase extends FimImage {
    * @returns Array containing PNG data
    */
   public async toPng(): Promise<Uint8Array> {
-    let blob = await this.toPngBlob();
-    let buffer = await new Response(blob).arrayBuffer();
+    const blob = await this.toPngBlob();
+    const buffer = await new Response(blob).arrayBuffer();
     return new Uint8Array(buffer);
   }
 
@@ -88,13 +88,13 @@ export abstract class FimCanvasBase extends FimImage {
    */
   public async toJpegBlob(quality = 0.95): Promise<Blob> {
     if (!this.offscreenCanvas) {
-      let canvas = this.canvasElement as HTMLCanvasElement;
+      const canvas = this.canvasElement as HTMLCanvasElement;
       return new Promise<Blob>(resolve => {
         canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
       });
     } else {
-      let canvas = this.canvasElement as OffscreenCanvas;
-      return canvas.convertToBlob({ type: 'image/jpeg', quality: quality });
+      const canvas = this.canvasElement as OffscreenCanvas;
+      return canvas.convertToBlob({ type: 'image/jpeg', quality });
     }
   }
 
@@ -104,8 +104,8 @@ export abstract class FimCanvasBase extends FimImage {
    * @returns Array containing JPEG data
    */
   public async toJpeg(quality = 0.95): Promise<Uint8Array> {
-    let blob = await this.toJpegBlob(quality);
-    let buffer = await new Response(blob).arrayBuffer();
+    const blob = await this.toJpegBlob(quality);
+    const buffer = await new Response(blob).arrayBuffer();
     return new Uint8Array(buffer);
   }
 
@@ -120,7 +120,7 @@ export abstract class FimCanvasBase extends FimImage {
     // Default parameters
     srcCoords = srcCoords || this.imageDimensions;
     destCoords = destCoords || FimRect.fromWidthHeight(destCanvas.width, destCanvas.height);
-    
+
     // Scale the coordinates
     srcCoords = srcCoords.rescale(this.downscaleRatio);
 
@@ -137,7 +137,7 @@ export abstract class FimCanvasBase extends FimImage {
    */
   protected static createDrawingContext(destCanvas: HTMLCanvasElement | OffscreenCanvas, imageSmoothingEnabled = false,
       operation = 'copy', alpha = 1): CanvasRenderingContext2D & IDisposable {
-    let ctx = (destCanvas as HTMLCanvasElement).getContext('2d');
+    const ctx = (destCanvas as HTMLCanvasElement).getContext('2d');
     if (!ctx) {
       // Safari on iOS has a limit of 288 MB total for all canvases on a page. It logs this message to the console if
       // connecting to a PC for debugging, but the only errror given to the JavaScript code is returning a null on
@@ -152,7 +152,7 @@ export abstract class FimCanvasBase extends FimImage {
     // Disable image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
     // support it well...
     // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
-    let ctxAny = ctx as any;
+    const ctxAny = ctx as any;
     ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
     ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
     ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
@@ -171,10 +171,10 @@ export abstract class FimCanvasBase extends FimImage {
   protected static copyCanvasToCanvas(srcCanvas: HTMLCanvasElement | OffscreenCanvas,
       destCanvas: HTMLCanvasElement | OffscreenCanvas, srcCoords: FimRect, destCoords: FimRect): void {
     // copy is slightly faster than source-over
-    let op = (destCoords.w === destCanvas.width && destCoords.h === destCanvas.height) ? 'copy' : 'source-over';
+    const op = (destCoords.w === destCanvas.width && destCoords.h === destCanvas.height) ? 'copy' : 'source-over';
 
     // Enable image smoothing if we are rescaling the image
-    let imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
+    const imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
 
     // Report telemetry for debugging
     recordDrawImage(srcCoords, destCoords, op, imageSmoothingEnabled);
@@ -192,7 +192,7 @@ export abstract class FimCanvasBase extends FimImage {
    */
   protected static fillCanvas(destCanvas: HTMLCanvasElement | OffscreenCanvas, color: FimColor | string): void {
     // Force color to be a string
-    let colorString = (typeof(color) === 'string') ? color : color.string;
+    const colorString = (typeof(color) === 'string') ? color : color.string;
 
     using(this.createDrawingContext(destCanvas, false, 'copy', 1), ctx => {
       ctx.fillStyle = colorString;

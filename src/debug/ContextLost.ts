@@ -11,12 +11,12 @@ export namespace ContextLost {
   export function loseContextAsync(glCanvas: FimGLCanvas): Promise<void> {
     // The WebGL extension to simulate context loss doesn't exectute the handlers before resuming JavaScript execution.
     // Work around this by registering a handler and waiting on it.
-    let contextLostEvent = new AsyncManualResetEvent();
+    const contextLostEvent = new AsyncManualResetEvent();
     glCanvas.registerForContextLost(() => contextLostEvent.setEvent());
 
     // Get the extension. We save it, as once the context is lost, gl.getExtension() seems to be unreliable.
-    let gl = glCanvas.gl;
-    let extension = gl.getExtension('WEBGL_lose_context');
+    const gl = glCanvas.gl;
+    const extension = gl.getExtension('WEBGL_lose_context');
     FimGLError.throwOnError(gl);
     loseContextExtensions[glCanvas.imageId] = extension;
 
@@ -31,11 +31,11 @@ export namespace ContextLost {
   export function restoreContextAsync(glCanvas: FimGLCanvas): Promise<void> {
     // restoreContext() doesn't seem to have the same problem as loseContext(), but we also wait on the handler for
     // consistency.
-    let contextRestoredEvent = new AsyncManualResetEvent();
+    const contextRestoredEvent = new AsyncManualResetEvent();
     glCanvas.registerForContextRestored(() => contextRestoredEvent.setEvent());
 
     // Simulate the context being restored
-    let extension = loseContextExtensions[glCanvas.imageId];
+    const extension = loseContextExtensions[glCanvas.imageId];
     extension.restoreContext();
 
     // Wait for the handler to execute
@@ -65,4 +65,4 @@ export namespace ContextLost {
   }
 }
 
-let loseContextExtensions: { [id: number]: WEBGL_lose_context } = {};
+const loseContextExtensions: { [id: number]: WEBGL_lose_context } = {};

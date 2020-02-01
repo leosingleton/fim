@@ -95,7 +95,7 @@ export class FimWeb extends Fim {
       FimDomCanvasFactory) {
     // We have an option to disable offscreen canvas support via the query string. This can be useful for debugging,
     // since regular canvases can be made visible in the browser's debugging tools.
-    let enableOC = FimConfig.config.enableOffscreenCanvas;
+    const enableOC = FimConfig.config.enableOffscreenCanvas;
     if (!enableOC && canvasFactory === FimOffscreenCanvasFactory) {
       canvasFactory = FimDomCanvasFactory;
     }

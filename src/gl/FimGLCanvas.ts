@@ -36,7 +36,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
   protected constructor(fim: Fim, width: number, height: number, initialColor?: FimColor | string, quality = 1) {
     // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. Downscale the width and height if
     // necessary.
-    let caps = fim.getGLCapabilities();
+    const caps = fim.getGLCapabilities();
     let maxDimension = caps.maxRenderBufferSize;
 
     // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
@@ -47,7 +47,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
 
     // If a lower render buffer limit was set for debugging, use that instead
-    let debugMaxDimension = FimConfig.config.maxGLRenderBufferSize;
+    const debugMaxDimension = FimConfig.config.maxGLRenderBufferSize;
     if (debugMaxDimension > 0) {
       maxDimension = Math.min(maxDimension, debugMaxDimension);
     }
@@ -65,13 +65,13 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     this.disposable = new DisposableSet();
 
     // Initialize WebGL
-    let canvas = this.canvasElement;
+    const canvas = this.canvasElement;
 
     canvas.addEventListener('webglcontextlost', this.onWebGLContextLost.bind(this), false);
     canvas.addEventListener('webglcontextrestored', this.onWebGLContextRestored.bind(this), false);
     canvas.addEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
 
-    let gl = this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
+    const gl = this.gl = (canvas as HTMLCanvasElement).getContext('webgl');
     if (!gl) {
       throw new FimGLError(FimGLErrorCode.NoWebGL, this.contextFailMessage);
     }
@@ -91,7 +91,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
 
     // Simulate intermittent context loss if the debugging option is enabled
-    let contextLostInterval = FimConfig.config.contextLostSimulationInterval;
+    const contextLostInterval = FimConfig.config.contextLostSimulationInterval;
     if (contextLostInterval > 0) {
       ContextLost.simulateContextLoss(this, contextLostInterval);
     }
@@ -113,7 +113,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
   }
 
-  private onWebGLContextRestored(event: Event): void {
+  private onWebGLContextRestored(_event: Event): void {
     console.log('WebGL context restored');
 
     // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
@@ -130,7 +130,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
   }
 
   public dispose(): void {
-    let canvas = this.canvasElement;
+    const canvas = this.canvasElement;
     if (canvas) {
       // Report telemetry for debugging
       recordDispose(this, FimObjectType.GLCanvas);
@@ -138,7 +138,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
       canvas.removeEventListener('webglcontextlost', this.onWebGLContextLost.bind(this), false);
       canvas.removeEventListener('webglcontextrestored', this.onWebGLContextRestored.bind(this), false);
       canvas.removeEventListener('webglcontextcreationerror', this.onWebGLContextCreationError.bind(this), false);
-  
+
       if (this.copyProgram) {
         this.copyProgram.dispose();
         delete this.copyProgram;
@@ -187,7 +187,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
    */
   public getTextureDepth(maxBpp: FimBitsPerPixel, linear: boolean): { bpp: FimBitsPerPixel, glConstant: number } {
     // If a lower BPP limit was set for debugging, use that instead
-    let debugMaxBpp = FimConfig.config.maxGLBpp;
+    const debugMaxBpp = FimConfig.config.maxGLBpp;
     if (debugMaxBpp > 0) {
       maxBpp = Math.min(maxBpp, debugMaxBpp);
     }
@@ -203,7 +203,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     }
 
     if (maxBpp >= FimBitsPerPixel.BPP16 && this.renderQuality >= 0.5) {
-      let ext = this.extensionTexture16;
+      const ext = this.extensionTexture16;
       if (ext && this.extensionColorBuffer16) {
         if (!linear || this.extensionTextureLinear16) {
           return { bpp: FimBitsPerPixel.BPP16, glConstant: ext.HALF_FLOAT_OES };
@@ -215,7 +215,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
   }
 
   private loadExtensions(): void {
-    let gl = this.gl;
+    const gl = this.gl;
     this.extensionTexture32 = gl.getExtension('OES_texture_float');
     this.extensionTextureLinear32 = gl.getExtension('OES_texture_float_linear');
     this.extensionColorBuffer32 = gl.getExtension('WEBGL_color_buffer_float');
@@ -236,21 +236,21 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
 
   /** Creates a new FimCanvas which is a duplicate of this one */
   public duplicateCanvas(): FimCanvas {
-    let dupe = this.fim.createCanvas(this.w, this.h);
+    const dupe = this.fim.createCanvas(this.w, this.h);
     dupe.copyFrom(this, this.imageDimensions, this.imageDimensions);
     return dupe;
   }
 
   /** Fills the canvas with a solid color */
   public fillCanvas(color: FimColor | string): void {
-    let c = (color instanceof FimColor) ? color : FimColor.fromString(color);
-    let gl = this.gl;
+    const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    const gl = this.gl;
 
     // Chrome has a bug where subsequent calls to clear() do not work with OffscreenCanvas. Workaround by using a WebGL
     // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
     if (this.offscreenCanvas) {
       if (this.workaroundChromeBug) {
-        let program = this.getFillProgram();
+        const program = this.getFillProgram();
         program.setInputs(c);
         program.execute();
         return;
@@ -295,7 +295,7 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
    * @param destCoords Coordinates of destination image to copy to
    */
   public copyFrom(srcImage: IFimGLTextureLike, srcCoords?: FimRect, destCoords?: FimRect): void {
-    let texture = srcImage.getTexture();
+    const texture = srcImage.getTexture();
 
     // Validate source texture
     FimGLError.throwOnMismatchedGLCanvas(this, texture.glCanvas);
@@ -308,10 +308,10 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     srcCoords = srcCoords.rescale(texture.downscaleRatio);
 
     // Calculate the transformation matrix to achieve the requested srcCoords
-    let matrix = Transform2D.fromSrcCoords(srcCoords, texture.imageDimensions);
+    const matrix = Transform2D.fromSrcCoords(srcCoords, texture.imageDimensions);
 
     // Execute the copy shader
-    let program = this.getCopyProgram();
+    const program = this.getCopyProgram();
     program.applyVertexMatrix(matrix);
     program.setInputs(srcImage);
     program.execute(null, destCoords);
@@ -319,9 +319,9 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
 
   /**
    * Copies image to another.
-   * 
+   *
    * FimCanvas and HtmlCanvasElement support both cropping and rescaling, while FimRgbaBuffer only supports cropping.
-   * 
+   *
    * @param destImage Destination image
    * @param srcCoords Coordinates of source image to copy
    * @param destCoords Coordinates of destination image to copy to
@@ -330,19 +330,19 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
       destCoords?: FimRect): void {
     if (destImage instanceof HTMLCanvasElement) {
       this.toHtmlCanvas(destImage, srcCoords, destCoords);
-    } else {    
+    } else {
       destImage.copyFrom(this, srcCoords, destCoords);
     }
   }
 
   public getPixel(x: number, y: number): FimColor {
-    let gl = this.gl;
-    let pixel = new Uint8Array(4);
+    const gl = this.gl;
+    const pixel = new Uint8Array(4);
 
     // Scale the coordinates and flip Y, as the coordinates for readPixels start in the lower-left corner
     x = Math.round(x * this.downscaleRatio);
     y = Math.round((this.h - y - 1) * this.downscaleRatio);
-    
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     FimGLError.throwOnError(gl);
     gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);

@@ -8,7 +8,7 @@ import { using } from '@leosingleton/commonlibs';
 describe('FimGLCapabilities', () => {
   it('Reads WebGL capabilities', () => {
     using(new FimWeb(), fim => {
-      let caps = fim.getGLCapabilities();
+      const caps = fim.getGLCapabilities();
       expect(caps.renderer.length).toBeGreaterThan(0);
       expect(caps.vendor.length).toBeGreaterThan(0);
       expect(caps.unmaskedRenderer.length).toBeGreaterThan(0);
@@ -18,7 +18,7 @@ describe('FimGLCapabilities', () => {
       expect(caps.maxRenderBufferSize).toBeGreaterThanOrEqual(1024);
       expect(caps.maxTextureImageUnits).toBeGreaterThanOrEqual(4);
       expect(caps.maxTextureSize).toBeGreaterThanOrEqual(1024);
-      expect(caps.extensions.length).toBeGreaterThan(0);  
+      expect(caps.extensions.length).toBeGreaterThan(0);
     });
   });
 });

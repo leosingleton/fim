@@ -32,7 +32,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLTextureLike
    */
   public constructor(glCanvas: FimGLCanvas, width?: number, height?: number, options?: FimGLTextureOptions,
       initialColor?: FimColor | string) {
-    let fim = glCanvas.fim as Fim;
+    const fim = glCanvas.fim as Fim;
 
     // Default parameters
     width = width || glCanvas.w;
@@ -44,14 +44,14 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLTextureLike
     }
 
     // Create the WebGL texture according to the requested options
-    let texture = glCanvas.createTexture(width, height, options, initialColor);
+    const texture = glCanvas.createTexture(width, height, options, initialColor);
 
     // Call the FimImage constructor. We'll figure out the maxDimension property based on the texture's dimensions.
     super(fim, width, height, Math.max(texture.realDimensions.w, texture.realDimensions.h));
     this.glCanvas = glCanvas as FimGLCanvas;
     this.texture = texture;
     this.textureOptions = texture.textureOptions;
-  
+
     // The texture may have been downscaled because of GPU limits. Create a backing canvas of the actual size.
     this.backingCanvas = fim.createCanvas(texture.realDimensions.w, texture.realDimensions.h, initialColor);
 
@@ -82,7 +82,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLTextureLike
 
   /** Gets the underlying FimGLTexture that backs this object */
   public getTexture(): FimGLTexture {
-    let glCanvas = this.glCanvas;
+    const glCanvas = this.glCanvas;
 
     // Ensure the WebGL context is not currently lost
     if (glCanvas.isContextLost()) {
@@ -91,7 +91,7 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLTextureLike
 
     if (!this.texture) {
       // The context was lost but has been restored. Recreate the texture.
-      let texture = glCanvas.createTexture(this.w, this.h, this.textureOptions);
+      const texture = glCanvas.createTexture(this.w, this.h, this.textureOptions);
       texture.copyFrom(this.backingCanvas);
       this.texture = texture;
     }
@@ -108,14 +108,14 @@ export class FimGLPreservedTexture extends FimImage implements IFimGLTextureLike
    * restored from this point.
    */
   public preserve(): void {
-    let texture = this.texture;
-    let glCanvas = this.glCanvas;
+    const texture = this.texture;
+    const glCanvas = this.glCanvas;
 
     // Calculate the destination coordinates on the WebGL canvas. This is tricky, because (1) the canvas may be larger
     // than the texture and (2) the canvas may be downscaled and copyFrom does not honor the real coordinates. We don't
     // worry about destRect ever being larger than the canvas, as we suppressed the AllowLargerThanCanvas flag in the
     // constructor.
-    let glRect = texture.realDimensions.rescale(1 / glCanvas.downscaleRatio);
+    const glRect = texture.realDimensions.rescale(1 / glCanvas.downscaleRatio);
 
     // Copy the texture to the 2D backing canvas. This takes two steps, as we copy to the WebGL canvas first.
     glCanvas.copyFrom(texture, null, glRect);

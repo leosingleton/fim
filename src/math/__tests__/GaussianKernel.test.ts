@@ -8,7 +8,7 @@ import { GaussianKernel } from '../GaussianKernel';
 describe('GaussianKernel', () => {
 
   it('sigma=1 size=5', () => {
-    let kernel = GaussianKernel.calculate(1, 5);
+    const kernel = GaussianKernel.calculate(1, 5);
 
     expect(kernel.length).toBe(5);
     expect(kernel[0]).toBeCloseTo(0.06136);
@@ -19,7 +19,7 @@ describe('GaussianKernel', () => {
   });
 
   it('sigma=2 size=7', () => {
-    let kernel = GaussianKernel.calculate(2, 7);
+    const kernel = GaussianKernel.calculate(2, 7);
 
     expect(kernel.length).toBe(7);
     expect(kernel[0]).toBeCloseTo(0.071303);
@@ -32,7 +32,7 @@ describe('GaussianKernel', () => {
   });
 
   it('sigma=4 size=9', () => {
-    let kernel = GaussianKernel.calculate(4, 9);
+    const kernel = GaussianKernel.calculate(4, 9);
 
     expect(kernel.length).toBe(9);
     expect(kernel[0]).toBeCloseTo(0.081812);
@@ -48,7 +48,7 @@ describe('GaussianKernel', () => {
 
   it('quantize', () => {
     let kernel = [1, 2, 3, 4, 5];
-    let n = GaussianKernel.quantize(kernel);
+    kernel = GaussianKernel.quantize(kernel);
     expect(kernel[0]).toBeCloseTo(1/15);
     expect(kernel[1]).toBeCloseTo(2/15);
     expect(kernel[2]).toBeCloseTo(3/15);
@@ -58,7 +58,7 @@ describe('GaussianKernel', () => {
 
   it('normalize', () => {
     let kernel = [1, 2, 3, 4, 5];
-    let n = GaussianKernel.normalizeValues(kernel);
+    kernel = GaussianKernel.normalizeValues(kernel);
     expect(kernel[0]).toBeCloseTo(1/15);
     expect(kernel[1]).toBeCloseTo(2/15);
     expect(kernel[2]).toBeCloseTo(3/15);

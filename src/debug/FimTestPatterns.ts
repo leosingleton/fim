@@ -20,12 +20,12 @@ export module FimTestPatterns {
   }
 
   /** Generator function for greyscale vertical gradients */
-  export function verticalGradient(x: number, y: number): FimColor {
+  export function verticalGradient(x: number, _y: number): FimColor {
     return FimColor.fromRGBABytes(x % 256, x % 256, x % 256, 255);
   }
 
   /** Generator function for a test pattern that stresses downscale operations. On average, it is 50% grey. */
-  export function downscaleStress(x: number, y: number): FimColor {
+  export function downscaleStress(x: number, _y: number): FimColor {
     let color = '#fff';
     switch (x % 4) {
       case 0: color = '#f00'; break;
@@ -60,8 +60,8 @@ export module FimTestPatterns {
       boolean {
     for (let x = 0; x < srcImage.w; x++) {
       for (let y = 0; y < srcImage.h; y++) {
-        let expected = generator(x, y);
-        let found = srcImage.getPixel(x, y);
+        const expected = generator(x, y);
+        const found = srcImage.getPixel(x, y);
         if (!found.equals(expected)) {
           if (throwOnError) {
             throw Error(`(${x},${y}) expected: ${expected} found: ${found}`);

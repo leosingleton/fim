@@ -7,7 +7,7 @@ import { FimColor } from '../FimColor';
 describe('FimColor', () => {
 
   it('Constructs from RGBA bytes', () => {
-    let color = FimColor.fromRGBABytes(127, 255, 63, 127);
+    const color = FimColor.fromRGBABytes(127, 255, 63, 127);
     expect(color.r).toEqual(127);
     expect(color.g).toEqual(255);
     expect(color.b).toEqual(63);
@@ -16,7 +16,7 @@ describe('FimColor', () => {
   });
 
   it('Constructs from RGBA floats', () => {
-    let color = FimColor.fromRGBAFloats(0.5, 1, 0.25, 0.5);
+    const color = FimColor.fromRGBAFloats(0.5, 1, 0.25, 0.5);
     expect(color.r).toEqual(128);
     expect(color.g).toEqual(255);
     expect(color.b).toEqual(64);
@@ -25,23 +25,23 @@ describe('FimColor', () => {
   });
 
   it('Constructs from strings', () => {
-    let color1 = FimColor.fromString('#abc');
+    const color1 = FimColor.fromString('#abc');
     expect(color1.string).toEqual('#aabbcc');
 
-    let color2 = FimColor.fromString('#abcd');
+    const color2 = FimColor.fromString('#abcd');
     expect(color2.string).toEqual('#aabbccdd');
 
-    let color3 = FimColor.fromString('#a1b2c3');
+    const color3 = FimColor.fromString('#a1b2c3');
     expect(color3.string).toEqual('#a1b2c3');
 
-    let color4 = FimColor.fromString('#a1b2c3d4');
+    const color4 = FimColor.fromString('#a1b2c3d4');
     expect(color4.string).toEqual('#a1b2c3d4');
   });
 
   it('Compares colors', () => {
-    let color1 = FimColor.fromString('#fff');
-    let color2 = FimColor.fromString('#ffffffff');
-    let color3 = FimColor.fromString('#999');
+    const color1 = FimColor.fromString('#fff');
+    const color2 = FimColor.fromString('#ffffffff');
+    const color3 = FimColor.fromString('#999');
     expect(color1.equals(color2)).toBeTruthy();
     expect(color1.equals('#ffff')).toBeTruthy();
     expect(color2.equals(color1)).toBeTruthy();
@@ -50,15 +50,15 @@ describe('FimColor', () => {
   });
 
   it('Calculates luminance', () => {
-    let black = FimColor.fromString('#000');
-    let white = FimColor.fromString('#fff');
-    
+    const black = FimColor.fromString('#000');
+    const white = FimColor.fromString('#fff');
+
     expect(black.getLuminance()).toEqual(0);
     expect(white.getLuminance()).toEqual(1);
   });
 
   it('Converts to vectors', () => {
-    let red = FimColor.fromString('#f00');
+    const red = FimColor.fromString('#f00');
     expect(red.toVector()).toEqual([1, 0, 0, 1]);
   });
 

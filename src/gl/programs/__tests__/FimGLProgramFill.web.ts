@@ -14,11 +14,11 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Respects custom destination rectangles', () => {
       DisposableSet.using(disposable => {
         // Create a 300x200 red canvas
-        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
-        let gl = disposable.addDisposable(fim.createGLCanvas(300, 200, '#f00'));
+        const fim = disposable.addDisposable(new FimWeb(canvasFactory));
+        const gl = disposable.addDisposable(fim.createGLCanvas(300, 200, '#f00'));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
-        let fill = disposable.addDisposable(new FimGLProgramFill(gl));
+        const fill = disposable.addDisposable(new FimGLProgramFill(gl));
         fill.setInputs(FimColor.fromString('#00f'));
         fill.execute(null, FimRect.fromXYWidthHeight(100, 50, 100, 100));
 
@@ -32,11 +32,11 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Respects custom destination rectangles vertically', () => {
       DisposableSet.using(disposable => {
         // Create a 100x200 red canvas
-        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
-        let gl = disposable.addDisposable(fim.createGLCanvas(100, 200, '#f00'));
+        const fim = disposable.addDisposable(new FimWeb(canvasFactory));
+        const gl = disposable.addDisposable(fim.createGLCanvas(100, 200, '#f00'));
 
         // Draw a 100x100 blue square using the fill program and a custom destination rectangle
-        let fill = disposable.addDisposable(new FimGLProgramFill(gl));
+        const fill = disposable.addDisposable(new FimGLProgramFill(gl));
         fill.setInputs(FimColor.fromString('#00f'));
         fill.execute(null, FimRect.fromXYWidthHeight(0, 0, 100, 100));
 
@@ -49,11 +49,11 @@ function spec(canvasFactory: FimCanvasFactory) {
     it('Respects custom destination rectangles to the pixel', () => {
       DisposableSet.using(disposable => {
         // Create a 100x100 red canvas
-        let fim = disposable.addDisposable(new FimWeb(canvasFactory));
-        let gl = disposable.addDisposable(fim.createGLCanvas(100, 100, '#f00'));
+        const fim = disposable.addDisposable(new FimWeb(canvasFactory));
+        const gl = disposable.addDisposable(fim.createGLCanvas(100, 100, '#f00'));
 
         // Draw a blue on one specific pixel
-        let fill = disposable.addDisposable(new FimGLProgramFill(gl));
+        const fill = disposable.addDisposable(new FimGLProgramFill(gl));
         fill.setInputs(FimColor.fromString('#00f'));
         fill.execute(null, FimRect.fromXYWidthHeight(25, 25, 1, 1));
 

@@ -33,9 +33,9 @@ describe('FimRect', () => {
   });
 
   it('equals', () => {
-    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
-    let rect2 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
-    let rect3 = FimRect.fromXYWidthHeight(100, 200, 400, 300);
+    const rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    const rect2 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    const rect3 = FimRect.fromXYWidthHeight(100, 200, 400, 300);
     expect(rect1.equals(rect2)).toBeTruthy();
     expect(rect2.equals(rect1)).toBeTruthy();
     expect(rect1.equals(rect3)).toBeFalsy();
@@ -43,9 +43,9 @@ describe('FimRect', () => {
   });
 
   it('Compares sameDimensions', () => {
-    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
-    let rect2 = FimRect.fromXYWidthHeight(200, 300, 300, 400);
-    let rect3 = FimRect.fromXYWidthHeight(100, 200, 400, 300);
+    const rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    const rect2 = FimRect.fromXYWidthHeight(200, 300, 300, 400);
+    const rect3 = FimRect.fromXYWidthHeight(100, 200, 400, 300);
     expect(rect1.sameDimensions(rect2)).toBeTruthy();
     expect(rect2.sameDimensions(rect1)).toBeTruthy();
     expect(rect1.sameDimensions(rect3)).toBeFalsy();
@@ -53,49 +53,49 @@ describe('FimRect', () => {
   });
 
   it('Converts upright', () => {
-    let rect = FimRect.fromPoints(new FimPoint(400, 600), new FimPoint(100, 200));
+    const rect = FimRect.fromPoints(new FimPoint(400, 600), new FimPoint(100, 200));
     validate1234(rect.toUpright());
   });
 
   it('Calculates the center point', () => {
-    let rect = FimRect.fromXYWidthHeight(100, 100, 300, 200);
-    let center = rect.getCenter();
+    const rect = FimRect.fromXYWidthHeight(100, 100, 300, 200);
+    const center = rect.getCenter();
     expect(center.x).toBe(250);
     expect(center.y).toBe(200);
   });
 
   it('Calculates area', () => {
-    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    const rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
     expect(rect1.getArea()).toEqual(120000);
 
-    let rect2 = FimRect.fromXYWidthHeight(200, 300, 30, 40);
+    const rect2 = FimRect.fromXYWidthHeight(200, 300, 30, 40);
     expect(rect2.getArea()).toEqual(1200);
   });
 
   it('Scales by a multiplier', () => {
-    let rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
-    let rect2 = rect1.rescale(0.1);
+    const rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
+    const rect2 = rect1.rescale(0.1);
     expect(rect2).toEqual(FimRect.fromXYWidthHeight(10, 20, 30, 40));
   });
 
   it('Prevents negative widths', () => {
-    let rect = FimRect.fromCoordinates(200, 50, 100, 150);
+    const rect = FimRect.fromCoordinates(200, 50, 100, 150);
     expect(rect).toEqual(FimRect.fromCoordinates(100, 50, 200, 150));
   });
 
   it('Prevents negative heights', () => {
-    let rect = FimRect.fromCoordinates(100, 150, 200, 50);
+    const rect = FimRect.fromCoordinates(100, 150, 200, 50);
     expect(rect).toEqual(FimRect.fromCoordinates(100, 50, 200, 150));
   });
 
   it('Fits one rectangle inside another', () => {
-    let innerRect = FimRect.fromXYWidthHeight(0, 0, 100, 100);
-    let outerRect = FimRect.fromXYWidthHeight(200, 200, 200, 50);
+    const innerRect = FimRect.fromXYWidthHeight(0, 0, 100, 100);
+    const outerRect = FimRect.fromXYWidthHeight(200, 200, 200, 50);
     expect(innerRect.fit(outerRect)).toEqual(FimRect.fromXYWidthHeight(200, 200, 50, 50));
   });
 
   it('Downscales dimensions', () => {
-    let d2 = FimRect.downscaleToMaxDimension(640, 480, 512);
+    const d2 = FimRect.downscaleToMaxDimension(640, 480, 512);
     expect(d2.w).toEqual(512);
     expect(d2.h).toEqual(384);
   });

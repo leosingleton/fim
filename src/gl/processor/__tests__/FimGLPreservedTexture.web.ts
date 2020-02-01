@@ -14,21 +14,21 @@ import { DisposableSet } from '@leosingleton/commonlibs';
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
   expect(actual.r).toBeCloseTo(expected.r, -1);
   expect(actual.g).toBeCloseTo(expected.g, -1);
-  expect(actual.b).toBeCloseTo(expected.b, -1);  
-  expect(actual.a).toBeCloseTo(expected.a, -1);  
+  expect(actual.b).toBeCloseTo(expected.b, -1);
+  expect(actual.a).toBeCloseTo(expected.a, -1);
 }
 
 describe('FimGLPreservedTexture', () => {
 
   it('Reads and writes like a texture', async () => {
     await DisposableSet.usingAsync(async disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let gl = disposable.addDisposable(fim.createGLCanvas(640, 480));
+      const fim = disposable.addDisposable(new FimWeb());
+      const gl = disposable.addDisposable(fim.createGLCanvas(640, 480));
 
       // Create a green preserved texture with the fill program
-      let texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
-      let fill = disposable.addDisposable(new FimGLProgramFill(gl));
-      let green = FimColor.fromString('#0f0');
+      const texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
+      const fill = disposable.addDisposable(new FimGLProgramFill(gl));
+      const green = FimColor.fromString('#0f0');
       fill.setInputs(green);
       fill.execute(texture);
 
@@ -42,13 +42,13 @@ describe('FimGLPreservedTexture', () => {
 
   it('Preserves texture across context loss', async () => {
     await DisposableSet.usingAsync(async disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
+      const fim = disposable.addDisposable(new FimWeb());
+      const gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
 
       // Create a preserved texture from the test pattern
-      let jpeg = FimTestImages.fourSquaresJpeg();
-      let canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
-      let texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
+      const jpeg = FimTestImages.fourSquaresJpeg();
+      const canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
+      const texture = disposable.addDisposable(new FimGLPreservedTexture(gl));
       texture.copyFrom(canvas);
       texture.preserve();
 
@@ -81,13 +81,13 @@ describe('FimGLPreservedTexture', () => {
     // This test case creates a smaller texture than the WebGL canvas to test the case where FimGLPreservedTexture must
     // use scissoring to render the texture only on one corner of the canvas to preserve it.
     await DisposableSet.usingAsync(async disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
+      const fim = disposable.addDisposable(new FimWeb());
+      const gl = disposable.addDisposable(fim.createGLCanvas(480, 480));
 
       // Create a preserved texture from the test pattern
-      let jpeg = FimTestImages.fourSquaresJpeg();
-      let canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
-      let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 120, 120));
+      const jpeg = FimTestImages.fourSquaresJpeg();
+      const canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
+      const texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 120, 120));
       texture.copyFrom(canvas);
       texture.preserve();
 
@@ -121,15 +121,15 @@ describe('FimGLPreservedTexture', () => {
     // downscaled from the requested dimensions in order to not exceed GPU limits.
     await DisposableSet.usingAsync(async disposable => {
       // Find a canvas size bigger than the GPU can support and create a canvas of that size
-      let fim = disposable.addDisposable(new FimWeb());
-      let caps = fim.getGLCapabilities();
-      let canvasSize = caps.maxRenderBufferSize + 1000;
-      let gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));
+      const fim = disposable.addDisposable(new FimWeb());
+      const caps = fim.getGLCapabilities();
+      const canvasSize = caps.maxRenderBufferSize + 1000;
+      const gl = disposable.addDisposable(fim.createGLCanvas(canvasSize, canvasSize / 8));
 
       // Create a preserved texture from the test pattern. Make this one small.
-      let jpeg = FimTestImages.fourSquaresJpeg();
-      let canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
-      let texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 480, 480));
+      const jpeg = FimTestImages.fourSquaresJpeg();
+      const canvas = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
+      const texture = disposable.addDisposable(new FimGLPreservedTexture(gl, 480, 480));
       texture.copyFrom(canvas);
       texture.preserve();
 

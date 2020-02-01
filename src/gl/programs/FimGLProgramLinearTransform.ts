@@ -9,13 +9,13 @@ import { IFimGLTextureLike } from '../FimGLTexture';
 /** GL program to apply a y = mx + b transformation */
 export class FimGLProgramLinearTransform extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
-    let fragmentShader = require('./glsl/LinearTransform.glsl');
+    const fragmentShader = require('./glsl/LinearTransform.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
   }
 
   public setInputs(inputTexture: IFimGLTextureLike, m: number, b: number) {
-    let uniforms = this.fragmentShader.uniforms;
+    const uniforms = this.fragmentShader.uniforms;
     uniforms.u_input.variableValue = inputTexture;
     uniforms.u_m.variableValue = m;
     uniforms.u_b.variableValue = b;
@@ -29,8 +29,8 @@ export class FimGLProgramLinearTransform extends FimGLProgram {
     //   -1 to 0 ==> (c + 1)
     //    0 to 1 ==>  1 / (1 - c)
     // Thus m and b in y = mx + b are below:
-    var m = (contrast < 0.0) ? (contrast + 1.0) : (1.0 / (1.0 - contrast));
-    var b = 0.5 - (0.5 * m) + brightness;
+    const m = (contrast < 0.0) ? (contrast + 1.0) : (1.0 / (1.0 - contrast));
+    const b = 0.5 - (0.5 * m) + brightness;
     this.setInputs(inputTexture, m, b);
   }
 }

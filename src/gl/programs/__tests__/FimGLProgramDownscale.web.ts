@@ -10,28 +10,28 @@ import { DisposableSet } from '@leosingleton/commonlibs';
 
 async function testDownscale(ratio: number): Promise<void> {
   await DisposableSet.usingAsync(async disposable => {
-    let fim = disposable.addDisposable(new FimWeb());
+    const fim = disposable.addDisposable(new FimWeb());
 
     // Build the test pattern
-    let testBuffer = disposable.addDisposable(fim.createRgbaBuffer(512, 16));
+    const testBuffer = disposable.addDisposable(fim.createRgbaBuffer(512, 16));
     FimTestPatterns.render(testBuffer, FimTestPatterns.downscaleStress);
 
     // Copy the test pattern to a canvas and draw it
-    let test = disposable.addDisposable(fim.createCanvas(testBuffer.w, testBuffer.h));
+    const test = disposable.addDisposable(fim.createCanvas(testBuffer.w, testBuffer.h));
     await test.copyFromAsync(testBuffer);
 
-    let canvas = disposable.addDisposable(fim.createGLCanvas(512 / ratio, 16));
-    let program = disposable.addDisposable(new FimGLProgramDownscale(canvas, ratio, 1));
-    let flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
-    let texture = disposable.addDisposable(canvas.createTextureFrom(test, flags));
+    const canvas = disposable.addDisposable(fim.createGLCanvas(512 / ratio, 16));
+    const program = disposable.addDisposable(new FimGLProgramDownscale(canvas, ratio, 1));
+    const flags = FimGLTextureFlags.LinearSampling | FimGLTextureFlags.AllowLargerThanCanvas;
+    const texture = disposable.addDisposable(canvas.createTextureFrom(test, flags));
 
     program.setInputs(texture);
     program.execute();
 
     // Sample a pixel in the center. It should be 50% grey
-    let color = canvas.getPixel(canvas.w / 2, canvas.h / 2);
-    let min = 127 - 3;
-    let max = 127 + 3;
+    const color = canvas.getPixel(canvas.w / 2, canvas.h / 2);
+    const min = 127 - 3;
+    const max = 127 + 3;
     expect(color.r).toBeGreaterThan(min);
     expect(color.r).toBeLessThan(max);
     expect(color.g).toBeGreaterThan(min);

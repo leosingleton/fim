@@ -9,13 +9,13 @@ import { IFimGLTextureLike } from '../FimGLTexture';
 /** GL program to combine two textures and return the darker of the two */
 export class FimGLProgramDarker extends FimGLProgram {
   constructor(canvas: FimGLCanvas) {
-    let fragmentShader = require('./glsl/Darker.glsl');
+    const fragmentShader = require('./glsl/Darker.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
   }
 
   public setInputs(input1: IFimGLTextureLike, input2: IFimGLTextureLike): void {
-    let uniforms = this.fragmentShader.uniforms;
+    const uniforms = this.fragmentShader.uniforms;
     uniforms.u_input1.variableValue = input1;
     uniforms.u_input2.variableValue = input2;
   }

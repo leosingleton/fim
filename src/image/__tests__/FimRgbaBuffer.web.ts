@@ -11,32 +11,32 @@ describe('FimRgbaBuffer', () => {
 
   it('Creates and disposes', () => {
     using(new FimWeb(), fim => {
-      let b = fim.createRgbaBuffer(640, 480);
+      const b = fim.createRgbaBuffer(640, 480);
       expect(b.getBuffer().length).toEqual(640 * 480 * 4);
-  
+
       b.dispose();
       expect(b.getBuffer()).toBeUndefined();
-  
+
       // Double-dispose
       b.dispose();
-      expect(b.getBuffer()).toBeUndefined();  
+      expect(b.getBuffer()).toBeUndefined();
     });
   });
 
   it('Fills with initial value', () => {
     using(new FimWeb(), fim => {
-      let color = FimColor.fromString('#abc');
+      const color = FimColor.fromString('#abc');
       using(fim.createRgbaBuffer(640, 480, color), buffer => {
         expect(buffer.getPixel(134, 413)).toEqual(color);
-      });  
+      });
     });
   });
 
   it('Gets and sets pixel colors', () => {
     using(new FimWeb(), fim => {
-      let color1 = FimColor.fromString('#123');
-      let color2 = FimColor.fromString('#aaa');
-  
+      const color1 = FimColor.fromString('#123');
+      const color2 = FimColor.fromString('#aaa');
+
       using(fim.createRgbaBuffer(640, 480, color1), buffer => {
         buffer.setPixel(555, 123, color2);
         expect(buffer.getPixel(134, 413)).toEqual(color1);
@@ -46,19 +46,19 @@ describe('FimRgbaBuffer', () => {
   });
 
   it('Copies full image', () => {
-    let color1 = FimColor.fromString('#def');
-    let color2 = FimColor.fromString('#1234');
+    const color1 = FimColor.fromString('#def');
+    const color2 = FimColor.fromString('#1234');
 
     DisposableSet.using(disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let src = disposable.addDisposable(fim.createRgbaBuffer(640, 480, color1));
-      let dest = disposable.addDisposable(fim.createRgbaBuffer(640, 480));
+      const fim = disposable.addDisposable(new FimWeb());
+      const src = disposable.addDisposable(fim.createRgbaBuffer(640, 480, color1));
+      const dest = disposable.addDisposable(fim.createRgbaBuffer(640, 480));
 
       // Copy src to dest
       dest.copyFrom(src);
 
       // Modify src
-      src.fillCanvas(color2)
+      src.fillCanvas(color2);
 
       // Ensure dest is still copied from original src
       expect(dest.getPixel(142, 373)).toEqual(color1);
@@ -67,9 +67,9 @@ describe('FimRgbaBuffer', () => {
 
   it('Copies to destination coordinates', () => {
     DisposableSet.using(disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let dest = disposable.addDisposable(fim.createRgbaBuffer(200, 200));
-      let src = disposable.addDisposable(fim.createRgbaBuffer(100, 100));
+      const fim = disposable.addDisposable(new FimWeb());
+      const dest = disposable.addDisposable(fim.createRgbaBuffer(200, 200));
+      const src = disposable.addDisposable(fim.createRgbaBuffer(100, 100));
 
       // Top-left => red
       src.fillCanvas('#f00');
@@ -96,31 +96,31 @@ describe('FimRgbaBuffer', () => {
   });
 
   it('Copies with crop', () => {
-    let rand = new SeededRandom(0);
+    const rand = new SeededRandom(0);
 
     DisposableSet.using(disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
+      const fim = disposable.addDisposable(new FimWeb());
 
       // Create a buffer and fill it with random values
-      let orig = disposable.addDisposable(fim.createRgbaBuffer(300, 300));
-      let buffer = orig.getBuffer();
+      const orig = disposable.addDisposable(fim.createRgbaBuffer(300, 300));
+      const buffer = orig.getBuffer();
       for (let n = 0; n < buffer.length; n++) {
         buffer[n] = rand.nextInt() % 256;
       }
-  
+
       // Copy the center 100x100 to another buffer
-      let crop = disposable.addDisposable(fim.createRgbaBuffer(300, 300, '#000'));
-      let rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
+      const crop = disposable.addDisposable(fim.createRgbaBuffer(300, 300, '#000'));
+      const rect = FimRect.fromXYWidthHeight(100, 100, 100, 100);
       crop.copyFrom(orig, rect, rect);
-  
+
       // Ensure the pixels were copied by sampling 100 random ones
       for (let n = 0; n < 100; n++) {
-        let x = rand.nextInt() % 300;
-        let y = rand.nextInt() % 300;
-  
-        let origPixel = orig.getPixel(x, y);
-        let cropPixel = crop.getPixel(x, y);
-  
+        const x = rand.nextInt() % 300;
+        const y = rand.nextInt() % 300;
+
+        const origPixel = orig.getPixel(x, y);
+        const cropPixel = crop.getPixel(x, y);
+
         if (x < 100 || x >= 200 || y < 100 || y >= 200) {
           // All 0 values for pixels outside of the copied area
           expect(cropPixel).toEqual(FimColor.fromString('#000'));
@@ -134,9 +134,9 @@ describe('FimRgbaBuffer', () => {
 
   it('Copies from FimGreyscaleBuffer', () => {
     DisposableSet.using(disposable => {
-      let fim = disposable.addDisposable(new FimWeb());
-      let dest = disposable.addDisposable(fim.createRgbaBuffer(200, 200));
-      let src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
+      const fim = disposable.addDisposable(new FimWeb());
+      const dest = disposable.addDisposable(fim.createRgbaBuffer(200, 200));
+      const src = disposable.addDisposable(fim.createGreyscaleBuffer(100, 100));
 
       // Top-left => 0x00
       src.fillCanvas(0x00);

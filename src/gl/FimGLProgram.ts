@@ -14,7 +14,7 @@ import { FimRect } from '../primitives/FimRect';
 import { deepCopy, IDisposable, DisposableSet } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
-let defaultVertexShader: GlslShader = require('./glsl/vertex.glsl');
+const defaultVertexShader: GlslShader = require('./glsl/vertex.glsl');
 
 /** Uniform definition. A combination of values from the GLSL shader compiler and from execution time. */
 export interface UniformDefinition extends FimGLVariableDefinition {
@@ -26,16 +26,16 @@ export interface UniformDefinition extends FimGLVariableDefinition {
 }
 
 /** Map of uniform values */
-export type UniformDefinitionMap = { [name: string]: UniformDefinition };
+export interface UniformDefinitionMap { [name: string]: UniformDefinition }
 
 /**
  * Abstract base class for implementing WebGL programs.
- * 
+ *
  * Derived classes should implement two functions:
- * 
+ *
  * 1. A constructor which loads the fragment shader from an embedded GLSL file. The constructor may also accept any
  *    const values as parameters and initialize them. Finally, it should call compileProgram() to compile the shaders.
- * 
+ *
  * 2. A setInputs() method which initializes any uniform values. The caller should invoke this before calling
  *    execute().
  */
@@ -69,20 +69,20 @@ export abstract class FimGLProgram implements IDisposable {
    *    causes problems with some GLSL compilers.
    */
   protected compileProgram(stripVersion = true): void {
-    let gl = this.gl;
-    let disposable = this.disposable;
-    
+    const gl = this.gl;
+    const disposable = this.disposable;
+
     // Improve debugability by checking whether the WebGL context is lost rather than failing on shader creation
     if (gl.isContextLost()) {
       throw new FimGLError(FimGLErrorCode.ContextLost);
     }
 
     // Compile the shaders
-    let vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader, stripVersion);
-    let fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader, stripVersion);
+    const vertexShader = this.compileShader(gl.VERTEX_SHADER, this.vertexShader, stripVersion);
+    const fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader, stripVersion);
 
     // Create the program
-    let program = disposable.addNonDisposable(gl.createProgram(), p => gl.deleteProgram(p));
+    const program = disposable.addNonDisposable(gl.createProgram(), p => gl.deleteProgram(p));
     FimGLError.throwOnError(gl);
     gl.attachShader(program, vertexShader);
     FimGLError.throwOnError(gl);
@@ -92,7 +92,7 @@ export abstract class FimGLProgram implements IDisposable {
     FimGLError.throwOnError(gl);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      let err = gl.getProgramInfoLog(program);
+      const err = gl.getProgramInfoLog(program);
       console.log(this.vertexShader.sourceCode);
       console.log(this.fragmentShader.sourceCode);
       gl.deleteProgram(program);
@@ -100,14 +100,14 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     // Create two triangles that map to the full canvas
-    let positionBuffer = this.positionBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aPos', 4));
-    let texCoordBuffer = this.texCoordBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aTex', 2));
+    const positionBuffer = this.positionBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aPos', 4));
+    const texCoordBuffer = this.texCoordBuffer = disposable.addDisposable(new FimGLArrayBuffer(gl, program, 'aTex', 2));
     positionBuffer.setValues(TwoTriangles.vertexPositions, true);
     texCoordBuffer.setValues(TwoTriangles.textureCoords, true);
 
     // Get the ID of any uniform variables. Be sure to use the minified name.
-    for (let name in this.uniforms) {
-      let desc = this.uniforms[name];
+    for (const name in this.uniforms) {
+      const desc = this.uniforms[name];
       let loc = gl.getUniformLocation(program, desc.variableName);
 
       // Workaround for headless-gl bug... The WebGL docs say that for uniforms declared as arrays, the [0] suffix is
@@ -120,12 +120,12 @@ export abstract class FimGLProgram implements IDisposable {
 
       desc.uniformLocation = loc;
     }
-  
+
     this.program = program;
   }
 
   private compileShader(type: number, source: FimGLShader, stripVersion: boolean): WebGLShader {
-    let gl = this.gl;
+    const gl = this.gl;
 
     // Strip #version directives. These break the NodeJS implementation of WebGL.
     let code = source.sourceCode;
@@ -134,8 +134,8 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     // Substitute const values into the shader source code
-    for (let name in source.consts) {
-      let c = source.consts[name];
+    for (const name in source.consts) {
+      const c = source.consts[name];
       let value: string;
       if (c.variableType === 'int') {
         // GLSL integers must not contain a decimal
@@ -154,7 +154,7 @@ export abstract class FimGLProgram implements IDisposable {
 
     // Docs don't seem to cover error handling of WebGL's createShader(). It appears to return null on failure instead
     // of using glError(), but checking both just in case...
-    let shader = gl.createShader(type);
+    const shader = gl.createShader(type);
     FimGLError.throwOnError(gl);
     if (!shader) {
       throw new FimGLError(FimGLErrorCode.UnknownError, 'CreateShader');
@@ -166,16 +166,16 @@ export abstract class FimGLProgram implements IDisposable {
     FimGLError.throwOnError(gl);
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      let err = gl.getShaderInfoLog(shader);
+      const err = gl.getShaderInfoLog(shader);
       console.log(code);
       gl.deleteShader(shader);
       throw new FimGLError(FimGLErrorCode.CompileError, err);
     }
 
     // Add the uniforms from the shader to the program's uniform list. Assign texture units for samplers.
-    let uniforms = source.uniforms;
-    for (let name in uniforms) {
-      let desc = uniforms[name] as UniformDefinition;
+    const uniforms = source.uniforms;
+    for (const name in uniforms) {
+      const desc = uniforms[name] as UniformDefinition;
       if (desc.variableType.indexOf('sampler') !== -1) {
         desc.textureUnit = this.textureCount++;
       }
@@ -209,11 +209,11 @@ export abstract class FimGLProgram implements IDisposable {
    */
   public applyVertexMatrix(vertexMatrix: Transform2D | Transform3D | number[]): void {
     // Convert the input to a 4x4 matrix
-    let matrix = new Transform3D();
+    const matrix = new Transform3D();
     matrix.matrixMultiply(vertexMatrix);
 
     // Update the vertices
-    let vertices = matrix.transformVertexArray(TwoTriangles.vertexPositions);
+    const vertices = matrix.transformVertexArray(TwoTriangles.vertexPositions);
     this.setVertices(vertices);
   }
 
@@ -226,7 +226,7 @@ export abstract class FimGLProgram implements IDisposable {
    *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
    */
   public execute(outputTexture?: IFimGLTextureLike, destCoords?: FimRect): void {
-    let gl = this.gl;
+    const gl = this.gl;
 
     // Validate source texture
     if (outputTexture) {
@@ -239,8 +239,8 @@ export abstract class FimGLProgram implements IDisposable {
     }
 
     try {
-      let destination = outputTexture ? outputTexture.getTexture() : this.glCanvas;
-      let destinationFramebuffer = outputTexture ? outputTexture.getTexture().getFramebuffer() : null;
+      const destination = outputTexture ? outputTexture.getTexture() : this.glCanvas;
+      const destinationFramebuffer = outputTexture ? outputTexture.getTexture().getFramebuffer() : null;
 
       // Set the framebuffer
       gl.bindFramebuffer(gl.FRAMEBUFFER, destinationFramebuffer);
@@ -278,10 +278,11 @@ export abstract class FimGLProgram implements IDisposable {
       FimGLError.throwOnError(gl);
 
       // Set the uniform values
-      for (let name in this.uniforms) {
-        let uniform = this.uniforms[name];
+      for (const name in this.uniforms) {
+        const uniform = this.uniforms[name];
 
         // Error on uniforms which do not have any value assigned. This is a bug in our code.
+        // eslint-disable-next-line eqeqeq
         if (uniform.variableValue == undefined) { // == => null or undefined
           throw new FimGLError(FimGLErrorCode.AppError,
             `${uniform.variableType} ${uniform.variableName}=${uniform.variableValue}`);
@@ -289,14 +290,14 @@ export abstract class FimGLProgram implements IDisposable {
 
         if (uniform.variableType.indexOf('sampler') !== -1) {
           // Special case for textures. Bind the texture to the texture unit.
-          let t = (uniform.variableValue as IFimGLTextureLike).getTexture();
+          const t = (uniform.variableValue as IFimGLTextureLike).getTexture();
 
           if (!t.hasImage) {
-            // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going to
-            // work, and WebGL returns a confusing non square power-of-two error if we allow the code to continue.
+            // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going
+            // to work, and WebGL returns a confusing non square power-of-two error if we allow the code to continue.
             throw new FimGLError(FimGLErrorCode.AppError, 'BindEmptyTexture');
           }
-          
+
           // Ensure the texture belongs to the same WebGL canvas
           FimGLError.throwOnMismatchedGLCanvas(this.glCanvas, t.glCanvas);
 
@@ -333,7 +334,7 @@ export abstract class FimGLProgram implements IDisposable {
       }
 
       // Validate the vertex arrays
-      let vertexCount = this.positionBuffer.arrayLength;
+      const vertexCount = this.positionBuffer.arrayLength;
       if (vertexCount !== this.texCoordBuffer.arrayLength) {
         // The vertex array and texture coordinate array must have the same number of vertices
         throw new FimGLError(FimGLErrorCode.AppError, 'LengthMismatch');
@@ -364,10 +365,10 @@ export abstract class FimGLProgram implements IDisposable {
       this.texCoordBuffer.unbindArray();
 
       // Unbind the textures
-      for (let name in this.uniforms) {
-        let uniform = this.uniforms[name];
+      for (const name in this.uniforms) {
+        const uniform = this.uniforms[name];
         if (uniform.variableType.indexOf('sampler') !== -1) {
-          let t = (uniform.variableValue as IFimGLTextureLike).getTexture();
+          const t = (uniform.variableValue as IFimGLTextureLike).getTexture();
           t.unbind(uniform.textureUnit);
         }
       }
@@ -407,7 +408,7 @@ class FimGLArrayBuffer implements IDisposable {
 
   /** Sets the value of the buffer */
   public setValues(values: number[], drawStatic = false): void {
-    let gl = this.gl;
+    const gl = this.gl;
 
     // Ensure the array
     if (values.length % this.size !== 0) {
@@ -417,7 +418,7 @@ class FimGLArrayBuffer implements IDisposable {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     FimGLError.throwOnError(gl);
 
-    let usage = drawStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
+    const usage = drawStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(values), usage);
     FimGLError.throwOnError(gl);
 
@@ -430,12 +431,12 @@ class FimGLArrayBuffer implements IDisposable {
   public arrayLength: number;
 
   public bindArray(): void {
-    let gl = this.gl;
+    const gl = this.gl;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     FimGLError.throwOnError(gl);
 
-    let index = this.attributeLocation;
+    const index = this.attributeLocation;
     gl.enableVertexAttribArray(index);
     FimGLError.throwOnError(gl);
 

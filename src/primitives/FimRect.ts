@@ -38,7 +38,7 @@ export class FimRect {
     if (h >= 0) {
       this.yTop = yTop;
       this.yBottom = yBottom;
-      this.h = h;  
+      this.h = h;
     } else {
       this.yTop = yBottom;
       this.yBottom = yTop;
@@ -48,7 +48,7 @@ export class FimRect {
 
   /** Compares two FimRect objects */
   equals(rect: FimRect): boolean {
-    return (this.xRight === rect.xRight) && (this.yBottom == rect.yBottom) &&
+    return (this.xRight === rect.xRight) && (this.yBottom === rect.yBottom) &&
       (this.xLeft === rect.xLeft) && (this.yTop === rect.yTop);
   }
 
@@ -98,9 +98,9 @@ export class FimRect {
    * @returns A rectangle with the same aspect ratio as this, but whose coordinates fit inside of maxRect
    */
   fit(maxRect: FimRect): FimRect {
-    let scale = Math.min(maxRect.w / this.w, maxRect.h / this.h);
-    let width = Math.floor(this.w * scale);
-    let height = Math.floor(this.h * scale);
+    const scale = Math.min(maxRect.w / this.w, maxRect.h / this.h);
+    const width = Math.floor(this.w * scale);
+    const height = Math.floor(this.h * scale);
     return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
   }
 
@@ -133,9 +133,9 @@ export class FimRect {
    *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
    */
   static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimRect {
-    let scale = Math.min(maxDimension / width, maxDimension / height);
-    let w = Math.floor(width * scale);
-    let h = Math.floor(height * scale);
+    const scale = Math.min(maxDimension / width, maxDimension / height);
+    const w = Math.floor(width * scale);
+    const h = Math.floor(height * scale);
     return FimRect.fromXYWidthHeight(0, 0, w, h);
   }
 }

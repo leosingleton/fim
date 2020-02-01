@@ -8,7 +8,7 @@ import { FimRect } from '../primitives/FimRect';
 
 /**
  * Computes transformation matrices for vertexes in a 2-dimensional space.
- * 
+ *
  * For details, see: https://webglfundamentals.org/webgl/lessons/webgl-2d-matrices.html
  */
 export class Transform2D {
@@ -43,8 +43,8 @@ export class Transform2D {
    * @param matrix Another 3x3 transformation matrix
    */
   public matrixMultiply(matrix: Transform2D | number[]): void {
-    let left = Transform2D.acceptMatrixOrArray(matrix);
-    let right = this.matrixValue;
+    const left = Transform2D.acceptMatrixOrArray(matrix);
+    const right = this.matrixValue;
 
     this.matrixValue = [
       left[0 /*1,1*/] * right[0 /*1,1*/] + left[3 /*1,2*/] * right[1 /*2,1*/] + left[6 /*1,3*/] * right[2 /*3,1*/],
@@ -73,8 +73,8 @@ export class Transform2D {
    * @param angle Angle, in radians
    */
   public rotation(angle: number): void {
-    let s = Math.sin(angle);
-    let c = Math.cos(angle);
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
     this.matrixMultiply([c, s, 0, -s, c, 0, 0, 0, 1]);
   }
 
@@ -88,7 +88,7 @@ export class Transform2D {
   }
 
   private static acceptMatrixOrArray(value: Transform2D | number[]): number[] {
-    let result = (value instanceof Transform2D) ? value.matrixValue : value;
+    const result = (value instanceof Transform2D) ? value.matrixValue : value;
     if (result.length !== 9) {
       throw new FimError(FimErrorCode.AppError, `Invalid length ${result.length}`);
     }
@@ -105,12 +105,12 @@ export class Transform2D {
    */
   public static fromSrcCoords(srcCoords: FimRect, srcDimensions: FimRect): Transform2D {
     // Calculate the center points of each rectangle
-    let centerCoords = srcCoords.getCenter();
-    let centerDimensions = srcDimensions.getCenter();
+    const centerCoords = srcCoords.getCenter();
+    const centerDimensions = srcDimensions.getCenter();
 
     // First, translate so that the origin (currently at the center of srcDimensions) is moved to the center of
     // srcCoords (keep in mind Y in inverted)
-    let result = new Transform2D();
+    const result = new Transform2D();
     result.translation((centerDimensions.x - centerCoords.x) * 2 / srcDimensions.w,
       (centerCoords.y - centerDimensions.y) * 2 / srcDimensions.h);
 

@@ -12,8 +12,8 @@ import { using, usingAsync } from '@leosingleton/commonlibs';
 function expectToBeCloseTo(actual: FimColor, expected: FimColor): void {
   expect(actual.r).toBeCloseTo(expected.r, -1);
   expect(actual.g).toBeCloseTo(expected.g, -1);
-  expect(actual.b).toBeCloseTo(expected.b, -1);  
-  expect(actual.a).toBeCloseTo(expected.a, -1);  
+  expect(actual.b).toBeCloseTo(expected.b, -1);
+  expect(actual.a).toBeCloseTo(expected.a, -1);
 }
 
 enum ObjectID {
@@ -27,14 +27,14 @@ class SampleProcessor extends FimGLImageProcessor {
 
     // Initialize the preserved texture to black
     using(fim.createCanvas(width, height, '#000'), black => {
-      let texture = this.getPreservedTexture(ObjectID.Texture);
+      const texture = this.getPreservedTexture(ObjectID.Texture);
       texture.copyFrom(black);
-    })
+    });
   }
 
   public linearTransformation(m: number, b: number): void {
-    let program = this.getProgram(ObjectID.Program, gl => new FimGLProgramLinearTransform(gl));
-    let texture = this.getPreservedTexture(ObjectID.Texture);
+    const program = this.getProgram(ObjectID.Program, gl => new FimGLProgramLinearTransform(gl));
+    const texture = this.getPreservedTexture(ObjectID.Texture);
 
     // Run the linear transformation program and render to the output
     program.setInputs(texture, m, b);
@@ -51,8 +51,8 @@ class SampleProcessor extends FimGLImageProcessor {
   }
 
   public getColor(): FimColor {
-    let glCanvas = this.glCanvas;
-    let texture = this.getPreservedTexture(ObjectID.Texture);
+    const glCanvas = this.glCanvas;
+    const texture = this.getPreservedTexture(ObjectID.Texture);
 
     glCanvas.copyFrom(texture);
     return glCanvas.getPixel(5, 5);
@@ -68,10 +68,10 @@ describe('FimGLImageProcessor', () => {
           // Increase brightness by 5%
           processor.linearTransformation(1, 0.05);
         }
-  
+
         // We expect the texture to be 50% grey
         expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
-      });  
+      });
     });
   });
 
@@ -81,14 +81,14 @@ describe('FimGLImageProcessor', () => {
         for (let n = 0; n < 10; n++) {
           // Increase brightness by 5%
           processor.linearTransformation(1, 0.05);
-  
+
           // Simulate context loss
           await processor.simulateContextLoss();
         }
-  
+
         // We expect the texture to be 50% grey
         expectToBeCloseTo(processor.getColor(), FimColor.fromString('#808080'));
-      });  
+      });
     });
   });
 

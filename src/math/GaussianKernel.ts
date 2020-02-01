@@ -13,7 +13,7 @@ export class GaussianKernel {
    * the height of the function is not scaled, since we assume a final normalization step will cancel it out anyway.
    * @param x Function input
    * @param t Variance (sigma^2)
-   * 
+   *
    * @see https://en.wikipedia.org/wiki/Gaussian_function
    */
   private static gaussianFunction(x: number, t: number): number {
@@ -26,13 +26,13 @@ export class GaussianKernel {
    * @param a Lower bound
    * @param b Upper bound
    * @param samples Number of samples to calculate for better accuracy
-   * 
+   *
    * @see https://en.wikipedia.org/wiki/Simpson%27s_rule
    */
   private static simpsonsRule(f: (x: number) => number, a: number, b: number, samples: number): number {
     // Pre-calculate some common constants we'll need repetitively
-    let sampleSize = (b - a) / samples;
-    let halfSampleSize = sampleSize / 2;
+    const sampleSize = (b - a) / samples;
+    const halfSampleSize = sampleSize / 2;
 
     //
     // Simpson's Rule:
@@ -48,10 +48,10 @@ export class GaussianKernel {
     let sum = 0;
 
     for (let n = 0; n < samples; n++) {
-      let mid = left + halfSampleSize;
-      let midValue = f(mid);
-      let right = left + sampleSize;
-      let rightValue = f(right);
+      const mid = left + halfSampleSize;
+      const midValue = f(mid);
+      const right = left + sampleSize;
+      const rightValue = f(right);
 
       sum += leftValue + (midValue * 4) + rightValue;
 
@@ -71,7 +71,7 @@ export class GaussianKernel {
    */
   static calculate(sigma: number, kernelSize: number, samples = 100, quantize = true): number[] {
     // Cache kernels once they are calculated, as we frequently reuse the same ones, and they are expensive to compute
-    let kernelName = `${sigma}:${kernelSize}:${samples}:${quantize ? 'Q' : '-'}`;
+    const kernelName = `${sigma}:${kernelSize}:${samples}:${quantize ? 'Q' : '-'}`;
     let kernel = this.kernelCache[kernelName];
     if (kernel) {
       return kernel;
@@ -81,11 +81,11 @@ export class GaussianKernel {
     if (kernelSize % 2 !== 1 || kernelSize < 3) {
       throw new FimError(FimErrorCode.AppError, `Invalid kernel size ${kernelSize}`);
     }
-    let halfKernelSize = Math.floor(kernelSize / 2);
+    const halfKernelSize = Math.floor(kernelSize / 2);
 
     // Build the Gaussian function as a lambda
-    let t = sigma * sigma;
-    let f = (x: number) => {
+    const t = sigma * sigma;
+    const f = (x: number) => {
       return this.gaussianFunction(x, t);
     };
 
@@ -93,18 +93,18 @@ export class GaussianKernel {
     // mirroring the values on the other size. Start by calculating the center element, which is special, since it's
     // the positive half times two.
     kernel = [];
-    let centerValue = this.simpsonsRule(f, 0, 0.5, samples / 2) * 2;
+    const centerValue = this.simpsonsRule(f, 0, 0.5, samples / 2) * 2;
     kernel[halfKernelSize] = centerValue;
-    
+
     // Next, calculate the remaining elements
     for (let n = 1; n <= halfKernelSize; n++) {
-      let value = this.simpsonsRule(f, n - 0.5, n + 0.5, samples);
+      const value = this.simpsonsRule(f, n - 0.5, n + 0.5, samples);
       kernel[halfKernelSize - n] = value;
       kernel[halfKernelSize + n] = value;
     }
 
     if (quantize) {
-      kernel = this.quantize(kernel); 
+      kernel = this.quantize(kernel);
     } else {
       kernel = this.normalizeValues(kernel);
     }
@@ -113,14 +113,14 @@ export class GaussianKernel {
     this.kernelCache[kernelName] = kernel;
     return kernel;
   }
-  
+
   /**
    * Quantizes a kernel so that the values are a multiple of 1/255, suitable for 8-bit canvas operations
    * @param kernel Any kernel
    */
-  static quantize(kernel: number[]): number[] { 
-    let kernelSize = kernel.length;
-    let halfKernelSize = Math.floor(kernelSize / 2);
+  static quantize(kernel: number[]): number[] {
+    const kernelSize = kernel.length;
+    const halfKernelSize = Math.floor(kernelSize / 2);
     let sum = 0;
 
     for (let n = 0; n < kernelSize; n++) {
@@ -134,11 +134,11 @@ export class GaussianKernel {
     // For the first step, renormalize the kernel so the sum is 255. Round to the nearest integer and measure the
     // error.
     sum /= 255;
-    let error: number[] = [];
+    const error: number[] = [];
     let roundedSum = 0;
     for (let n = 0; n < kernelSize; n++) {
-      let exactValue = kernel[n] / sum;
-      let roundedValue = Math.round(exactValue);
+      const exactValue = kernel[n] / sum;
+      const roundedValue = Math.round(exactValue);
       kernel[n] = roundedValue;
       roundedSum += roundedValue;
       error[n] = roundedValue - exactValue;
@@ -191,17 +191,17 @@ export class GaussianKernel {
     // Renormalize the kernel so the sum is 1
     for (let n = 0; n < kernelSize; n++) {
       kernel[n] /= 255;
-    }    
+    }
 
     return kernel;
   }
-  
+
   /**
    * Normalizes a kernel so the values sum to 1
    * @param kernel Any kernel
    */
   static normalizeValues(kernel: number[]): number[] {
-    let kernelSize = kernel.length;
+    const kernelSize = kernel.length;
     let sum = 0;
 
     for (let n = 0; n < kernelSize; n++) {

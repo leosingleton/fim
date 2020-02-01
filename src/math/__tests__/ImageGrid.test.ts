@@ -10,7 +10,7 @@ describe('ImageGrid', () => {
 
   it('Calculates basic case', () => {
     // Break a 1000x1000 image into four 500x500
-    let grid = new ImageGrid(1000, 1000, 500, 500);
+    const grid = new ImageGrid(1000, 1000, 500, 500);
 
     expect(grid.tiles.length).toEqual(4);
 
@@ -37,7 +37,7 @@ describe('ImageGrid', () => {
 
   it('Calculates crop', () => {
     // Break a 1000x1000 image into one 500x500
-    let grid = new ImageGrid(1000, 1000, 500, 500, 0, 1, 1);
+    const grid = new ImageGrid(1000, 1000, 500, 500, 0, 1, 1);
 
     expect(grid.tiles.length).toEqual(1);
 
@@ -52,7 +52,7 @@ describe('ImageGrid', () => {
     //
     // This will leave 4 (1024 - 1000 - 20) pixels unused in each dimension, or more exactly, a 2 pixel border around
     // the outer edge.
-    let grid = new ImageGrid(1000, 1000, 512, 512, 20);
+    const grid = new ImageGrid(1000, 1000, 512, 512, 20);
 
     expect(grid.tiles.length).toEqual(4);
 
@@ -79,24 +79,24 @@ describe('ImageGrid', () => {
 
   it('Calculates efficiency', () => {
     // Break a 1000x1000 image into four 500x500. Efficiency == 100%
-    let grid1 = new ImageGrid(1000, 1000, 500, 500);
+    const grid1 = new ImageGrid(1000, 1000, 500, 500);
     expect(grid1.getEfficiency()).toEqual(1);
 
     // Break a 1024x512 image into two 512x512. Efficiency == 100%
-    let grid2 = new ImageGrid(1024, 512, 512, 512);
+    const grid2 = new ImageGrid(1024, 512, 512, 512);
     expect(grid2.getEfficiency()).toEqual(1);
 
     // Break a 1024x256 image into two 512x512. Efficiency == 50%
-    let grid3 = new ImageGrid(1024, 256, 512, 512);
+    const grid3 = new ImageGrid(1024, 256, 512, 512);
     expect(grid3.getEfficiency()).toEqual(0.5);
   });
 
   it('Converts between full-size and tile coordinates without overlap', () => {
     // Break a 1000x1000 image into four 500x500
-    let grid = new ImageGrid(1000, 1000, 500, 500);
+    const grid = new ImageGrid(1000, 1000, 500, 500);
 
     // tile0 is the top-left quadrant
-    let tile0 = grid.tiles[0];
+    const tile0 = grid.tiles[0];
     expect(tile0.inputFull).toEqual(FimRect.fromXYWidthHeight(0, 0, 500, 500));
     expect(tile0.fullToTile(new FimPoint(100, 100))).toEqual(new FimPoint(100, 100));
     expect(tile0.tileToFull(new FimPoint(100, 100))).toEqual(new FimPoint(100, 100));
@@ -109,7 +109,7 @@ describe('ImageGrid', () => {
     expect(tile0.tileToFull(new FimPoint(100, 600))).toEqual(new FimPoint(100, 600));
 
     // tile3 is the bottom-right quadrant
-    let tile3 = grid.tiles[3];
+    const tile3 = grid.tiles[3];
     expect(tile3.inputFull).toEqual(FimRect.fromXYWidthHeight(500, 500, 500, 500));
     expect(tile3.fullToTile(new FimPoint(600, 700))).toEqual(new FimPoint(100, 200));
     expect(tile3.tileToFull(new FimPoint(100, 200))).toEqual(new FimPoint(600, 700));
@@ -123,7 +123,8 @@ describe('ImageGrid', () => {
   });
 
   it('Calculates with ZeroCenter flags', () => {
-    let grid = new ImageGrid(5313, 2988, 2048, 2048, 0, 0, 0, ImageGridFlags.ZeroCenterX | ImageGridFlags.ZeroCenterY);
+    const grid = new ImageGrid(5313, 2988, 2048, 2048, 0, 0, 0,
+      ImageGridFlags.ZeroCenterX | ImageGridFlags.ZeroCenterY);
     expect(grid.tiles.length).toEqual(8);
   });
 
