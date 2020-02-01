@@ -47,7 +47,10 @@
     "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     "constructor-super": "error",
     "curly": ["error", "multi-line"],
-    "dot-notation": "error",
+
+    // This library supports terser's --mangle-props 'keep_quoted' setting
+    //"dot-notation": "error",
+
     "eqeqeq": "error",
     "func-call-spacing": "error",
     "keyword-spacing": "error",

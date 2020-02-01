@@ -9,13 +9,13 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
   console.log('Starting JPEG load stress test...');
 
   // Load a sample JPEG image into a byte array
-  let url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
-  let fetchResponse = await fetch(url, { method: 'GET' });
-  let jpeg = await fetchResponse.arrayBuffer();
-  
+  const url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
+  const fetchResponse = await fetch(url, { method: 'GET' });
+  const jpeg = await fetchResponse.arrayBuffer();
+
   // Get the output canvas
-  let output = document.getElementById(canvasId) as HTMLCanvasElement;
-  
+  const output = document.getElementById(canvasId) as HTMLCanvasElement;
+
   // Animation loop
   let frameCount = 0;
   let totalTime = 0;
@@ -23,15 +23,15 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
     await TaskScheduler.yieldAsync();
 
     // Load the JPEG onto a FimCanvas
-    let timer = Stopwatch.startNew();
-    let canvas = await fim.createCanvasFromJpegAsync(new Uint8Array(jpeg));
-    let decodeTime = timer.getElapsedMilliseconds();
+    const timer = Stopwatch.startNew();
+    const canvas = await fim.createCanvasFromJpegAsync(new Uint8Array(jpeg));
+    const decodeTime = timer.getElapsedMilliseconds();
     totalTime += decodeTime;
 
     await TaskScheduler.yieldAsync();
 
     // Write the status
-    let status = `Decoded ${++frameCount} JPEGs. Average = ${Math.floor(totalTime / frameCount)} ms`;
+    const status = `Decoded ${++frameCount} JPEGs. Average = ${Math.floor(totalTime / frameCount)} ms`;
     console.log(status);
     using(canvas.createDrawingContext(false, 'difference', 1), ctx => {
       ctx.fillStyle = '#fff';
@@ -40,10 +40,10 @@ export async function jpegLoadStress(canvasId: string): Promise<void> {
 
     // Copy the result to the screen
     output.width = canvas.w;
-    output.height = canvas.h;  
-    let ctx = output.getContext('2d');
+    output.height = canvas.h;
+    const ctx = output.getContext('2d');
     ctx.drawImage(canvas.getCanvas(), 0, 0);
-    
+
     canvas.dispose();
   }
 }

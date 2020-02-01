@@ -9,27 +9,27 @@ import { DisposableSet, Stopwatch, Task, UnhandledError } from '@leosingleton/co
 
 export async function glStress(testCase: string, canvasId: string): Promise<void> {
   // Load the test image, and create a WebGL canvas and two texture the same dimensions
-  let srcImage = await loadTestImage();
-  let gl = fim.createGLCanvas(srcImage.w, srcImage.h);
+  const srcImage = await loadTestImage();
+  const gl = fim.createGLCanvas(srcImage.w, srcImage.h);
 
   let count = 1;
   while (true) {
-    let disposable = new DisposableSet();
+    const disposable = new DisposableSet();
     try {
-      let input = disposable.addDisposable(gl.createTextureFrom(srcImage, FimGLTextureFlags.LinearSampling));
-      let texture = disposable.addDisposable(gl.createTexture(srcImage.w, srcImage.h,
+      const input = disposable.addDisposable(gl.createTextureFrom(srcImage, FimGLTextureFlags.LinearSampling));
+      const texture = disposable.addDisposable(gl.createTexture(srcImage.w, srcImage.h,
         { textureFlags: FimGLTextureFlags.LinearSampling }));
-      let temp = disposable.addDisposable(gl.createTexture(srcImage.w, srcImage.h,
+      const temp = disposable.addDisposable(gl.createTexture(srcImage.w, srcImage.h,
         { textureFlags: FimGLTextureFlags.LinearSampling }));
-  
+
       // Create a Gaussian blur
-      let kernel = GaussianKernel.calculate(1, 31);
-      let copy = disposable.addDisposable(new FimGLProgramCopy(gl));
-      let blur = disposable.addDisposable(new FimGLProgramMatrixOperation1DFast(gl, 31));
+      const kernel = GaussianKernel.calculate(1, 31);
+      const copy = disposable.addDisposable(new FimGLProgramCopy(gl));
+      const blur = disposable.addDisposable(new FimGLProgramMatrixOperation1DFast(gl, 31));
 
       // Render loop
       while (true) {
-        let timer = Stopwatch.startNew();
+        const timer = Stopwatch.startNew();
 
         let caseName: string;
         if (testCase === 'executions') {
@@ -68,10 +68,10 @@ export async function glStress(testCase: string, canvasId: string): Promise<void
           copy.setInputs(input);
           copy.execute();
         }
-        let time = timer.getElapsedMilliseconds();
+        const time = timer.getElapsedMilliseconds();
 
         // Render output
-        let message = `WebGL Stress\n${caseName}: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
+        const message = `WebGL Stress\n${caseName}: ${count + 2}\nTime: ${time.toFixed(2)} ms`;
         await renderOutput(gl, message, null, canvasId);
 
         count++;

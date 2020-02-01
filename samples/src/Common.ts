@@ -2,27 +2,28 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimWeb, FimCanvas, FimGLProgramCopy, FimRect, FimGLCanvas, IFimGLTextureLike } from '../../build/dist/index.js';
+import { FimWeb, FimCanvas, FimGLProgramCopy, FimRect, FimGLCanvas,
+  IFimGLTextureLike } from '../../build/dist/index.js';
 import { Stopwatch, UnhandledError, DocumentReady, parseQueryString, using } from '@leosingleton/commonlibs';
 import $ from 'jquery';
 
-let qs = parseQueryString();
+const qs = parseQueryString();
 
 /** Global instance of FIM */
-export var fim = new FimWeb();
+export const fim = new FimWeb();
 
 /** Loads a test image and returns the JPEG as a byte array */
 export async function loadTestImageToArray(): Promise<Uint8Array> {
   // Load a sample JPEG image into a byte array
-  let url = qs['img'] || 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
-  let fetchResponse = await fetch(url, { method: 'GET' });
-  let jpeg = await fetchResponse.arrayBuffer();
+  const url = qs['img'] || 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
+  const fetchResponse = await fetch(url, { method: 'GET' });
+  const jpeg = await fetchResponse.arrayBuffer();
   return new Uint8Array(jpeg);
 }
 
 /** Loads a test image onto a FimCanvas */
 export async function loadTestImage(): Promise<FimCanvas> {
-  let jpeg = await loadTestImageToArray();
+  const jpeg = await loadTestImageToArray();
   return fim.createCanvasFromJpegAsync(jpeg);
 }
 
@@ -91,18 +92,18 @@ class PerformanceTester {
   private shouldContinue(): boolean {
     // Execute until we reach a specific minimum time per block
     ++this.totalIterations;
-    let iterations = ++this.iterationsSinceLastBlock;
-    let time = this.timer.getElapsedMilliseconds();
-    let elapsed = time - this.lastBlockEndTimestamp;
-    let timePerBlock = this.timePerBlock;
+    const iterations = ++this.iterationsSinceLastBlock;
+    const time = this.timer.getElapsedMilliseconds();
+    const elapsed = time - this.lastBlockEndTimestamp;
+    const timePerBlock = this.timePerBlock;
     if (elapsed < timePerBlock) {
       return true;
     }
 
-    // Record the block. Adjust the iterations for any time over the expected, but only allow 
-    let adjustedIterations = iterations * timePerBlock / elapsed;
-    let avgTimePerIteration = timePerBlock / Math.max(adjustedIterations, iterations - 1);
-    let values = this.values;
+    // Record the block. Adjust the iterations for any time over the expected, but only allow
+    const adjustedIterations = iterations * timePerBlock / elapsed;
+    const avgTimePerIteration = timePerBlock / Math.max(adjustedIterations, iterations - 1);
+    const values = this.values;
     values.push(avgTimePerIteration);
     this.iterationsSinceLastBlock = 0;
     this.lastBlockEndTimestamp = time;
@@ -114,28 +115,28 @@ class PerformanceTester {
   private result(): IPerformanceResults {
     // Sort the blocks by execution time
     let values = this.values;
-    let originalCount = this.totalIterations;
+    const originalCount = this.totalIterations;
     values.sort();
 
     // Calculate the number of blocks to keep. Keep the ones in the middle.
-    let keep = Math.ceil(values.length * (1 - this.discardPercentage));
-    let skip = Math.floor(keep / 2);
+    const keep = Math.ceil(values.length * (1 - this.discardPercentage));
+    const skip = Math.floor(keep / 2);
     values = values.slice(skip, skip + keep);
 
     // Calculate the average iteration time of the remaining blocks
     let sum = 0;
     values.forEach(value => sum += value);
-    let avg = sum / keep;
+    const avg = sum / keep;
 
     // Format output string
-    let fps = 1000 / avg;
-    let msg = `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\n` +
+    const fps = 1000 / avg;
+    const msg = `${this.description}\nAverage: ${avg.toFixed(2)} ms (${fps.toFixed(2)} FPS)\n` +
       `Iterations: ${originalCount}`;
 
     return {
       iterations: originalCount,
-      avg: avg,
-      fps: fps,
+      avg,
+      fps,
       message: msg
     };
   }
@@ -156,7 +157,7 @@ class PerformanceTester {
  */
 export function perfTest(description: string, test: () => void, blockCount = 10, timePerBlock = 50,
     discardPercentage = 0.5): IPerformanceResults {
-  let p = new PerformanceTester();
+  const p = new PerformanceTester();
   p.description = description;
   p.test = test;
   p.blockCount = blockCount;
@@ -180,7 +181,7 @@ export function perfTest(description: string, test: () => void, blockCount = 10,
  */
 export function perfTestAsync(description: string, test: () => Promise<void>, blockCount = 10, timePerBlock = 50,
     discardPercentage = 0.5): Promise<IPerformanceResults> {
-  let p = new PerformanceTester();
+  const p = new PerformanceTester();
   p.description = description;
   p.testAsync = test;
   p.blockCount = blockCount;
@@ -222,15 +223,15 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
   // If we rescaled the output, show a full-resolution detail in the bottom-right corner
   if (maxDimension) {
     // Calculate the output rectangle
-    let outputLeft = Math.floor(outputDimensions.w / 2);
-    let outputTop = Math.floor(outputDimensions.h / 2);
-    let outputRect = FimRect.fromCoordinates(outputLeft, outputTop,
+    const outputLeft = Math.floor(outputDimensions.w / 2);
+    const outputTop = Math.floor(outputDimensions.h / 2);
+    const outputRect = FimRect.fromCoordinates(outputLeft, outputTop,
       outputDimensions.xRight, outputDimensions.yBottom);
 
     // Calculate the input rectangle
-    let inputLeft = Math.floor(Math.abs(canvas.w - outputRect.w) / 2);
-    let inputTop = Math.floor(Math.abs(canvas.h - outputRect.h) / 2);
-    let inputRect = FimRect.fromXYWidthHeight(inputLeft, inputTop, outputRect.w, outputRect.h);
+    const inputLeft = Math.floor(Math.abs(canvas.w - outputRect.w) / 2);
+    const inputTop = Math.floor(Math.abs(canvas.h - outputRect.h) / 2);
+    const inputRect = FimRect.fromXYWidthHeight(inputLeft, inputTop, outputRect.w, outputRect.h);
 
     // Draw the detail view
     canvas.copyTo(output, inputRect, outputRect);
@@ -238,7 +239,7 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
 
   // Overlay text
   if (message) {
-    let ctx = output.getContext('2d');
+    const ctx = output.getContext('2d');
     ctx.save();
     ctx.globalCompositeOperation = 'difference';
     ctx.globalAlpha = 1;
@@ -253,7 +254,7 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
 
     ctx.restore();
   }
-  
+
   // Wait for the browser to render a frame
   return waitForAnimationFrame();
 }
@@ -267,9 +268,9 @@ export function textureToCanvas(gl: FimGLCanvas, texture: IFimGLTextureLike): vo
 }
 
 /** Hash table of performance results */
-export type PerformanceResultsSet = {[id: string]: IPerformanceResults}; 
+export interface PerformanceResultsSet {[id: string]: IPerformanceResults}
 
-let performanceValues: PerformanceResultsSet = {};
+const performanceValues: PerformanceResultsSet = {};
 
 /**
  * Writes the performance results to the page
@@ -284,7 +285,7 @@ export function recordPerformanceValue(id: string, results: IPerformanceResults,
   performanceValues[id] = results;
 
   // Update the element
-  let element = $(`.${id}`);
+  const element = $(`.${id}`);
   if (element) {
     element.text(results.avg.toFixed(2));
   }
@@ -297,10 +298,10 @@ export function recordPerformanceValue(id: string, results: IPerformanceResults,
 
 // Write GPU details to the screen if there is a <div id="gpu">
 $(() => {
-  let gpuDiv = $('#gpu');
+  const gpuDiv = $('#gpu');
   if (gpuDiv) {
     gpuDiv.text(JSON.stringify(fim.getGLCapabilities(), null, 4));
-  }  
+  }
 });
 
 
@@ -313,9 +314,9 @@ UnhandledError.registerHandler(async (ue: UnhandledError) => {
   await DocumentReady.waitUntilReady();
 
   // Append the error to <div id="errors">
-  let div = $('#errors');
+  const div = $('#errors');
   if (div) {
     div.text(div.text() + '\n\n' + ue.toString());
     div.show(); // Unhide if display: none
   }
-})
+});

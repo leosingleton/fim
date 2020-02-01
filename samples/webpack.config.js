@@ -1,8 +1,7 @@
-const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-var config = {
+const config = {
   mode: 'development',
   entry: './src/index.ts',
   devtool: 'source-map',

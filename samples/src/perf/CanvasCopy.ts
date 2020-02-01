@@ -6,7 +6,7 @@ import { fim, loadTestImage, perfTest, renderOutput, textureToCanvas, recordPerf
 import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
 
 export async function perfCanvasCopy(): Promise<void> {
-  usingAsync(await loadTestImage(), async srcImage => {
+  await usingAsync(await loadTestImage(), async srcImage => {
     //
     // Test case to copy 2D canvas to 2D canvas
     //
@@ -14,17 +14,17 @@ export async function perfCanvasCopy(): Promise<void> {
         inputHeight: number): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
         // Rescale the input image
-        let input = disposable.addDisposable(fim.createCanvas(inputWidth, inputHeight));
+        const input = disposable.addDisposable(fim.createCanvas(inputWidth, inputHeight));
         input.copyFrom(srcImage);
 
         // Create the output canvas
-        let canvas = disposable.addDisposable(fim.createCanvas(outputWidth, outputHeight));
+        const canvas = disposable.addDisposable(fim.createCanvas(outputWidth, outputHeight));
 
         // Run performance test
-        let d = `Copy ${inputWidth}x${inputHeight} 2D canvas to ${outputWidth}x${outputHeight} 2D canvas`;
-        let results = perfTest(d, () => {
+        const d = `Copy ${inputWidth}x${inputHeight} 2D canvas to ${outputWidth}x${outputHeight} 2D canvas`;
+        const results = perfTest(d, () => {
           canvas.copyFrom(input);
-        })
+        });
 
         // Render output
         await renderOutput(canvas, results.message, 360);
@@ -48,16 +48,16 @@ export async function perfCanvasCopy(): Promise<void> {
     async function testGLCopy(id: string, width: number, height: number): Promise<void> {
       await DisposableSet.usingAsync(async disposable => {
         // Create a WebGL canvas and copy an image onto it
-        let gl = disposable.addDisposable(fim.createGLCanvas(width, height));
-        let t = disposable.addDisposable(gl.createTextureFrom(srcImage));
+        const gl = disposable.addDisposable(fim.createGLCanvas(width, height));
+        const t = disposable.addDisposable(gl.createTextureFrom(srcImage));
         textureToCanvas(gl, t);
-        let canvas = disposable.addDisposable(fim.createCanvas(width, height));
+        const canvas = disposable.addDisposable(fim.createCanvas(width, height));
 
         // Run performance test
-        let d = `Copy ${width}x${height} WebGL canvas to 2D canvas`;
-        let results = perfTest(d, () => {
+        const d = `Copy ${width}x${height} WebGL canvas to 2D canvas`;
+        const results = perfTest(d, () => {
           canvas.copyFrom(gl);
-        })
+        });
 
         // Render output
         await renderOutput(gl, results.message, 360);
