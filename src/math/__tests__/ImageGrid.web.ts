@@ -16,9 +16,9 @@ describe('ImageGrid', () => {
       const redTile = disposable.addDisposable(fim.createRgbaBuffer(128, 128, '#f00'));
 
       const grid = new ImageGrid(output.w, output.h, redTile.w, redTile.h, 12);
-      grid.tiles.forEach(tile => {
+      for (const tile of grid.tiles) {
         output.copyFrom(redTile, tile.outputTile, tile.outputFull);
-      });
+      }
 
       const red = FimColor.fromString('#f00');
       for (let x = 0; x < output.w; x += 5) {
