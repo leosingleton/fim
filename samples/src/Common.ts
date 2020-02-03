@@ -125,7 +125,9 @@ class PerformanceTester {
 
     // Calculate the average iteration time of the remaining blocks
     let sum = 0;
-    values.forEach(value => sum += value);
+    for (const value of values) {
+      sum += value;
+    }
     const avg = sum / keep;
 
     // Format output string
@@ -247,10 +249,10 @@ export function renderOutput(canvas: FimCanvas | FimGLCanvas, message?: string, 
 
     // Handle multi-line strings. fillText() ignores newlines and carriage returns.
     let y = 16;
-    message.split('\n').forEach(line => {
+    for (const line of message.split('\n')) {
       ctx.fillText(line, 8, y);
       y += 8;
-    });
+    }
 
     ctx.restore();
   }

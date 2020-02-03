@@ -28,10 +28,10 @@ describe('FimGLTexture', () => {
       const program = disposable.addDisposable(new FimGLProgramCopy(gl));
       const canvas = disposable.addDisposable(fim.createCanvas(240, 240, '#888'));
 
-      [FimColorChannels.Greyscale, FimColorChannels.RGB, FimColorChannels.RGBA].forEach(channels => {
-        [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32].forEach(bpp => {
-          [FimGLTextureFlags.None, FimGLTextureFlags.LinearSampling, FimGLTextureFlags.InputOnly,
-              FimGLTextureFlags.LinearSampling | FimGLTextureFlags.InputOnly].forEach(flags => {
+      for (const channels of [FimColorChannels.Greyscale, FimColorChannels.RGB, FimColorChannels.RGBA]) {
+        for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
+          for (const flags of [FimGLTextureFlags.None, FimGLTextureFlags.LinearSampling, FimGLTextureFlags.InputOnly,
+              FimGLTextureFlags.LinearSampling | FimGLTextureFlags.InputOnly]) {
             const options: FimGLTextureOptions = {
               channels,
               bpp,
@@ -52,9 +52,9 @@ describe('FimGLTexture', () => {
               // The WebGL canvas should now be grey
               expect(gl.getPixel(120, 120)).toEqual(FimColor.fromString('#888'));
             });
-          });
-        });
-      });
+          }
+        }
+      }
     });
   });
 

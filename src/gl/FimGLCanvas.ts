@@ -101,7 +101,9 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     console.log('Lost WebGL context');
     event.preventDefault();
 
-    this.contextLostNotifications.forEach(eh => eh());
+    for (const eh of this.contextLostNotifications) {
+      eh();
+    }
 
     if (this.copyProgram) {
       this.copyProgram.dispose();
@@ -119,7 +121,9 @@ export class FimGLCanvas extends FimCanvasBase implements IFimGetPixel {
     // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
     this.loadExtensions();
 
-    this.contextRestoredNotifications.forEach(eh => eh());
+    for (const eh of this.contextRestoredNotifications) {
+      eh();
+    }
   }
 
   /** Returns additional error details in case getContext('webgl') fails */
