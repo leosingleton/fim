@@ -1,62 +1,10 @@
 pr: none
 
 jobs:
-- job: Build
-  timeoutInMinutes: 5
-  cancelTimeoutInMinutes: 2
-
-  pool:
-    vmImage: 'Ubuntu-16.04'
-
-  steps:
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '8.x'
-    displayName: 'Install Node.js'
-
-  - script: |
-      npm install
-    displayName: 'npm install'
-
-  - script: |
-      npm run lint
-    displayName: 'Lint'
-
-  - script: |
-      npm run build
-    displayName: 'Compile Output'
-
-  - script: |
-      npm run test:node
-    displayName: 'Execute NodeJS Unit Tests'
-    continueOnError: true
-
-  - script: |
-      npm run test:web
-    displayName: 'Execute Web Unit Tests'
-    continueOnError: true
-
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: 'build/results-*.xml'
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: 'cobertura'
-      summaryFileLocation: 'build/coverage/node/cobertura-coverage.xml'
-      reportDirectory: 'build/coverage/node/'
-
-  - script: |
-      npm run samples
-    displayName: 'Compile Sample Apps'
-
-  - task: CopyFiles@2
-    inputs:
-      sourceFolder: '$(Build.SourcesDirectory)'
-      contents: |
-        **/**
-        !**/node_modules/**
-      targetFolder: '$(Build.ArtifactStagingDirectory)'
-
-  - task: PublishBuildArtifacts@1
+  - job: Build
+    timeoutInMinutes: 5
+    cancelTimeoutInMinutes: 2
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+      - template: azure-pipelines-steps.yml
