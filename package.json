@@ -35,6 +35,7 @@
     "webpack-glsl-minify": "latest"
   },
   "scripts": {
+    "bootstrap": "npx lerna bootstrap",
     "build": "for package in `find packages -mindepth 1 -maxdepth 1`; do pushd $package; npx tsc; popd; done",
     "lint": "npx eslint . --ext js,ts"
   }

@@ -6,7 +6,11 @@ steps:
 
   - script: |
       npm install
-    displayName: 'npm install'
+    displayName: 'Install NPM Packages'
+
+  - script: |
+      npm run bootstrap
+    displayName: 'Bootstrap NPM Packages'
 
   - script: |
       npm run lint
