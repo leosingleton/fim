@@ -10,7 +10,13 @@ module.exports = {
       outputName: './results-node.xml',
     }]
   ],
-  collectCoverage: false, // The CLI has no way to disable. Instead, we must explicitly enable on the command line.
+  collectCoverage: true,
+  collectCoverageFrom: [
+    '**/packages/*/**/*.js',
+    '**/packages/*/**/*.ts',
+    '!**/__tests__/**',
+    '!**/build/**'
+  ],
   coverageDirectory: 'build/coverage/node/',
   coverageReporters: ['html', 'text', 'cobertura']
 };
