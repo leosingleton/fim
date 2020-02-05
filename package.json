@@ -25,6 +25,7 @@
     "webpack-glsl-minify": "latest"
   },
   "scripts": {
+    "build": "for package in `find packages -depth 1`; do pushd $package; npx tsc; popd; done",
     "lint": "npx eslint . --ext js,ts"
   }
 }

@@ -12,9 +12,9 @@ steps:
       npm run lint
     displayName: 'Lint'
 
-#  - script: |
-#      npm run build
-#    displayName: 'Compile Output'
+  - script: |
+      npm run build
+    displayName: 'Compile Output'
 
 #  - script: |
 #      npm run test:node
