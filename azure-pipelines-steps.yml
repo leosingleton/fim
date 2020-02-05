@@ -22,24 +22,24 @@ steps:
 
   - script: |
       npm run test:node
-    displayName: 'Execute Jest Unit Tests'
+    displayName: 'Execute Jest unit tests for Node support'
     continueOnError: true
 
-#  - script: |
-#      npm run test:web
-#    displayName: 'Execute Web Unit Tests'
-#    continueOnError: true
+  - script: |
+      npm run test:browser
+    displayName: 'Execute Karma unit tests for browser support'
+    continueOnError: true
 
-#  - task: PublishTestResults@2
-#    inputs:
-#      testResultsFormat: 'JUnit'
-#      testResultsFiles: 'build/results-*.xml'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'build/results-*.xml'
 
-#  - task: PublishCodeCoverageResults@1
-#    inputs:
-#      codeCoverageTool: 'cobertura'
-#      summaryFileLocation: 'build/coverage/node/cobertura-coverage.xml'
-#      reportDirectory: 'build/coverage/node/'
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: 'build/coverage/node/cobertura-coverage.xml'
+      reportDirectory: 'build/coverage/node/'
 
 #  - script: |
 #      npm run samples
