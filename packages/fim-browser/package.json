@@ -12,5 +12,7 @@
   },
   "dependencies": {
     "@leosingleton/fim": "^2.0.0-alpha"
-  }
+  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts"
 }
