@@ -20,10 +20,10 @@ steps:
       npm run build
     displayName: 'Compile Output'
 
-#  - script: |
-#      npm run test:node
-#    displayName: 'Execute NodeJS Unit Tests'
-#    continueOnError: true
+  - script: |
+      npm run test:node
+    displayName: 'Execute Jest Unit Tests'
+    continueOnError: true
 
 #  - script: |
 #      npm run test:web

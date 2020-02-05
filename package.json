@@ -37,6 +37,10 @@
   "scripts": {
     "bootstrap": "npx lerna bootstrap",
     "build": "for package in `find packages -mindepth 1 -maxdepth 1`; do pushd $package; npx tsc; popd; done",
-    "lint": "npx eslint . --ext js,ts"
+    "clean": "rm -rf ./build ./packages/*/build",
+    "lint": "npx eslint . --ext js,ts",
+    "test": "npm run test:node && npm run test:browser",
+    "test:browser": "",
+    "test:node": "npx jest --coverage"
   }
 }

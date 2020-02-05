@@ -6,9 +6,15 @@
     "shared-node-browser": true
   },
   "parserOptions": {
-    "project": [
-      "./tsconfig.json",
-      "./tsconfig.eslint.json"
-    ]
-  }
+    "project": ["./tsconfig.json", "./tsconfig.eslint.json"]
+  },
+  "overrides": [
+    {
+      "files": "*",
+      "excludedFiles": ["./packages/**/*"],
+      "env": {
+        "node": true
+      }
+    }
+  ]
 }
