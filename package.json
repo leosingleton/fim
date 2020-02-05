@@ -22,5 +22,8 @@
     "graphql": "latest",
     "lerna": "latest",
     "typescript": "latest"
+  },
+  "scripts": {
+    "lint": "npx eslint . --ext js,ts"
   }
 }
