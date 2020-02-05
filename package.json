@@ -21,7 +21,8 @@
     "flow-bin": "latest",
     "graphql": "latest",
     "lerna": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "webpack-glsl-minify": "latest"
   },
   "scripts": {
     "lint": "npx eslint . --ext js,ts"
