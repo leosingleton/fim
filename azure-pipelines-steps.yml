@@ -38,8 +38,8 @@ steps:
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: 'cobertura'
-      summaryFileLocation: 'build/coverage/node/cobertura-coverage.xml'
-      reportDirectory: 'build/coverage/node/'
+      summaryFileLocation: 'build/cobertura-coverage.xml'
+      reportDirectory: 'build/'
 
 #  - script: |
 #      npm run samples

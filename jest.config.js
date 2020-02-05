@@ -17,6 +17,6 @@ module.exports = {
     '!**/__tests__/**',
     '!**/build/**'
   ],
-  coverageDirectory: 'build/coverage/node/',
-  coverageReporters: ['html', 'text', 'cobertura']
+  coverageDirectory: 'build/',
+  coverageReporters: ['cobertura']
 };
