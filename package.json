@@ -1,0 +1,26 @@
+{
+  "name": "@leosingleton/fim",
+  "version": "2.0.0-alpha",
+  "author": "Leo C. Singleton IV <leo@leosingleton.com>",
+  "description": "Fast Image Manipulation Library for JavaScript",
+  "homepage": "https://github.com/leosingleton/fim",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leosingleton/fim.git"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "eslint": "latest",
+    "eslint-config-leosingleton": "leosingleton/eslint-config-leosingleton",
+    "eslint-plugin-github": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-jsdoc": "latest",
+    "flow-bin": "latest",
+    "graphql": "latest",
+    "lerna": "latest",
+    "typescript": "latest"
+  }
+}

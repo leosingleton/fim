@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": ["es2017", "dom"],
+    "declaration": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "sourceMap": true
+  },
+  "exclude": ["**/__tests__/**/*", "**/build/**/*"]
+}
