@@ -2,7 +2,13 @@
   "extends": [
     "eslint-config-leosingleton"
   ],
+  "env": {
+    "shared-node-browser": true
+  },
   "parserOptions": {
-    "project": ["./tsconfig.json"]
+    "project": [
+      "./tsconfig.json",
+      "./tsconfig.eslint.json"
+    ]
   }
 }

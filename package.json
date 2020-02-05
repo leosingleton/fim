@@ -11,6 +11,7 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
+    "@types/jest": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "eslint": "latest",
@@ -20,7 +21,16 @@
     "eslint-plugin-jsdoc": "latest",
     "flow-bin": "latest",
     "graphql": "latest",
+    "jest": "latest",
+    "jest-junit": "latest",
+    "karma": "latest",
+    "karma-chrome-launcher": "latest",
+    "karma-edge-launcher": "latest",
+    "karma-firefox-launcher": "latest",
+    "karma-jasmine": "latest",
+    "karma-junit-reporter": "latest",
     "lerna": "latest",
+    "ts-jest": "latest",
     "typescript": "latest",
     "webpack-glsl-minify": "latest"
   },
