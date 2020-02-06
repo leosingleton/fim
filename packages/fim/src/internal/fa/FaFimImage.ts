@@ -2,15 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../api/Fim';
-import { FimImage } from '../api/FimImage';
-import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
-import { FimColor } from '../primitives/FimColor';
+import { Fim } from '../../api/Fim';
+import { FimImage } from '../../api/FimImage';
+import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
+import { FimColor } from '../../primitives/FimColor';
 
 /** Internal implementation of the FimImage interface */
-export abstract class FimImageClient implements FimImage {
+export abstract class FaFimImage implements FimImage {
   protected constructor(fim: Fim, options?: FimImageOptions) {
-    this.handle = FimImageClient.globalHandleCount++;
+    this.handle = FaFimImage.globalHandleCount++;
     this.fim = fim;
     this.imageOptions = options ?? {};
   }

@@ -2,14 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../api/Fim';
-import { FimExecutionOptions, defaultExecutionOptions } from '../api/FimExecutionOptions';
-import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
+import { Fim } from '../../api/Fim';
+import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecutionOptions';
+import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
 
 /** Internal implementation of the Fim interface */
-export abstract class FimClient implements Fim {
+export abstract class FaFim implements Fim {
   protected constructor() {
-    this.handle = FimClient.globalHandleCount++;
+    this.handle = FaFim.globalHandleCount++;
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
