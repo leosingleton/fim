@@ -7,17 +7,20 @@ import { Fim } from '../../api/Fim';
 import { FimImage } from '../../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
 import { FimColor } from '../../primitives/FimColor';
+import { FcImageFillSolid } from '../fc/FcImageFillSolid';
+import { FeDispatcher } from '../fe/FeDispatcher';
 
 /** Internal implementation of the FimImage interface */
 export abstract class FaFimImage extends FaFimObject implements FimImage {
   /**
    * Constructor
    * @param fim Parent FIM object
+   * @param dispatcher Back-end FIM engine
    * @param options Optional image options to override the parent FIM's defaults
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  protected constructor(fim: Fim, options?: FimImageOptions, objectName?: string) {
-    super('img', objectName);
+  protected constructor(fim: Fim, dispatcher: FeDispatcher, options?: FimImageOptions, objectName?: string) {
+    super(dispatcher, 'img', objectName);
     this.fim = fim;
     this.imageOptions = options ?? {};
   }
@@ -34,15 +37,17 @@ export abstract class FaFimImage extends FaFimObject implements FimImage {
    */
   public imageOptions: FimImageOptions;
 
-  protected releaseSelf(): void {
-    // TODO
-  }
-
   /** Fills the image with a solid color */
-  public fillSolid(_color: FimColor | string): void {
-    this.ensureNotDisposed();
+  public fillSolid(color: FimColor | string): void {
+    // Force color to be a string
+    const colorString = (typeof(color) === 'string') ? color : color.string;
 
-    // TODO
+    const cmd: FcImageFillSolid = {
+      cmd: 'ifs',
+      destOptions: this.computeImageOptions(),
+      color: colorString
+    };
+    this.dispatchCommand(cmd);
   }
 
   /**

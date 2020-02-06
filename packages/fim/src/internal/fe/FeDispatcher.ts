@@ -9,10 +9,11 @@ import { FimError } from '../../primitives/FimError';
 export interface FeDispatcher {
   /**
    * Asynchronously dispatches a command to a back-end FIM engine
+   * @param handle Handle of the target FIM object
    * @param cmd Command to dispatch
    * @returns Unique ID identifying the dispatched command. May be used with waitForResponse() to get a result.
    */
-  dispatchCommand(cmd: FcCmd): number;
+  dispatchCommand(handle: string, cmd: FcCmd): number;
 
   /**
    * Blocks until and returns the result of a FIM engine command

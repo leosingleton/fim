@@ -9,9 +9,6 @@ import { FimImageOptions } from '../../api/FimImageOptions';
 export interface FcImageFillSolid extends FcCmd {
   cmd: 'ifs';
 
-  /** Handle of the destination image */
-  destHandle: number;
-
   /** Options for the destination image */
   destOptions: FimImageOptions;
 

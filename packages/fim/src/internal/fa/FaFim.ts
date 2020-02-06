@@ -18,10 +18,9 @@ export abstract class FaFim extends FaFimObject implements Fim {
    * @param objectName An optional name specified when creating the object to help with debugging
    */
   protected constructor(dispatcher: FeDispatcher, maxDimensions: FimDimensions, objectName?: string) {
-    super('fim', objectName);
+    super(dispatcher, 'fim', objectName);
 
     this.maxDimensions = maxDimensions;
-    this.dispatcher = dispatcher;
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
@@ -30,9 +29,6 @@ export abstract class FaFim extends FaFimObject implements Fim {
   }
 
   public readonly maxDimensions: FimDimensions;
-
-  /** Back-end FIM engine. Only exposed to the internal Fa- classes. */
-  public readonly dispatcher: FeDispatcher;
 
   /**
    * Options for the FIM execution engine
@@ -45,8 +41,4 @@ export abstract class FaFim extends FaFimObject implements Fim {
 
   /** Default image options. Values here are used unless overridden within the image itself.  */
   public defaultImageOptions: FimImageOptions;
-
-  public releaseSelf(): void {
-    // TODO
-  }
 }
