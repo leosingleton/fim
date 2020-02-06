@@ -18,5 +18,5 @@ module.exports = {
     '!**/build/**'
   ],
   coverageDirectory: 'build/',
-  coverageReporters: ['cobertura']
+  coverageReporters: ['cobertura', 'text']
 };
