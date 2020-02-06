@@ -10,7 +10,7 @@ export interface FimExecutionOptions {
   strategy: FimExecutionStrategy;
 
   /** Maximum GPU memory to use, in bytes. 0 for no limit. */
-  maxGlMemory: number;
+  maxGLMemory: number;
 
   /**
    * WebGL calls can block for a significant amount of time, making the execution thread unresponsive. If set, this
@@ -26,16 +26,18 @@ export interface FimExecutionOptions {
    */
   debugMode: boolean;
 
-  /**
-   * Writes messages to the console whenever FIM detects potential application optimizations in its API usage.
-   */
+  /** Writes messages to the console tracing execution through the rendering pipeline */
+  showTracing: boolean;
+
+  /** Writes messages to the console whenever FIM detects potential application optimizations in its API usage */
   showWarnings: boolean;
 }
 
 /** Default values when FIM is first instantiated */
 export const defaultExecutionOptions: FimExecutionOptions = {
   strategy: FimExecutionStrategy.MaximizeSpeed,
-  maxGlMemory: 0,
+  maxGLMemory: 0,
   debugMode: false,
+  showTracing: false,
   showWarnings: true
 };

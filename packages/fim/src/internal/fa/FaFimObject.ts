@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimObject } from '../../api/FimObject';
+import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 import { FimError, FimErrorCode } from '../../primitives/FimError';
 
 /** Base class for all objects in the FIM API */
@@ -26,10 +27,14 @@ export abstract class FaFimObject implements FimObject {
   /** Global counter used to assign a unique handle to objects in FIM */
   private static globalHandleCount = 0;
 
-  public abstract releaseResources(): void;
+  public abstract releaseResources(flags: FimReleaseResourcesFlags): void;
+
+  public releaseAllResources(): void {
+    this.releaseResources(FimReleaseResourcesFlags.All);
+  }
 
   public dispose(): void {
-    this.releaseResources();
+    this.releaseAllResources();
     this.isDisposed = true;
   }
 

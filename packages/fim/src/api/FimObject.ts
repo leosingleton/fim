@@ -2,18 +2,25 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
+
 /** Common properties for all objects in the FIM API */
 export interface FimObject {
   /** Unique value identifying this object */
   readonly handle: string;
 
   /**
-   * Releases memory and GPU resources.
+   * Releases memory and/or GPU resources.
    *
    * Unlike dispose(), releaseResources() may be called any number of times, and the object is still good for use after
    * releasing resources--it just must be reinitialized with new data.
+   *
+   * @param flags Specifies which resources to release
    */
-  releaseResources(): void;
+  releaseResources(flags: FimReleaseResourcesFlags): void;
+
+  /** Equivalent to releaseResources(FimReleaseResourcesFlags.All) */
+  releaseAllResources(): void;
 
   /**
    * Completely disposes all memory and GPU resources.

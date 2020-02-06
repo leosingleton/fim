@@ -6,6 +6,7 @@ import { FaFimObject } from './FaFimObject';
 import { Fim } from '../../api/Fim';
 import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
+import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
 /** Internal implementation of the Fim interface */
 export abstract class FaFim extends FaFimObject implements Fim {
@@ -22,13 +23,19 @@ export abstract class FaFim extends FaFimObject implements Fim {
     this.defaultImageOptions = defaultImageOptions;
   }
 
-  /** Options for the FIM execution engine */
+  /**
+   * Options for the FIM execution engine
+   *
+   * Note that these properties are read/write. The application may attempt to change them after creating objects,
+   * however changes are not guaranteed to take effect immediately. Generally options take effect on the next method
+   * call, however some require calling releaseResources() to recreate the back-end objects altogether.
+   */
   public executionOptions: FimExecutionOptions;
 
   /** Default image options. Values here are used unless overridden within the image itself.  */
   public defaultImageOptions: FimImageOptions;
 
-  public releaseResources(): void {
+  public releaseResources(_flags: FimReleaseResourcesFlags): void {
     this.ensureNotDisposed();
   }
 }
