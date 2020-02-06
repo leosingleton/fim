@@ -9,15 +9,21 @@ import { FimImageOptions, defaultImageOptions } from './FimImageOptions';
  */
 export abstract class Fim {
   protected constructor() {
+    this.handle = Fim.globalHandleCount++;
+
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
     this.executionOptions = defaultExecutionOptions;
     this.defaultImageOptions = defaultImageOptions;
   }
 
+  public readonly handle: number;
+
   /** Options for the FIM execution engine */
   public executionOptions: FimExecutionOptions;
 
   /** Default image options. Values here are used unless overridden within the image itself.  */
   public defaultImageOptions: FimImageOptions;
+
+  private static globalHandleCount = 10000;
 }

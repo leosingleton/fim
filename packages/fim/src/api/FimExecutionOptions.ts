@@ -32,6 +32,7 @@ export interface FimExecutionOptions {
   showWarnings: boolean;
 }
 
+/** Default values when FIM is first instantiated */
 export const defaultExecutionOptions: FimExecutionOptions = {
   strategy: FimExecutionStrategy.MaximizeSpeed,
   maxGlMemory: 0,
