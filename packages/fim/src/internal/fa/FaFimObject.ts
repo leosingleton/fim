@@ -27,7 +27,25 @@ export abstract class FaFimObject implements FimObject {
   /** Global counter used to assign a unique handle to objects in FIM */
   private static globalHandleCount = 0;
 
-  public abstract releaseResources(flags: FimReleaseResourcesFlags): void;
+  public releaseResources(flags: FimReleaseResourcesFlags): void {
+    this.ensureNotDisposed();
+
+    // First, recurse to all child objects
+    for (const handle in this.childObjects) {
+      const child = this.childObjects[handle];
+      child.releaseResources(flags);
+    }
+
+    // Next, release our own resources
+    this.releaseSelf(flags);
+  }
+
+  /**
+   * Derived classes must implement this method to release their own resources. It is automatically called after calling
+   * the same on all objects in the childObjects hash table.
+   * @param flags Specifies which resources to release
+   */
+  protected abstract releaseSelf(flags: FimReleaseResourcesFlags): void;
 
   public releaseAllResources(): void {
     this.releaseResources(FimReleaseResourcesFlags.All);
@@ -50,4 +68,7 @@ export abstract class FaFimObject implements FimObject {
       throw new FimError(FimErrorCode.AppError, `${this.handle} is disposed`);
     }
   }
+
+  /** Hash table of all child objects belonging to this node, indexed by object handle */
+  protected childObjects: { [handle: string]: FaFimObject } = {};
 }

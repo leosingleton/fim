@@ -5,12 +5,16 @@
 import { FimExecutionOptions } from './FimExecutionOptions';
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
+import { FimDimensions } from '../primitives/FimDimensions';
 
 /**
  * Parent object when using the FIM library. This object holds images, shaders, and operations used to manipulate 2D
  * images within JavaScript using WebGL.
  */
 export interface Fim extends FimObject {
+  /** Maximum dimensions of any image */
+  readonly maxDimensions: FimDimensions;
+
   /** Options for the FIM execution engine */
   executionOptions: FimExecutionOptions;
 

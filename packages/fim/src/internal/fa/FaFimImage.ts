@@ -34,15 +34,21 @@ export abstract class FaFimImage extends FaFimObject implements FimImage {
    */
   public imageOptions: FimImageOptions;
 
-  public releaseResources(): void {
-    this.ensureNotDisposed();
+  protected releaseSelf(): void {
+    // TODO
   }
 
   /** Fills the image with a solid color */
   public fillSolid(_color: FimColor | string): void {
     this.ensureNotDisposed();
+
+    // TODO
   }
 
+  /**
+   * Computes the effective image options by merging this object's options with the parent's. This should be called
+   * regularly as image options may change at any time.
+   */
   protected computeImageOptions(): FimImageOptions {
     return mergeImageOptions(this.fim.defaultImageOptions, this.imageOptions);
   }
