@@ -2,16 +2,16 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FaFimObject } from './FaFimObject';
+import { FimObjectClient } from './FimObjectClient';
 import { Fim } from '../../api/Fim';
 import { FimImage } from '../../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
 import { FimColor } from '../../primitives/FimColor';
-import { FcImageFillSolid } from '../fc/FcImageFillSolid';
-import { FeDispatcher } from '../fe/FeDispatcher';
+import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
+import { Dispatcher } from '../engine/Dispatcher';
 
 /** Internal implementation of the FimImage interface */
-export abstract class FaFimImage extends FaFimObject implements FimImage {
+export abstract class FimImageClient extends FimObjectClient implements FimImage {
   /**
    * Constructor
    * @param fim Parent FIM object
@@ -19,7 +19,7 @@ export abstract class FaFimImage extends FaFimObject implements FimImage {
    * @param options Optional image options to override the parent FIM's defaults
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  protected constructor(fim: Fim, dispatcher: FeDispatcher, options?: FimImageOptions, objectName?: string) {
+  protected constructor(fim: Fim, dispatcher: Dispatcher, options?: FimImageOptions, objectName?: string) {
     super(dispatcher, 'img', objectName);
     this.fim = fim;
     this.imageOptions = options ?? {};
@@ -42,7 +42,7 @@ export abstract class FaFimImage extends FaFimObject implements FimImage {
     // Force color to be a string
     const colorString = (typeof(color) === 'string') ? color : color.string;
 
-    const cmd: FcImageFillSolid = {
+    const cmd: CommandImageFillSolid = {
       cmd: 'ifs',
       destOptions: this.computeImageOptions(),
       color: colorString

@@ -2,22 +2,22 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FaFimObject } from './FaFimObject';
+import { FimObjectClient } from './FimObjectClient';
 import { Fim } from '../../api/Fim';
 import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
 import { FimDimensions } from '../../primitives/FimDimensions';
-import { FeDispatcher } from '../fe/FeDispatcher';
+import { Dispatcher } from '../engine/Dispatcher';
 
-/** Internal implementation of the Fim interface */
-export abstract class FaFim extends FaFimObject implements Fim {
+/** Client implementation of the Fim interface */
+export abstract class FimClient extends FimObjectClient implements Fim {
   /**
    * Constructor
    * @param dispatcher Back-end FIM engine
    * @param maxDimensions Maximum dimensions of any image
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  protected constructor(dispatcher: FeDispatcher, maxDimensions: FimDimensions, objectName?: string) {
+  protected constructor(dispatcher: Dispatcher, maxDimensions: FimDimensions, objectName?: string) {
     super(dispatcher, 'fim', objectName);
 
     this.maxDimensions = maxDimensions;

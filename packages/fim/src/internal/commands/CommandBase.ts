@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 /** Base class for all FIM engine commands */
-export interface FcCmd {
+export interface CommandBase {
   /** Unique string identifying the FIM engine command */
   cmd: string;
 }

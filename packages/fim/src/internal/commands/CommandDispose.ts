@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FcCmd } from './FcCmd';
+import { CommandBase } from './CommandBase';
 
 /** Disposes a FIM object */
-export interface FcDispose extends FcCmd {
+export interface CommandDispose extends CommandBase {
   cmd: 'd';
 }

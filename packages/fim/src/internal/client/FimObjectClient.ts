@@ -5,23 +5,23 @@
 import { FimObject } from '../../api/FimObject';
 import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 import { FimError, FimErrorCode } from '../../primitives/FimError';
-import { FeDispatcher } from '../fe/FeDispatcher';
-import { FcCmd } from '../fc/FcCmd';
-import { FcDispose } from '../fc/FcDispose';
-import { FcReleaseResources } from '../fc/FcReleaseResources';
+import { CommandBase } from '../commands/CommandBase';
+import { CommandDispose } from '../commands/CommandDispose';
+import { CommandReleaseResources } from '../commands/CommandReleaseResources';
+import { Dispatcher } from '../engine/Dispatcher';
 
 /** Base class for all objects in the FIM API */
-export abstract class FaFimObject implements FimObject {
+export abstract class FimObjectClient implements FimObject {
   /**
    * Base constructor for all objects in the FIM API
    * @param dispatcher Back-end FIM engine
    * @param objectType A short string indicating the object type, e.g. 'img' for FimImage
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  protected constructor(dispatcher: FeDispatcher, objectType: string, objectName?: string) {
+  protected constructor(dispatcher: Dispatcher, objectType: string, objectName?: string) {
     // Create a globally-unique handle name. Although really, only the global handle count is needed, we add the object
     // type and name to make it easier to debug.
-    this.handle = `${objectType}.${FaFimObject.globalHandleCount++}`;
+    this.handle = `${objectType}.${FimObjectClient.globalHandleCount++}`;
     if (objectName) {
       this.handle += `.${objectName}`;
     }
@@ -35,10 +35,10 @@ export abstract class FaFimObject implements FimObject {
   private static globalHandleCount = 0;
 
   /** Back-end FIM engine */
-  private dispatcher: FeDispatcher;
+  private dispatcher: Dispatcher;
 
   public releaseResources(flags: FimReleaseResourcesFlags): void {
-    const cmd: FcReleaseResources = {
+    const cmd: CommandReleaseResources = {
       cmd: 'rr',
       flags
     };
@@ -50,7 +50,7 @@ export abstract class FaFimObject implements FimObject {
   }
 
   public dispose(): void {
-    const cmd: FcDispose = {
+    const cmd: CommandDispose = {
       cmd: 'd'
     };
     this.dispatchCommand(cmd);
@@ -58,7 +58,7 @@ export abstract class FaFimObject implements FimObject {
     delete this.dispatcher;
   }
 
-  protected dispatchCommand(cmd: FcCmd): void {
+  protected dispatchCommand(cmd: CommandBase): void {
     const dispatcher = this.dispatcher;
     const handle = this.handle;
 
