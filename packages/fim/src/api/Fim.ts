@@ -4,16 +4,13 @@
 
 import { FimExecutionOptions } from './FimExecutionOptions';
 import { FimImageOptions } from './FimImageOptions';
-import { FimReleasable } from '../primitives/FimReleasable';
+import { FimObject } from './FimObject';
 
 /**
  * Parent object when using the FIM library. This object holds images, shaders, and operations used to manipulate 2D
  * images within JavaScript using WebGL.
  */
-export interface Fim extends FimReleasable {
-  /** Unique value identifying this FIM instance */
-  readonly handle: number;
-
+export interface Fim extends FimObject {
   /** Options for the FIM execution engine */
   executionOptions: FimExecutionOptions;
 

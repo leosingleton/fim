@@ -3,14 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimImageOptions } from './FimImageOptions';
+import { FimObject } from './FimObject';
 import { FimColor } from '../primitives/FimColor';
-import { FimReleasable } from '../primitives/FimReleasable';
 
 /** Represents an image and its data within the FIM library */
-export interface FimImage extends FimReleasable {
-  /** Unique value identifying this image */
-  readonly handle: number;
-
+export interface FimImage extends FimObject {
   /** Image options */
   imageOptions: FimImageOptions;
 
