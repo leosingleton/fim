@@ -4,12 +4,14 @@
 
 import { FimImageOptions } from './FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
+import { FimReleasable } from '../primitives/FimReleasable';
 
-/**
- */
-export interface FimImage {
+/** Represents an image and its data within the FIM library */
+export interface FimImage extends FimReleasable {
+  /** Unique value identifying this image */
   readonly handle: number;
 
+  /** Image options */
   imageOptions: FimImageOptions;
 
   /** Fills the image with a solid color */

@@ -6,8 +6,7 @@ import { Fim } from '../api/Fim';
 import { FimExecutionOptions, defaultExecutionOptions } from '../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 
-/**
- */
+/** Internal implementation of the Fim interface */
 export abstract class FimClient implements Fim {
   protected constructor() {
     this.handle = FimClient.globalHandleCount++;
@@ -18,6 +17,7 @@ export abstract class FimClient implements Fim {
     this.defaultImageOptions = defaultImageOptions;
   }
 
+  /** Unique value identifying this FIM instance */
   public readonly handle: number;
 
   /** Options for the FIM execution engine */
@@ -26,5 +26,9 @@ export abstract class FimClient implements Fim {
   /** Default image options. Values here are used unless overridden within the image itself.  */
   public defaultImageOptions: FimImageOptions;
 
+  public releaseResources(): void {
+  }
+
+  /** Static counter used to create unique handle values */
   private static globalHandleCount = 10000;
 }
