@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from './DispatcherOpcodes';
 
 /** Disposes a FIM object */
 export interface CommandDispose extends DispatcherCommandBase {
-  command: 'Dispose';
+  opcode: DispatcherOpcodes.Dispose;
 }

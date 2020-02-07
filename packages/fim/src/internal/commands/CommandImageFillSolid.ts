@@ -3,10 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from './DispatcherOpcodes';
 
 /** Command to fill an image with a solid color */
 export interface CommandImageFillSolid extends DispatcherCommandBase {
-  command: 'ImageFillSolid';
+  opcode: DispatcherOpcodes.ImageFillSolid;
 
   /** Color to fill */
   color: string;

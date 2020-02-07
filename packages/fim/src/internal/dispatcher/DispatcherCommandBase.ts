@@ -6,8 +6,8 @@ import { DispatcherOptimizationHints } from './DispatcherOptimizationHints';
 
 /** Base class for all FIM engine commands */
 export interface DispatcherCommandBase {
-  /** Unique string identifying the FIM engine command */
-  command: string;
+  /** Unique string identifying the operation to the FIM engine */
+  opcode: string;
 
   /** Optimization hints for the FIM engine and command dispatchers */
   optimizationHints: DispatcherOptimizationHints;

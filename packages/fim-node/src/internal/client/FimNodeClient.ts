@@ -5,6 +5,7 @@
 import { FimNodeImageClient } from './FimNodeImageClient';
 import { FimNode } from '../../api/FimNode';
 import { CommandNodeCreateImage } from '../commands/CommandNodeCreateImage';
+import { NodeDispatcherOpcodes } from '../commands/NodeDispatcherOpcodes';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { FimClient } from '@leosingleton/fim/internals';
 
@@ -18,7 +19,7 @@ export class FimNodeClient extends FimClient implements FimNode {
     // Dispatch the create command to the back-end
     const image = new FimNodeImageClient(this, this.dispatcher, dimensions, options, imageName);
     const command: CommandNodeCreateImage = {
-      command: 'NodeCreateImage',
+      opcode: NodeDispatcherOpcodes.CreateImage,
       imageDimensions: dimensions,
       imageHandle: image.handle,
       optimizationHints: {

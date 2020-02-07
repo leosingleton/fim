@@ -12,6 +12,7 @@ import { CommandBeginExecution } from '../commands/CommandBeginExecution';
 import { CommandSetExecutionOptions } from '../commands/CommandSetExecutionOptions';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { deepCopy, deepEquals } from '@leosingleton/commonlibs';
 
 /** Client implementation of the Fim interface */
@@ -41,7 +42,7 @@ export abstract class FimClient extends FimObjectClient implements Fim {
 
   public beginExecution(): void {
     const command: CommandBeginExecution = {
-      command: 'BeginExecution',
+      opcode: DispatcherOpcodes.BeginExecution,
       optimizationHints: {
         canQueue: false
       }
@@ -55,7 +56,7 @@ export abstract class FimClient extends FimObjectClient implements Fim {
     const prev = this.lastExecutionOptions;
     if (!prev || !deepEquals(cur, prev)) {
       const seoCommand: CommandSetExecutionOptions = {
-        command: 'SetExecutionOptions',
+        opcode: DispatcherOpcodes.SetExecutionOptions,
         executionOptions: cur,
         optimizationHints: {
           canQueue: true

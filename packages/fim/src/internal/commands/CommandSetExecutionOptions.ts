@@ -3,11 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from './DispatcherOpcodes';
 import { FimExecutionOptions } from '../../api/FimExecutionOptions';
 
 /** Updates the execution options on a FIM object */
 export interface CommandSetExecutionOptions extends DispatcherCommandBase {
-  command: 'SetExecutionOptions';
+  opcode: DispatcherOpcodes.SetExecutionOptions;
 
   /** Options for the FIM execution engine */
   executionOptions: FimExecutionOptions;

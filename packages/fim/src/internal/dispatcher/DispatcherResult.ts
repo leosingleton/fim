@@ -7,8 +7,8 @@ export interface DispatcherResult {
   /** Sequence number provided in the command */
   sequenceNumber: number;
 
-  /** Unique string identifying the FIM engine command */
-  command: string;
+  /** Unique string identifying the operation to the FIM engine */
+  opcode: string;
 
   /** On success, contains the output of the command */
   commandResult?: any;

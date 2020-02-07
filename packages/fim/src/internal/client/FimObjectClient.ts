@@ -10,6 +10,7 @@ import { CommandReleaseResources } from '../commands/CommandReleaseResources';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 
 /** Base class for all objects in the FIM API */
 export abstract class FimObjectClient implements FimObject {
@@ -40,7 +41,7 @@ export abstract class FimObjectClient implements FimObject {
 
   public releaseResources(flags: FimReleaseResourcesFlags): void {
     const command: CommandReleaseResources = {
-      command: 'ReleaseResources',
+      opcode: DispatcherOpcodes.ReleaseResourcs,
       flags,
       optimizationHints: {
         canQueue: true
@@ -55,7 +56,7 @@ export abstract class FimObjectClient implements FimObject {
 
   public dispose(): void {
     const command: CommandDispose = {
-      command: 'Dispose',
+      opcode: DispatcherOpcodes.Dispose,
       optimizationHints: {
         canQueue: true
       }

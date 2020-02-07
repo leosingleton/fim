@@ -13,7 +13,7 @@ export abstract class Engine implements Dispatcher {
     // Populate required fields of any result
     const resultObject: DispatcherResult = {
       sequenceNumber: command.sequenceNumber,
-      command: command.command
+      opcode: command.opcode
     };
 
     try {
@@ -34,9 +34,9 @@ export abstract class Engine implements Dispatcher {
 
   /** Derived classes should overload this message to handle any commands they add to FIM */
   protected executeCommand(command: DispatcherCommand): any {
-    switch (command.command) {
+    switch (command.opcode) {
       default:
-        throw new FimError(FimErrorCode.AppError, `Unknown command ${command.command}`);
+        throw new FimError(FimErrorCode.AppError, `Invalid op ${command.opcode}`);
     }
   }
 }

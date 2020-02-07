@@ -4,7 +4,8 @@
 
 import { FimBrowserImageClient } from './FimBrowserImageClient';
 import { FimBrowser } from '../../api/FimBrowser';
-import { CommandBrowserCreateImage } from '../commands/CommandBrowserCreateImage';
+import { BrowserDispatcherOpcodes } from '../commands/BrowserDispatcherOpcodes';
+import { CommandCreateImage } from '../commands/CommandCreateImage';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { FimClient } from '@leosingleton/fim/internals';
 
@@ -18,8 +19,8 @@ export class FimBrowserClient extends FimClient implements FimBrowser {
 
     // Dispatch the create command to the back-end
     const image = new FimBrowserImageClient(this, this.dispatcher, dimensions, options, imageName);
-    const command: CommandBrowserCreateImage = {
-      command: 'BrowserCreateImage',
+    const command: CommandCreateImage = {
+      opcode: BrowserDispatcherOpcodes.CreateImage,
       imageDimensions: dimensions,
       imageHandle: image.handle,
       optimizationHints: {

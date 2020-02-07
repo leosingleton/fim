@@ -12,6 +12,7 @@ import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
 import { CommandImageSetOptions } from '../commands/CommandImageSetOptions';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { deepEquals } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
@@ -41,7 +42,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
     const colorString = (typeof(color) === 'string') ? color : color.string;
 
     const command: CommandImageFillSolid = {
-      command: 'ImageFillSolid',
+      opcode: DispatcherOpcodes.ImageFillSolid,
       color: colorString,
       optimizationHints: {
         canQueue: true,
@@ -57,7 +58,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
     const prev = this.lastImageOptions;
     if (!prev || !deepEquals(cur, prev)) {
       const seoCommand: CommandImageSetOptions = {
-        command: 'ImageSetOptions',
+        opcode: DispatcherOpcodes.ImageSetOptions,
         imageOptions: cur,
         optimizationHints: {
           canQueue: true

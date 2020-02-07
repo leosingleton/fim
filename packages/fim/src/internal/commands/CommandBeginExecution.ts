@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherOpcodes } from './DispatcherOpcodes';
 
 /** Hint to dispatch all pending commands to execution pipeline */
 export interface CommandBeginExecution extends DispatcherCommandBase {
-  command: 'BeginExecution';
+  opcode: DispatcherOpcodes.BeginExecution;
 }
