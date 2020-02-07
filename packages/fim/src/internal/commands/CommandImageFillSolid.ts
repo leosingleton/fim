@@ -2,15 +2,11 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CommandBase } from './CommandBase';
-import { FimImageOptions } from '../../api/FimImageOptions';
+import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 
 /** Command to fill an image with a solid color */
-export interface CommandImageFillSolid extends CommandBase {
-  cmd: 'ifs';
-
-  /** Options for the destination image */
-  destOptions: FimImageOptions;
+export interface CommandImageFillSolid extends DispatcherCommandBase {
+  command: 'ImageFillSolid';
 
   /** Color to fill */
   color: string;

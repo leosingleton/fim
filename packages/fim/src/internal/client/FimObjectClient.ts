@@ -5,10 +5,11 @@
 import { FimObject } from '../../api/FimObject';
 import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 import { FimError, FimErrorCode } from '../../primitives/FimError';
-import { CommandBase } from '../commands/CommandBase';
 import { CommandDispose } from '../commands/CommandDispose';
 import { CommandReleaseResources } from '../commands/CommandReleaseResources';
-import { Dispatcher } from '../engine/Dispatcher';
+import { Dispatcher } from '../dispatcher/Dispatcher';
+import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
+import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 
 /** Base class for all objects in the FIM API */
 export abstract class FimObjectClient implements FimObject {
@@ -35,14 +36,17 @@ export abstract class FimObjectClient implements FimObject {
   private static globalHandleCount = 0;
 
   /** Back-end FIM engine */
-  private dispatcher: Dispatcher;
+  protected dispatcher: Dispatcher;
 
   public releaseResources(flags: FimReleaseResourcesFlags): void {
-    const cmd: CommandReleaseResources = {
-      cmd: 'rr',
-      flags
+    const command: CommandReleaseResources = {
+      command: 'ReleaseResources',
+      flags,
+      optimizationHints: {
+        canQueue: true
+      }
     };
-    this.dispatchCommand(cmd);
+    this.dispatchCommand(command);
   }
 
   public releaseAllResources(): void {
@@ -50,15 +54,22 @@ export abstract class FimObjectClient implements FimObject {
   }
 
   public dispose(): void {
-    const cmd: CommandDispose = {
-      cmd: 'd'
+    const command: CommandDispose = {
+      command: 'Dispose',
+      optimizationHints: {
+        canQueue: true
+      }
     };
-    this.dispatchCommand(cmd);
+    this.dispatchCommand(command);
 
     delete this.dispatcher;
   }
 
-  protected dispatchCommand(cmd: CommandBase): void {
+  /**
+   * Dispatches a command to the back-end rendering engine
+   * @param command Command to dispatch
+   */
+  protected dispatchCommand(command: DispatcherCommandBase): void {
     const dispatcher = this.dispatcher;
     const handle = this.handle;
 
@@ -66,6 +77,14 @@ export abstract class FimObjectClient implements FimObject {
       throw new FimError(FimErrorCode.AppError, `${handle} is disposed`);
     }
 
-    dispatcher.dispatchCommand(handle, cmd);
+    // Add additional properties
+    const fullCommand = command as DispatcherCommand;
+    fullCommand.handle = this.handle;
+    fullCommand.sequenceNumber = this.sequenceNumber++;
+
+    dispatcher.dispatchCommand(fullCommand);
   }
+
+  /** Sequence number for dispatching commands */
+  private sequenceNumber = 0;
 }

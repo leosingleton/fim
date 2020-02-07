@@ -2,12 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CommandBase } from './CommandBase';
+import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
 /** Releases resources on a FIM object */
-export interface CommandReleaseResources extends CommandBase {
-  cmd: 'rr';
+export interface CommandReleaseResources extends DispatcherCommandBase {
+  command: 'ReleaseResources';
 
   /** Specifies which resources to release */
   flags: FimReleaseResourcesFlags;

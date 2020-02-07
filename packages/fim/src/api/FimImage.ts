@@ -5,10 +5,23 @@
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
 import { FimColor } from '../primitives/FimColor';
+import { FimDimensions } from '../primitives/FimDimensions';
 
 /** Represents an image and its data within the FIM library */
 export interface FimImage extends FimObject {
-  /** Image options */
+  /** Image dimensions */
+  readonly imageDimensions: FimDimensions;
+
+  /**
+   * Image options
+   *
+   * Note that these properties are read/write. The application may attempt to change them after image creation,
+   * however changes are not guaranteed to take effect immediately. Generally options take effect on the next method
+   * call, however some require calling releaseResources() to recreate the back-end objects altogether.
+   *
+   * Also note that an undefined value here inherits the value from the parent FIM class, including any changes that may
+   * occur to the global defaultImageOptions.
+   */
   imageOptions: FimImageOptions;
 
   /** Fills the image with a solid color */

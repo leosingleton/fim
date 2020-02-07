@@ -4,4 +4,5 @@
  * Released under the MIT license
  */
 
- console.log('Hello World!');
+export { FimBrowser } from './api/FimBrowser';
+export { FimBrowserImage } from './api/FimBrowserImage';

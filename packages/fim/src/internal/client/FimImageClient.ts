@@ -7,8 +7,12 @@ import { Fim } from '../../api/Fim';
 import { FimImage } from '../../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
 import { FimColor } from '../../primitives/FimColor';
+import { FimDimensions } from '../../primitives/FimDimensions';
 import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
-import { Dispatcher } from '../engine/Dispatcher';
+import { CommandImageSetOptions } from '../commands/CommandImageSetOptions';
+import { Dispatcher } from '../dispatcher/Dispatcher';
+import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { deepEquals } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
 export abstract class FimImageClient extends FimObjectClient implements FimImage {
@@ -16,25 +20,19 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
    * Constructor
    * @param fim Parent FIM object
    * @param dispatcher Back-end FIM engine
+   * @param dimensions Image dimensions
    * @param options Optional image options to override the parent FIM's defaults
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  protected constructor(fim: Fim, dispatcher: Dispatcher, options?: FimImageOptions, objectName?: string) {
+  public constructor(fim: Fim, dispatcher: Dispatcher, imageDimensions: FimDimensions, options: FimImageOptions,
+      objectName?: string) {
     super(dispatcher, 'img', objectName);
     this.fim = fim;
+    this.imageDimensions = imageDimensions;
     this.imageOptions = options ?? {};
   }
 
-  /**
-   * Image options
-   *
-   * Note that these properties are read/write. The application may attempt to change them after image creation,
-   * however changes are not guaranteed to take effect immediately. Generally options take effect on the next method
-   * call, however some require calling releaseResources() to recreate the back-end objects altogether.
-   *
-   * Also note that an undefined value here inherits the value from the parent FIM class, including any changes that may
-   * occur to the global defaultImageOptions.
-   */
+  public readonly imageDimensions: FimDimensions;
   public imageOptions: FimImageOptions;
 
   /** Fills the image with a solid color */
@@ -42,21 +40,38 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
     // Force color to be a string
     const colorString = (typeof(color) === 'string') ? color : color.string;
 
-    const cmd: CommandImageFillSolid = {
-      cmd: 'ifs',
-      destOptions: this.computeImageOptions(),
-      color: colorString
+    const command: CommandImageFillSolid = {
+      command: 'ImageFillSolid',
+      color: colorString,
+      optimizationHints: {
+        canQueue: true,
+        writeHandles: [this.handle]
+      }
     };
-    this.dispatchCommand(cmd);
+    this.dispatchCommand(command);
   }
 
-  /**
-   * Computes the effective image options by merging this object's options with the parent's. This should be called
-   * regularly as image options may change at any time.
-   */
-  protected computeImageOptions(): FimImageOptions {
-    return mergeImageOptions(this.fim.defaultImageOptions, this.imageOptions);
+  protected dispatchCommand(command: DispatcherCommandBase): void {
+    // Check whether the executionOptions have changed. If so, update the backend rendering engine.
+    const cur = mergeImageOptions(this.fim.defaultImageOptions, this.imageOptions);
+    const prev = this.lastImageOptions;
+    if (!prev || !deepEquals(cur, prev)) {
+      const seoCommand: CommandImageSetOptions = {
+        command: 'ImageSetOptions',
+        imageOptions: cur,
+        optimizationHints: {
+          canQueue: true
+        }
+      };
+      super.dispatchCommand(seoCommand);
+      this.lastImageOptions = cur;
+    }
+
+    super.dispatchCommand(command);
   }
+
+  /** State of the merged imageOptions on the last call to dispatchCommand() */
+  private lastImageOptions: FimImageOptions;
 
   private fim: Fim;
 }

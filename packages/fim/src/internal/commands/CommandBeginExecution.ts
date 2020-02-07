@@ -4,7 +4,7 @@
 
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 
-/** Disposes a FIM object */
-export interface CommandDispose extends DispatcherCommandBase {
-  command: 'Dispose';
+/** Hint to dispatch all pending commands to execution pipeline */
+export interface CommandBeginExecution extends DispatcherCommandBase {
+  command: 'BeginExecution';
 }

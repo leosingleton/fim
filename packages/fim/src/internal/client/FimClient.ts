@@ -2,25 +2,29 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimImageClient } from './FimImageClient';
 import { FimObjectClient } from './FimObjectClient';
 import { Fim } from '../../api/Fim';
 import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
 import { FimDimensions } from '../../primitives/FimDimensions';
-import { Dispatcher } from '../engine/Dispatcher';
+import { CommandBeginExecution } from '../commands/CommandBeginExecution';
+import { CommandSetExecutionOptions } from '../commands/CommandSetExecutionOptions';
+import { Dispatcher } from '../dispatcher/Dispatcher';
+import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { deepCopy, deepEquals } from '@leosingleton/commonlibs';
 
 /** Client implementation of the Fim interface */
 export abstract class FimClient extends FimObjectClient implements Fim {
   /**
    * Constructor
    * @param dispatcher Back-end FIM engine
-   * @param maxDimensions Maximum dimensions of any image
+   * @param maxImageDimensions Maximum dimensions of any image
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  protected constructor(dispatcher: Dispatcher, maxDimensions: FimDimensions, objectName?: string) {
+  public constructor(dispatcher: Dispatcher, maxImageDimensions: FimDimensions, objectName?: string) {
     super(dispatcher, 'fim', objectName);
-
-    this.maxDimensions = maxDimensions;
+    this.maxImageDimensions = maxImageDimensions;
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
@@ -28,17 +32,42 @@ export abstract class FimClient extends FimObjectClient implements Fim {
     this.defaultImageOptions = defaultImageOptions;
   }
 
-  public readonly maxDimensions: FimDimensions;
-
-  /**
-   * Options for the FIM execution engine
-   *
-   * Note that these properties are read/write. The application may attempt to change them after creating objects,
-   * however changes are not guaranteed to take effect immediately. Generally options take effect on the next method
-   * call, however some require calling releaseResources() to recreate the back-end objects altogether.
-   */
+  public readonly maxImageDimensions: FimDimensions;
   public executionOptions: FimExecutionOptions;
-
-  /** Default image options. Values here are used unless overridden within the image itself.  */
   public defaultImageOptions: FimImageOptions;
+
+  public abstract createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+    FimImageClient;
+
+  public beginExecution(): void {
+    const command: CommandBeginExecution = {
+      command: 'BeginExecution',
+      optimizationHints: {
+        canQueue: false
+      }
+    };
+    this.dispatchCommand(command);
+  }
+
+  protected dispatchCommand(command: DispatcherCommandBase): void {
+    // Check whether the executionOptions have changed. If so, update the backend rendering engine.
+    const cur = this.executionOptions;
+    const prev = this.lastExecutionOptions;
+    if (!prev || !deepEquals(cur, prev)) {
+      const seoCommand: CommandSetExecutionOptions = {
+        command: 'SetExecutionOptions',
+        executionOptions: cur,
+        optimizationHints: {
+          canQueue: true
+        }
+      };
+      super.dispatchCommand(seoCommand);
+      this.lastExecutionOptions = deepCopy(cur);
+    }
+
+    super.dispatchCommand(command);
+  }
+
+  /** State of the executionOptions on the last call to dispatchCommand() */
+  private lastExecutionOptions: FimExecutionOptions;
 }
