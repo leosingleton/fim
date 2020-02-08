@@ -9,6 +9,9 @@ export interface FimObject {
   /** Unique value identifying this object */
   readonly handle: string;
 
+  /** Handle including the full path from parent to child objects */
+  readonly longHandle: string;
+
   /**
    * Releases memory and/or GPU resources.
    *

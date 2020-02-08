@@ -4,13 +4,29 @@
 
 import { FimNodeImageClient } from './FimNodeImageClient';
 import { FimNode } from '../../api/FimNode';
+import { CommandNodeCreate } from '../commands/CommandNodeCreate';
 import { CommandNodeCreateImage } from '../commands/CommandNodeCreateImage';
 import { NodeDispatcherOpcodes } from '../commands/NodeDispatcherOpcodes';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { FimClient } from '@leosingleton/fim/internals';
+import { FimClient, DispatcherCommand } from '@leosingleton/fim/internals';
 
 /** Client implementation of the Fim interface for running in Node.js */
 export class FimNodeClient extends FimClient implements FimNode {
+  protected sendCreateCommand(): void {
+    // The Create command is special and is sent from the contructor itself. It simply informs the backend of the handle
+    // of the new FIM instance and comes from an undefined parent object.
+    const command: CommandNodeCreate & DispatcherCommand = {
+      sequenceNumber: 0,
+      handle: undefined,
+      opcode: NodeDispatcherOpcodes.Create,
+      fimHandle: this.handle,
+      optimizationHints: {
+        canQueue: true
+      }
+    };
+    super.dispatchCommand(command);
+  }
+
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): FimNodeImageClient {
     // Default values
     dimensions = dimensions ?? this.maxImageDimensions;

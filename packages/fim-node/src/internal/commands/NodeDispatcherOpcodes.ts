@@ -4,5 +4,6 @@
 
 /** String values used in the DispatcherCommand.opcode property specific to the Node.js implementation */
 export enum NodeDispatcherOpcodes {
+  Create = 'NodeCreate',
   CreateImage = 'NodeCreateImage'
 }

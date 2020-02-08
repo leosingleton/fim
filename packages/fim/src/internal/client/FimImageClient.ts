@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimObjectClient } from './FimObjectClient';
+import { FimObjectType } from './FimObjectType';
 import { Fim } from '../../api/Fim';
 import { FimImage } from '../../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
@@ -27,7 +28,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
    */
   public constructor(fim: Fim, dispatcher: Dispatcher, imageDimensions: FimDimensions, options: FimImageOptions,
       objectName?: string) {
-    super(dispatcher, 'img', objectName);
+    super(dispatcher, FimObjectType.Image, fim.longHandle, objectName);
     this.fim = fim;
     this.imageDimensions = imageDimensions;
     this.imageOptions = options ?? {};

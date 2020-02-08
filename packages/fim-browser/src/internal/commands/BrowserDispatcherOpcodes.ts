@@ -4,5 +4,6 @@
 
 /** String values used in the DispatcherCommand.opcode property specific to the web browser implementation */
 export enum BrowserDispatcherOpcodes {
+  Create = 'BrowserCreate',
   CreateImage = 'BrowserCreateImage'
 }

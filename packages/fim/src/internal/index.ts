@@ -16,3 +16,6 @@ export { DispatcherCommand } from './dispatcher/DispatcherCommand';
 export { DispatcherCommandBase } from './dispatcher/DispatcherCommandBase';
 export { DispatcherOptimizationHints } from './dispatcher/DispatcherOptimizationHints';
 export { DispatcherResult } from './dispatcher/DispatcherResult';
+export { Engine } from './engine/direct/Engine';
+export { EngineFim } from './engine/direct/EngineFim';
+export { EngineImage } from './engine/direct/EngineImage';

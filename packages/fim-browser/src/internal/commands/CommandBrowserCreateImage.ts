@@ -7,7 +7,7 @@ import { FimDimensions } from '@leosingleton/fim';
 import { DispatcherCommandBase } from '@leosingleton/fim/internals';
 
 /** Command to create a new image by handle */
-export interface CommandCreateImage extends DispatcherCommandBase {
+export interface CommandBrowserCreateImage extends DispatcherCommandBase {
   opcode: BrowserDispatcherOpcodes.CreateImage;
 
   /** Handle for the new image */

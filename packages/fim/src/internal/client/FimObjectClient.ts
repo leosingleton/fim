@@ -10,6 +10,7 @@ import { CommandReleaseResources } from '../commands/CommandReleaseResources';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { HandleBuilder } from '../dispatcher/HandleBuilder';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 
 /** Base class for all objects in the FIM API */
@@ -18,23 +19,20 @@ export abstract class FimObjectClient implements FimObject {
    * Base constructor for all objects in the FIM API
    * @param dispatcher Back-end FIM engine
    * @param objectType A short string indicating the object type, e.g. 'img' for FimImage
-   * @param objectName An optional name specified when creating the object to help with debugging
+   * @param parentLongHandle Long handle of the parent object. Required if the object has a parent; may be undefined if
+   *    this object is the root.
+   * @param objectName Optional name specified when creating the object to help with debugging
    */
-  protected constructor(dispatcher: Dispatcher, objectType: string, objectName?: string) {
-    // Create a globally-unique handle name. Although really, only the global handle count is needed, we add the object
-    // type and name to make it easier to debug.
-    this.handle = `${objectType}.${FimObjectClient.globalHandleCount++}`;
-    if (objectName) {
-      this.handle += `.${objectName}`;
-    }
+  protected constructor(dispatcher: Dispatcher, objectType: string, parentLongHandle?: string, objectName?: string) {
+    // Create a globally-unique handle name
+    this.handle = HandleBuilder.createObjectHandle(objectType, objectName);
+    this.longHandle = HandleBuilder.createLongObjectHandle(parentLongHandle, this.handle);
 
     this.dispatcher = dispatcher;
   }
 
   public readonly handle: string;
-
-  /** Global counter used to assign a unique handle to objects in FIM */
-  private static globalHandleCount = 0;
+  public readonly longHandle: string;
 
   /** Back-end FIM engine */
   protected dispatcher: Dispatcher;

@@ -5,12 +5,28 @@
 import { FimBrowserImageClient } from './FimBrowserImageClient';
 import { FimBrowser } from '../../api/FimBrowser';
 import { BrowserDispatcherOpcodes } from '../commands/BrowserDispatcherOpcodes';
-import { CommandCreateImage } from '../commands/CommandCreateImage';
+import { CommandBrowserCreate } from '../commands/CommandBrowserCreate';
+import { CommandBrowserCreateImage } from '../commands/CommandBrowserCreateImage';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { FimClient } from '@leosingleton/fim/internals';
+import { FimClient, DispatcherCommand } from '@leosingleton/fim/internals';
 
 /** Client implementation of the Fim interface for running in web browsers */
 export class FimBrowserClient extends FimClient implements FimBrowser {
+  protected sendCreateCommand(): void {
+    // The Create command is special and is sent from the contructor itself. It simply informs the backend of the handle
+    // of the new FIM instance and comes from an undefined parent object.
+    const command: CommandBrowserCreate & DispatcherCommand = {
+      sequenceNumber: 0,
+      handle: undefined,
+      opcode: BrowserDispatcherOpcodes.Create,
+      fimHandle: this.handle,
+      optimizationHints: {
+        canQueue: true
+      }
+    };
+    super.dispatchCommand(command);
+  }
+
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
       FimBrowserImageClient {
     // Default values
@@ -19,7 +35,7 @@ export class FimBrowserClient extends FimClient implements FimBrowser {
 
     // Dispatch the create command to the back-end
     const image = new FimBrowserImageClient(this, this.dispatcher, dimensions, options, imageName);
-    const command: CommandCreateImage = {
+    const command: CommandBrowserCreateImage = {
       opcode: BrowserDispatcherOpcodes.CreateImage,
       imageDimensions: dimensions,
       imageHandle: image.handle,

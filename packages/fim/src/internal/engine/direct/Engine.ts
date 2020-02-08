@@ -2,13 +2,24 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreObject } from '../core/CoreObject';
+import { FimObjectType } from '../../client/FimObjectType';
 import { Dispatcher } from '../../dispatcher/Dispatcher';
 import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
 import { DispatcherResult } from '../../dispatcher/DispatcherResult';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
 
 /** Low-level FIM rendering engine */
-export abstract class Engine implements Dispatcher {
+export abstract class Engine extends CoreObject implements Dispatcher {
+  /** Constructor */
+  public constructor() {
+    // This is the root object
+    super(FimObjectType.Engine);
+  }
+
+  /** The FIM rendering engine does not hold any resources directly--the child objects do. */
+  public releaseOwnResources(): void { }
+
   public dispatchCommand(command: DispatcherCommand): void {
     // Populate required fields of any result
     const resultObject: DispatcherResult = {

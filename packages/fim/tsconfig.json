@@ -4,5 +4,5 @@
     "rootDir": "src",
     "outDir": "build"
   },
-  "exclude": ["**/__tests__/*", "**/build/*", "internals.ts"]
+  "exclude": ["**/__tests__/*", "**/build/*", "internals.*"]
 }

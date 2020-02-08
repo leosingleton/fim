@@ -4,6 +4,7 @@
 
 import { FimImageClient } from './FimImageClient';
 import { FimObjectClient } from './FimObjectClient';
+import { FimObjectType } from './FimObjectType';
 import { Fim } from '../../api/Fim';
 import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
@@ -24,7 +25,7 @@ export abstract class FimClient extends FimObjectClient implements Fim {
    * @param objectName An optional name specified when creating the object to help with debugging
    */
   public constructor(dispatcher: Dispatcher, maxImageDimensions: FimDimensions, objectName?: string) {
-    super(dispatcher, 'fim', objectName);
+    super(dispatcher, FimObjectType.Fim, objectName);
     this.maxImageDimensions = maxImageDimensions;
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
@@ -36,6 +37,9 @@ export abstract class FimClient extends FimObjectClient implements Fim {
   public readonly maxImageDimensions: FimDimensions;
   public executionOptions: FimExecutionOptions;
   public defaultImageOptions: FimImageOptions;
+
+  /** Derived classes must implement this method to send a Create command to the back end */
+  protected abstract sendCreateCommand(): void;
 
   public abstract createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
     FimImageClient;
