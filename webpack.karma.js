@@ -3,7 +3,7 @@ const glob = require('glob');
 
 const config = {
   entry: glob.sync('./**/__tests__/**/*.@(browser|test).ts'),
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {
@@ -26,8 +26,7 @@ const config = {
   },
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'browser-tests.js',
-    library: 'library'
+    filename: 'browser-tests.js'
   }
 };
 
