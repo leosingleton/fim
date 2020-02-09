@@ -5,6 +5,8 @@
 /** String values used in the DispatcherCommand.opcode property */
 export enum DispatcherOpcodes {
   BeginExecution = 'BeginExecution',
+  Create = 'Create',
+  CreateImage = 'CreateImage',
   Dispose = 'Dispose',
   ImageFillSolid = 'ImageFillSolid',
   ImageSetOptions = 'ImageSetOptions',
