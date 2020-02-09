@@ -2,13 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { BrowserEngineFim } from './BrowserEngineFim';
+import { BrowserEngineImage } from './BrowserEngineImage';
 import { BrowserDispatcherOpcodes } from '../../commands/BrowserDispatcherOpcodes';
 import { CommandBrowserCreate } from '../../commands/CommandBrowserCreate';
 import { CommandBrowserCreateImage } from '../../commands/CommandBrowserCreateImage';
 import { DispatcherCommand, Engine } from '@leosingleton/fim/internals';
 
 /** Low-level FIM rendering engine for web browser */
-export class BrowserEngine extends Engine {
+export class BrowserEngine extends Engine<BrowserEngineFim, BrowserEngineImage> {
   protected executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
       case BrowserDispatcherOpcodes.Create:

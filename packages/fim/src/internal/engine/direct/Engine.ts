@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { EngineFim } from './EngineFim';
+import { EngineImage } from './EngineImage';
 import { CoreObject } from '../core/CoreObject';
 import { FimObjectType } from '../../client/FimObjectType';
 import { Dispatcher } from '../../dispatcher/Dispatcher';
@@ -10,7 +12,8 @@ import { DispatcherResult } from '../../dispatcher/DispatcherResult';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
 
 /** Low-level FIM rendering engine */
-export abstract class Engine extends CoreObject implements Dispatcher {
+export abstract class Engine<TFim extends EngineFim, TImage extends EngineImage> extends CoreObject
+    implements Dispatcher {
   /** Constructor */
   public constructor() {
     // This is the root object
