@@ -10,11 +10,13 @@ import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecu
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
 import { FimDimensions } from '../../primitives/FimDimensions';
 import { CommandBeginExecution } from '../commands/CommandBeginExecution';
+import { CommandCreate } from '../commands/CommandCreate';
 import { CommandCreateImage } from '../commands/CommandCreateImage';
 import { CommandSetExecutionOptions } from '../commands/CommandSetExecutionOptions';
-import { Dispatcher } from '../dispatcher/Dispatcher';
-import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
+import { Dispatcher } from '../dispatcher/Dispatcher';
+import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
+import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { deepCopy, deepEquals } from '@leosingleton/commonlibs';
 
 /** Client implementation of the Fim interface */
@@ -34,6 +36,19 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     // creation.
     this.executionOptions = defaultExecutionOptions;
     this.defaultImageOptions = defaultImageOptions;
+
+    // The Create command is special and is sent from the contructor itself. It simply informs the backend of the handle
+    // of the new FIM instance and comes from an undefined parent object.
+    const command: CommandCreate & DispatcherCommand = {
+      sequenceNumber: 0,
+      handle: undefined,
+      opcode: DispatcherOpcodes.Create,
+      fimHandle: this.handle,
+      optimizationHints: {
+        canQueue: true
+      }
+    };
+    super.dispatchCommand(command);
   }
 
   public readonly maxImageDimensions: FimDimensions;
