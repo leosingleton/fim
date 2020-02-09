@@ -11,9 +11,9 @@ import { FimColor } from '../../primitives/FimColor';
 import { FimDimensions } from '../../primitives/FimDimensions';
 import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
 import { CommandImageSetOptions } from '../commands/CommandImageSetOptions';
+import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
-import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { deepEquals } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
@@ -26,8 +26,8 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
    * @param options Optional image options to override the parent FIM's defaults
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  public constructor(fim: Fim, dispatcher: Dispatcher, imageDimensions: FimDimensions, options: FimImageOptions,
-      objectName?: string) {
+  public constructor(fim: Fim<FimImageClient>, dispatcher: Dispatcher, imageDimensions: FimDimensions,
+      options: FimImageOptions, objectName?: string) {
     super(dispatcher, FimObjectType.Image, fim.longHandle, objectName);
     this.fim = fim;
     this.imageDimensions = imageDimensions;
@@ -75,5 +75,5 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
   /** State of the merged imageOptions on the last call to dispatchCommand() */
   private lastImageOptions: FimImageOptions;
 
-  private fim: Fim;
+  private fim: Fim<FimImageClient>;
 }

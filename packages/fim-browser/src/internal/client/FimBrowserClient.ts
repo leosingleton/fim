@@ -11,7 +11,7 @@ import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { FimClient, DispatcherCommand } from '@leosingleton/fim/internals';
 
 /** Client implementation of the Fim interface for running in web browsers */
-export class FimBrowserClient extends FimClient implements FimBrowser {
+export class FimBrowserClient extends FimClient<FimBrowserImageClient> implements FimBrowser {
   protected sendCreateCommand(): void {
     // The Create command is special and is sent from the contructor itself. It simply informs the backend of the handle
     // of the new FIM instance and comes from an undefined parent object.

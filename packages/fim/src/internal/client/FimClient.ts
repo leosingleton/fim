@@ -17,7 +17,8 @@ import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { deepCopy, deepEquals } from '@leosingleton/commonlibs';
 
 /** Client implementation of the Fim interface */
-export abstract class FimClient extends FimObjectClient implements Fim {
+export abstract class FimClient<TImageClient extends FimImageClient> extends FimObjectClient
+    implements Fim<TImageClient> {
   /**
    * Constructor
    * @param dispatcher Back-end FIM engine
@@ -42,7 +43,7 @@ export abstract class FimClient extends FimObjectClient implements Fim {
   protected abstract sendCreateCommand(): void;
 
   public abstract createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
-    FimImageClient;
+    TImageClient;
 
   public beginExecution(): void {
     const command: CommandBeginExecution = {

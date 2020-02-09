@@ -11,7 +11,7 @@ import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { FimClient, DispatcherCommand } from '@leosingleton/fim/internals';
 
 /** Client implementation of the Fim interface for running in Node.js */
-export class FimNodeClient extends FimClient implements FimNode {
+export class FimNodeClient extends FimClient<FimNodeImageClient> implements FimNode {
   protected sendCreateCommand(): void {
     // The Create command is special and is sent from the contructor itself. It simply informs the backend of the handle
     // of the new FIM instance and comes from an undefined parent object.
