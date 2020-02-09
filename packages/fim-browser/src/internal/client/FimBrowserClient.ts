@@ -6,7 +6,6 @@ import { FimBrowserImageClient } from './FimBrowserImageClient';
 import { FimBrowser } from '../../api/FimBrowser';
 import { BrowserDispatcherOpcodes } from '../commands/BrowserDispatcherOpcodes';
 import { CommandBrowserCreate } from '../commands/CommandBrowserCreate';
-import { CommandBrowserCreateImage } from '../commands/CommandBrowserCreateImage';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { FimClient, DispatcherCommand } from '@leosingleton/fim/internals';
 
@@ -27,24 +26,8 @@ export class FimBrowserClient extends FimClient<FimBrowserImageClient> implement
     super.dispatchCommand(command);
   }
 
-  public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+  protected createImageClient(dimensions: FimDimensions, options: FimImageOptions, imageName: string):
       FimBrowserImageClient {
-    // Default values
-    dimensions = dimensions ?? this.maxImageDimensions;
-    options = options ?? {};
-
-    // Dispatch the create command to the back-end
-    const image = new FimBrowserImageClient(this, this.dispatcher, dimensions, options, imageName);
-    const command: CommandBrowserCreateImage = {
-      opcode: BrowserDispatcherOpcodes.CreateImage,
-      imageDimensions: dimensions,
-      imageHandle: image.handle,
-      optimizationHints: {
-        canQueue: true
-      }
-    };
-    this.dispatchCommand(command);
-
-    return image;
+    return new FimBrowserImageClient(this, this.dispatcher, dimensions, options, imageName);
   }
 }

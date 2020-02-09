@@ -5,7 +5,6 @@
 import { FimNodeImageClient } from './FimNodeImageClient';
 import { FimNode } from '../../api/FimNode';
 import { CommandNodeCreate } from '../commands/CommandNodeCreate';
-import { CommandNodeCreateImage } from '../commands/CommandNodeCreateImage';
 import { NodeDispatcherOpcodes } from '../commands/NodeDispatcherOpcodes';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { FimClient, DispatcherCommand } from '@leosingleton/fim/internals';
@@ -27,23 +26,8 @@ export class FimNodeClient extends FimClient<FimNodeImageClient> implements FimN
     super.dispatchCommand(command);
   }
 
-  public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): FimNodeImageClient {
-    // Default values
-    dimensions = dimensions ?? this.maxImageDimensions;
-    options = options ?? {};
-
-    // Dispatch the create command to the back-end
-    const image = new FimNodeImageClient(this, this.dispatcher, dimensions, options, imageName);
-    const command: CommandNodeCreateImage = {
-      opcode: NodeDispatcherOpcodes.CreateImage,
-      imageDimensions: dimensions,
-      imageHandle: image.handle,
-      optimizationHints: {
-        canQueue: true
-      }
-    };
-    this.dispatchCommand(command);
-
-    return image;
+  protected createImageClient(dimensions: FimDimensions, options: FimImageOptions, imageName: string):
+      FimNodeImageClient {
+    return new FimNodeImageClient(this, this.dispatcher, dimensions, options, imageName);
   }
 }

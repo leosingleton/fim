@@ -10,6 +10,7 @@ import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecu
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
 import { FimDimensions } from '../../primitives/FimDimensions';
 import { CommandBeginExecution } from '../commands/CommandBeginExecution';
+import { CommandCreateImage } from '../commands/CommandCreateImage';
 import { CommandSetExecutionOptions } from '../commands/CommandSetExecutionOptions';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
@@ -39,10 +40,28 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
   public executionOptions: FimExecutionOptions;
   public defaultImageOptions: FimImageOptions;
 
-  /** Derived classes must implement this method to send a Create command to the back end */
-  protected abstract sendCreateCommand(): void;
+  public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TImageClient {
+    // Default values
+    dimensions = dimensions ?? this.maxImageDimensions;
+    options = options ?? {};
 
-  public abstract createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+    // Dispatch the create command to the back-end
+    const image = this.createImageClient(dimensions, options, imageName);
+    const command: CommandCreateImage = {
+      opcode: DispatcherOpcodes.CreateImage,
+      imageDimensions: dimensions,
+      imageHandle: image.handle,
+      optimizationHints: {
+        canQueue: true
+      }
+    };
+    this.dispatchCommand(command);
+
+    return image;
+  }
+
+  /** Derived classes must implement this method call the TImageClient constructor */
+  protected abstract createImageClient(dimensions: FimDimensions, options: FimImageOptions, imageName: string):
     TImageClient;
 
   public beginExecution(): void {
