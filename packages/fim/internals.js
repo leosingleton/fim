@@ -10,4 +10,4 @@
 
 /* eslint-env node */
 'use strict';
-module.exports = require('./build/internals');
+module.exports = require('./build/internal');
