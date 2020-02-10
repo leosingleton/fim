@@ -78,7 +78,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
     this.dispatchCommand(command);
   }
 
-  public getPixel(x: number, y: number): FimColor {
+  public async getPixelAsync(x: number, y: number): Promise<FimColor> {
     const command: CommandImageGetPixel = {
       opcode: DispatcherOpcodes.ImageGetPixel,
       x,
@@ -88,9 +88,9 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
         readHandles: [this.handle]
       }
     };
-    this.dispatchCommand(command);
+    const colorString = await this.dispatchCommandAndWaitAsync(command);
 
-    throw new Error('not implemented');
+    return FimColor.fromString(colorString);
   }
 
   public setPixel(x: number, y: number, color: string | FimColor): void {

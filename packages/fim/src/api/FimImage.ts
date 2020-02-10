@@ -39,7 +39,7 @@ export interface FimImage extends FimObject {
    * @param y Y-offset, in pixels
    * @returns RGBA color value
    */
-  getPixel(x: number, y: number): FimColor;
+  getPixelAsync(x: number, y: number): Promise<FimColor>;
 
   /**
    * Sets the value of one pixel.
