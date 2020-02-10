@@ -29,7 +29,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: [ '.ts' ]
+    extensions: [ '.js', '.ts' ]
   },
   output: {
     path: path.resolve(__dirname, 'build'),
