@@ -84,7 +84,7 @@ export class DispatcherClient {
       waiter.doneEvent.setEvent();
     } else {
       // TODO: Figure out how to handle errors returned to asynchronous commands!!!!!
-      throw new Error('not implemented');
+      //throw new Error('not implemented');
     }
   }
 
