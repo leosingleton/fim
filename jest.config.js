@@ -12,8 +12,8 @@ module.exports = {
   ],
   collectCoverage: true,
   collectCoverageFrom: [
-    '**/packages/*/**/*.js',
-    '**/packages/*/**/*.ts',
+    '**/packages/fim/**/*.ts',
+    '**/packages/fim-node/**/*.ts',
     '!**/__tests__/**',
     '!**/build/**'
   ],
