@@ -78,7 +78,7 @@ export abstract class FimObjectClient implements FimObject {
 
     // Add additional properties
     const fullCommand = command as DispatcherCommand;
-    fullCommand.handle = this.handle;
+    fullCommand.longHandle = this.longHandle;
     fullCommand.sequenceNumber = this.sequenceNumber++;
 
     dispatcher.dispatchCommand(fullCommand);

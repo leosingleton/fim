@@ -4,32 +4,19 @@
 
 import { BrowserEngineFim } from './BrowserEngineFim';
 import { BrowserEngineImage } from './BrowserEngineImage';
-import { BrowserDispatcherOpcodes } from '../../commands/BrowserDispatcherOpcodes';
-import { CommandBrowserCreate } from '../../commands/CommandBrowserCreate';
-import { CommandBrowserCreateImage } from '../../commands/CommandBrowserCreateImage';
 import { DispatcherCommand, Engine } from '@leosingleton/fim/internals';
 
 /** Low-level FIM rendering engine for web browser */
 export class BrowserEngine extends Engine<BrowserEngineFim, BrowserEngineImage> {
-  protected executeCommand(command: DispatcherCommand): any {
+  protected createEngineFim(handle: string): BrowserEngineFim {
+    return new BrowserEngineFim(handle, this);
+  }
+
+  public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
-      case BrowserDispatcherOpcodes.Create:
-        return this.create(command as any as CommandBrowserCreate);
-
-      case BrowserDispatcherOpcodes.CreateImage:
-        return this.createImage(command as any as CommandBrowserCreateImage);
-
       default:
         // For all other commands, fall through to the parent class
         return super.executeCommand(command);
     }
-  }
-
-  private create(_command: CommandBrowserCreate): void {
-    // TODO
-  }
-
-  private createImage(_command: CommandBrowserCreateImage): void {
-    // TODO
   }
 }

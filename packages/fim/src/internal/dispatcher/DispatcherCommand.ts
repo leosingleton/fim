@@ -9,6 +9,6 @@ export interface DispatcherCommand extends DispatcherCommandBase {
   /** Sequence number assigned to each command */
   sequenceNumber: number;
 
-  /** Handle of the object to execute the command */
-  handle: string;
+  /** Full handle of the object to execute the command */
+  longHandle: string;
 }

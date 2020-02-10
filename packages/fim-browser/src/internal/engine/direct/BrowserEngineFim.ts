@@ -2,11 +2,16 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { BrowserEngineImage } from './BrowserEngineImage';
+import { FimDimensions, FimReleaseResourcesFlags } from '@leosingleton/fim';
 import { EngineFim } from '@leosingleton/fim/internals';
 
-export class BrowserEngineFim extends EngineFim {
+export class BrowserEngineFim extends EngineFim<BrowserEngineImage> {
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
     // TODO
+  }
+
+  protected createEngineImage(handle: string, imageDimensions: FimDimensions): BrowserEngineImage {
+    return new BrowserEngineImage(handle, this, imageDimensions);
   }
 }

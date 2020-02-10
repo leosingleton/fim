@@ -4,16 +4,17 @@
 
 import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
-import { CoreObject } from '../core/CoreObject';
+import { EngineObject } from './EngineObject';
 import { FimObjectType } from '../../client/FimObjectType';
+import { CommandCreate } from '../../commands/CommandCreate';
+import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { Dispatcher } from '../../dispatcher/Dispatcher';
 import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
 import { DispatcherResult } from '../../dispatcher/DispatcherResult';
-import { FimError, FimErrorCode } from '../../../primitives/FimError';
 
 /** Low-level FIM rendering engine */
-export abstract class Engine<TFim extends EngineFim, TImage extends EngineImage> extends CoreObject
-    implements Dispatcher {
+export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngineImage extends EngineImage>
+    extends EngineObject implements Dispatcher {
   /** Constructor */
   public constructor() {
     // This is the root object
@@ -21,7 +22,7 @@ export abstract class Engine<TFim extends EngineFim, TImage extends EngineImage>
   }
 
   /** The FIM rendering engine does not hold any resources directly--the child objects do. */
-  public releaseOwnResources(): void { }
+  protected releaseOwnResources(): void { }
 
   public dispatchCommand(command: DispatcherCommand): void {
     // Populate required fields of any result
@@ -32,7 +33,8 @@ export abstract class Engine<TFim extends EngineFim, TImage extends EngineImage>
 
     try {
       // Attempt to execute the command
-      const result = this.executeCommand(command);
+      const destObject = command.longHandle ? this.getChildByHandle(command.longHandle) as EngineObject : this;
+      const result = destObject.executeCommand(command);
 
       // Return the successful result
       resultObject.commandResult = result;
@@ -46,11 +48,21 @@ export abstract class Engine<TFim extends EngineFim, TImage extends EngineImage>
 
   public onCommandResult: (result: DispatcherResult) => void;
 
-  /** Derived classes should overload this message to handle any commands they add to FIM */
-  protected executeCommand(command: DispatcherCommand): any {
+  public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
+      case DispatcherOpcodes.Create:
+        return this.create(command as any as CommandCreate);
+
       default:
-        throw new FimError(FimErrorCode.AppError, `Invalid op ${command.opcode}`);
+        this.throwInvalidOperation(command);
     }
   }
+
+  private create(command: CommandCreate): void {
+    const fim = this.createEngineFim(command.fimHandle);
+    this.addChild(fim);
+  }
+
+  /** Derived classes must implement this method to call the TEngineFim constructor */
+  protected abstract createEngineFim(handle: string): TEngineFim;
 }

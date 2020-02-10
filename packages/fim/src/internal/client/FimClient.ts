@@ -41,7 +41,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     // of the new FIM instance and comes from an undefined parent object.
     const command: CommandCreate & DispatcherCommand = {
       sequenceNumber: 0,
-      handle: undefined,
+      longHandle: undefined,
       opcode: DispatcherOpcodes.Create,
       fimHandle: this.handle,
       optimizationHints: {
@@ -75,7 +75,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     return image;
   }
 
-  /** Derived classes must implement this method call the TImageClient constructor */
+  /** Derived classes must implement this method to call the TImageClient constructor */
   protected abstract createImageClient(dimensions: FimDimensions, options: FimImageOptions, imageName: string):
     TImageClient;
 
