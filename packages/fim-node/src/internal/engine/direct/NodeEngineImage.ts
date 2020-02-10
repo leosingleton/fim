@@ -5,7 +5,7 @@
 import { FimReleaseResourcesFlags } from '@leosingleton/fim';
 import { EngineImage } from '@leosingleton/fim/internals';
 
-export class BrowserEngineImage extends EngineImage {
+export class NodeEngineImage extends EngineImage {
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
     // TODO
   }

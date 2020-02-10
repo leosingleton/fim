@@ -1,15 +1,14 @@
 // FIM - Fast Image Manipulation Library for Javascript
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
-
 /*
-import { BrowserEngine } from '../BrowserEngine';
+import { NodeEngine } from '../NodeEngine';
 import { FimReleaseResourcesFlags } from '@leosingleton/fim';
 
-describe('BrowserEngine', () => {
+describe('NodeEngine', () => {
 
   it('Creates, releases, and disposes', () => {
-    const eng = new BrowserEngine();
+    const eng = new NodeEngine();
     eng.releaseResources(FimReleaseResourcesFlags.All);
     eng.dispose();
   });
@@ -17,10 +16,13 @@ describe('BrowserEngine', () => {
 });
 */
 
-describe('Dummy test case', () =>{
+import { FimColor } from '@leosingleton/fim';
 
-  it('Succeeds', () => {
-    expect(true).toBeTruthy();
+describe('Dummy Test', () => {
+
+  it('test', () => {
+    const c = FimColor.fromString('#000');
+    expect(c.r).toEqual(0);
   });
 
 });
