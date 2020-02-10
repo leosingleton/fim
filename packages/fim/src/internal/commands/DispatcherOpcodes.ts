@@ -9,7 +9,9 @@ export enum DispatcherOpcodes {
   CreateImage = 'CreateImage',
   Dispose = 'Dispose',
   ImageFillSolid = 'ImageFillSolid',
+  ImageGetPixel = 'ImageGetPixel',
   ImageSetOptions = 'ImageSetOptions',
+  ImageSetPixel = 'ImageSetPixel',
   ReleaseResourcs = 'ReleaseResources',
   SetExecutionOptions = 'SetExecutionOptions'
 }

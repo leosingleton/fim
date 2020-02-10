@@ -10,7 +10,9 @@ import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
 import { FimColor } from '../../primitives/FimColor';
 import { FimDimensions } from '../../primitives/FimDimensions';
 import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
+import { CommandImageGetPixel } from '../commands/CommandImageGetPixel';
 import { CommandImageSetOptions } from '../commands/CommandImageSetOptions';
+import { CommandImageSetPixel } from '../commands/CommandImageSetPixel';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
@@ -37,21 +39,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
   public readonly imageDimensions: FimDimensions;
   public imageOptions: FimImageOptions;
 
-  /** Fills the image with a solid color */
-  public fillSolid(color: FimColor | string): void {
-    // Force color to be a string
-    const colorString = (typeof(color) === 'string') ? color : color.string;
-
-    const command: CommandImageFillSolid = {
-      opcode: DispatcherOpcodes.ImageFillSolid,
-      color: colorString,
-      optimizationHints: {
-        canQueue: true,
-        writeHandles: [this.handle]
-      }
-    };
-    this.dispatchCommand(command);
-  }
+  private fim: Fim<FimImageClient>;
 
   protected dispatchCommand(command: DispatcherCommandBase): void {
     // Check whether the executionOptions have changed. If so, update the backend rendering engine.
@@ -75,5 +63,50 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
   /** State of the merged imageOptions on the last call to dispatchCommand() */
   private lastImageOptions: FimImageOptions;
 
-  private fim: Fim<FimImageClient>;
+  public fillSolid(color: FimColor | string): void {
+    // Force color to be a string
+    const colorString = (typeof(color) === 'string') ? color : color.string;
+
+    const command: CommandImageFillSolid = {
+      opcode: DispatcherOpcodes.ImageFillSolid,
+      color: colorString,
+      optimizationHints: {
+        canQueue: true,
+        writeHandles: [this.handle]
+      }
+    };
+    this.dispatchCommand(command);
+  }
+
+  public getPixel(x: number, y: number): FimColor {
+    const command: CommandImageGetPixel = {
+      opcode: DispatcherOpcodes.ImageGetPixel,
+      x,
+      y,
+      optimizationHints: {
+        canQueue: false,
+        readHandles: [this.handle]
+      }
+    };
+    this.dispatchCommand(command);
+
+    throw new Error('not implemented');
+  }
+
+  public setPixel(x: number, y: number, color: string | FimColor): void {
+    // Force color to be a string
+    const colorString = (typeof(color) === 'string') ? color : color.string;
+
+    const command: CommandImageSetPixel = {
+      opcode: DispatcherOpcodes.ImageSetPixel,
+      x,
+      y,
+      color: colorString,
+      optimizationHints: {
+        canQueue: true,
+        writeHandles: [this.handle]
+      }
+    };
+    this.dispatchCommand(command);
+  }
 }

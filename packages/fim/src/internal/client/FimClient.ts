@@ -55,6 +55,28 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
   public executionOptions: FimExecutionOptions;
   public defaultImageOptions: FimImageOptions;
 
+  protected dispatchCommand(command: DispatcherCommandBase): void {
+    // Check whether the executionOptions have changed. If so, update the backend rendering engine.
+    const cur = this.executionOptions;
+    const prev = this.lastExecutionOptions;
+    if (!prev || !deepEquals(cur, prev)) {
+      const seoCommand: CommandSetExecutionOptions = {
+        opcode: DispatcherOpcodes.SetExecutionOptions,
+        executionOptions: cur,
+        optimizationHints: {
+          canQueue: true
+        }
+      };
+      super.dispatchCommand(seoCommand);
+      this.lastExecutionOptions = deepCopy(cur);
+    }
+
+    super.dispatchCommand(command);
+  }
+
+  /** State of the executionOptions on the last call to dispatchCommand() */
+  private lastExecutionOptions: FimExecutionOptions;
+
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TImageClient {
     // Default values
     dimensions = dimensions ?? this.maxImageDimensions;
@@ -88,26 +110,4 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     };
     this.dispatchCommand(command);
   }
-
-  protected dispatchCommand(command: DispatcherCommandBase): void {
-    // Check whether the executionOptions have changed. If so, update the backend rendering engine.
-    const cur = this.executionOptions;
-    const prev = this.lastExecutionOptions;
-    if (!prev || !deepEquals(cur, prev)) {
-      const seoCommand: CommandSetExecutionOptions = {
-        opcode: DispatcherOpcodes.SetExecutionOptions,
-        executionOptions: cur,
-        optimizationHints: {
-          canQueue: true
-        }
-      };
-      super.dispatchCommand(seoCommand);
-      this.lastExecutionOptions = deepCopy(cur);
-    }
-
-    super.dispatchCommand(command);
-  }
-
-  /** State of the executionOptions on the last call to dispatchCommand() */
-  private lastExecutionOptions: FimExecutionOptions;
 }

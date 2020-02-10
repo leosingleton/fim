@@ -24,6 +24,31 @@ export interface FimImage extends FimObject {
    */
   imageOptions: FimImageOptions;
 
-  /** Fills the image with a solid color */
+  /**
+   * Fills the image with a solid color
+   * @param Fill color
+   */
   fillSolid(color: FimColor | string): void;
+
+  /**
+   * Returns the value of one pixel.
+   *
+   * Note that this call is fairly inefficient, and should only be used infrequently, mainly for debugging.
+   *
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @returns RGBA color value
+   */
+  getPixel(x: number, y: number): FimColor;
+
+  /**
+   * Sets the value of one pixel.
+   *
+   * Note that this call is fairly inefficient, and should only be used infrequently, mainly for debugging.
+   *
+   * @param x X-offset, in pixels
+   * @param y Y-offset, in pixels
+   * @param color RGBA color value
+   */
+  setPixel(x: number, y: number, color: FimColor | string): void;
 }

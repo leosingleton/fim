@@ -10,8 +10,10 @@ import { CommandReleaseResources } from '../commands/CommandReleaseResources';
 import { Dispatcher } from '../dispatcher/Dispatcher';
 import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
+import { DispatcherResult } from '../dispatcher/DispatcherResult';
 import { HandleBuilder } from '../dispatcher/HandleBuilder';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
+import { AsyncManualResetEvent } from '@leosingleton/commonlibs';
 
 /** Base class for all objects in the FIM API */
 export abstract class FimObjectClient implements FimObject {
@@ -28,6 +30,8 @@ export abstract class FimObjectClient implements FimObject {
     this.handle = HandleBuilder.createObjectHandle(objectType, objectName);
     this.longHandle = HandleBuilder.createLongObjectHandle(parentLongHandle, this.handle);
 
+    // Register our result handler with the dispatcher
+    dispatcher.onCommandResult = (result) => { this.onCommandResult(result); };
     this.dispatcher = dispatcher;
   }
 
@@ -69,6 +73,12 @@ export abstract class FimObjectClient implements FimObject {
    * @param command Command to dispatch
    */
   protected dispatchCommand(command: DispatcherCommandBase): void {
+    const fullCommand = this.buildCommandForDispatch(command);
+    this.dispatcher.dispatchCommand(fullCommand);
+  }
+
+  /** Helper function for dispatchCommand() and dispatchCommandAndWaitAsync() */
+  private buildCommandForDispatch(command: DispatcherCommandBase): DispatcherCommand {
     const dispatcher = this.dispatcher;
     const handle = this.handle;
 
@@ -81,9 +91,52 @@ export abstract class FimObjectClient implements FimObject {
     fullCommand.longHandle = this.longHandle;
     fullCommand.sequenceNumber = this.sequenceNumber++;
 
-    dispatcher.dispatchCommand(fullCommand);
+    return fullCommand;
   }
 
   /** Sequence number for dispatching commands */
   private sequenceNumber = 0;
+
+  /**
+   * Dispatches a command to the back-end rendering engine and blocks until it completes
+   * @param command Command to dispatch
+   * @returns Result of the command
+   */
+  protected async dispatchCommandAndWaitAsync(command: DispatcherCommandBase): Promise<any> {
+    const fullCommand = this.buildCommandForDispatch(command);
+
+    // Build and register a waiter object
+    const waiter = new FimObjectClientWaiter();
+    this.waiters[fullCommand.sequenceNumber] = waiter;
+
+    this.dispatcher.dispatchCommand(fullCommand);
+
+    // Wait for and return the result
+    await waiter.doneEvent.waitAsync();
+    return waiter.result;
+  }
+
+  /** Hash table of sequence numbers to waiters on executing commands */
+  private waiters: FimObjectClientWaiterMap = {};
+
+  private onCommandResult(_result: DispatcherResult): void {
+
+  }
+}
+
+/**
+ * Helper object for FimObjectClient used to hold a single command call while it is blocked waiting on a response from
+ * the backend.
+ */
+export class FimObjectClientWaiter {
+  /** Event set when the command is done and a result is available */
+  public readonly doneEvent = new AsyncManualResetEvent();
+
+  /** Result of the command */
+  public result?: any;
+}
+
+/** Hash table of sequence numbers to FimObjectClientWaiter instances */
+export interface FimObjectClientWaiterMap {
+  [sequenceNumber: number]: FimObjectClientWaiter
 }
