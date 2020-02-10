@@ -26,7 +26,7 @@ export abstract class EngineImage extends EngineObject {
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
       default:
-        this.throwInvalidOperation(command);
+        return super.executeCommand(command);
     }
   }
 }

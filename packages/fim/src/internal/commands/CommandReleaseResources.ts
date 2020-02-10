@@ -8,7 +8,7 @@ import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
 /** Releases resources on a FIM object */
 export interface CommandReleaseResources extends DispatcherCommandBase {
-  opcode: DispatcherOpcodes.ReleaseResourcs;
+  opcode: DispatcherOpcodes.ReleaseResources;
 
   /** Specifies which resources to release */
   flags: FimReleaseResourcesFlags;

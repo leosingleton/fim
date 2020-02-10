@@ -12,6 +12,6 @@ export enum DispatcherOpcodes {
   ImageGetPixel = 'ImageGetPixel',
   ImageSetOptions = 'ImageSetOptions',
   ImageSetPixel = 'ImageSetPixel',
-  ReleaseResourcs = 'ReleaseResources',
+  ReleaseResources = 'ReleaseResources',
   SetExecutionOptions = 'SetExecutionOptions'
 }

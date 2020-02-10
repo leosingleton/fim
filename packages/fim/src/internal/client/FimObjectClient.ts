@@ -38,7 +38,7 @@ export abstract class FimObjectClient implements FimObject {
 
   public releaseResources(flags: FimReleaseResourcesFlags): void {
     const command: CommandReleaseResources = {
-      opcode: DispatcherOpcodes.ReleaseResourcs,
+      opcode: DispatcherOpcodes.ReleaseResources,
       flags,
       optimizationHints: {
         canQueue: true

@@ -27,7 +27,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
         return this.createImage(command as any as CommandCreateImage);
 
       default:
-        this.throwInvalidOperation(command);
+        return super.executeCommand(command);
     }
   }
 

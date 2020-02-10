@@ -3,19 +3,33 @@
 // See LICENSE in the project root for license information.
 
 import { CoreObject } from '../core/CoreObject';
+import { CommandDispose } from '../../commands/CommandDispose';
+import { CommandReleaseResources } from '../../commands/CommandReleaseResources';
+import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
 
 /** Low-level FIM rendering engine */
 export abstract class EngineObject extends CoreObject {
   /** Derived classes must overload this method to handle any commands they add to the FIM engine */
-  public abstract executeCommand(command: DispatcherCommand): any;
+  public executeCommand(command: DispatcherCommand): any {
+    switch (command.opcode) {
+      case DispatcherOpcodes.Dispose:
+        return this.disposeCommand(command as any as CommandDispose);
 
-  /**
-   * Helper function to throw an exception when an invalid opcode is received on an object
-   * @param command Command received where opcode is invalid
-   */
-  protected throwInvalidOperation(command: DispatcherCommand): never {
-    throw new FimError(FimErrorCode.AppError, `Invalid op ${command.opcode}`);
+      case DispatcherOpcodes.ReleaseResources:
+        return this.releaseResourcesCommand(command as any as CommandReleaseResources);
+
+      default:
+        throw new FimError(FimErrorCode.AppError, `Invalid op ${command.opcode}`);
+    }
+  }
+
+  private disposeCommand(_command: CommandDispose): void {
+    this.dispose();
+  }
+
+  private releaseResourcesCommand(command: CommandReleaseResources): void {
+    this.releaseResources(command.flags);
   }
 }
