@@ -45,7 +45,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
       opcode: DispatcherOpcodes.Create,
       fimHandle: this.handle,
       optimizationHints: {
-        canQueue: true
+        canQueue: false
       }
     };
     super.dispatchCommand(command);
