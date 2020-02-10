@@ -15,6 +15,7 @@ import { CommandCreateImage } from '../commands/CommandCreateImage';
 import { CommandSetExecutionOptions } from '../commands/CommandSetExecutionOptions';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { Dispatcher } from '../dispatcher/Dispatcher';
+import { DispatcherClient } from '../dispatcher/DispatcherClient';
 import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { deepCopy, deepEquals } from '@leosingleton/commonlibs';
@@ -29,7 +30,10 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
    * @param objectName An optional name specified when creating the object to help with debugging
    */
   public constructor(dispatcher: Dispatcher, maxImageDimensions: FimDimensions, objectName?: string) {
-    super(dispatcher, FimObjectType.Fim, objectName);
+    // This is the root object. Create the dispatcher client, which will be shared by child objects.
+    const dispatcherClient = new DispatcherClient(dispatcher);
+
+    super(dispatcherClient, FimObjectType.Fim, objectName);
     this.maxImageDimensions = maxImageDimensions;
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM

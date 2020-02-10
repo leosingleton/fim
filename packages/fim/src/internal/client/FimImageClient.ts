@@ -14,7 +14,7 @@ import { CommandImageGetPixel } from '../commands/CommandImageGetPixel';
 import { CommandImageSetOptions } from '../commands/CommandImageSetOptions';
 import { CommandImageSetPixel } from '../commands/CommandImageSetPixel';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
-import { Dispatcher } from '../dispatcher/Dispatcher';
+import { DispatcherClient } from '../dispatcher/DispatcherClient';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { deepEquals } from '@leosingleton/commonlibs';
 
@@ -23,14 +23,14 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
   /**
    * Constructor
    * @param fim Parent FIM object
-   * @param dispatcher Back-end FIM engine
+   * @param dispatcherClient Client wrapper around the backend FIM engine
    * @param dimensions Image dimensions
    * @param options Optional image options to override the parent FIM's defaults
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  public constructor(fim: Fim<FimImageClient>, dispatcher: Dispatcher, imageDimensions: FimDimensions,
+  public constructor(fim: Fim<FimImageClient>, dispatcherClient: DispatcherClient, imageDimensions: FimDimensions,
       options: FimImageOptions, objectName?: string) {
-    super(dispatcher, FimObjectType.Image, fim.longHandle, objectName);
+    super(dispatcherClient, FimObjectType.Image, fim.longHandle, objectName);
     this.fim = fim;
     this.imageDimensions = imageDimensions;
     this.imageOptions = options ?? {};

@@ -11,6 +11,6 @@ import { FimClient } from '@leosingleton/fim/internals';
 export class FimNodeClient extends FimClient<FimNodeImageClient> implements FimNode {
   protected createImageClient(dimensions: FimDimensions, options: FimImageOptions, imageName: string):
       FimNodeImageClient {
-    return new FimNodeImageClient(this, this.dispatcher, dimensions, options, imageName);
+    return new FimNodeImageClient(this, this.dispatcherClient, dimensions, options, imageName);
   }
 }

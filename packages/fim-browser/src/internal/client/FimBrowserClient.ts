@@ -11,6 +11,6 @@ import { FimClient } from '@leosingleton/fim/internals';
 export class FimBrowserClient extends FimClient<FimBrowserImageClient> implements FimBrowser {
   protected createImageClient(dimensions: FimDimensions, options: FimImageOptions, imageName: string):
       FimBrowserImageClient {
-    return new FimBrowserImageClient(this, this.dispatcher, dimensions, options, imageName);
+    return new FimBrowserImageClient(this, this.dispatcherClient, dimensions, options, imageName);
   }
 }
