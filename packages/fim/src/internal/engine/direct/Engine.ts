@@ -11,6 +11,7 @@ import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { Dispatcher } from '../../dispatcher/Dispatcher';
 import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
 import { DispatcherResult } from '../../dispatcher/DispatcherResult';
+import { HandleBuilder } from '../../dispatcher/HandleBuilder';
 
 /** Low-level FIM rendering engine */
 export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngineImage extends EngineImage>
@@ -25,6 +26,16 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
   protected releaseOwnResources(): void { }
 
   public dispatchCommand(command: DispatcherCommand): void {
+    // Check whether tracing is enabled and log the command. The logic here is a bit tricky as the tracing configuration
+    // lives on the FIM instance, not global. So first try to get the FIM instance to read the tracing settings.
+    const fimShortHandle = HandleBuilder.getFirstShortHandle(command.targetHandle);
+    if (fimShortHandle !== FimObjectType.Engine) {
+      const fim = this.getChildByHandle<EngineFim<TEngineImage>>(fimShortHandle);
+      if (fim.executionOptions.showTracing) {
+        console.log(`Dispatching ${command}`);
+      }
+    }
+
     // Populate required fields of any result
     const resultObject: DispatcherResult = {
       sequenceNumber: command.sequenceNumber,

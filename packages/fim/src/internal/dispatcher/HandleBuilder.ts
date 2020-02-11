@@ -50,6 +50,24 @@ export class HandleBuilder {
   }
 
   /**
+   * Parses a long handle and returns the first short handle
+   * @param handle A long handle created by createObjectHandle()
+   * @returns The short handle of the first object. Returns `undefined` if `handle` is `undefined`.
+   */
+  public static getFirstShortHandle(handle: string): string {
+    if (!handle) {
+      return undefined;
+    }
+
+    const index = handle.indexOf('/');
+    if (index > 0) {
+      return handle.substring(0, index);
+    } else {
+      return handle;
+    }
+  }
+
+  /**
    * Parses a long handle and returns the short handle after the specified short handle
    * @param handle A long handle created by createObjectHandle()
    * @param shortHandle A short handle to find within the long handle

@@ -59,5 +59,19 @@ export function clientAndFactoryBasicSuite(
       client.dispose();
     });
 
+    it('Supports debug mode, including tracing and warnings', () => {
+      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      client.executionOptions.debugMode = true;
+      client.executionOptions.showTracing = true;
+      client.executionOptions.showWarnings = true;
+
+      const image = client.createImage();
+      image.fillSolid('#f00');
+
+      image.releaseAllResources();
+      client.releaseAllResources();
+      client.dispose();
+    });
+
   });
 }

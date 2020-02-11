@@ -18,6 +18,16 @@ describe('HandleBuilder', () => {
     expect(h1 === h2).toBeFalsy();
   });
 
+  it('Implements getFirstShortHandle()', () => {
+    const root = HandleBuilder.createShortObjectHandle('MyObject', 'Root');
+    const child = HandleBuilder.createShortObjectHandle('MyObject', 'Child');
+    const long = HandleBuilder.createObjectHandle(undefined, root, undefined, child); // Undefined are ignored
+
+    expect(HandleBuilder.getFirstShortHandle(long)).toEqual(root);
+    expect(HandleBuilder.getFirstShortHandle(child)).toEqual(child);
+    expect(HandleBuilder.getFirstShortHandle(undefined)).toEqual(undefined);
+  });
+
   it('Implements parseAfter()', () => {
     const root = HandleBuilder.createShortObjectHandle('MyObject', 'Root');
     const child = HandleBuilder.createShortObjectHandle('MyObject', 'Child');
