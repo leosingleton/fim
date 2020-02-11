@@ -65,7 +65,7 @@ export abstract class CoreObject {
     }
 
     // Recurse until we find the leaf node
-    return nextObject.getChildByHandle(handle) as any as TObject;
+    return nextObject.getChildByHandle<TObject>(handle);
   }
 
   /**

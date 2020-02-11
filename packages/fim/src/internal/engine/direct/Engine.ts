@@ -33,7 +33,7 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
 
     try {
       // Attempt to execute the command
-      const destObject = command.targetHandle ? this.getChildByHandle(command.targetHandle) as EngineObject : this;
+      const destObject = command.targetHandle ? this.getChildByHandle<EngineObject>(command.targetHandle) : this;
       const result = destObject.executeCommand(command);
 
       // Return the successful result
