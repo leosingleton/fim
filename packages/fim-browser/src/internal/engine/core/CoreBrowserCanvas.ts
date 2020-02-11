@@ -2,12 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimReleaseResourcesFlags } from '@leosingleton/fim';
-import { CoreCanvas } from '@leosingleton/fim/internals';
+import { CoreCanvas, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvas extends CoreCanvas {
-  protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
+  public dispose() {
+  }
+
+  protected getContext2D(): RenderingContext2D {
     throw new Error('not implemented');
   }
 }

@@ -3,6 +3,6 @@
 // See LICENSE in the project root for license information.
 
 /** The core set of properties that FIM uses on WebGLRenderingContext or similar interfaces */
-export interface WebGLRenderingContextLike extends WebGLRenderingContext {
+export interface RenderingContextWebGL extends WebGLRenderingContext {
   // Just use the same as WebGLRenderingContext for now
 }

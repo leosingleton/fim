@@ -2,8 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CanvasLike } from './CanvasLike';
-import { RenderingContextLike } from './RenderingContextLike';
+import { RenderingContext2D } from './types/RenderingContext2D';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
 import { makeDisposable, IDisposable } from '@leosingleton/commonlibs';
@@ -18,17 +17,11 @@ export abstract class CoreCanvas {
     this.canvasDimensions = canvasDimensions;
   }
 
-  /** Disposes the canvas */
-  public dispose(): void {
-    this.canvasElement.dispose();
-    this.canvasElement = undefined;
-  }
-
   /** Canvas dimensions */
   public readonly canvasDimensions: FimDimensions;
 
-  /** The underlying canvas */
-  public canvasElement: CanvasLike;
+  /** Derived classes must override this method to dispose the canvas */
+  public abstract dispose(): void;
 
   /**
    * Helper function to construct a drawing context
@@ -38,8 +31,8 @@ export abstract class CoreCanvas {
    * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
    */
   public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
-      RenderingContextLike & IDisposable {
-    const ctx = this.canvasElement.getContext('2d');
+      RenderingContext2D & IDisposable {
+    const ctx = this.getContext2D();
     if (!ctx) {
       // Safari on iOS has a limit of 288 MB total for all canvases on a page. It logs this message to the console if
       // connecting to a PC for debugging, but the only errror given to the JavaScript code is returning a null on
@@ -62,4 +55,7 @@ export abstract class CoreCanvas {
 
     return makeDisposable(ctx, ctx => ctx.restore());
   }
+
+  /** Derived classes must override this method to call canvas.getContext('2d') */
+  protected abstract getContext2D(): RenderingContext2D;
 }
