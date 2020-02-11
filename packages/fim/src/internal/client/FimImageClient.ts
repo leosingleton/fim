@@ -30,7 +30,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
    */
   public constructor(fim: Fim<FimImageClient>, dispatcherClient: DispatcherClient, imageDimensions: FimDimensions,
       options: FimImageOptions, objectName?: string) {
-    super(dispatcherClient, FimObjectType.Image, fim.longHandle, objectName);
+    super(dispatcherClient, FimObjectType.Image, fim.handle, objectName);
     this.fim = fim;
     this.imageDimensions = imageDimensions;
     this.imageOptions = options ?? {};
@@ -72,7 +72,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
       color: colorString,
       optimizationHints: {
         canQueue: true,
-        writeHandles: [this.longHandle]
+        writeHandles: [this.handle]
       }
     };
     this.dispatchCommand(command);
@@ -85,7 +85,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
       y,
       optimizationHints: {
         canQueue: false,
-        readHandles: [this.longHandle]
+        readHandles: [this.handle]
       }
     };
     const colorString = await this.dispatchCommandAndWaitAsync(command);
@@ -104,7 +104,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
       color: colorString,
       optimizationHints: {
         canQueue: true,
-        writeHandles: [this.longHandle]
+        writeHandles: [this.handle]
       }
     };
     this.dispatchCommand(command);

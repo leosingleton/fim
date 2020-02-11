@@ -26,58 +26,38 @@ export class HandleBuilder {
 
   /**
    * Creates a long handle containing the full path to an object, starting at the handle of the root object
-   * @param objectHandles Object handles, from root (first) to leaf (last). The parameters may include undefined values,
-   *    which will be silently ignored.
+   * @param objectShortHandles Object short handles, from root (first) to leaf (last). The parameters may include
+   *    `undefined` values, which will be silently ignored.
    * @returns Globally-unique long handle which includes the path to child objects
    */
-  public static createLongObjectHandle(...objectHandles: string[]): string {
-    let longHandle = '';
-    for (const handle of objectHandles) {
+  public static createObjectHandle(...objectShortHandles: string[]): string {
+    let handle = '';
+    for (const shortHandle of objectShortHandles) {
       // Ignore undefined elements in the array
-      if (!handle) {
+      if (!shortHandle) {
         continue;
       }
 
       // Separate objects with slashes
-      if (longHandle) {
-        longHandle += '/';
+      if (handle) {
+        handle += '/';
       }
 
-      longHandle += handle;
+      handle += shortHandle;
     }
 
-    return longHandle;
-  }
-
-  /**
-   * Parses a long handle and separates the root handle
-   * @param longHandle A long handle created by createLongObjectHandle()
-   * @returns `rootHandle` - The object handle of the root node
-   * @returns `longHandle` - Remaining portion of the long handle. May be undefined if there is a single object.
-   */
-  public static parseLongObjectHandle(longHandle: string): { rootHandle: string, longHandle?: string } {
-    const index = longHandle.indexOf('/');
-    if (index === -1) {
-      return {
-        rootHandle: longHandle
-      };
-    } else {
-      return {
-        rootHandle: longHandle.substring(0, index),
-        longHandle: longHandle.substring(index + 1)
-      };
-    }
+    return handle;
   }
 
   /**
    * Parses a long handle and returns the short handle after the specified short handle
-   * @param longHandle A long handle created by createLongObjectHandle()
+   * @param handle A long handle created by createObjectHandle()
    * @param shortHandle A short handle to find within the long handle
    * @returns The short handle of the object following `shortHandle`. If `shortHandle` is `undefined`, then the short
    *    handle of the first object is returned.
    */
-  public static parseAfter(longHandle: string, shortHandle: string): string {
-    const parts = longHandle.split('/');
+  public static parseAfter(handle: string, shortHandle: string): string {
+    const parts = handle.split('/');
     if (!shortHandle) {
       return parts[0];
     }
@@ -92,7 +72,7 @@ export class HandleBuilder {
       }
     }
 
-    throw new FimError(FimErrorCode.AppError, `${shortHandle} not found in ${longHandle}`);
+    throw new FimError(FimErrorCode.AppError, `${shortHandle} not found in ${handle}`);
   }
 
   /** Global counter used to assign a unique handle to objects in FIM */

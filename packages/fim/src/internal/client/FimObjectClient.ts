@@ -17,21 +17,21 @@ export abstract class FimObjectClient implements FimObject {
    * Base constructor for all objects in the FIM API
    * @param dispatcherClient Client wrapper around the backend FIM engine
    * @param objectType A short string indicating the object type, e.g. 'img' for FimImage
-   * @param parentLongHandle Long handle of the parent object. Required if the object has a parent; may be undefined if
-   *    this object is the root.
+   * @param parentHandle Long handle of the parent object. Required if the object has a parent; may be undefined if this
+   *    object is the root.
    * @param objectName Optional name specified when creating the object to help with debugging
    */
-  protected constructor(dispatcherClient: DispatcherClient, objectType: string, parentLongHandle?: string,
+  protected constructor(dispatcherClient: DispatcherClient, objectType: string, parentHandle?: string,
       objectName?: string) {
     // Create a globally-unique handle name
     this.shortHandle = HandleBuilder.createShortObjectHandle(objectType, objectName);
-    this.longHandle = HandleBuilder.createLongObjectHandle(parentLongHandle, this.shortHandle);
+    this.handle = HandleBuilder.createObjectHandle(parentHandle, this.shortHandle);
 
     this.dispatcherClient = dispatcherClient;
   }
 
   public readonly shortHandle: string;
-  public readonly longHandle: string;
+  public readonly handle: string;
 
   /** Back-end FIM engine */
   protected dispatcherClient: DispatcherClient;
@@ -68,7 +68,7 @@ export abstract class FimObjectClient implements FimObject {
    * @param command Command to dispatch
    */
   protected dispatchCommand(command: DispatcherCommandBase): void {
-    this.dispatcherClient.dispatchCommand(this.longHandle, command);
+    this.dispatcherClient.dispatchCommand(this.handle, command);
   }
 
   /**
@@ -77,6 +77,6 @@ export abstract class FimObjectClient implements FimObject {
    * @returns Result of the command
    */
   protected dispatchCommandAndWaitAsync(command: DispatcherCommandBase): Promise<any> {
-    return this.dispatcherClient.dispatchCommandAndWaitAsync(this.longHandle, command);
+    return this.dispatcherClient.dispatchCommandAndWaitAsync(this.handle, command);
   }
 }

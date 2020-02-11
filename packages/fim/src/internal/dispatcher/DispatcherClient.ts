@@ -23,22 +23,22 @@ export class DispatcherClient {
 
   /**
    * Dispatches a command to the back-end rendering engine
-   * @param longHandle Long handle of the object to send the command to
+   * @param targetHandle Long handle of the object to send the command to
    * @param command Command to dispatch
    */
-  public dispatchCommand(longHandle: string, command: DispatcherCommandBase): void {
-    const fullCommand = this.buildCommandForDispatch(longHandle, command);
+  public dispatchCommand(targetHandle: string, command: DispatcherCommandBase): void {
+    const fullCommand = this.buildCommandForDispatch(targetHandle, command);
     this.dispatcher.dispatchCommand(fullCommand);
   }
 
   /**
    * Dispatches a command to the back-end rendering engine and blocks until it completes
-   * @param longHandle Long handle of the object to send the command to
+   * @param handle Long handle of the object to send the command to
    * @param command Command to dispatch
    * @returns Result of the command
    */
-  public async dispatchCommandAndWaitAsync(longHandle: string, command: DispatcherCommandBase): Promise<any> {
-    const fullCommand = this.buildCommandForDispatch(longHandle, command);
+  public async dispatchCommandAndWaitAsync(targetHandle: string, command: DispatcherCommandBase): Promise<any> {
+    const fullCommand = this.buildCommandForDispatch(targetHandle, command);
 
     // Build and register a waiter object
     const waiter = new ClientWaiter();
@@ -56,15 +56,15 @@ export class DispatcherClient {
   }
 
   /** Helper function for dispatchCommand() and dispatchCommandAndWaitAsync() */
-  private buildCommandForDispatch(longHandle: string, command: DispatcherCommandBase): DispatcherCommand {
+  private buildCommandForDispatch(targetHandle: string, command: DispatcherCommandBase): DispatcherCommand {
     const dispatcher = this.dispatcher;
     if (!dispatcher) {
-      throw new FimError(FimErrorCode.AppError, `${longHandle} is disposed`);
+      throw new FimError(FimErrorCode.AppError, `${targetHandle} is disposed`);
     }
 
     // Add additional properties
     const fullCommand = command as DispatcherCommand;
-    fullCommand.longHandle = fullCommand.longHandle ?? longHandle;
+    fullCommand.targetHandle = fullCommand.targetHandle ?? targetHandle;
     fullCommand.sequenceNumber = fullCommand.sequenceNumber ?? this.sequenceNumber++;
 
     return fullCommand;

@@ -18,7 +18,7 @@ export abstract class CoreObject {
    */
   public constructor(shortHandle: string, parent?: CoreObject) {
     this.shortHandle = shortHandle;
-    this.longHandle = parent ? HandleBuilder.createLongObjectHandle(parent.longHandle, shortHandle) : shortHandle;
+    this.handle = parent ? HandleBuilder.createObjectHandle(parent.handle, shortHandle) : shortHandle;
     this.parentObject = parent;
 
     // If we are not root, add a reference to ourselves from our parent object
@@ -31,7 +31,7 @@ export abstract class CoreObject {
   public readonly shortHandle: string;
 
   /** Handle including the full path from parent to child objects */
-  public readonly longHandle: string;
+  public readonly handle: string;
 
   /**
    * Called by a child object from its constructor to register its handle with its parent
@@ -51,28 +51,28 @@ export abstract class CoreObject {
 
   /**
    * Returns a child object by its long handle
-   * @param longHandle Long handle of child object
+   * @param handle Long handle of child object
    */
-  public getChildByHandle(longHandle: string): CoreObject {
+  public getChildByHandle(handle: string): CoreObject {
     // Extract the next child in the long handle
-    const nextHandle = HandleBuilder.parseAfter(longHandle, this.shortHandle);
+    const nextHandle = HandleBuilder.parseAfter(handle, this.shortHandle);
     if (!nextHandle) {
       return this;
     }
     const nextObject = this.childObjects[nextHandle];
     if (!nextObject) {
-      throw new FimError(FimErrorCode.AppError, `Invalid handle ${longHandle}`);
+      throw new FimError(FimErrorCode.AppError, `Invalid handle ${handle}`);
     }
 
     // Recurse until we find the leaf node
-    return nextObject.getChildByHandle(longHandle);
+    return nextObject.getChildByHandle(handle);
   }
 
   /**
    * Hash table of short handles to child objects. To recursively search this hash table using a long handle, see
    * getChildByHandle().
    */
-  private childObjects: { [handle: string]: CoreObject } = {};
+  private childObjects: { [shortHandle: string]: CoreObject } = {};
 
   /** Parent object. Undefined for the root object. */
   public parentObject: CoreObject;
@@ -100,8 +100,8 @@ export abstract class CoreObject {
   /** Completely disposes all memory and GPU resources */
   public dispose(): void {
     // Recursively dispose child objects first
-    for (const childHandle in this.childObjects) {
-      this.childObjects[childHandle].dispose();
+    for (const childShortHandle in this.childObjects) {
+      this.childObjects[childShortHandle].dispose();
     }
 
     // Release our own resources

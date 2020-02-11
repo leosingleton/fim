@@ -45,7 +45,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     // of the new FIM instance and comes from the root Engine object.
     const command: CommandCreate & DispatcherCommand = {
       sequenceNumber: 0,
-      longHandle: FimObjectType.Engine,
+      targetHandle: FimObjectType.Engine,
       opcode: DispatcherOpcodes.Create,
       fimShortHandle: this.shortHandle,
       optimizationHints: {

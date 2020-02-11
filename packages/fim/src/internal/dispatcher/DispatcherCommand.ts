@@ -10,5 +10,5 @@ export interface DispatcherCommand extends DispatcherCommandBase {
   sequenceNumber: number;
 
   /** Full handle of the object to execute the command */
-  longHandle: string;
+  targetHandle: string;
 }
