@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimNodeFactory } from '../factory/FimNodeFactory';
-import { CoreNodeCanvas } from '../internal/engine/core/CoreNodeCanvas';
+import { CoreNodeCanvas2D } from '../internal/engine/core/CoreNodeCanvas2D';
 import { clientAndFactoryBasicSuite, coreCanvas2D } from '@leosingleton/fim-common-tests';
 
 clientAndFactoryBasicSuite('Client and Factory Basic suite for Node (no optimizations)',
@@ -12,4 +12,4 @@ clientAndFactoryBasicSuite('Client and Factory Basic suite for Node (no optimiza
 clientAndFactoryBasicSuite('Client and Factory Basic suite for Node',
   (maxImageDimensions) => FimNodeFactory.create(maxImageDimensions));
 
-coreCanvas2D('CoreNodeCanvas', (dimensions, imageHandle) => new CoreNodeCanvas(dimensions, imageHandle));
+coreCanvas2D('CoreNodeCanvas2D', (dimensions, imageHandle) => new CoreNodeCanvas2D(dimensions, imageHandle));

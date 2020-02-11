@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas } from '@leosingleton/fim/build/internal';
+import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 
 /**
  * Executes a suite of common tests using the CoreCanvas2D objects created via factory methods
@@ -12,7 +12,7 @@ import { CoreCanvas } from '@leosingleton/fim/build/internal';
  */
 export function coreCanvas2D(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas
+  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas2D
 ): void {
   describe(description, () => {
 

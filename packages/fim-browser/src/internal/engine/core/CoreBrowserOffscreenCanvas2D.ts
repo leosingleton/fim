@@ -3,13 +3,13 @@
 // See LICENSE in the project root for license information.
 
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
 
 /** Wrapper around the browser's OffscreenCanvas */
-export class CoreBrowserOffscreenCanvas extends CoreCanvas {
+export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
   public constructor(canvasDimensions: FimDimensions, imageHandle: string) {
     super(canvasDimensions, imageHandle);
     this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
@@ -25,7 +25,7 @@ export class CoreBrowserOffscreenCanvas extends CoreCanvas {
     this.canvasElement = undefined;
   }
 
-  protected getContext2D(): RenderingContext2D {
+  protected getContext(): RenderingContext2D {
     return this.canvasElement.getContext('2d');
   }
 }

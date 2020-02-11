@@ -4,10 +4,10 @@
 
 import { CanvasType, DisposableCanvas, domCanvasPool } from './DomCanvasPool';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
-export class CoreBrowserCanvas extends CoreCanvas {
+export class CoreBrowserCanvas2D extends CoreCanvas2D {
   public constructor(canvasDimensions: FimDimensions, imageHandle: string) {
     super(canvasDimensions, imageHandle);
 
@@ -28,7 +28,7 @@ export class CoreBrowserCanvas extends CoreCanvas {
     this.canvasElement = undefined;
   }
 
-  protected getContext2D(): RenderingContext2D {
+  protected getContext(): RenderingContext2D {
     return this.canvasElement.getContext('2d');
   }
 }
