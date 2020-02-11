@@ -4,14 +4,16 @@
 
 import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
-import { CommandImageFillSolid } from '../../commands/CommandImageFillSolid';
-import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
-import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
+import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptions';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimColor } from '../../../primitives/FimColor';
+import { CommandImageFillSolid } from '../../commands/CommandImageFillSolid';
+import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { CommandImageGetPixel } from '../../commands/CommandImageGetPixel';
 import { CommandImageSetOptions } from '../../commands/CommandImageSetOptions';
 import { CommandImageSetPixel } from '../../commands/CommandImageSetPixel';
+import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Backend instance of an image */
 export abstract class EngineImage extends EngineObject {
@@ -24,10 +26,16 @@ export abstract class EngineImage extends EngineObject {
   public constructor(shortHandle: string, fim: EngineFim<EngineImage>, imageDimensions: FimDimensions) {
     super(shortHandle, fim);
     this.imageDimensions = imageDimensions;
+
+    // Initialize the image options to defaults. We will use these until we receive a SetImageOptions command.
+    this.imageOptions = deepCopy(defaultImageOptions);
   }
 
   /** Image dimensions */
   public readonly imageDimensions: FimDimensions;
+
+  /** Image options */
+  public imageOptions: FimImageOptions;
 
   //
   // Internally, the image contents has three different representations:
@@ -76,8 +84,8 @@ export abstract class EngineImage extends EngineObject {
     throw new Error('not implemented');
   }
 
-  private commandSetOptions(_command: CommandImageSetOptions): void {
-    throw new Error('not implemented');
+  private commandSetOptions(command: CommandImageSetOptions): void {
+    this.imageOptions = command.imageOptions;
   }
 
   private commandSetPixel(_command: CommandImageSetPixel): void {

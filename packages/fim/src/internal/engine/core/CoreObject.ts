@@ -53,11 +53,11 @@ export abstract class CoreObject {
    * Returns a child object by its long handle
    * @param handle Long handle of child object
    */
-  public getChildByHandle(handle: string): CoreObject {
+  public getChildByHandle<TObject extends CoreObject>(handle: string): TObject {
     // Extract the next child in the long handle
     const nextHandle = HandleBuilder.parseAfter(handle, this.shortHandle);
     if (!nextHandle) {
-      return this;
+      return this as any as TObject;
     }
     const nextObject = this.childObjects[nextHandle];
     if (!nextObject) {
@@ -65,7 +65,7 @@ export abstract class CoreObject {
     }
 
     // Recurse until we find the leaf node
-    return nextObject.getChildByHandle(handle);
+    return nextObject.getChildByHandle(handle) as any as TObject;
   }
 
   /**

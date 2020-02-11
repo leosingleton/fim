@@ -5,10 +5,13 @@
 import { Engine } from './Engine';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
+import { FimExecutionOptions, defaultExecutionOptions } from '../../../api/FimExecutionOptions';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { CommandCreateImage } from '../../commands/CommandCreateImage';
+import { CommandSetExecutionOptions } from '../../commands/CommandSetExecutionOptions';
 import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Backend instance of the FIM engine */
 export abstract class EngineFim<TEngineImage extends EngineImage> extends EngineObject {
@@ -19,12 +22,22 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
    */
   public constructor(shortHandle: string, engine: Engine<EngineFim<TEngineImage>, TEngineImage>) {
     super(shortHandle, engine);
+
+    // Initialize the FIM execution options to defaults. We will use these until we receive a SetExecutionOptions
+    // command.
+    this.executionOptions = deepCopy(defaultExecutionOptions);
   }
+
+  /** Options for the FIM execution engine */
+  public executionOptions: FimExecutionOptions;
 
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
       case DispatcherOpcodes.CreateImage:
         return this.commandCreateImage(command as any as CommandCreateImage);
+
+      case DispatcherOpcodes.SetExecutionOptions:
+        return this.commandSetExecutionOptions(command as any as CommandSetExecutionOptions);
 
       default:
         return super.executeCommand(command);
@@ -38,4 +51,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(shortHandle: string, imageDimensions: FimDimensions): TEngineImage;
+
+  private commandSetExecutionOptions(command: CommandSetExecutionOptions): void {
+    this.executionOptions = command.executionOptions;
+  }
 }
