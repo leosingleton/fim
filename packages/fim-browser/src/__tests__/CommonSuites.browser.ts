@@ -5,9 +5,9 @@
 import { FimBrowserFactory } from '../factory/FimBrowserFactory';
 import { clientAndFactoryBasicSuite } from '@leosingleton/fim-common-tests';
 
-clientAndFactoryBasicSuite('Client and Factory Basic suite for Browsers',
-  (maxImageDimensions) => FimBrowserFactory.create(maxImageDimensions));
-
 clientAndFactoryBasicSuite('Client and Factory Basic suite for Browsers (no optimizations)',
   (maxImageDimensions) => FimBrowserFactory.create(maxImageDimensions, 'NoOptimizations',
     { disableOptimizations: true }));
+
+clientAndFactoryBasicSuite('Client and Factory Basic suite for Browsers',
+  (maxImageDimensions) => FimBrowserFactory.create(maxImageDimensions));
