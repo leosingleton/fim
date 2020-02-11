@@ -3,9 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { RenderingContext2D } from './types/RenderingContext2D';
+import { FimColor } from '../../../primitives/FimColor';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
-import { makeDisposable, IDisposable } from '@leosingleton/commonlibs';
+import { makeDisposable, IDisposable, using } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas {
@@ -63,4 +64,18 @@ export abstract class CoreCanvas {
 
   /** Derived classes must override this method to call canvas.getContext('2d') */
   protected abstract getContext2D(): RenderingContext2D;
+
+  /**
+   * Helper function to fill a canvas with a solid color
+   * @param color Fill color
+   */
+  public fillCanvas(color: FimColor | string): void {
+    // Force color to be a string
+    const colorString = (typeof(color) === 'string') ? color : color.string;
+
+    using(this.createDrawingContext2D(), ctx => {
+      ctx.fillStyle = colorString;
+      ctx.fillRect(0, 0, this.canvasDimensions.w, this.canvasDimensions.h);
+    });
+  }
 }
