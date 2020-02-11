@@ -15,14 +15,15 @@ export interface FimImage extends FimObject {
   /**
    * Image options
    *
-   * Note that these properties are read/write. The application may attempt to change them after image creation,
-   * however changes are not guaranteed to take effect immediately. Generally options take effect on the next method
-   * call, however some require calling releaseResources() to recreate the back-end objects altogether.
+   * Note that these properties are read/write, despite the reference to the object being read-only. The application may
+   * attempt to change them after image creation, however changes are not guaranteed to take effect immediately.
+   * Generally options take effect on the next method call, however some require calling releaseResources() to recreate
+   * the back-end objects altogether.
    *
    * Also note that an undefined value here inherits the value from the parent FIM class, including any changes that may
    * occur to the global defaultImageOptions.
    */
-  imageOptions: FimImageOptions;
+  readonly imageOptions: FimImageOptions;
 
   /**
    * Fills the image with a solid color

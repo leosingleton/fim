@@ -37,7 +37,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
   }
 
   public readonly imageDimensions: FimDimensions;
-  public imageOptions: FimImageOptions;
+  public readonly imageOptions: FimImageOptions;
 
   private fim: Fim<FimImageClient>;
 

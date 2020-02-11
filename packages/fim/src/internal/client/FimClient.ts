@@ -56,8 +56,8 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
   }
 
   public readonly maxImageDimensions: FimDimensions;
-  public executionOptions: FimExecutionOptions;
-  public defaultImageOptions: FimImageOptions;
+  public readonly executionOptions: FimExecutionOptions;
+  public readonly defaultImageOptions: FimImageOptions;
 
   protected dispatchCommand(command: DispatcherCommandBase): void {
     // Check whether the executionOptions have changed. If so, update the backend rendering engine.

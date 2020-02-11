@@ -19,14 +19,20 @@ export interface Fim<TImage extends FimImage> extends FimObject {
   /**
    * Options for the FIM execution engine
    *
-   * Note that these properties are read/write. The application may attempt to change them after creating objects,
-   * however changes are not guaranteed to take effect immediately. Generally options take effect on the next method
-   * call, however some require calling releaseResources() to recreate the back-end objects altogether.
+   * Note that these properties are read/write, despite the reference to the object being read-only. The application may
+   * attempt to change them after creating objects, however changes are not guaranteed to take effect immediately.
+   * Generally options take effect on the next method call, however some require calling releaseResources() to recreate
+   * the back-end objects altogether.
    */
-  executionOptions: FimExecutionOptions;
+  readonly executionOptions: FimExecutionOptions;
 
-  /** Default image options. Values here are used unless overridden within the image itself.  */
-  defaultImageOptions: FimImageOptions;
+  /**
+   * Default image options.
+   *
+   * Note that these properties are read/write, despite the reference to the object being read-only. Values here are
+   * used unless overridden within the image itself.
+   */
+  readonly defaultImageOptions: FimImageOptions;
 
   /**
    * Creates a new image
