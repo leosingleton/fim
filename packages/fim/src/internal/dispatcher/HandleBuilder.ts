@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimError, FimErrorCode } from '../../primitives/FimError';
+
 /** Helper functions for working with handle strings */
 export class HandleBuilder {
   /**
@@ -65,6 +67,32 @@ export class HandleBuilder {
         longHandle: longHandle.substring(index + 1)
       };
     }
+  }
+
+  /**
+   * Parses a long handle and returns the short handle after the specified short handle
+   * @param longHandle A long handle created by createLongObjectHandle()
+   * @param shortHandle A short handle to find within the long handle
+   * @returns The short handle of the object following `shortHandle`. If `shortHandle` is `undefined`, then the short
+   *    handle of the first object is returned.
+   */
+  public static parseAfter(longHandle: string, shortHandle: string): string {
+    const parts = longHandle.split('/');
+    if (!shortHandle) {
+      return parts[0];
+    }
+
+    for (let n = 0; n < parts.length; n++) {
+      if (parts[n] === shortHandle) {
+        if (n + 1 < parts.length) {
+          return parts[n + 1];
+        } else {
+          return undefined;
+        }
+      }
+    }
+
+    throw new FimError(FimErrorCode.AppError, `${shortHandle} not found in ${longHandle}`);
   }
 
   /** Global counter used to assign a unique handle to objects in FIM */

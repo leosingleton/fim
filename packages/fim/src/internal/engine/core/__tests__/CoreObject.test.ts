@@ -26,7 +26,7 @@ describe('CoreObject', () => {
     const parent = new MyObject('Parent');
     const child = new MyObject('Child', parent);
     expect(child.parentObject).toBe(parent);
-    expect(parent.getChildByHandle('Child')).toBe(child);
+    expect(parent.getChildByHandle('Parent/Child')).toBe(child);
   });
 
   it('Recursively releases resources', () => {
@@ -39,7 +39,7 @@ describe('CoreObject', () => {
     expect(child.resources).toBeUndefined();
 
     // Child handle is still valid
-    expect(parent.getChildByHandle('Child')).toBe(child);
+    expect(parent.getChildByHandle('Parent/Child')).toBe(child);
   });
 
   it('Recursively disposes', () => {

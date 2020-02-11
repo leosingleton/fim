@@ -15,21 +15,21 @@ export abstract class EngineObject extends CoreObject {
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
       case DispatcherOpcodes.Dispose:
-        return this.disposeCommand(command as any as CommandDispose);
+        return this.commandDisposeCommand(command as any as CommandDispose);
 
       case DispatcherOpcodes.ReleaseResources:
-        return this.releaseResourcesCommand(command as any as CommandReleaseResources);
+        return this.commandReleaseResourcesCommand(command as any as CommandReleaseResources);
 
       default:
         throw new FimError(FimErrorCode.AppError, `Invalid op ${command.opcode}`);
     }
   }
 
-  private disposeCommand(_command: CommandDispose): void {
+  private commandDisposeCommand(_command: CommandDispose): void {
     this.dispose();
   }
 
-  private releaseResourcesCommand(command: CommandReleaseResources): void {
+  private commandReleaseResourcesCommand(command: CommandReleaseResources): void {
     this.releaseResources(command.flags);
   }
 }

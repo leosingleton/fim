@@ -64,8 +64,8 @@ export class DispatcherClient {
 
     // Add additional properties
     const fullCommand = command as DispatcherCommand;
-    fullCommand.longHandle = longHandle;
-    fullCommand.sequenceNumber = this.sequenceNumber++;
+    fullCommand.longHandle = fullCommand.longHandle ?? longHandle;
+    fullCommand.sequenceNumber = fullCommand.sequenceNumber ?? this.sequenceNumber++;
 
     return fullCommand;
   }

@@ -24,14 +24,14 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
       case DispatcherOpcodes.CreateImage:
-        return this.createImage(command as any as CommandCreateImage);
+        return this.commandCreateImage(command as any as CommandCreateImage);
 
       default:
         return super.executeCommand(command);
     }
   }
 
-  private createImage(command: CommandCreateImage): void {
+  private commandCreateImage(command: CommandCreateImage): void {
     const image = this.createEngineImage(command.imageHandle, command.imageDimensions);
     this.addChild(image);
   }

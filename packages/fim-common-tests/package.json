@@ -1,5 +1,5 @@
 {
-  "name": "@leosingleton/fim-browser",
+  "name": "@leosingleton/fim-common-tests",
   "version": "2.0.0-alpha",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "Fast Image Manipulation Library for JavaScript",
@@ -9,9 +9,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/leosingleton/fim.git"
-  },
-  "devDependencies": {
-    "@leosingleton/fim-common-tests": "^2.0.0-alpha"
   },
   "dependencies": {
     "@leosingleton/fim": "^2.0.0-alpha"

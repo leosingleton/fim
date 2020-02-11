@@ -33,7 +33,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     // This is the root object. Create the dispatcher client, which will be shared by child objects.
     const dispatcherClient = new DispatcherClient(dispatcher);
 
-    super(dispatcherClient, FimObjectType.Fim, objectName);
+    super(dispatcherClient, FimObjectType.Fim, FimObjectType.Engine, objectName);
     this.maxImageDimensions = maxImageDimensions;
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
@@ -42,10 +42,10 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     this.defaultImageOptions = defaultImageOptions;
 
     // The Create command is special and is sent from the contructor itself. It simply informs the backend of the handle
-    // of the new FIM instance and comes from an undefined parent object.
+    // of the new FIM instance and comes from the root Engine object.
     const command: CommandCreate & DispatcherCommand = {
       sequenceNumber: 0,
-      longHandle: undefined,
+      longHandle: FimObjectType.Engine,
       opcode: DispatcherOpcodes.Create,
       fimHandle: this.handle,
       optimizationHints: {

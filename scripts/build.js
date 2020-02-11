@@ -6,6 +6,7 @@ const cp = require('child_process');
 /** NPM packages, in build order */
 const packages = [
   'fim',
+  'fim-common-tests',
   'fim-browser',
   'fim-node'
 ];

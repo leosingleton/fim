@@ -6,3 +6,4 @@
 
 export { FimBrowser } from './api/FimBrowser';
 export { FimBrowserImage } from './api/FimBrowserImage';
+export { FimBrowserFactory } from './factory/FimBrowserFactory';

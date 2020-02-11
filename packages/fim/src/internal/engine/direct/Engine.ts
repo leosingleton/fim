@@ -51,14 +51,14 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
       case DispatcherOpcodes.Create:
-        return this.create(command as any as CommandCreate);
+        return this.commandCreate(command as any as CommandCreate);
 
       default:
         return super.executeCommand(command);
     }
   }
 
-  private create(command: CommandCreate): void {
+  private commandCreate(command: CommandCreate): void {
     const fim = this.createEngineFim(command.fimHandle);
     this.addChild(fim);
   }

@@ -6,3 +6,4 @@
 
 export { FimNode } from './api/FimNode';
 export { FimNodeImage } from './api/FimNodeImage';
+export { FimNodeFactory } from './factory/FimNodeFactory';

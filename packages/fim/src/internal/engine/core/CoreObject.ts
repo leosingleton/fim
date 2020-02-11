@@ -55,19 +55,17 @@ export abstract class CoreObject {
    */
   public getChildByHandle(longHandle: string): CoreObject {
     // Extract the next child in the long handle
-    const nextHandle = HandleBuilder.parseLongObjectHandle(longHandle);
-    const nextObject = this.childObjects[nextHandle.rootHandle];
+    const nextHandle = HandleBuilder.parseAfter(longHandle, this.handle);
+    if (!nextHandle) {
+      return this;
+    }
+    const nextObject = this.childObjects[nextHandle];
     if (!nextObject) {
       throw new FimError(FimErrorCode.AppError, `Invalid handle ${longHandle}`);
     }
 
-    // If we've found the lead node, return it
-    if (!nextHandle.longHandle) {
-      return nextObject;
-    }
-
     // Recurse until we find the leaf node
-    return nextObject.getChildByHandle(nextHandle.longHandle);
+    return nextObject.getChildByHandle(longHandle);
   }
 
   /**

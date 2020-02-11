@@ -32,4 +32,15 @@ describe('HandleBuilder', () => {
     expect(parsed2.longHandle).toBeUndefined();
   });
 
+  it('Implements parseAfter()', () => {
+    const root = HandleBuilder.createObjectHandle('MyObject', 'Root');
+    const child = HandleBuilder.createObjectHandle('MyObject', 'Child');
+    const long = HandleBuilder.createLongObjectHandle(root, undefined, child, undefined); // Undefined are ignored
+
+    expect(HandleBuilder.parseAfter(long, root)).toEqual(child);
+    expect(HandleBuilder.parseAfter(long, child)).toBeUndefined();
+    expect(HandleBuilder.parseAfter(long, undefined)).toEqual(root);
+    expect(() => HandleBuilder.parseAfter(long, 'SomethingElse')).toThrow();
+  });
+
 });
