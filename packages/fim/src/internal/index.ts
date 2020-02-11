@@ -18,7 +18,6 @@ export { DispatcherOptimizationHints } from './dispatcher/DispatcherOptimization
 export { DispatcherResult } from './dispatcher/DispatcherResult';
 export { CanvasLike } from './engine/core/CanvasLike';
 export { CoreCanvas } from './engine/core/CoreCanvas';
-export { CoreGLCanvas } from './engine/core/CoreGLCanvas';
 export { Engine } from './engine/direct/Engine';
 export { EngineFim } from './engine/direct/EngineFim';
 export { EngineImage } from './engine/direct/EngineImage';
