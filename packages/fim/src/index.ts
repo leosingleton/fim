@@ -7,6 +7,7 @@
 export { Fim } from './api/Fim';
 export { FimExecutionOptions } from './api/FimExecutionOptions';
 export { FimExecutionStrategy } from './api/FimExecutionStrategy';
+export { FimFactoryOptions } from './api/FimFactoryOptions';
 export { FimImage } from './api/FimImage';
 export { FimImageOptions } from './api/FimImageOptions';
 export { FimObject } from './api/FimObject';
