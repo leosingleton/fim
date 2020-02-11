@@ -41,7 +41,7 @@ export abstract class FimObjectClient implements FimObject {
       opcode: DispatcherOpcodes.ReleaseResources,
       flags,
       optimizationHints: {
-        canQueue: true
+        canQueue: false
       }
     };
     this.dispatchCommand(command);
@@ -55,7 +55,7 @@ export abstract class FimObjectClient implements FimObject {
     const command: CommandDispose = {
       opcode: DispatcherOpcodes.Dispose,
       optimizationHints: {
-        canQueue: true
+        canQueue: false
       }
     };
     this.dispatchCommand(command);
