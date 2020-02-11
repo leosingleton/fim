@@ -15,13 +15,13 @@ export class HandleBuilder {
   public static createShortObjectHandle(objectType: string, objectName?: string): string {
     // Create a globally-unique handle name. Although really, only the global handle count is needed, we add the object
     // type and name to make it easier to debug.
-    let handle = `${objectType}.${HandleBuilder.globalHandleCount++}`;
+    let shortHandle = `${objectType}.${HandleBuilder.globalHandleCount++}`;
     if (objectName) {
-      handle += `.${objectName}`;
+      shortHandle += `.${objectName}`;
     }
 
     // Replace slashes with underscores as slashes are used in the long handle format
-    return handle.replace('/', '_');
+    return shortHandle.replace('/', '_');
   }
 
   /**
@@ -31,6 +31,16 @@ export class HandleBuilder {
    * @returns Globally-unique long handle which includes the path to child objects
    */
   public static createObjectHandle(...objectShortHandles: string[]): string {
+    return this.createObjectHandleFromArray(objectShortHandles);
+  }
+
+  /**
+   * Creates a long handle containing the full path to an object, starting at the handle of the root object
+   * @param objectShortHandles Object short handles, from root (first) to leaf (last). The array may include
+   *    `undefined` values, which will be silently ignored.
+   * @returns Globally-unique long handle which includes the path to child objects
+   */
+  public static createObjectHandleFromArray(objectShortHandles: string[]): string {
     let handle = '';
     for (const shortHandle of objectShortHandles) {
       // Ignore undefined elements in the array
@@ -50,20 +60,37 @@ export class HandleBuilder {
   }
 
   /**
-   * Parses a long handle and returns the first short handle
+   * Parses a long handle and returns a short handle
    * @param handle A long handle created by createObjectHandle()
-   * @returns The short handle of the first object. Returns `undefined` if `handle` is `undefined`.
+   * @returns The short handle of the object referenced by this handle. Returns `undefined` if `handle` is `undefined`.
    */
-  public static getFirstShortHandle(handle: string): string {
+  public static getShortHandle(handle: string): string {
     if (!handle) {
       return undefined;
     }
 
-    const index = handle.indexOf('/');
-    if (index > 0) {
-      return handle.substring(0, index);
+    const shortHandles = handle.split('/');
+    return shortHandles[shortHandles.length - 1];
+  }
+
+  /**
+   * Parses a long handle and returns the long handle at the requested position
+   * @param handle A long handle created by createObjectHandle()
+   * @param index Zero-based index of the position within the long handle, e.g. 0 returns the short handle of the first
+   *    object
+   * @returns The long handle of the object at the requested position. Returns `undefined` if `handle` is `undefined`
+   *    contains fewer than `index` objects.
+   */
+  public static getHandleAtPosition(handle: string, index: number): string {
+    if (!handle) {
+      return undefined;
+    }
+
+    const shortHandles = handle.split('/');
+    if (index < shortHandles.length) {
+      return this.createObjectHandleFromArray(shortHandles.slice(0, index + 1));
     } else {
-      return handle;
+      return undefined;
     }
   }
 
