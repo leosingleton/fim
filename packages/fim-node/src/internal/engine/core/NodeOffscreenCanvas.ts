@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CanvasLike } from '@leosingleton/fim/build/internal';
+import { CanvasLike, RenderingContextLike, WebGLRenderingContextLike } from '@leosingleton/fim/build/internal';
 import { Canvas, createCanvas, createImageData } from 'canvas';
 import createContext from 'gl';
 
@@ -102,7 +102,8 @@ export class NodeOffscreenCanvas implements CanvasLike {
     return new Blob([buffer], { type: options ? options.type || MimeTypes.PNG : MimeTypes.PNG });
   }
 
-  public getContext(contextId: OffscreenRenderingContextId, options?: any): OffscreenRenderingContext {
+  public getContext(contextId: OffscreenRenderingContextId, options?: any): RenderingContextLike |
+      WebGLRenderingContextLike {
     if (this.contextId && this.contextId !== contextId) {
       throw new Error('Invalid contextId');
     }
@@ -141,24 +142,6 @@ export class NodeOffscreenCanvas implements CanvasLike {
 
     this.contextId = contextId;
     return context;
-  }
-
-  public transferToImageBitmap(): ImageBitmap {
-    throw new Error('Not Implemented');
-  }
-
-  public addEventListener(_type: string, _listener: EventListenerOrEventListenerObject,
-      _options?: boolean | EventListenerOptions): void {
-
-  }
-
-  public dispatchEvent(_event: Event): boolean {
-    return true;
-  }
-
-  public removeEventListener(_type: string, _listener: EventListenerOrEventListenerObject,
-      _options?: boolean | EventListenerOptions): void {
-
   }
 
   private invalidContextId(): never {
