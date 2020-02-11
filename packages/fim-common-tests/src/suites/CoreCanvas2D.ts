@@ -22,7 +22,7 @@ export function coreCanvas2D(
     });
 
     it('Gets and sets pixels', () => {
-      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Creates and disposes`);
+      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Gets and sets pixels`);
       canvas.setPixel(50, 50, FimColor.fromString('#f0f'));
       const color = canvas.getPixel(50, 50);
       expect(color.r).toEqual(255);
@@ -33,7 +33,7 @@ export function coreCanvas2D(
     });
 
     it('Fills with solid colors', () => {
-      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Creates and disposes`);
+      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Fills with solid colors`);
       canvas.fillCanvas(FimColor.fromString('#0f0'));
       const color = canvas.getPixel(50, 50);
       expect(color.r).toEqual(0);
