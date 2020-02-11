@@ -53,10 +53,10 @@ export abstract class CoreCanvas {
     // support it well...
     // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
     const ctxAny = ctx as any;
-    ctxAny['imageSmoothingEnabled'] = imageSmoothingEnabled;
-    ctxAny['mozImageSmoothingEnabled'] = imageSmoothingEnabled;
-    ctxAny['webkitImageSmoothingEnabled'] = imageSmoothingEnabled;
-    ctxAny['msImageSmoothingEnabled'] = imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = imageSmoothingEnabled;
+    ctxAny.mozImageSmoothingEnabled = imageSmoothingEnabled;
+    ctxAny.webkitImageSmoothingEnabled = imageSmoothingEnabled;
+    ctxAny.msImageSmoothingEnabled = imageSmoothingEnabled;
 
     return makeDisposable(ctx, ctx => ctx.restore());
   }

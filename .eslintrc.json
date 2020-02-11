@@ -1,6 +1,6 @@
 {
   "extends": [
-    "eslint-config-leosingleton/mangle-props"
+    "eslint-config-leosingleton"
   ],
   "env": {
     "shared-node-browser": true
