@@ -45,7 +45,7 @@
     "clean": "rm -rf ./build ./packages/*/build",
     "lint": "npx eslint . --ext js,ts",
     "test": "npm run build && npm run test:node && npm run test:browser",
-    "test:browser": "npx webpack --mode=development --config=webpack.karma.js && npx karma start",
+    "test:browser": "npx webpack --config=webpack.karma.js && npx karma start",
     "test:node": "npx jest"
   }
 }
