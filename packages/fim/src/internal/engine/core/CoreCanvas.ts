@@ -78,4 +78,40 @@ export abstract class CoreCanvas {
       ctx.fillRect(0, 0, this.canvasDimensions.w, this.canvasDimensions.h);
     });
   }
+
+  /**
+   * Gets the pixel color at the specified coordinate
+   * @param x X-coordinate, in pixels
+   * @param y Y-coordinate, in pixels
+   * @returns Pixel color
+   */
+  public getPixel(x: number, y: number): FimColor {
+    let result: FimColor;
+
+    using(this.createDrawingContext2D(), ctx => {
+      const imgData = ctx.getImageData(x, y, 1, 1);
+      const data = imgData.data;
+      result = FimColor.fromRGBABytes(data[0], data[1], data[2], data[3]);
+    });
+
+    return result;
+  }
+
+  /**
+   * Sets the pixel color at the specified coordinate
+   * @param x X-coordinate, in pixels
+   * @param y Y-coordinate, in pixels
+   * @param color Pixel color
+   */
+  public setPixel(x: number, y: number, color: FimColor): void {
+    using(this.createDrawingContext2D(), ctx => {
+      const imgData = ctx.createImageData(1, 1);
+      const data = imgData.data;
+      data[0] = color.r;
+      data[1] = color.g;
+      data[2] = color.b;
+      data[3] = color.a;
+      ctx.putImageData(imgData, x, y);
+    });
+  }
 }
