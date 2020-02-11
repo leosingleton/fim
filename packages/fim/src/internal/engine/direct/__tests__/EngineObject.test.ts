@@ -2,11 +2,11 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CoreObject } from '../CoreObject';
+import { EngineObject } from '../EngineObject';
 import { FimReleaseResourcesFlags } from '../../../../api/FimReleaseResourcesFlags';
 import { FimError } from '../../../../primitives/FimError';
 
-class MyObject extends CoreObject {
+class MyObject extends EngineObject {
   public resources = 'Expensive Stuff';
 
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
@@ -14,7 +14,7 @@ class MyObject extends CoreObject {
   }
 }
 
-describe('CoreObject', () => {
+describe('EngineObject', () => {
 
   it('Releases resources', () => {
     const o = new MyObject('Handle');
