@@ -31,6 +31,20 @@ export function clientAndFactoryBasicSuite(
       client.dispose();
     });
 
+    it('Creates and disposes images', () => {
+      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+
+      const img1 = client.createImage();
+      img1.fillSolid('#f00');
+      img1.dispose();
+
+      const img2 = client.createImage();
+      img2.fillSolid('#00f');
+      img2.dispose();
+
+      client.dispose();
+    });
+
     it('Supports fillSolid() and getPixelAsync()', async () => {
       const client = factory(FimDimensions.fromWidthHeight(100, 100));
       const image = client.createImage();
