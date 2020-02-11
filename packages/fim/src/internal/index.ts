@@ -19,5 +19,5 @@ export { DispatcherResult } from './dispatcher/DispatcherResult';
 export { Engine } from './engine/direct/Engine';
 export { EngineFim } from './engine/direct/EngineFim';
 export { EngineImage } from './engine/direct/EngineImage';
-export { OptimizerQueue } from './optimizers/OptimizerQueue';
+export { QueueOptimizer } from './middleware/queue/QueueOptimizer';
 export { defaultFactoryOptions, mergeFactoryOptions } from '../api/FimFactoryOptions';

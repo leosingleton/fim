@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Dispatcher } from '../dispatcher/Dispatcher';
-import { DispatcherCommand } from '../dispatcher/DispatcherCommand';
-import { DispatcherResult } from '../dispatcher/DispatcherResult';
+import { Dispatcher } from '../../dispatcher/Dispatcher';
+import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
+import { DispatcherResult } from '../../dispatcher/DispatcherResult';
 import { Queue } from '@leosingleton/commonlibs';
 
 /** Layer that can be added to the Dispatcher stack to queue commands and results */
-export class OptimizerQueue implements Dispatcher {
+export class QueueOptimizer implements Dispatcher {
   /**
    * Constructor
    * @param nextDispatcher Next dispatcher in the chain

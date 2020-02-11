@@ -6,7 +6,7 @@ import { FimNode } from '../api/FimNode';
 import { FimNodeClient } from '../internal/client/FimNodeClient';
 import { NodeEngine } from '../internal/engine/direct/NodeEngine';
 import { FimDimensions, FimFactoryOptions } from '@leosingleton/fim';
-import { OptimizerQueue, defaultFactoryOptions, mergeFactoryOptions } from '@leosingleton/fim/build/internal';
+import { QueueOptimizer, defaultFactoryOptions, mergeFactoryOptions } from '@leosingleton/fim/build/internal';
 
 export namespace FimNodeFactory {
   /**
@@ -20,7 +20,7 @@ export namespace FimNodeFactory {
     options = mergeFactoryOptions(defaultFactoryOptions, options);
 
     const engine = new NodeEngine();
-    const next = options.disableOptimizations ? engine : new OptimizerQueue(engine);
+    const next = options.disableOptimizations ? engine : new QueueOptimizer(engine);
     const client = new FimNodeClient(next, maxImageDimensions, objectName);
     return client;
   }

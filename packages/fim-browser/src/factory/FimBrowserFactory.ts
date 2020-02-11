@@ -6,7 +6,7 @@ import { FimBrowser } from '../api/FimBrowser';
 import { FimBrowserClient } from '../internal/client/FimBrowserClient';
 import { BrowserEngine } from '../internal/engine/direct/BrowserEngine';
 import { FimDimensions, FimFactoryOptions } from '@leosingleton/fim';
-import { OptimizerQueue, defaultFactoryOptions, mergeFactoryOptions } from '@leosingleton/fim/build/internal';
+import { QueueOptimizer, defaultFactoryOptions, mergeFactoryOptions } from '@leosingleton/fim/build/internal';
 
 export namespace FimBrowserFactory {
   /**
@@ -21,7 +21,7 @@ export namespace FimBrowserFactory {
     options = mergeFactoryOptions(defaultFactoryOptions, options);
 
     const engine = new BrowserEngine();
-    const next = options.disableOptimizations ? engine : new OptimizerQueue(engine);
+    const next = options.disableOptimizations ? engine : new QueueOptimizer(engine);
     const client = new FimBrowserClient(next, maxImageDimensions, objectName);
     return client;
   }
