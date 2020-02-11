@@ -11,10 +11,13 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
-    "@leosingleton/fim-common-tests": "^2.0.0-alpha"
+    "@leosingleton/fim-common-tests": "^2.0.0-alpha",
+    "@types/gl": "latest"
   },
   "dependencies": {
-    "@leosingleton/fim": "^2.0.0-alpha"
+    "@leosingleton/fim": "^2.0.0-alpha",
+    "canvas": "latest",
+    "gl": "latest"
   },
   "main": "build/index.js",
   "types": "build/index.d.ts"
