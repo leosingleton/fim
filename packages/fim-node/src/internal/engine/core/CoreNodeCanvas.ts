@@ -4,9 +4,10 @@
 
 import { FimReleaseResourcesFlags } from '@leosingleton/fim';
 import { CoreCanvas } from '@leosingleton/fim/internals';
+import { Canvas/*, createCanvas, createImageData*/ } from 'canvas';
 
 /** Wrapper around the Node.js canvas library */
-export class CoreNodeCanvas extends CoreCanvas {
+export class CoreNodeCanvas extends CoreCanvas<Canvas> {
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
     throw new Error('not implemented');
   }

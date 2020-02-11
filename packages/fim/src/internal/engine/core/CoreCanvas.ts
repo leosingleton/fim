@@ -2,9 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CanvasLike } from './CanvasLike';
 import { CoreObject } from './CoreObject';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
-export abstract class CoreCanvas extends CoreObject {
+export abstract class CoreCanvas<TCanvasLike extends CanvasLike> extends CoreObject {
 
 }

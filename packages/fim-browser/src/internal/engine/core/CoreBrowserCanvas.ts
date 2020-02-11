@@ -5,8 +5,8 @@
 import { FimReleaseResourcesFlags } from '@leosingleton/fim';
 import { CoreCanvas } from '@leosingleton/fim/internals';
 
-/** Wrapper around the HTML canvas and canvas-like objects */
-export class CoreBrowserCanvas extends CoreCanvas {
+/** Wrapper around the HTML DOM canvas */
+export class CoreBrowserCanvas extends CoreCanvas<HTMLCanvasElement | OffscreenCanvas> {
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
     throw new Error('not implemented');
   }
