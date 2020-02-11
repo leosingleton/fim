@@ -11,7 +11,7 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage> {
     // TODO
   }
 
-  protected createEngineImage(handle: string, imageDimensions: FimDimensions): NodeEngineImage {
-    return new NodeEngineImage(handle, this, imageDimensions);
+  protected createEngineImage(shortHandle: string, imageDimensions: FimDimensions): NodeEngineImage {
+    return new NodeEngineImage(shortHandle, this, imageDimensions);
   }
 }

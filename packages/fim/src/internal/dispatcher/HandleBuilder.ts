@@ -12,7 +12,7 @@ export class HandleBuilder {
    * @param objectName Optional name specified when creating the object to help with debugging
    * @returns Globally-unique handle
    */
-  public static createObjectHandle(objectType: string, objectName?: string): string {
+  public static createShortObjectHandle(objectType: string, objectName?: string): string {
     // Create a globally-unique handle name. Although really, only the global handle count is needed, we add the object
     // type and name to make it easier to debug.
     let handle = `${objectType}.${HandleBuilder.globalHandleCount++}`;

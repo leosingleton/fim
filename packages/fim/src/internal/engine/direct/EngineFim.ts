@@ -14,11 +14,11 @@ import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
 export abstract class EngineFim<TEngineImage extends EngineImage> extends EngineObject {
   /**
    * Constructor
-   * @param handle Short handle of the new FIM object
+   * @param shortHandle Short handle of the new FIM object
    * @param engine Parent Engine instance
    */
-  public constructor(handle: string, engine: Engine<EngineFim<TEngineImage>, TEngineImage>) {
-    super(handle, engine);
+  public constructor(shortHandle: string, engine: Engine<EngineFim<TEngineImage>, TEngineImage>) {
+    super(shortHandle, engine);
   }
 
   public executeCommand(command: DispatcherCommand): any {
@@ -32,10 +32,10 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   }
 
   private commandCreateImage(command: CommandCreateImage): void {
-    const image = this.createEngineImage(command.imageHandle, command.imageDimensions);
+    const image = this.createEngineImage(command.imageShortHandle, command.imageDimensions);
     this.addChild(image);
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
-  protected abstract createEngineImage(handle: string, imageDimensions: FimDimensions): TEngineImage;
+  protected abstract createEngineImage(shortHandle: string, imageDimensions: FimDimensions): TEngineImage;
 }

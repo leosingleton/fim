@@ -6,12 +6,12 @@ import { NodeDispatcherOpcodes } from './NodeDispatcherOpcodes';
 import { FimDimensions } from '@leosingleton/fim';
 import { DispatcherCommandBase } from '@leosingleton/fim/internals';
 
-/** Command to create a new image by handle */
+/** Command to create a new image by short handle */
 export interface CommandNodeCreateImage extends DispatcherCommandBase {
   opcode: NodeDispatcherOpcodes.CreateImage;
 
-  /** Handle for the new image */
-  imageHandle: string;
+  /** Short handle for the new image */
+  imageShortHandle: string;
 
   /** Image dimensions */
   imageDimensions: FimDimensions;

@@ -9,6 +9,6 @@ import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 export interface CommandCreate extends DispatcherCommandBase {
   opcode: DispatcherOpcodes.Create;
 
-  /** Handle for the new FIM instance */
-  fimHandle: string;
+  /** Short handle for the new FIM instance */
+  fimShortHandle: string;
 }

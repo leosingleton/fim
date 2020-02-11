@@ -17,12 +17,12 @@ import { CommandImageSetPixel } from '../../commands/CommandImageSetPixel';
 export abstract class EngineImage extends EngineObject {
   /**
    * Constructor
-   * @param handle Short handle of the new image object
+   * @param shortHandle Short handle of the new image object
    * @param fim Parent FIM instance
    * @param imageDimensions Image dimensions
    */
-  public constructor(handle: string, fim: EngineFim<EngineImage>, imageDimensions: FimDimensions) {
-    super(handle, fim);
+  public constructor(shortHandle: string, fim: EngineFim<EngineImage>, imageDimensions: FimDimensions) {
+    super(shortHandle, fim);
     this.imageDimensions = imageDimensions;
   }
 

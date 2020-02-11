@@ -24,13 +24,13 @@ export abstract class FimObjectClient implements FimObject {
   protected constructor(dispatcherClient: DispatcherClient, objectType: string, parentLongHandle?: string,
       objectName?: string) {
     // Create a globally-unique handle name
-    this.handle = HandleBuilder.createObjectHandle(objectType, objectName);
-    this.longHandle = HandleBuilder.createLongObjectHandle(parentLongHandle, this.handle);
+    this.shortHandle = HandleBuilder.createShortObjectHandle(objectType, objectName);
+    this.longHandle = HandleBuilder.createLongObjectHandle(parentLongHandle, this.shortHandle);
 
     this.dispatcherClient = dispatcherClient;
   }
 
-  public readonly handle: string;
+  public readonly shortHandle: string;
   public readonly longHandle: string;
 
   /** Back-end FIM engine */

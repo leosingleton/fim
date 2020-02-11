@@ -6,12 +6,12 @@ import { BrowserDispatcherOpcodes } from './BrowserDispatcherOpcodes';
 import { FimDimensions } from '@leosingleton/fim';
 import { DispatcherCommandBase } from '@leosingleton/fim/internals';
 
-/** Command to create a new image by handle */
+/** Command to create a new image by short handle */
 export interface CommandBrowserCreateImage extends DispatcherCommandBase {
   opcode: BrowserDispatcherOpcodes.CreateImage;
 
-  /** Handle for the new image */
-  imageHandle: string;
+  /** Short handle for the new image */
+  imageShortHandle: string;
 
   /** Image dimensions */
   imageDimensions: FimDimensions;

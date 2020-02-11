@@ -8,7 +8,7 @@ import { Engine } from '@leosingleton/fim/internals';
 
 /** Low-level FIM rendering engine for Node.js */
 export class NodeEngine extends Engine<NodeEngineFim, NodeEngineImage> {
-  protected createEngineFim(handle: string): NodeEngineFim {
-    return new NodeEngineFim(handle, this);
+  protected createEngineFim(shortHandle: string): NodeEngineFim {
+    return new NodeEngineFim(shortHandle, this);
   }
 }

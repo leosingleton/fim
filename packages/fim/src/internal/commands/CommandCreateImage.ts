@@ -6,12 +6,12 @@ import { DispatcherOpcodes } from './DispatcherOpcodes';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { FimDimensions } from '../../primitives/FimDimensions';
 
-/** Command to create a new image by handle */
+/** Command to create a new image by short handle */
 export interface CommandCreateImage extends DispatcherCommandBase {
   opcode: DispatcherOpcodes.CreateImage;
 
-  /** Handle for the new image */
-  imageHandle: string;
+  /** Short handle for the new image */
+  imageShortHandle: string;
 
   /** Image dimensions */
   imageDimensions: FimDimensions;

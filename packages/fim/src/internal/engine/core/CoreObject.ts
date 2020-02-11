@@ -13,12 +13,12 @@ import { FimError, FimErrorCode } from '../../../primitives/FimError';
 export abstract class CoreObject {
   /**
    * Constructor
-   * @param handle Unique handle for this object
+   * @param shortHandle Unique handle for this object
    * @param parent Parent object. May be undefined if this object is the root.
    */
-  public constructor(handle: string, parent?: CoreObject) {
-    this.handle = handle;
-    this.longHandle = parent ? HandleBuilder.createLongObjectHandle(parent.longHandle, handle) : handle;
+  public constructor(shortHandle: string, parent?: CoreObject) {
+    this.shortHandle = shortHandle;
+    this.longHandle = parent ? HandleBuilder.createLongObjectHandle(parent.longHandle, shortHandle) : shortHandle;
     this.parentObject = parent;
 
     // If we are not root, add a reference to ourselves from our parent object
@@ -28,7 +28,7 @@ export abstract class CoreObject {
   }
 
   /** Unique value identifying this object */
-  public readonly handle: string;
+  public readonly shortHandle: string;
 
   /** Handle including the full path from parent to child objects */
   public readonly longHandle: string;
@@ -38,7 +38,7 @@ export abstract class CoreObject {
    * @param child Child object
    */
   protected addChild(child: CoreObject): void {
-    this.childObjects[child.handle] = child;
+    this.childObjects[child.shortHandle] = child;
   }
 
   /**
@@ -46,7 +46,7 @@ export abstract class CoreObject {
    * @param child Child object
    */
   protected removeChild(child: CoreObject): void {
-    delete this.childObjects[child.handle];
+    delete this.childObjects[child.shortHandle];
   }
 
   /**
@@ -55,7 +55,7 @@ export abstract class CoreObject {
    */
   public getChildByHandle(longHandle: string): CoreObject {
     // Extract the next child in the long handle
-    const nextHandle = HandleBuilder.parseAfter(longHandle, this.handle);
+    const nextHandle = HandleBuilder.parseAfter(longHandle, this.shortHandle);
     if (!nextHandle) {
       return this;
     }

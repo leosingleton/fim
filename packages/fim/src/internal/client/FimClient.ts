@@ -47,7 +47,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
       sequenceNumber: 0,
       longHandle: FimObjectType.Engine,
       opcode: DispatcherOpcodes.Create,
-      fimHandle: this.handle,
+      fimShortHandle: this.shortHandle,
       optimizationHints: {
         canQueue: false
       }
@@ -91,7 +91,7 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     const command: CommandCreateImage = {
       opcode: DispatcherOpcodes.CreateImage,
       imageDimensions: dimensions,
-      imageHandle: image.handle,
+      imageShortHandle: image.shortHandle,
       optimizationHints: {
         canQueue: true
       }

@@ -7,7 +7,7 @@ import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 /** Common properties for all objects in the FIM API */
 export interface FimObject {
   /** Unique value identifying this object */
-  readonly handle: string;
+  readonly shortHandle: string;
 
   /** Handle including the full path from parent to child objects */
   readonly longHandle: string;

@@ -72,7 +72,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
       color: colorString,
       optimizationHints: {
         canQueue: true,
-        writeHandles: [this.handle]
+        writeHandles: [this.longHandle]
       }
     };
     this.dispatchCommand(command);
@@ -85,7 +85,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
       y,
       optimizationHints: {
         canQueue: false,
-        readHandles: [this.handle]
+        readHandles: [this.longHandle]
       }
     };
     const colorString = await this.dispatchCommandAndWaitAsync(command);
@@ -104,7 +104,7 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
       color: colorString,
       optimizationHints: {
         canQueue: true,
-        writeHandles: [this.handle]
+        writeHandles: [this.longHandle]
       }
     };
     this.dispatchCommand(command);

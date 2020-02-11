@@ -5,10 +5,10 @@
 import { BrowserDispatcherOpcodes } from './BrowserDispatcherOpcodes';
 import { DispatcherCommandBase } from '@leosingleton/fim/internals';
 
-/** Command to create a new image by handle */
+/** Command to create a new image by short handle */
 export interface CommandBrowserCreate extends DispatcherCommandBase {
   opcode: BrowserDispatcherOpcodes.Create;
 
-  /** Handle for the new FIM instance */
-  fimHandle: string;
+  /** Short handle for the new FIM instance */
+  fimShortHandle: string;
 }

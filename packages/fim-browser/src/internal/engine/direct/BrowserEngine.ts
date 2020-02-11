@@ -8,8 +8,8 @@ import { DispatcherCommand, Engine } from '@leosingleton/fim/internals';
 
 /** Low-level FIM rendering engine for web browsers */
 export class BrowserEngine extends Engine<BrowserEngineFim, BrowserEngineImage> {
-  protected createEngineFim(handle: string): BrowserEngineFim {
-    return new BrowserEngineFim(handle, this);
+  protected createEngineFim(shortHandle: string): BrowserEngineFim {
+    return new BrowserEngineFim(shortHandle, this);
   }
 
   public executeCommand(command: DispatcherCommand): any {

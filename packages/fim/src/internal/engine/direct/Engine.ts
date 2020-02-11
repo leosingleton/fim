@@ -59,7 +59,7 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
   }
 
   private commandCreate(command: CommandCreate): void {
-    const fim = this.createEngineFim(command.fimHandle);
+    const fim = this.createEngineFim(command.fimShortHandle);
     this.addChild(fim);
   }
 
