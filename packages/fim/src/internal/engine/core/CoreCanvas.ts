@@ -24,4 +24,7 @@ export abstract class CoreCanvas {
 
   /** Derived classes must override this method to dispose the canvas */
   public abstract dispose(): void;
+
+  /** Derived classes must override this method to return a CanvasImageSource */
+  public abstract getImageSource(): CanvasImageSource;
 }

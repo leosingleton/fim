@@ -15,13 +15,17 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     this.canvasElement = createCanvas(canvasDimensions.w, canvasDimensions.h);
   }
 
+  private canvasElement: Canvas;
+
   public dispose() {
     this.canvasElement.width = 0;
     this.canvasElement.height = 0;
     this.canvasElement = undefined;
   }
 
-  private canvasElement: Canvas;
+  public getImageSource(): CanvasImageSource {
+    return this.canvasElement as any;
+  }
 
   protected getContext(): RenderingContext2D {
     return this.canvasElement.getContext('2d');

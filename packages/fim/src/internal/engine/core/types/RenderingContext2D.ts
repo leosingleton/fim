@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 /** The core set of properties that FIM uses on CanvasRenderingContext2D or similar interfaces */
-export interface RenderingContext2D extends CanvasCompositing, CanvasState, CanvasFillStrokeStyles,
+export interface RenderingContext2D extends CanvasCompositing, CanvasDrawImage, CanvasState, CanvasFillStrokeStyles,
     CanvasImageData, CanvasImageSmoothing, CanvasRect {
   // Rather than adding every single function, the TypeScript DOM library definition extends the following:
   //   CanvasState, CanvasTransform, CanvasCompositing, CanvasImageSmoothing, CanvasFillStrokeStyles,

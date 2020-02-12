@@ -6,6 +6,7 @@ import { CoreCanvas } from './CoreCanvas';
 import { RenderingContext2D } from './types/RenderingContext2D';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
+import { FimRect } from '../../../primitives/FimRect';
 import { makeDisposable, IDisposable, using } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
@@ -93,6 +94,32 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       data[2] = color.b;
       data[3] = color.a;
       ctx.putImageData(imgData, x, y);
+    });
+  }
+
+  /**
+   * Copies contents from another canvas. All inputs supports both cropping and rescaling.
+   * @param srcCanvas Source canvas
+   * @param srcCoords Coordinates of source canvas to copy from
+   * @param destCoords Coordinates of destination canvas to copy to
+   */
+  public copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    // Default parameters
+    srcCoords = srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions);
+    destCoords = destCoords ?? FimRect.fromDimensions(this.canvasDimensions);
+
+    // copy is slightly faster than source-over
+    const op = (destCoords.dim.equals(this.canvasDimensions)) ? 'copy' : 'source-over';
+
+    // Enable image smoothing if we are rescaling the image
+    const imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
+
+    // Report telemetry for debugging
+    //recordDrawImage(srcCoords, destCoords, op, imageSmoothingEnabled);
+
+    using(this.createDrawingContext(imageSmoothingEnabled, op, 1), ctx => {
+      ctx.drawImage(srcCanvas.getImageSource(), srcCoords.xLeft, srcCoords.yTop, srcCoords.dim.w, srcCoords.dim.h,
+        destCoords.xLeft, destCoords.yTop, destCoords.dim.w, destCoords.dim.h);
     });
   }
 }

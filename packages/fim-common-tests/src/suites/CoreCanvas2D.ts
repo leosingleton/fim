@@ -43,5 +43,24 @@ export function coreCanvas2D(
       canvas.dispose();
     });
 
+    /*it('Copies from one canvas to another', () => {
+      const canvas1 = factory(FimDimensions.fromWidthHeight(50, 50),
+        `${description} - Copies from one canvas to another`);
+      canvas1.fillCanvas(FimColor.fromString('#00f'));
+
+      const canvas2 = factory(FimDimensions.fromWidthHeight(50, 50),
+        `${description} - Copies from one canvas to another`);
+      canvas2.copyFrom(canvas1);
+
+      const color = canvas2.getPixel(50, 50);
+      expect(color.r).toEqual(0);
+      expect(color.g).toEqual(0);
+      expect(color.b).toEqual(255);
+      expect(color.a).toEqual(255);
+
+      canvas1.dispose();
+      canvas2.dispose();
+    });*/
+
   });
 }
