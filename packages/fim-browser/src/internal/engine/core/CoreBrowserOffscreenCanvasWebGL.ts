@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimDimensions } from '@leosingleton/fim';
+import { FimColor, FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
@@ -31,5 +31,11 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
 
   protected getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
+  }
+
+  public fillCanvas(color: FimColor | string): void {
+    // TODO: Chrome has a bug where subsequent calls to clear() do not work with OffscreenCanvas. Workaround by using a
+    //       WebGL shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
+    return super.fillCanvas(color);
   }
 }

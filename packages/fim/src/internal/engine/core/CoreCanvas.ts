@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimColor } from '../../../primitives/FimColor';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
 import { FimPoint } from '../../../primitives/FimPoint';
@@ -30,6 +31,20 @@ export abstract class CoreCanvas {
 
   /** Derived classes must override this method to return a CanvasImageSource */
   public abstract getImageSource(): CanvasImageSource;
+
+  /**
+   * Helper function to fill a canvas with a solid color
+   * @param color Fill color
+   */
+  public abstract fillCanvas(color: FimColor | string): void;
+
+  /**
+   * Gets the pixel color at the specified coordinate
+   * @param x X-coordinate, in pixels
+   * @param y Y-coordinate, in pixels
+   * @returns Pixel color
+   */
+  public abstract getPixel(x: number, y: number): FimColor;
 
   /** Throws an exception if the coordinates are outside of the canvas */
   public validateCoordinates(point: FimPoint): void {

@@ -34,12 +34,9 @@ export function coreCanvas2D(
 
     it('Fills with solid colors', () => {
       const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Fills with solid colors`);
-      canvas.fillCanvas(FimColor.fromString('#0f0'));
-      const color = canvas.getPixel(50, 50);
-      expect(color.r).toEqual(0);
-      expect(color.g).toEqual(255);
-      expect(color.b).toEqual(0);
-      expect(color.a).toEqual(255);
+      const color = FimColor.fromString('#0f0');
+      canvas.fillCanvas(color);
+      expect(canvas.getPixel(50, 50)).toEqual(color);
       canvas.dispose();
     });
 

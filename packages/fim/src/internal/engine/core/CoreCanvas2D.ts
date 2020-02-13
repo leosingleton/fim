@@ -48,10 +48,6 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     return makeDisposable(ctx, ctx => ctx.restore());
   }
 
-  /**
-   * Helper function to fill a canvas with a solid color
-   * @param color Fill color
-   */
   public fillCanvas(color: FimColor | string): void {
     // Force color to be a string
     const colorString = (typeof(color) === 'string') ? color : color.string;
@@ -62,12 +58,6 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     });
   }
 
-  /**
-   * Gets the pixel color at the specified coordinate
-   * @param x X-coordinate, in pixels
-   * @param y Y-coordinate, in pixels
-   * @returns Pixel color
-   */
   public getPixel(x: number, y: number): FimColor {
     let result: FimColor;
     const point = FimPoint.fromXY(x, y).toFloor();
