@@ -3,6 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { FimDimensions } from '../../../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../../../primitives/FimError';
+import { FimPoint } from '../../../primitives/FimPoint';
+import { FimRect } from '../../../primitives/FimRect';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas {
@@ -12,7 +15,7 @@ export abstract class CoreCanvas {
    * @param imageHandle Handle of the image that owns this canvas. Used only for debugging.
    */
   protected constructor(canvasDimensions: FimDimensions, imageHandle: string) {
-    this.canvasDimensions = canvasDimensions;
+    this.canvasDimensions = canvasDimensions.toFloor();
     this.imageHandle = imageHandle;
   }
 
@@ -27,4 +30,20 @@ export abstract class CoreCanvas {
 
   /** Derived classes must override this method to return a CanvasImageSource */
   public abstract getImageSource(): CanvasImageSource;
+
+  /** Throws an exception if the coordinates are outside of the canvas */
+  public validateCoordinates(point: FimPoint): void {
+    const rect = FimRect.fromDimensions(this.canvasDimensions);
+    if (!rect.containsPoint(point)) {
+      throw new FimError(FimErrorCode.AppError, `${point} invalid`);
+    }
+  }
+
+  /** Throws an exception if the rectangle extends outside of the canvas */
+  public validateRect(rect: FimRect): void {
+    const outer = FimRect.fromDimensions(this.canvasDimensions);
+    if (!outer.containsRect(rect)) {
+      throw new FimError(FimErrorCode.AppError, `${rect} invalid`);
+    }
+  }
 }

@@ -30,8 +30,8 @@ export class FimDimensions {
     return new FimDimensions(this.w * ratio, this.h * ratio);
   }
 
-  public downscaleToMaxDimensions(): void {
-
+  public toFloor(): FimDimensions {
+    return new FimDimensions(Math.floor(this.w), Math.floor(this.h));
   }
 
   public static fromWidthHeight(width: number, height: number): FimDimensions {
@@ -56,8 +56,6 @@ export class FimDimensions {
    */
   public static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimDimensions {
     const scale = Math.min(maxDimension / width, maxDimension / height);
-    const w = Math.floor(width * scale);
-    const h = Math.floor(height * scale);
-    return new FimDimensions(w, h);
+    return new FimDimensions(width * scale, height * scale).toFloor();
   }
 }

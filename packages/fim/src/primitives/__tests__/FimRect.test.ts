@@ -88,4 +88,28 @@ describe('FimRect', () => {
     expect(innerRect.fit(outerRect)).toEqual(FimRect.fromXYWidthHeight(200, 200, 50, 50));
   });
 
+  it('Tests whether it contains a point', () => {
+    const outerRect = FimRect.fromXYWidthHeight(200, 200, 200, 50);
+    const point1 = FimPoint.fromXY(300, 249);
+    const point2 = FimPoint.fromXY(300, 250);
+    expect(outerRect.containsPoint(point1)).toBeTruthy();
+    expect(outerRect.containsPoint(point2)).toBeFalsy();
+  });
+
+  it('Tests whether it contains another rectangle', () => {
+    const outerRect = FimRect.fromXYWidthHeight(200, 200, 200, 50);
+    const innerRect1 = FimRect.fromXYWidthHeight(300, 200, 50, 50);
+    const innerRect2 = FimRect.fromXYWidthHeight(0, 0, 100, 100);
+    expect(outerRect.containsRect(innerRect1)).toBeTruthy();
+    expect(outerRect.containsRect(innerRect2)).toBeFalsy();
+    expect(outerRect.containsRect(outerRect)).toBeTruthy();
+    expect(innerRect1.containsRect(innerRect1)).toBeTruthy();
+    expect(innerRect2.containsRect(innerRect2)).toBeTruthy();
+  });
+
+  it('Calculates floor', () => {
+    const rect = FimRect.fromCoordinates(2.5, 3.5, 5.9, 6);
+    expect(rect.toFloor()).toEqual(FimRect.fromCoordinates(2, 3, 5, 6));
+  });
+
 });

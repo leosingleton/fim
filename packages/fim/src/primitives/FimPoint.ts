@@ -12,6 +12,14 @@ export class FimPoint {
     this.y = y;
   }
 
+  public toFloor(): FimPoint {
+    return new FimPoint(Math.floor(this.x), Math.floor(this.y));
+  }
+
+  public toString(): string {
+    return `(${this.x},${this.y})`;
+  }
+
   public static fromXY(x: number, y: number): FimPoint {
     return new FimPoint(x, y);
   }

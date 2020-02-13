@@ -6,6 +6,7 @@ import { CoreCanvas } from './CoreCanvas';
 import { RenderingContext2D } from './types/RenderingContext2D';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
+import { FimPoint } from '../../../primitives/FimPoint';
 import { FimRect } from '../../../primitives/FimRect';
 import { makeDisposable, IDisposable, using } from '@leosingleton/commonlibs';
 
@@ -69,9 +70,11 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    */
   public getPixel(x: number, y: number): FimColor {
     let result: FimColor;
+    const point = FimPoint.fromXY(x, y).toFloor();
+    this.validateCoordinates(point);
 
     using(this.createDrawingContext(), ctx => {
-      const imgData = ctx.getImageData(x, y, 1, 1);
+      const imgData = ctx.getImageData(point.x, point.y, 1, 1);
       const data = imgData.data;
       result = FimColor.fromRGBABytes(data[0], data[1], data[2], data[3]);
     });
@@ -86,6 +89,9 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param color Pixel color
    */
   public setPixel(x: number, y: number, color: FimColor): void {
+    const point = FimPoint.fromXY(x, y).toFloor();
+    this.validateCoordinates(point);
+
     using(this.createDrawingContext(), ctx => {
       const imgData = ctx.createImageData(1, 1);
       const data = imgData.data;
@@ -93,7 +99,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       data[1] = color.g;
       data[2] = color.b;
       data[3] = color.a;
-      ctx.putImageData(imgData, x, y);
+      ctx.putImageData(imgData, point.x, point.y);
     });
   }
 
@@ -105,8 +111,11 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    */
   public copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     // Default parameters
-    srcCoords = srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions);
-    destCoords = destCoords ?? FimRect.fromDimensions(this.canvasDimensions);
+    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
+    destCoords = (destCoords ?? FimRect.fromDimensions(this.canvasDimensions)).toFloor();
+
+    srcCanvas.validateRect(srcCoords);
+    this.validateRect(destCoords);
 
     // copy is slightly faster than source-over
     const op = (destCoords.dim.equals(this.canvasDimensions)) ? 'copy' : 'source-over';

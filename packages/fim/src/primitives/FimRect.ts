@@ -65,6 +65,17 @@ export class FimRect {
     return FimPoint.fromXY(this.xRight, this.yBottom);
   }
 
+  /** Calculates whether this rectangle includes the specified point */
+  public containsPoint(point: FimPoint): boolean {
+    return (point.x >= this.xLeft && point.y >= this.yTop && point.x < this.xRight && point.y < this.yBottom);
+  }
+
+  /** Calculates whether this rectangle includes the specified rectangle */
+  public containsRect(inner: FimRect): boolean {
+    return (inner.xLeft >= this.xLeft && inner.yTop >= this.yTop && inner.xRight <= this.xRight &&
+      inner.yBottom <= this.yBottom);
+  }
+
   /** Returns a FimRect whose top-left coordinate is less than its bottom-right */
   public toUpright(): FimRect {
     return FimRect.fromCoordinates(
@@ -95,6 +106,14 @@ export class FimRect {
     const width = Math.floor(this.dim.w * scale);
     const height = Math.floor(this.dim.h * scale);
     return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
+  }
+
+  public toFloor(): FimRect {
+    return FimRect.fromPoints(this.getTopLeft().toFloor(), this.getBottomRight().toFloor());
+  }
+
+  public toString(): string {
+    return `${this.getTopLeft()}-${this.getBottomRight()}`;
   }
 
   public static fromDimensions(d: FimDimensions): FimRect {
