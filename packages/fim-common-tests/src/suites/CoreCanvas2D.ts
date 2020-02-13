@@ -8,7 +8,7 @@ import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 /**
  * Executes a suite of common tests using the CoreCanvas2D objects created via factory methods
  * @param description Description to show in the test framework
- * @param factory Lambda to create the CoreCanvas instance
+ * @param factory Lambda to create the CoreCanvas2D instance
  */
 export function coreCanvas2D(
   description: string,

@@ -7,3 +7,4 @@
 export { TestImages } from './misc/TestImages';
 export { clientAndFactoryBasicSuite } from './suites/ClientAndFactoryBasic';
 export { coreCanvas2D } from './suites/CoreCanvas2D';
+export { coreCanvasWebGL } from './suites/CoreCanvasWebGL';
