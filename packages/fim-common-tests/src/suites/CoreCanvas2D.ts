@@ -23,12 +23,9 @@ export function coreCanvas2D(
 
     it('Gets and sets pixels', () => {
       const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Gets and sets pixels`);
-      canvas.setPixel(50, 50, FimColor.fromString('#f0f'));
-      const color = canvas.getPixel(50, 50);
-      expect(color.r).toEqual(255);
-      expect(color.g).toEqual(0);
-      expect(color.b).toEqual(255);
-      expect(color.a).toEqual(255);
+      const color = FimColor.fromString('#f0f');
+      canvas.setPixel(50, 50, color);
+      expect(canvas.getPixel(50, 50)).toEqual(color);
       canvas.dispose();
     });
 
@@ -43,17 +40,13 @@ export function coreCanvas2D(
     it('Copies from one canvas to another', () => {
       const canvas1 = factory(FimDimensions.fromWidthHeight(50, 50),
         `${description} - Copies from one canvas to another`);
-      canvas1.fillCanvas(FimColor.fromString('#00f'));
+      const color = FimColor.fromString('#00f');
+      canvas1.fillCanvas(color);
 
       const canvas2 = factory(FimDimensions.fromWidthHeight(50, 50),
         `${description} - Copies from one canvas to another`);
       canvas2.copyFrom(canvas1);
-
-      const color = canvas2.getPixel(25, 25);
-      expect(color.r).toEqual(0);
-      expect(color.g).toEqual(0);
-      expect(color.b).toEqual(255);
-      expect(color.a).toEqual(255);
+      expect(canvas2.getPixel(25, 25)).toEqual(color);
 
       canvas1.dispose();
       canvas2.dispose();

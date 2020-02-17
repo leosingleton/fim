@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim, FimDimensions, FimImage } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimImage, FimColor } from '@leosingleton/fim';
 
 /**
  * Executes a suite of common tests using the FIM client created via factory methods
@@ -51,10 +51,7 @@ export function clientAndFactoryBasicSuite(
       image.fillSolid('#f00');
 
       const color = await image.getPixelAsync(50, 50);
-      expect(color.r).toEqual(255);
-      expect(color.g).toEqual(0);
-      expect(color.b).toEqual(0);
-      expect(color.a).toEqual(255);
+      expect(color).toEqual(FimColor.fromString('#f00'));
 
       client.dispose();
     });
