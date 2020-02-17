@@ -47,8 +47,18 @@ export interface Fim<TImage extends FimImage> extends FimObject {
    *
    * By default, FIM queues commands until it encounters a FimImage.exportToXYZ() call, then automatically executes
    * all commands in the queue. Doing so allows FIM to look ahead to optimize execution. However, in some cases, we may
-   * want to begin execution even though we're not ready to output the result. In which case, beginExecution() must be
-   * called explicitly.
+   * want to begin execution even though we're not ready to output the result. In which case, beginExecution() or
+   * executionBarrier() must be called explicitly.
    */
   beginExecution(): void;
+
+  /**
+   * Dispatches all pending commands to exectuion pipeline and blocks until they complete.
+   *
+   * By default, FIM queues commands until it encounters a FimImage.exportToXYZ() call, then automatically executes
+   * all commands in the queue. Doing so allows FIM to look ahead to optimize execution. However, in some cases, we may
+   * want to begin execution even though we're not ready to output the result. In which case, beginExecution() or
+   * executionBarrier() must be called explicitly.
+   */
+  executionBarrier(): Promise<void>;
 }

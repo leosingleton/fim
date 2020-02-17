@@ -64,6 +64,9 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
       case DispatcherOpcodes.Create:
         return this.commandCreate(command as any as CommandCreate);
 
+      case DispatcherOpcodes.ExecutionBarrier:
+        return null;
+
       default:
         return super.executeCommand(command);
     }

@@ -5,7 +5,7 @@
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { DispatcherOpcodes } from './DispatcherOpcodes';
 
-/** Hint to dispatch all pending commands to execution pipeline */
-export interface CommandBeginExecution extends DispatcherCommandBase {
-  opcode: DispatcherOpcodes.BeginExecution;
+/** Dispatches all pending commands to exectuion pipeline and blocks until they complete */
+export interface CommandExecutionBarrier extends DispatcherCommandBase {
+  opcode: DispatcherOpcodes.ExecutionBarrier;
 }

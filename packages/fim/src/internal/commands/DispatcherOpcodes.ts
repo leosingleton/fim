@@ -4,10 +4,10 @@
 
 /** String values used in the DispatcherCommand.opcode property */
 export enum DispatcherOpcodes {
-  BeginExecution = 'BeginExecution',
   Create = 'Create',
   CreateImage = 'CreateImage',
   Dispose = 'Dispose',
+  ExecutionBarrier = 'ExecutionBarrier',
   ImageFillSolid = 'ImageFillSolid',
   ImageGetPixel = 'ImageGetPixel',
   ImageSetOptions = 'ImageSetOptions',

@@ -9,9 +9,9 @@ import { Fim } from '../../api/Fim';
 import { FimExecutionOptions, defaultExecutionOptions } from '../../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../../api/FimImageOptions';
 import { FimDimensions } from '../../primitives/FimDimensions';
-import { CommandBeginExecution } from '../commands/CommandBeginExecution';
 import { CommandCreate } from '../commands/CommandCreate';
 import { CommandCreateImage } from '../commands/CommandCreateImage';
+import { CommandExecutionBarrier } from '../commands/CommandExecutionBarrier';
 import { CommandSetExecutionOptions } from '../commands/CommandSetExecutionOptions';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { Dispatcher } from '../dispatcher/Dispatcher';
@@ -106,12 +106,22 @@ export abstract class FimClient<TImageClient extends FimImageClient> extends Fim
     TImageClient;
 
   public beginExecution(): void {
-    const command: CommandBeginExecution = {
-      opcode: DispatcherOpcodes.BeginExecution,
+    const command: CommandExecutionBarrier = {
+      opcode: DispatcherOpcodes.ExecutionBarrier,
       optimizationHints: {
         canQueue: false
       }
     };
     this.dispatchCommand(command);
+  }
+
+  public executionBarrier(): Promise<void> {
+    const command: CommandExecutionBarrier = {
+      opcode: DispatcherOpcodes.ExecutionBarrier,
+      optimizationHints: {
+        canQueue: false
+      }
+    };
+    return this.dispatchCommandAndWaitAsync(command);
   }
 }
