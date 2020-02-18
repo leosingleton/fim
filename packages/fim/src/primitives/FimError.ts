@@ -21,5 +21,7 @@ export const enum FimErrorCode {
   OutOfMemory = 'OutOfMemory',
 
   /** Indicates that the application has a bug and is calling the FIM library in an unsupported way */
-  AppError = 'AppError'
+  AppError = 'AppError',
+
+  ContextLost = 'ContextLost',
 }
