@@ -24,4 +24,7 @@ export const enum FimErrorCode {
   AppError = 'AppError',
 
   ContextLost = 'ContextLost',
+
+  /** Special error code thrown when the browser does not support WebGL */
+  NoWebGL = 'NoWebGL'
 }

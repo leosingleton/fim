@@ -5,6 +5,10 @@ steps:
     displayName: 'Install Node.js 10'
 
   - script: |
+      sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6
+    displayName: 'Install mesa and xvfb'
+
+  - script: |
       npm install
     displayName: 'Install NPM Packages'
 
@@ -21,7 +25,7 @@ steps:
     displayName: 'Compile Output'
 
   - script: |
-      npm run test:node
+      npm run test:node:xvfb
     displayName: 'Execute Jest unit tests for Node support'
     continueOnError: true
 
