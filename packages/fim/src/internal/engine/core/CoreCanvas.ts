@@ -50,7 +50,7 @@ export abstract class CoreCanvas {
   public validateCoordinates(point: FimPoint): void {
     const rect = FimRect.fromDimensions(this.canvasDimensions);
     if (!rect.containsPoint(point)) {
-      throw new FimError(FimErrorCode.AppError, `${point} invalid`);
+      throw new FimError(FimErrorCode.InvalidParameter, `${point} invalid`);
     }
   }
 
@@ -58,7 +58,7 @@ export abstract class CoreCanvas {
   public validateRect(rect: FimRect): void {
     const outer = FimRect.fromDimensions(this.canvasDimensions);
     if (!outer.containsRect(rect)) {
-      throw new FimError(FimErrorCode.AppError, `${rect} invalid`);
+      throw new FimError(FimErrorCode.InvalidParameter, `${rect} invalid`);
     }
   }
 }

@@ -117,7 +117,7 @@ export class HandleBuilder {
       }
     }
 
-    throw new FimError(FimErrorCode.AppError, `${shortHandle} not found in ${handle}`);
+    throw new FimError(FimErrorCode.InvalidHandle, `${shortHandle} not found in ${handle}`);
   }
 
   /** Global counter used to assign a unique handle to objects in FIM */

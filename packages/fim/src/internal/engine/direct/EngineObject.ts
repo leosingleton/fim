@@ -62,7 +62,7 @@ export abstract class EngineObject {
     }
     const nextObject = this.childObjects[nextHandle];
     if (!nextObject) {
-      throw new FimError(FimErrorCode.AppError, `Invalid handle ${handle}`);
+      throw new FimError(FimErrorCode.InvalidHandle, `Invalid handle ${handle}`);
     }
 
     // Recurse until we find the leaf node
@@ -132,7 +132,7 @@ export abstract class EngineObject {
         return this.commandReleaseResourcesCommand(command as any as CommandReleaseResources);
 
       default:
-        throw new FimError(FimErrorCode.AppError, `Invalid op ${command.opcode}`);
+        throw new FimError(FimErrorCode.InvalidOpcode, `Invalid op ${command.opcode}`);
     }
   }
 

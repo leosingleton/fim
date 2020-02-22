@@ -56,10 +56,10 @@ export class FimColor {
     // Validate the input values are integers from 0 to 255
     function validateInput(value: number): void {
       if (value < 0 || value > 255) {
-        throw new FimError(FimErrorCode.AppError, `Out of range: ${value}`);
+        throw new FimError(FimErrorCode.InvalidParameter, `Out of range: ${value}`);
       }
       if (value !== Math.floor(value)) {
-        throw new FimError(FimErrorCode.AppError, `Not an int: ${value}`);
+        throw new FimError(FimErrorCode.InvalidParameter, `Not an int: ${value}`);
       }
     }
     validateInput(red);
@@ -98,7 +98,7 @@ export class FimColor {
    */
   public static fromString(color: string): FimColor {
     if (color[0] !== '#') {
-      throw new FimError(FimErrorCode.AppError, `Invalid: ${color}`);
+      throw new FimError(FimErrorCode.InvalidParameter, `Invalid: ${color}`);
     }
 
     /** Parses a 1 character hex number */
@@ -127,7 +127,7 @@ export class FimColor {
         return this.fromRGBABytes(parse2(1), parse2(3), parse2(5), parse2(7));
 
       default:
-        throw new FimError(FimErrorCode.AppError, `Invalid: ${color}`);
+        throw new FimError(FimErrorCode.InvalidParameter, `Invalid: ${color}`);
     }
   }
 

@@ -79,7 +79,7 @@ export class FimGaussianKernel {
 
     // Ensure kernelSize is odd and large enough
     if (kernelSize % 2 !== 1 || kernelSize < 3) {
-      throw new FimError(FimErrorCode.AppError, `Invalid kernel size ${kernelSize}`);
+      throw new FimError(FimErrorCode.InvalidParameter, `Invalid kernel size ${kernelSize}`);
     }
     const halfKernelSize = Math.floor(kernelSize / 2);
 

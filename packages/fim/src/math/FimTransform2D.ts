@@ -90,7 +90,7 @@ export class FimTransform2D {
   private static acceptMatrixOrArray(value: FimTransform2D | number[]): number[] {
     const result = (value instanceof FimTransform2D) ? value.matrixValue : value;
     if (result.length !== 9) {
-      throw new FimError(FimErrorCode.AppError, `Invalid length ${result.length}`);
+      throw new FimError(FimErrorCode.InvalidParameter, `Invalid length ${result.length}`);
     }
 
     return result;

@@ -59,7 +59,7 @@ export class DispatcherClient {
   private buildCommandForDispatch(targetHandle: string, command: DispatcherCommandBase): DispatcherCommand {
     const dispatcher = this.dispatcher;
     if (!dispatcher) {
-      throw new FimError(FimErrorCode.AppError, `${targetHandle} is disposed`);
+      throw new FimError(FimErrorCode.ObjectDisposed, `${targetHandle} is disposed`);
     }
 
     // Add additional properties
