@@ -8,6 +8,8 @@ import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptio
 import { FimColor } from '../../../primitives/FimColor';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
+import { CoreCanvas2D } from '../core/CoreCanvas2D';
+import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { CommandImageFillSolid } from '../../commands/CommandImageFillSolid';
 import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { CommandImageGetPixel } from '../../commands/CommandImageGetPixel';
@@ -48,8 +50,8 @@ export abstract class EngineImage extends EngineObject {
   // safe to assume that the values are equivalent.
   //
   private contentFillColor: FimColor;
-  private contentCanvas: any;
-  private contentGLTexture: any;
+  private contentCanvas: CoreCanvas2D;
+  private contentGLTexture: CoreCanvasWebGL;
 
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
