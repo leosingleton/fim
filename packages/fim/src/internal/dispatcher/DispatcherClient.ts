@@ -72,19 +72,25 @@ export class DispatcherClient {
 
   /** Callback registered with the Dispatcher interface */
   private onCommandResult(result: DispatcherResult): void {
+    // Queue any errors returned
+    if (result.commandError) {
+      this.asyncErrors.push(result.commandError);
+    }
+
     // Find the waiter object by sequence number. It is completely normal for none to be found, as most commands in FIM
     // are asynchronous.
     const waiter = this.waiters[result.sequenceNumber];
     if (waiter) {
+      // Consolidate all errors, both from this command and any previously-asynchronously-executed ones
+      result.commandError = FimError.fromCollection(this.asyncErrors);
+      this.asyncErrors = [];
+
       // Store the result and remove the object from the waiter map
       waiter.result = result;
       delete this.waiters[result.sequenceNumber];
 
       // Wake any waiters
       waiter.doneEvent.setEvent();
-    } else {
-      // TODO: Figure out how to handle errors returned to asynchronous commands!!!!!
-      //throw new FimError(FimErrorCode.NotImplemented);
     }
   }
 
@@ -96,6 +102,12 @@ export class DispatcherClient {
 
   /** Hash table of sequence numbers to waiters on executing commands */
   private waiters: ClientWaiterMap = {};
+
+  /**
+   * Queue used to hold errors returned by asynchronously-executed commands. These get thrown as a result of the next
+   * synchronous command.
+   */
+  private asyncErrors: FimError[] = [];
 }
 
 /**
