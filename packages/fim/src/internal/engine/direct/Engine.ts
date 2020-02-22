@@ -53,7 +53,7 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
       this.onCommandResult(resultObject);
     } catch (err) {
       // Return the error
-      resultObject.commandError = FimError.buildFromError(err);
+      resultObject.commandError = FimError.fromError(err);
       this.onCommandResult(resultObject);
     }
   }

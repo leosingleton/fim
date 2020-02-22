@@ -27,8 +27,8 @@ export class FimError extends Error {
    * @param errors Collection of errors
    * @returns FimError with the lowest-valued error code (the most severe) along with all error details
    */
-  public static buildFromCollection(errors: FimError[]): FimError {
-    if (!errors) {
+  public static fromCollection(errors?: FimError[]): FimError {
+    if (!errors || errors.length === 0) {
       return undefined;
     }
 
@@ -50,11 +50,23 @@ export class FimError extends Error {
   }
 
   /**
+   * Consolidates one or more errors into a single throwable error and throws it
+   * @param errors Collection of errors
+   * @returns Nothing if the collection is empty, otherwise this function never returns as it throws a FimError
+   */
+  public static throwCollection(errors?: FimError[]): void {
+    const err = FimError.fromCollection(errors);
+    if (err) {
+      throw err;
+    }
+  }
+
+  /**
    * Converts a non-FimError exception into a FimError
    * @param error Non-FimError exception
    * @returns FimError-wrapped exception
    */
-  public static buildFromError(error: any): FimError {
+  public static fromError(error: any): FimError {
     if (error instanceof FimError) {
       // Don't re-wrap FimErrors
       return error;
