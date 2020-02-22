@@ -4,7 +4,7 @@
 
 /** Exception class thrown when an error occurs */
 export class FimError extends Error {
-  public constructor(code: FimErrorCode, message?: string, errors?: FimError[]) {
+  public constructor(code: FimErrorCode, message?: string, errors?: Error[]) {
     const codeString = `FIM${code}`;
     message = message ?? codeString;
     super(message);
@@ -20,7 +20,7 @@ export class FimError extends Error {
    * Due to the pipelined design of FIM and WebGL, errors generally get batched up. If the exception occurs for more
    * than one reason, the lowest-valued error is reported and the individual error details are stored here.
    */
-  public readonly collection: FimError[];
+  public readonly collection: Error[];
 
   /**
    * Consolidates one or more errors into a single throwable error
@@ -48,6 +48,21 @@ export class FimError extends Error {
 
     return new FimError(lowest, message, errors);
   }
+
+  /**
+   * Converts a non-FimError exception into a FimError
+   * @param error Non-FimError exception
+   * @returns FimError-wrapped exception
+   */
+  public static buildFromError(error: Error): FimError {
+    if (error instanceof FimError) {
+      // Don't re-wrap FimErrors
+      return error;
+    } else {
+      // Wrap non-FimErrors in a FimError
+      return new FimError(FimErrorCode.NonFimError, `${error.name}: ${error.message}`, [error]);
+    }
+  }
 }
 
 /** Error codes */
@@ -66,6 +81,9 @@ export const enum FimErrorCode {
 
   /** FIM2000: Catch-all for internal errors in the FIM library */
   GenericInternalError = 2000,
+
+  /** FIM2001: Wrapper for any non-FimError exceptions caught within the library */
+  NonFimError = 2001,
 
   /** FIM2100: Invalid opcode */
   InvalidOpcode = 2100,
