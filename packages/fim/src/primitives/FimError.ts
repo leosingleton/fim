@@ -112,6 +112,27 @@ export const enum FimErrorCode {
 
 
   //
+  // 3000-series errors are wrappers around WebGL errors
+  //
+
+  /** FIM3000: Unknown WebGL error */
+  WebGLUnknownError = 3000,
+
+  WebGLInvalidEnum = 3101,
+  WebGLInvalidValue = 3102,
+  WebGLInvalidOperation = 3103,
+  WebGLInvalidFrameBufferOperation = 3104,
+  WebGLCompileError = 3105,
+  WebGLLinkError = 3106,
+
+  WebGLFramebufferStatusUnknown = 3200,
+  WebGLFramebufferStatusIncompleteAttachment = 3201,
+  WebGLFramebufferStatusIncompleteMissingAttachment = 3202,
+  WebGLFramebufferStatusIncompleteDimensions = 3203,
+  WebGLFramebufferStatusUnsupported = 3204,
+
+
+  //
   // 4000-series errors are used for bugs in the the client application which it calls the FIM library in an
   // unsupported way
   //
@@ -136,6 +157,9 @@ export const enum FimErrorCode {
   /** FIM5000: Out of memory */
   OutOfMemory = 5000,
 
-  /** FIM5100: WebGL context was lost */
-  ContextLost = 5100
+  /** FIM5100: Out of memory (returned by a WebGL operation) */
+  WebGLOutOfMemory = 5100,
+
+  /** FIM5101: WebGL context was lost */
+  WebGLContextLost = 5101
 }
