@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CanvasType, DisposableCanvas, domCanvasPool } from './DomCanvasPool';
+import { DisposableCanvas, DomCanvasPoolWebGL } from './DomCanvasPool';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
@@ -12,7 +12,7 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
     super(canvasDimensions, imageHandle);
 
     // Create a hidden canvas
-    const canvas = domCanvasPool.getCanvas(CanvasType.WebGL);
+    const canvas = CoreBrowserCanvasWebGL.canvasPool.getCanvas();
     canvas.width = canvasDimensions.w;
     canvas.height = canvasDimensions.h;
     canvas.style.display = 'none';
@@ -35,4 +35,7 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
   protected getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
   }
+
+  /** Canvas pool of WebGL canvases */
+  private static canvasPool = new DomCanvasPoolWebGL();
 }

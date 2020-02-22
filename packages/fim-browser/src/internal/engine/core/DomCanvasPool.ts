@@ -4,13 +4,7 @@
 
 import { ResourcePool, RetentionStrategy, IDisposable, makeDisposable } from '@leosingleton/commonlibs';
 
-/** Canvas types */
-export const enum CanvasType {
-  Canvas2D,
-  WebGL
-}
-
-export type DisposableCanvas = HTMLCanvasElement & { canvasType: CanvasType } & IDisposable;
+export type DisposableCanvas = HTMLCanvasElement & IDisposable;
 
 /**
  * Safari has a hard limit of 15 WebGL contexts, at which point it logs an error to the JavaScript console and drops
@@ -18,15 +12,14 @@ export type DisposableCanvas = HTMLCanvasElement & { canvasType: CanvasType } & 
  * (https://www.khronos.org/registry/webgl/extensions/WEBGL_lose_context/) however it doesn't seem to work. Instead, we
  * use a resource pool to reuse canvases rather than waiting for the garbage collector to dispose them.
  */
-class DomCanvasPool extends ResourcePool<DisposableCanvas> {
+export class DomCanvasPool extends ResourcePool<DisposableCanvas> {
   public constructor() {
     super(RetentionStrategy.KeepMaximum);
   }
 
-  public getCanvas(canvasType: CanvasType): DisposableCanvas {
-    return this.getOrCreateObject(canvasType.toString(), () => {
+  public getCanvas(): DisposableCanvas {
+    return this.getOrCreateObject('canvas', () => {
       const canvas = document.createElement('canvas') as DisposableCanvas;
-      canvas.canvasType = canvasType;
 
       return makeDisposable(canvas, canvas => {
         // Resizing the canvas to zero seems to help Safari release memory without having to wait for the garbage
@@ -47,19 +40,18 @@ class DomCanvasPool extends ResourcePool<DisposableCanvas> {
 
     return true;
   }
+}
 
+/** Implementation of DomCanvasPool for WebGL canvases */
+export class DomCanvasPoolWebGL extends DomCanvasPool {
   protected defrost(canvas: DisposableCanvas): boolean {
     // Ensure that WebGL canvases still have a valid context. Browsers may choose to lose it while it was in the pool
     // if running low on resources.
-    if (canvas.canvasType === CanvasType.WebGL) {
-      const context = canvas.getContext('webgl');
-      if (context.isContextLost()) {
-        return false;
-      }
+    const context = canvas.getContext('webgl');
+    if (context.isContextLost()) {
+      return false;
     }
 
     return true;
   }
 }
-
-export const domCanvasPool = new DomCanvasPool();
