@@ -5,8 +5,9 @@
 import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
 import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptions';
-import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimColor } from '../../../primitives/FimColor';
+import { FimDimensions } from '../../../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../../../primitives/FimError';
 import { CommandImageFillSolid } from '../../commands/CommandImageFillSolid';
 import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { CommandImageGetPixel } from '../../commands/CommandImageGetPixel';
@@ -81,7 +82,7 @@ export abstract class EngineImage extends EngineObject {
     }
 
     // TODO: copy GL to canvas and read a pixel
-    throw new Error('not implemented');
+    throw new FimError(FimErrorCode.NotImplemented);
   }
 
   private commandSetOptions(command: CommandImageSetOptions): void {
@@ -89,6 +90,6 @@ export abstract class EngineImage extends EngineObject {
   }
 
   private commandSetPixel(_command: CommandImageSetPixel): void {
-    throw new Error('not implemented');
+    throw new FimError(FimErrorCode.NotImplemented);
   }
 }

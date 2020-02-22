@@ -54,14 +54,21 @@ export class FimError extends Error {
    * @param error Non-FimError exception
    * @returns FimError-wrapped exception
    */
-  public static buildFromError(error: Error): FimError {
+  public static buildFromError(error: any): FimError {
     if (error instanceof FimError) {
       // Don't re-wrap FimErrors
       return error;
-    } else {
-      // Wrap non-FimErrors in a FimError
-      return new FimError(FimErrorCode.NonFimError, `${error.name}: ${error.message}`, [error]);
     }
+
+    let message: string;
+    if (error instanceof Error) {
+      message = `${error.name}: ${error.message}`;
+    } else {
+      message = error.toString() ?? 'Unknown Error';
+    }
+
+    // Wrap non-FimErrors in a FimError
+    return new FimError(FimErrorCode.NonFimError, message, [error]);
   }
 }
 
@@ -85,35 +92,38 @@ export const enum FimErrorCode {
   /** FIM2001: Wrapper for any non-FimError exceptions caught within the library */
   NonFimError = 2001,
 
+  /** FIM2002: Not implemented */
+  NotImplemented = 2002,
+
   /** FIM2100: Invalid opcode */
   InvalidOpcode = 2100,
 
 
   //
-  // 3000-series errors are used for bugs in the the client application which it calls the FIM library in an
+  // 4000-series errors are used for bugs in the the client application which it calls the FIM library in an
   // unsupported way
   //
 
-  /** FIM3000: Catch-all for bugs in the client application */
-  GenericAppError = 3000,
+  /** FIM4000: Catch-all for bugs in the client application */
+  GenericAppError = 4000,
 
-  /** FIM3100: Invalid parameter (supplied by the client application) */
-  InvalidParameter = 3100,
+  /** FIM4100: Invalid parameter (supplied by the client application) */
+  InvalidParameter = 4100,
 
-  /** FIM3101: Invalid handle */
-  InvalidHandle = 3101,
+  /** FIM4101: Invalid handle */
+  InvalidHandle = 4101,
 
-  /** FIM3200: Attempted to call a method on a disposed object */
-  ObjectDisposed = 3200,
+  /** FIM4200: Attempted to call a method on a disposed object */
+  ObjectDisposed = 4200,
 
 
   //
-  // 4000-series errors are used for resource exhaustion
+  // 5000-series errors are used for resource exhaustion
   //
 
-  /** FIM4000: Out of memory */
-  OutOfMemory = 4000,
+  /** FIM5000: Out of memory */
+  OutOfMemory = 5000,
 
-  /** FIM4100: WebGL context was lost */
-  ContextLost = 4100
+  /** FIM5100: WebGL context was lost */
+  ContextLost = 5100
 }

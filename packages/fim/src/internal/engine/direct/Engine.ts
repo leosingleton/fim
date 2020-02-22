@@ -5,6 +5,7 @@
 import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
+import { FimError } from '../../../primitives/FimError';
 import { FimObjectType } from '../../client/FimObjectType';
 import { CommandCreate } from '../../commands/CommandCreate';
 import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
@@ -52,7 +53,7 @@ export abstract class Engine<TEngineFim extends EngineFim<TEngineImage>, TEngine
       this.onCommandResult(resultObject);
     } catch (err) {
       // Return the error
-      resultObject.commandError = err;
+      resultObject.commandError = FimError.buildFromError(err);
       this.onCommandResult(resultObject);
     }
   }
