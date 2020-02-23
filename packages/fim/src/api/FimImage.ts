@@ -43,13 +43,8 @@ export interface FimImage extends FimObject {
   getPixelAsync(x: number, y: number): Promise<FimColor>;
 
   /**
-   * Sets the value of one pixel.
-   *
-   * Note that this call is fairly inefficient, and should only be used infrequently, mainly for debugging.
-   *
-   * @param x X-offset, in pixels
-   * @param y Y-offset, in pixels
-   * @param color RGBA color value
+   * Loads the image contents from RGBA data
+   * @param pixelData An array containing 4 bytes per pixel, in RGBA order
    */
-  setPixel(x: number, y: number, color: FimColor | string): void;
+  loadPixelData(pixelData: Uint8Array): void;
 }

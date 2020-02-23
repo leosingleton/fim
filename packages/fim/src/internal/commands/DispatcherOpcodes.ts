@@ -10,8 +10,8 @@ export enum DispatcherOpcodes {
   ExecutionBarrier = 'ExecutionBarrier',
   ImageFillSolid = 'ImageFillSolid',
   ImageGetPixel = 'ImageGetPixel',
+  ImageLoadPixelData = 'ImageLoadPixelData',
   ImageSetOptions = 'ImageSetOptions',
-  ImageSetPixel = 'ImageSetPixel',
   ReleaseResources = 'ReleaseResources',
   SetExecutionOptions = 'SetExecutionOptions'
 }

@@ -11,8 +11,8 @@ import { FimColor } from '../../primitives/FimColor';
 import { FimDimensions } from '../../primitives/FimDimensions';
 import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
 import { CommandImageGetPixel } from '../commands/CommandImageGetPixel';
+import { CommandImageLoadPixelData } from '../commands/CommandImageLoadPixelData';
 import { CommandImageSetOptions } from '../commands/CommandImageSetOptions';
-import { CommandImageSetPixel } from '../commands/CommandImageSetPixel';
 import { DispatcherOpcodes } from '../commands/DispatcherOpcodes';
 import { DispatcherClient } from '../dispatcher/DispatcherClient';
 import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
@@ -93,15 +93,10 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
     return FimColor.fromString(colorString);
   }
 
-  public setPixel(x: number, y: number, color: string | FimColor): void {
-    // Force color to be a string
-    const colorString = (typeof(color) === 'string') ? color : color.string;
-
-    const command: CommandImageSetPixel = {
-      opcode: DispatcherOpcodes.ImageSetPixel,
-      x,
-      y,
-      color: colorString,
+  public loadPixelData(pixelData: Uint8Array): void {
+    const command: CommandImageLoadPixelData = {
+      opcode: DispatcherOpcodes.ImageLoadPixelData,
+      pixelData,
       optimizationHints: {
         canQueue: true,
         writeHandles: [this.handle]

@@ -14,8 +14,8 @@ import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { CommandImageFillSolid } from '../../commands/CommandImageFillSolid';
 import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
 import { CommandImageGetPixel } from '../../commands/CommandImageGetPixel';
+import { CommandImageLoadPixelData } from '../../commands/CommandImageLoadPixelData';
 import { CommandImageSetOptions } from '../../commands/CommandImageSetOptions';
-import { CommandImageSetPixel } from '../../commands/CommandImageSetPixel';
 import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
 import { deepCopy } from '@leosingleton/commonlibs';
 
@@ -69,11 +69,11 @@ export abstract class EngineImage extends EngineObject {
       case DispatcherOpcodes.ImageGetPixel:
         return this.commandGetPixel(command as any as CommandImageGetPixel);
 
+      case DispatcherOpcodes.ImageLoadPixelData:
+        return this.commandLoadPixelData(command as any as CommandImageLoadPixelData);
+
       case DispatcherOpcodes.ImageSetOptions:
         return this.commandSetOptions(command as any as CommandImageSetOptions);
-
-      case DispatcherOpcodes.ImageSetPixel:
-        return this.commandSetPixel(command as any as CommandImageSetPixel);
 
       default:
         return super.executeCommand(command);
@@ -95,13 +95,13 @@ export abstract class EngineImage extends EngineObject {
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
+  private commandLoadPixelData(_command: CommandImageLoadPixelData): void {
+    throw new FimError(FimErrorCode.NotImplemented);
+  }
+
   private commandSetOptions(command: CommandImageSetOptions): void {
     // The imageOptions property is readonly so other objects may create a reference to it. In order to update it, we
     // can't create a new object, and instead must do a property-by-property copy of the values.
     EngineObject.cloneProperties(this.imageOptions, command.imageOptions);
-  }
-
-  private commandSetPixel(_command: CommandImageSetPixel): void {
-    throw new FimError(FimErrorCode.NotImplemented);
   }
 }

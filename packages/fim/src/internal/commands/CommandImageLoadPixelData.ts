@@ -6,15 +6,9 @@ import { DispatcherCommandBase } from '../dispatcher/DispatcherCommandBase';
 import { DispatcherOpcodes } from './DispatcherOpcodes';
 
 /** Command to set the value of one pixel */
-export interface CommandImageSetPixel extends DispatcherCommandBase {
-  opcode: DispatcherOpcodes.ImageSetPixel;
+export interface CommandImageLoadPixelData extends DispatcherCommandBase {
+  opcode: DispatcherOpcodes.ImageLoadPixelData;
 
-  /** X-offset, in pixels */
-  x: number;
-
-  /** Y-offset, in pixels */
-  y: number;
-
-  /** RGBA color value */
-  color: string;
+  /** An array containing 4 bytes per pixel, in RGBA order */
+  pixelData: Uint8Array;
 }
