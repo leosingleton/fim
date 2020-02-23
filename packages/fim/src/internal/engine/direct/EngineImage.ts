@@ -61,7 +61,7 @@ export abstract class EngineImage extends EngineObject {
   private contentCanvas: CoreCanvas2D;
   private contentGLTexture: CoreCanvasWebGL;
 
-  public executeCommand(command: DispatcherCommand): any {
+  public executeCommand(command: DispatcherCommand): Promise<any> {
     switch (command.opcode) {
       case DispatcherOpcodes.ImageFillSolid:
         return this.commandFillSolid(command as any as CommandImageFillSolid);
@@ -80,13 +80,13 @@ export abstract class EngineImage extends EngineObject {
     }
   }
 
-  private commandFillSolid(command: CommandImageFillSolid): void {
+  private async commandFillSolid(command: CommandImageFillSolid): Promise<void> {
     this.contentFillColor = FimColor.fromString(command.color);
     this.contentCanvas = undefined;
     this.contentGLTexture = undefined;
   }
 
-  private commandGetPixel(_command: CommandImageGetPixel): string {
+  private async commandGetPixel(_command: CommandImageGetPixel): Promise<string> {
     if (this.contentFillColor) {
       return this.contentFillColor.string;
     }
@@ -95,11 +95,11 @@ export abstract class EngineImage extends EngineObject {
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
-  private commandLoadPixelData(_command: CommandImageLoadPixelData): void {
+  private async commandLoadPixelData(_command: CommandImageLoadPixelData): Promise<void> {
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
-  private commandSetOptions(command: CommandImageSetOptions): void {
+  private async commandSetOptions(command: CommandImageSetOptions): Promise<void> {
     // The imageOptions property is readonly so other objects may create a reference to it. In order to update it, we
     // can't create a new object, and instead must do a property-by-property copy of the values.
     EngineObject.cloneProperties(this.imageOptions, command.imageOptions);

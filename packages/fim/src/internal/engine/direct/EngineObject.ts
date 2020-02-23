@@ -123,7 +123,7 @@ export abstract class EngineObject {
   protected isDisposed = false;
 
   /** Derived classes must overload this method to handle any commands they add to the FIM engine */
-  public executeCommand(command: DispatcherCommand): any {
+  public executeCommand(command: DispatcherCommand): Promise<any> {
     switch (command.opcode) {
       case DispatcherOpcodes.Dispose:
         return this.commandDisposeCommand(command as any as CommandDispose);
@@ -136,11 +136,11 @@ export abstract class EngineObject {
     }
   }
 
-  private commandDisposeCommand(_command: CommandDispose): void {
+  private async commandDisposeCommand(_command: CommandDispose): Promise<void> {
     this.dispose();
   }
 
-  private commandReleaseResourcesCommand(command: CommandReleaseResources): void {
+  private async commandReleaseResourcesCommand(command: CommandReleaseResources): Promise<void> {
     this.releaseResources(command.flags);
   }
 

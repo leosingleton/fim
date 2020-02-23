@@ -31,7 +31,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   /** Options for the FIM execution engine */
   public readonly executionOptions: FimExecutionOptions;
 
-  public executeCommand(command: DispatcherCommand): any {
+  public executeCommand(command: DispatcherCommand): Promise<any> {
     switch (command.opcode) {
       case DispatcherOpcodes.CreateImage:
         return this.commandCreateImage(command as any as CommandCreateImage);
@@ -44,7 +44,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
     }
   }
 
-  private commandCreateImage(command: CommandCreateImage): void {
+  private async commandCreateImage(command: CommandCreateImage): Promise<void> {
     const image = this.createEngineImage(command.imageShortHandle, command.imageDimensions);
     this.addChild(image);
   }
@@ -52,7 +52,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(shortHandle: string, imageDimensions: FimDimensions): TEngineImage;
 
-  private commandSetExecutionOptions(command: CommandSetExecutionOptions): void {
+  private async commandSetExecutionOptions(command: CommandSetExecutionOptions): Promise<void> {
     // The executionOptions property is readonly so other objects may create a reference to it. In order to update it,
     // we can't create a new object, and instead must do a property-by-property copy of the values.
     EngineObject.cloneProperties(this.executionOptions, command.executionOptions);
