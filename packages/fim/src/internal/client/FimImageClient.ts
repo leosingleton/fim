@@ -9,6 +9,7 @@ import { FimImage } from '../../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../../api/FimImageOptions';
 import { FimColor } from '../../primitives/FimColor';
 import { FimDimensions } from '../../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../../primitives/FimError';
 import { CommandImageFillSolid } from '../commands/CommandImageFillSolid';
 import { CommandImageGetPixel } from '../commands/CommandImageGetPixel';
 import { CommandImageLoadPixelData } from '../commands/CommandImageLoadPixelData';
@@ -94,6 +95,13 @@ export abstract class FimImageClient extends FimObjectClient implements FimImage
   }
 
   public loadPixelData(pixelData: Uint8Array): void {
+    // Validate the array size matches the expected dimensions
+    const dim = this.imageDimensions;
+    const expectedLength = dim.getArea() * 4;
+    if (pixelData.length !== expectedLength) {
+      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dim}`);
+    }
+
     const command: CommandImageLoadPixelData = {
       opcode: DispatcherOpcodes.ImageLoadPixelData,
       pixelData,
