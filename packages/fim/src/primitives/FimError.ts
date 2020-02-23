@@ -146,6 +146,9 @@ export const enum FimErrorCode {
   /** FIM4101: Invalid handle */
   InvalidHandle = 4101,
 
+  /** FIM4102: Invalid dimensions */
+  InvalidDimensions = 4102,
+
   /** FIM4200: Attempted to call a method on a disposed object */
   ObjectDisposed = 4200,
 

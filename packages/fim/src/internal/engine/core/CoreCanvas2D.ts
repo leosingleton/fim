@@ -73,23 +73,21 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   /**
-   * Sets the pixel color at the specified coordinate
-   * @param x X-coordinate, in pixels
-   * @param y Y-coordinate, in pixels
-   * @param color Pixel color
+   * Loads the image contents from RGBA data
+   * @param pixelData An array containing 4 bytes per pixel, in RGBA order
    */
-  public setPixel(x: number, y: number, color: FimColor): void {
-    const point = FimPoint.fromXY(x, y).toFloor();
-    this.validateCoordinates(point);
+  public loadPixelData(pixelData: Uint8Array): void {
+    // Validate the array size matches the expected dimensions
+    const dim = this.canvasDimensions;
+    const expectedLength = dim.getArea() * 4;
+    if (pixelData.length !== expectedLength) {
+      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dim}`);
+    }
 
     using(this.createDrawingContext(), ctx => {
-      const imgData = ctx.createImageData(1, 1);
-      const data = imgData.data;
-      data[0] = color.r;
-      data[1] = color.g;
-      data[2] = color.b;
-      data[3] = color.a;
-      ctx.putImageData(imgData, point.x, point.y);
+      const imgData = ctx.createImageData(dim.w, dim.h);
+      imgData.data.set(pixelData);
+      ctx.putImageData(imgData, 0, 0);
     });
   }
 

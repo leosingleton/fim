@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { TestImages } from '../misc/TestImages';
 import { FimDimensions, FimColor } from '@leosingleton/fim';
 import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 
@@ -24,7 +25,8 @@ export function coreCanvas2D(
     it('Gets and sets pixels', () => {
       const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Gets and sets pixels`);
       const color = FimColor.fromString('#f0f');
-      canvas.setPixel(50, 50, color);
+      const pixelData = TestImages.solidPixelData(100, 100, color);
+      canvas.loadPixelData(pixelData);
       expect(canvas.getPixel(50, 50)).toEqual(color);
       canvas.dispose();
     });

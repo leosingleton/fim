@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimColor } from '@leosingleton/fim';
+
 export namespace TestImages {
   /**
    * A Base64-encoded string containing a 128x128 pixel JPEG. The image consists of four solid-colored squares:
@@ -44,5 +46,32 @@ export namespace TestImages {
   export function fourSquaresJpeg(): Uint8Array {
     // Base64-decode the data
     return Uint8Array.from(atob(fourSquaresJpegBase64), c => c.charCodeAt(0));
+  }
+
+  /**
+   * Returns an array of RGBA pixel data with a solid color
+   * @param width Width, in pixels
+   * @param height Height, in pixels
+   * @param color Color to fill
+   */
+  export function solidPixelData(width: number, height: number, color: FimColor | string): Uint8Array {
+    // Ensure color is a FimColor object
+    if (!(color instanceof FimColor)) {
+      color = FimColor.fromString(color);
+    }
+
+    const result = new Uint8Array(width * height * 4);
+    for (let y = 0; y < height; y++) {
+      const yOffset = y * width;
+      for (let x = 0; x < width; x++) {
+        const offset = (yOffset + x) * 4;
+        result[offset] = color.r;
+        result[offset + 1] = color.g;
+        result[offset + 2] = color.b;
+        result[offset + 3] = color.a;
+      }
+    }
+
+    return result;
   }
 }
