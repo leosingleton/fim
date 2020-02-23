@@ -29,7 +29,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   }
 
   /** Options for the FIM execution engine */
-  public executionOptions: FimExecutionOptions;
+  public readonly executionOptions: FimExecutionOptions;
 
   public executeCommand(command: DispatcherCommand): any {
     switch (command.opcode) {
@@ -53,6 +53,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   protected abstract createEngineImage(shortHandle: string, imageDimensions: FimDimensions): TEngineImage;
 
   private commandSetExecutionOptions(command: CommandSetExecutionOptions): void {
-    this.executionOptions = command.executionOptions;
+    // The executionOptions property is readonly so other objects may create a reference to it. In order to update it,
+    // we can't create a new object, and instead must do a property-by-property copy of the values.
+    EngineObject.cloneProperties(this.executionOptions, command.executionOptions);
   }
 }

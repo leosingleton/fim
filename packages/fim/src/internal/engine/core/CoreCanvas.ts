@@ -2,11 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimExecutionOptions, defaultExecutionOptions } from '../../../api/FimExecutionOptions';
+import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptions';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimDimensions } from '../../../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../../../primitives/FimError';
 import { FimPoint } from '../../../primitives/FimPoint';
 import { FimRect } from '../../../primitives/FimRect';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas {
@@ -14,10 +17,15 @@ export abstract class CoreCanvas {
    * Derived classes must override this constructor to instantiate the canvasElement object
    * @param canvasDimensions Canvas dimensions
    * @param imageHandle Handle of the image that owns this canvas. Used only for debugging.
+   * @param executionOptions Options for the FIM execution engine
+   * @param imageOptions Image options
    */
-  protected constructor(canvasDimensions: FimDimensions, imageHandle: string) {
+  protected constructor(canvasDimensions: FimDimensions, imageHandle: string, executionOptions?: FimExecutionOptions,
+      imageOptions?: FimImageOptions) {
     this.canvasDimensions = canvasDimensions.toFloor();
     this.imageHandle = imageHandle;
+    this.executionOptions = executionOptions ?? deepCopy(defaultExecutionOptions);
+    this.imageOptions = imageOptions ?? deepCopy(defaultImageOptions);
   }
 
   /** Canvas dimensions */
@@ -25,6 +33,12 @@ export abstract class CoreCanvas {
 
   /** Handle of the image that owns this canvas. Used only for debugging. */
   public readonly imageHandle: string;
+
+  /** Options for the FIM execution engine */
+  public readonly executionOptions: FimExecutionOptions;
+
+  /** Image options */
+  public readonly imageOptions: FimImageOptions;
 
   /** Derived classes must override this method to dispose the canvas */
   public abstract dispose(): void;

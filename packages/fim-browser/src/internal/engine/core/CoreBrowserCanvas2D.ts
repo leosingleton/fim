@@ -3,13 +3,14 @@
 // See LICENSE in the project root for license information.
 
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
-import { FimDimensions } from '@leosingleton/fim';
+import { FimDimensions, FimExecutionOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvas2D extends CoreCanvas2D {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string) {
-    super(canvasDimensions, imageHandle);
+  public constructor(canvasDimensions: FimDimensions, imageHandle: string, executionOptions?: FimExecutionOptions,
+      imageOptions?: FimImageOptions) {
+    super(canvasDimensions, imageHandle, executionOptions, imageOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserCanvas2D.canvasPool.getCanvas();

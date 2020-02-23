@@ -3,13 +3,14 @@
 // See LICENSE in the project root for license information.
 
 import { DisposableCanvas, DomCanvasPoolWebGL } from './DomCanvasPool';
-import { FimDimensions } from '@leosingleton/fim';
+import { FimDimensions, FimExecutionOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string) {
-    super(canvasDimensions, imageHandle);
+  public constructor(canvasDimensions: FimDimensions, imageHandle: string, executionOptions?: FimExecutionOptions,
+      imageOptions?: FimImageOptions) {
+    super(canvasDimensions, imageHandle, executionOptions, imageOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserCanvasWebGL.canvasPool.getCanvas();

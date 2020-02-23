@@ -2,14 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimDimensions, FimError, FimErrorCode } from '@leosingleton/fim';
+import { FimDimensions, FimError, FimErrorCode, FimExecutionOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 import createContext from 'gl';
 
 /** Wrapper around the headless-gl WebGL library */
 export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string) {
-    super(canvasDimensions, imageHandle);
+  public constructor(canvasDimensions: FimDimensions, imageHandle: string, executionOptions?: FimExecutionOptions,
+      imageOptions?: FimImageOptions) {
+    super(canvasDimensions, imageHandle, executionOptions, imageOptions);
 
     // Create the canvas using headless-gl
     const gl = this.glContext = createContext(canvasDimensions.w, canvasDimensions.h);

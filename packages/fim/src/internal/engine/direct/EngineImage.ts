@@ -4,6 +4,7 @@
 
 import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
+import { FimExecutionOptions } from '../../../api/FimExecutionOptions';
 import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptions';
 import { FimColor } from '../../../primitives/FimColor';
 import { FimDimensions } from '../../../primitives/FimDimensions';
@@ -32,13 +33,20 @@ export abstract class EngineImage extends EngineObject {
 
     // Initialize the image options to defaults. We will use these until we receive a SetImageOptions command.
     this.imageOptions = deepCopy(defaultImageOptions);
+
+    // Inherit execution options from the parent EngineFim. The parent class will update the property values on the
+    // same readonly instance.
+    this.executionOptions = fim.executionOptions;
   }
 
   /** Image dimensions */
   public readonly imageDimensions: FimDimensions;
 
+  /** Options for the FIM execution engine */
+  public readonly executionOptions: FimExecutionOptions;
+
   /** Image options */
-  public imageOptions: FimImageOptions;
+  public readonly imageOptions: FimImageOptions;
 
   //
   // Internally, the image contents has three different representations:
@@ -88,7 +96,9 @@ export abstract class EngineImage extends EngineObject {
   }
 
   private commandSetOptions(command: CommandImageSetOptions): void {
-    this.imageOptions = command.imageOptions;
+    // The imageOptions property is readonly so other objects may create a reference to it. In order to update it, we
+    // can't create a new object, and instead must do a property-by-property copy of the values.
+    EngineObject.cloneProperties(this.imageOptions, command.imageOptions);
   }
 
   private commandSetPixel(_command: CommandImageSetPixel): void {

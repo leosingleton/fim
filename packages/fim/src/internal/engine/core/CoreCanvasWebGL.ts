@@ -13,12 +13,6 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   /** Derived classes must override this method to call canvas.getContext('webgl') */
   protected abstract getContext(): RenderingContextWebGL;
 
-  /**
-   * Checks for errors on every WebGL call. While useful for debugging, enabling this can have a negative impact on
-   * WebGL's ability to pipeline GPU operations.
-   */
-  public debugMode = false;
-
   /** Checks for any WebGL errors and throws a FimError if there are any */
   protected throwWebGLErrors(): void {
     const gl = this.getContext();
@@ -40,7 +34,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /** If we are in debugging mode, checks for any WebGL errors and throws a FimError if there are any */
   protected throwWebGLErrorsDebug(): void {
-    if (this.debugMode) {
+    if (this.executionOptions.debugMode) {
       this.throwWebGLErrors();
     }
   }

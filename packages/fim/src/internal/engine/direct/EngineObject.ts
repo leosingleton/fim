@@ -143,4 +143,15 @@ export abstract class EngineObject {
   private commandReleaseResourcesCommand(command: CommandReleaseResources): void {
     this.releaseResources(command.flags);
   }
+
+  /**
+   * Copies the properties of `src` to `dest`
+   * @param dest Destination object
+   * @param src Source object
+   */
+  protected static cloneProperties<T>(dest: T, src: T): void {
+    for (const prop in src) {
+      dest[prop] = src[prop];
+    }
+  }
 }
