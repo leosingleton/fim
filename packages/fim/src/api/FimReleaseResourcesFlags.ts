@@ -11,8 +11,8 @@ export const enum FimReleaseResourcesFlags {
   WebGLTexture = (1 << 1),
 
   /** Releases all WebGL resources */
-  WebGL = (1 << 2),
+  WebGL = (1 << 2) | WebGLTexture,
 
   /** Releases all resources, WebGL and non-WebGL */
-  All = Canvas | WebGLTexture | WebGL
+  All = Canvas | WebGL
 }
