@@ -45,9 +45,15 @@ describe('FimDimensions', () => {
   });
 
   it('Downscales dimensions', () => {
-    const d2 = FimDimensions.downscaleToMaxDimension(640, 480, 512);
-    expect(d2.w).toEqual(512);
-    expect(d2.h).toEqual(384);
+    const dim = FimDimensions.downscaleToMaxDimension(640, 480, 512);
+    expect(dim.w).toEqual(512);
+    expect(dim.h).toEqual(384);
+  });
+
+  it('Does not downscale if below max', () => {
+    const dim = FimDimensions.downscaleToMaxDimension(640, 480, 1024);
+    expect(dim.w).toEqual(640);
+    expect(dim.h).toEqual(480);
   });
 
 });

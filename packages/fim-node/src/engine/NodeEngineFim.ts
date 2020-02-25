@@ -5,14 +5,10 @@
 import { NodeEngineImage } from './NodeEngineImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
-import { FimDimensions, FimEngineOptions, FimImageOptions, FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL, EngineFim } from '@leosingleton/fim/internals';
 
 export class NodeEngineFim extends EngineFim<NodeEngineImage> {
-  protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
-    // TODO
-  }
-
   protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
       NodeEngineImage {
     return new NodeEngineImage(this, dimensions, options, imageName);

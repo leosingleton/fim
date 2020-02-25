@@ -6,12 +6,6 @@ import { FimExecutionStrategy } from './FimExecutionStrategy';
 
 /** Options for the FIM execution engine */
 export interface FimEngineOptions {
-  /**
-   * Disables offscreen canvas support. This can be useful for debugging, as Chrome's support is new and still has some
-   * bugs, plus regular canvases can be made visible in the browser's debugging tools.
-   */
-  disableOffscreenCanvas: boolean;
-
   /** Execution strategy (space vs. time) */
   executionStrategy: FimExecutionStrategy;
 
@@ -20,6 +14,24 @@ export interface FimEngineOptions {
 
   /** Maximum GPU memory to use, in bytes. 0 for no limit. */
   maxGLMemory: number;
+
+  /**
+   * Disables offscreen canvas support. This can be useful for debugging, as Chrome's support is new and still has some
+   * bugs, plus regular canvases can be made visible in the browser's debugging tools.
+   */
+  disableOffscreenCanvas: boolean;
+
+  /**
+   * If set to a positive number, the WebGL render buffer is limited to the lower of this value or the GPU's stated
+   * capabilities.
+   */
+  maxGLRenderBufferSize: number;
+
+  /**
+   * If set to a positive number, the WebGL texture size is limited to the lower of this value or the GPU's stated
+   * capabilities.
+   */
+  maxGLTextureSize: number;
 
   /**
    * Checks for errors on every WebGL call. While useful for debugging, enabling this can have a negative impact on
@@ -36,10 +48,12 @@ export interface FimEngineOptions {
 
 /** Default values when FIM is first instantiated */
 export const defaultEngineOptions: FimEngineOptions = {
-  disableOffscreenCanvas: false,
   executionStrategy: FimExecutionStrategy.MaximizeSpeed,
   maxCanvasMemory: 0,
   maxGLMemory: 0,
+  disableOffscreenCanvas: false,
+  maxGLRenderBufferSize: 0,
+  maxGLTextureSize: 0,
   debugMode: false,
   showTracing: false,
   showWarnings: true

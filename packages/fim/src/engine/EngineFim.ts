@@ -9,6 +9,7 @@ import { Fim } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
+import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -68,6 +69,51 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
 
   // Force parentObject to be a more specific type
   public parentObject: never;
+
+  /** Returns the WebGL canvas for running shaders. Creates the canvas on first use. */
+  public getWebGLCanvas(): CoreCanvasWebGL {
+    const me = this;
+
+    // The WebGL canvas is created on first use and may be disposed prematurely via releaseResources(). If it is already
+    // allocated, simply return it.
+    if (me.glCanvas) {
+      return me.glCanvas;
+    }
+
+    // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. First, read the device capabilities
+    // to ensure we do not exceed the GPU's capabilities
+    const caps = me.capabilities;
+    let maxDimension = caps.glMaxRenderBufferSize;
+
+    // The NVIDIA Quadro NVS 295 claims to have a maxRenderBufferSize of 8192 (the same as its maxTextureSize), but is
+    // unstable if you create a WebGL canvas larger than 2048x2048. Ignore its capabilities and enforce a lower
+    // maximum limit. (Workaround for Yuri's old PC)
+    if (caps.glUnmaskedVendor.indexOf('NVS 295') >= 0) {
+      maxDimension = 2048;
+    }
+
+    // If a lower render buffer limit was set for debugging, use that instead
+    const debugMaxDimension = me.engineOptions.maxGLRenderBufferSize;
+    if (debugMaxDimension > 0) {
+      maxDimension = Math.min(maxDimension, debugMaxDimension);
+    }
+
+    // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
+    // the requested resolution.
+    const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
+    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.handle, me.engineOptions, {});
+    return glCanvas;
+  }
+
+  /** The WebGL canvas created by getWebGLCanvas() */
+  private glCanvas: CoreCanvasWebGL;
+
+  protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
+    if ((flags & FimReleaseResourcesFlags.WebGL) && this.glCanvas) {
+      this.glCanvas.dispose();
+      this.glCanvas = undefined;
+    }
+  }
 
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
     this.ensureNotDisposed();

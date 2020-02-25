@@ -30,6 +30,16 @@ export class FimDimensions {
     return new FimDimensions(this.w * ratio, this.h * ratio);
   }
 
+  /**
+   * Downscales this to a maximum dimension, preserving aspect ratio
+   * @param maxDimension Maximum value of either width or height
+   * @returns Downscaled FimDimensions with the same aspect ratio as this one. Note that the dimensions are rounded
+   *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
+   */
+  public downscaleToMaxDimension(maxDimension: number): FimDimensions {
+    return FimDimensions.downscaleToMaxDimension(this.w, this.h, maxDimension);
+  }
+
   public toFloor(): FimDimensions {
     return new FimDimensions(Math.floor(this.w), Math.floor(this.h));
   }
@@ -55,6 +65,10 @@ export class FimDimensions {
    *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
    */
   public static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimDimensions {
+    if (width <= maxDimension && height <= maxDimension) {
+      return new FimDimensions(width, height);
+    }
+
     const scale = Math.min(maxDimension / width, maxDimension / height);
     return new FimDimensions(width * scale, height * scale).toFloor();
   }

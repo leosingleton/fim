@@ -7,14 +7,10 @@ import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
 import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
-import { FimDimensions, FimEngineOptions, FimImageOptions, FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL, EngineFim } from '@leosingleton/fim/internals';
 
 export class BrowserEngineFim extends EngineFim<BrowserEngineImage> {
-  protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
-    // TODO
-  }
-
   protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(this, dimensions, options, imageName);
