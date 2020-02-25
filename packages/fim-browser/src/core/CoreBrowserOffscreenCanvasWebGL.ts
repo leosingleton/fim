@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimColor, FimDimensions } from '@leosingleton/fim';
+import { FimColor, FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
@@ -10,8 +10,9 @@ import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/intern
 
 /** Wrapper around the browser's OffscreenCanvas */
 export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string) {
-    super(canvasDimensions, imageHandle);
+  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
+      imageOptions?: FimImageOptions) {
+    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
     this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
   }
 

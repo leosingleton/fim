@@ -6,7 +6,7 @@ import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { Fim } from '../api/Fim';
-import { FimExecutionOptions, defaultExecutionOptions } from '../api/FimExecutionOptions';
+import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -24,12 +24,12 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
-    this.executionOptions = deepCopy(defaultExecutionOptions);
+    this.engineOptions = deepCopy(defaultEngineOptions);
     this.defaultImageOptions = deepCopy(defaultImageOptions);
   }
 
   public readonly maxImageDimensions: FimDimensions;
-  public readonly executionOptions: FimExecutionOptions;
+  public readonly engineOptions: FimEngineOptions;
   public readonly defaultImageOptions: FimImageOptions;
 
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {

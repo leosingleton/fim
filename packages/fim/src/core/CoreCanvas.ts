@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimExecutionOptions, defaultExecutionOptions } from '../api/FimExecutionOptions';
+import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -17,14 +17,14 @@ export abstract class CoreCanvas {
    * Derived classes must override this constructor to instantiate the canvasElement object
    * @param canvasDimensions Canvas dimensions
    * @param imageHandle Handle of the image that owns this canvas. Used only for debugging.
-   * @param executionOptions Options for the FIM execution engine
+   * @param engineOptions Options for the FIM execution engine
    * @param imageOptions Image options
    */
-  protected constructor(canvasDimensions: FimDimensions, imageHandle: string, executionOptions?: FimExecutionOptions,
+  protected constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
       imageOptions?: FimImageOptions) {
     this.canvasDimensions = canvasDimensions.toFloor();
     this.imageHandle = imageHandle;
-    this.executionOptions = executionOptions ?? deepCopy(defaultExecutionOptions);
+    this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
     this.imageOptions = imageOptions ?? deepCopy(defaultImageOptions);
   }
 
@@ -35,7 +35,7 @@ export abstract class CoreCanvas {
   public readonly imageHandle: string;
 
   /** Options for the FIM execution engine */
-  public readonly executionOptions: FimExecutionOptions;
+  public readonly engineOptions: FimEngineOptions;
 
   /** Image options */
   public readonly imageOptions: FimImageOptions;

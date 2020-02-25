@@ -2,15 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimDimensions, FimExecutionOptions, FimImageOptions } from '@leosingleton/fim';
+import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, executionOptions?: FimExecutionOptions,
+  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
       imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, executionOptions, imageOptions);
+    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
 
     // Create the canvas using node-canvas
     this.canvasElement = createCanvas(canvasDimensions.w, canvasDimensions.h);

@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimExecutionOptions } from './FimExecutionOptions';
+import { FimEngineOptions } from './FimEngineOptions';
 import { FimImage } from './FimImage';
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
@@ -24,7 +24,7 @@ export interface Fim<TImage extends FimImage> extends FimObject {
    * Generally options take effect on the next method call, however some require calling releaseResources() to recreate
    * the back-end objects altogether.
    */
-  readonly executionOptions: FimExecutionOptions;
+  readonly engineOptions: FimEngineOptions;
 
   /**
    * Default image options.

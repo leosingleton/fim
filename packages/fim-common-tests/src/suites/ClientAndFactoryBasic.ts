@@ -58,9 +58,9 @@ export function clientAndFactoryBasicSuite(
 
     it('Supports debug mode, including tracing and warnings', () => {
       const client = factory(FimDimensions.fromWidthHeight(100, 100));
-      client.executionOptions.debugMode = true;
-      client.executionOptions.showTracing = true;
-      client.executionOptions.showWarnings = true;
+      client.engineOptions.debugMode = true;
+      client.engineOptions.showTracing = true;
+      client.engineOptions.showWarnings = true;
 
       const image = client.createImage();
       image.fillSolid('#f00');

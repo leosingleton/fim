@@ -34,7 +34,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /** If we are in debugging mode, checks for any WebGL errors and throws a FimError if there are any */
   protected throwWebGLErrorsDebug(): void {
-    if (this.executionOptions.debugMode) {
+    if (this.engineOptions.debugMode) {
       this.throwWebGLErrors();
     }
   }

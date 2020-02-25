@@ -5,9 +5,12 @@
 import { FimExecutionStrategy } from './FimExecutionStrategy';
 
 /** Options for the FIM execution engine */
-export interface FimExecutionOptions {
+export interface FimEngineOptions {
   /** Execution strategy (space vs. time) */
-  strategy: FimExecutionStrategy;
+  executionStrategy: FimExecutionStrategy;
+
+  /** Maximum canvas memory to use, in bytes. 0 for no limit. */
+  maxCanvasMemory: number;
 
   /** Maximum GPU memory to use, in bytes. 0 for no limit. */
   maxGLMemory: number;
@@ -26,8 +29,9 @@ export interface FimExecutionOptions {
 }
 
 /** Default values when FIM is first instantiated */
-export const defaultExecutionOptions: FimExecutionOptions = {
-  strategy: FimExecutionStrategy.MaximizeSpeed,
+export const defaultEngineOptions: FimEngineOptions = {
+  executionStrategy: FimExecutionStrategy.MaximizeSpeed,
+  maxCanvasMemory: 0,
   maxGLMemory: 0,
   debugMode: false,
   showTracing: false,
