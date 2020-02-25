@@ -5,8 +5,9 @@
 import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
+import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
-import { FimImageOptions } from '../api/FimImageOptions';
+import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
@@ -31,6 +32,19 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
   public readonly imageDimensions: FimDimensions;
   public readonly imageOptions: FimImageOptions;
+
+  // Force parentObject to be a more specific type
+  public parentObject: EngineFim<EngineImage>;
+
+  /** Calculates and returns the current FIM engine options */
+  public getEngineOptions(): FimEngineOptions {
+    return this.parentObject.engineOptions;
+  }
+
+  /** Calculates and returns the current image options for this image */
+  public getImageOptions(): FimImageOptions {
+    return mergeImageOptions(this.parentObject.defaultImageOptions, this.imageOptions);
+  }
 
   //
   // Internally, the image contents has three different representations:

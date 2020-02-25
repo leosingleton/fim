@@ -32,6 +32,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   public readonly engineOptions: FimEngineOptions;
   public readonly defaultImageOptions: FimImageOptions;
 
+  // Force parentObject to be a more specific type
+  public parentObject: never;
+
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
     this.ensureNotDisposed();
     return this.createEngineImage(dimensions, options, imageName);
