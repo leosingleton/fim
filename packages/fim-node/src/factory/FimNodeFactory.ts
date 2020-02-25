@@ -3,25 +3,16 @@
 // See LICENSE in the project root for license information.
 
 import { FimNode } from '../api/FimNode';
-import { FimNodeClient } from '../internal/client/FimNodeClient';
-import { NodeEngine } from '../internal/engine/direct/NodeEngine';
-import { FimDimensions, FimFactoryOptions } from '@leosingleton/fim';
-import { QueueOptimizer, defaultFactoryOptions, mergeFactoryOptions } from '@leosingleton/fim/build/internal';
+import { NodeEngineFim } from '../engine/NodeEngineFim';
+import { FimDimensions } from '@leosingleton/fim';
 
 export namespace FimNodeFactory {
   /**
    * Creates an instance of the FimNode interface
    * @param maxImageDimensions Maximum dimensions of any image
    * @param objectName An optional name specified when creating the object to help with debugging
-   * @param options Optional configuration settings for the FIM factory
    */
-  export function create(maxImageDimensions: FimDimensions, objectName?: string, options?: FimFactoryOptions): FimNode {
-    // Support default options
-    options = mergeFactoryOptions(defaultFactoryOptions, options);
-
-    const engine = new NodeEngine();
-    const next = options.disableOptimizations ? engine : new QueueOptimizer(engine);
-    const client = new FimNodeClient(next, maxImageDimensions, objectName);
-    return client;
+  export function create(maxImageDimensions: FimDimensions, objectName?: string): FimNode {
+    return new NodeEngineFim(maxImageDimensions, objectName);
   }
 }

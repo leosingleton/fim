@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { BrowserEngineImage } from './BrowserEngineImage';
-import { FimDimensions, FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { FimDimensions, FimImageOptions, FimReleaseResourcesFlags } from '@leosingleton/fim';
 import { EngineFim } from '@leosingleton/fim/internals';
 
 export class BrowserEngineFim extends EngineFim<BrowserEngineImage> {
@@ -11,7 +11,8 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage> {
     // TODO
   }
 
-  protected createEngineImage(shortHandle: string, imageDimensions: FimDimensions): BrowserEngineImage {
-    return new BrowserEngineImage(shortHandle, this, imageDimensions);
+  protected createEngineImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+      BrowserEngineImage {
+    return new BrowserEngineImage(this, dimensions, options, imageName);
   }
 }

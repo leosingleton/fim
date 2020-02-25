@@ -3,10 +3,14 @@
 // See LICENSE in the project root for license information.
 
 import { EngineObject } from '../EngineObject';
-import { FimReleaseResourcesFlags } from '../../../../api/FimReleaseResourcesFlags';
-import { FimError } from '../../../../primitives/FimError';
+import { EngineObjectType } from '../EngineObjectType';
+import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
 class MyObject extends EngineObject {
+  public constructor(objectName?: string, parent?: MyObject) {
+    super(EngineObjectType.Fim, objectName, parent);
+  }
+
   public resources = 'Expensive Stuff';
 
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
@@ -26,7 +30,7 @@ describe('EngineObject', () => {
     const parent = new MyObject('Parent');
     const child = new MyObject('Child', parent);
     expect(child.parentObject).toBe(parent);
-    expect(parent.getChildByHandle('Parent/Child')).toBe(child);
+    expect(parent.childObjects.indexOf(child)).toBeGreaterThanOrEqual(0);
   });
 
   it('Recursively releases resources', () => {
@@ -39,7 +43,7 @@ describe('EngineObject', () => {
     expect(child.resources).toBeUndefined();
 
     // Child handle is still valid
-    expect(parent.getChildByHandle('Parent/Child')).toBe(child);
+    expect(parent.childObjects.indexOf(child)).toBeGreaterThanOrEqual(0);
   });
 
   it('Recursively disposes', () => {
@@ -51,10 +55,8 @@ describe('EngineObject', () => {
     expect(parent.resources).toBeUndefined();
     expect(child.resources).toBeUndefined();
 
-    // Child handle is no longer valid
-    expect(() => {
-      parent.getChildByHandle('Child');
-    }).toThrowError(FimError);
+    // Child is no longer referenced from parent
+    expect(parent.childObjects.indexOf(child)).toEqual(-1);
   });
 
 });

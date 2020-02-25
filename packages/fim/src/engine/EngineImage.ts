@@ -4,48 +4,32 @@
 
 import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
-import { FimExecutionOptions } from '../../../api/FimExecutionOptions';
-import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptions';
-import { FimColor } from '../../../primitives/FimColor';
-import { FimDimensions } from '../../../primitives/FimDimensions';
-import { FimError, FimErrorCode } from '../../../primitives/FimError';
+import { EngineObjectType } from './EngineObjectType';
+import { FimImage } from '../api/FimImage';
+import { FimImageOptions } from '../api/FimImageOptions';
+import { FimColor } from '../primitives/FimColor';
+import { FimDimensions } from '../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
-import { CommandImageFillSolid } from '../../commands/CommandImageFillSolid';
-import { DispatcherOpcodes } from '../../commands/DispatcherOpcodes';
-import { CommandImageGetPixel } from '../../commands/CommandImageGetPixel';
-import { CommandImageLoadPixelData } from '../../commands/CommandImageLoadPixelData';
-import { CommandImageSetOptions } from '../../commands/CommandImageSetOptions';
-import { DispatcherCommand } from '../../dispatcher/DispatcherCommand';
-import { deepCopy } from '@leosingleton/commonlibs';
 
-/** Backend instance of an image */
-export abstract class EngineImage extends EngineObject {
+/** Internal implementation of the FimImage interface */
+export abstract class EngineImage extends EngineObject implements FimImage {
   /**
    * Constructor
-   * @param shortHandle Short handle of the new image object
-   * @param fim Parent FIM instance
-   * @param imageDimensions Image dimensions
+   * @param fim Parent FIM object
+   * @param dimensions Image dimensions
+   * @param options Optional image options to override the parent FIM's defaults
+   * @param objectName An optional name specified when creating the object to help with debugging
    */
-  public constructor(shortHandle: string, fim: EngineFim<EngineImage>, imageDimensions: FimDimensions) {
-    super(shortHandle, fim);
-    this.imageDimensions = imageDimensions;
-
-    // Initialize the image options to defaults. We will use these until we receive a SetImageOptions command.
-    this.imageOptions = deepCopy(defaultImageOptions);
-
-    // Inherit execution options from the parent EngineFim. The parent class will update the property values on the
-    // same readonly instance.
-    this.executionOptions = fim.executionOptions;
+  public constructor(fim: EngineFim<EngineImage>, dimensions: FimDimensions, options?: FimImageOptions,
+      objectName?: string) {
+    super(EngineObjectType.Image, objectName, fim);
+    this.imageDimensions = dimensions;
+    this.imageOptions = options ?? {};
   }
 
-  /** Image dimensions */
   public readonly imageDimensions: FimDimensions;
-
-  /** Options for the FIM execution engine */
-  public readonly executionOptions: FimExecutionOptions;
-
-  /** Image options */
   public readonly imageOptions: FimImageOptions;
 
   //
@@ -61,47 +45,38 @@ export abstract class EngineImage extends EngineObject {
   private contentCanvas: CoreCanvas2D;
   private contentGLTexture: CoreCanvasWebGL;
 
-  public executeCommand(command: DispatcherCommand): Promise<any> {
-    switch (command.opcode) {
-      case DispatcherOpcodes.ImageFillSolid:
-        return this.commandFillSolid(command as any as CommandImageFillSolid);
+  public fillSolid(color: FimColor | string): void {
+    this.ensureNotDisposed();
 
-      case DispatcherOpcodes.ImageGetPixel:
-        return this.commandGetPixel(command as any as CommandImageGetPixel);
+    // Force color to be a FimColor
+    color = (typeof(color) !== 'string') ? color : FimColor.fromString(color);
 
-      case DispatcherOpcodes.ImageLoadPixelData:
-        return this.commandLoadPixelData(command as any as CommandImageLoadPixelData);
-
-      case DispatcherOpcodes.ImageSetOptions:
-        return this.commandSetOptions(command as any as CommandImageSetOptions);
-
-      default:
-        return super.executeCommand(command);
-    }
-  }
-
-  private async commandFillSolid(command: CommandImageFillSolid): Promise<void> {
-    this.contentFillColor = FimColor.fromString(command.color);
+    this.contentFillColor = color;
     this.contentCanvas = undefined;
     this.contentGLTexture = undefined;
   }
 
-  private async commandGetPixel(_command: CommandImageGetPixel): Promise<string> {
+  public async getPixelAsync(_x: number, _y: number): Promise<FimColor> {
+    this.ensureNotDisposed();
+
     if (this.contentFillColor) {
-      return this.contentFillColor.string;
+      return this.contentFillColor;
     }
 
     // TODO: copy GL to canvas and read a pixel
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
-  private async commandLoadPixelData(_command: CommandImageLoadPixelData): Promise<void> {
-    throw new FimError(FimErrorCode.NotImplemented);
-  }
+  public loadPixelData(pixelData: Uint8Array): void {
+    this.ensureNotDisposed();
 
-  private async commandSetOptions(command: CommandImageSetOptions): Promise<void> {
-    // The imageOptions property is readonly so other objects may create a reference to it. In order to update it, we
-    // can't create a new object, and instead must do a property-by-property copy of the values.
-    EngineObject.cloneProperties(this.imageOptions, command.imageOptions);
+    // Validate the array size matches the expected dimensions
+    const dim = this.imageDimensions;
+    const expectedLength = dim.getArea() * 4;
+    if (pixelData.length !== expectedLength) {
+      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dim}`);
+    }
+
+    throw new FimError(FimErrorCode.NotImplemented);
   }
 }

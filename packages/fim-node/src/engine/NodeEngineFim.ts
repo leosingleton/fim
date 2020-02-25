@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { NodeEngineImage } from './NodeEngineImage';
-import { FimDimensions, FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { FimDimensions, FimImageOptions, FimReleaseResourcesFlags } from '@leosingleton/fim';
 import { EngineFim } from '@leosingleton/fim/internals';
 
 export class NodeEngineFim extends EngineFim<NodeEngineImage> {
@@ -11,7 +11,8 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage> {
     // TODO
   }
 
-  protected createEngineImage(shortHandle: string, imageDimensions: FimDimensions): NodeEngineImage {
-    return new NodeEngineImage(shortHandle, this, imageDimensions);
+  protected createEngineImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+      NodeEngineImage {
+    return new NodeEngineImage(this, dimensions, options, imageName);
   }
 }

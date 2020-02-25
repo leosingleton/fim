@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { NodeEngine } from '../NodeEngine';
-import { FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { BrowserEngineFim } from '../BrowserEngineFim';
+import { FimDimensions, FimReleaseResourcesFlags } from '@leosingleton/fim';
 
-describe('NodeEngine', () => {
+describe('BrowserEngineFim', () => {
 
   it('Creates, releases, and disposes', () => {
-    const eng = new NodeEngine();
+    const eng = new BrowserEngineFim(FimDimensions.fromWidthHeight(100, 100));
     eng.releaseResources(FimReleaseResourcesFlags.All);
     eng.dispose();
   });
