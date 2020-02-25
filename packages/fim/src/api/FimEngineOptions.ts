@@ -6,6 +6,12 @@ import { FimExecutionStrategy } from './FimExecutionStrategy';
 
 /** Options for the FIM execution engine */
 export interface FimEngineOptions {
+  /**
+   * Disables offscreen canvas support. This can be useful for debugging, as Chrome's support is new and still has some
+   * bugs, plus regular canvases can be made visible in the browser's debugging tools.
+   */
+  disableOffscreenCanvas: boolean;
+
   /** Execution strategy (space vs. time) */
   executionStrategy: FimExecutionStrategy;
 
@@ -30,6 +36,7 @@ export interface FimEngineOptions {
 
 /** Default values when FIM is first instantiated */
 export const defaultEngineOptions: FimEngineOptions = {
+  disableOffscreenCanvas: false,
   executionStrategy: FimExecutionStrategy.MaximizeSpeed,
   maxCanvasMemory: 0,
   maxGLMemory: 0,

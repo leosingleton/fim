@@ -8,6 +8,8 @@ import { EngineObjectType } from './EngineObjectType';
 import { Fim } from '../api/Fim';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
+import { CoreCanvas2D } from '../core/CoreCanvas2D';
+import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { deepCopy } from '@leosingleton/commonlibs';
 
@@ -45,6 +47,14 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
-  protected abstract createEngineImage(dimensions: FimDimensions, options?: FimImageOptions, imageName?: string):
+  protected abstract createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
     TEngineImage;
+
+  /** Derived classes must implement this method to call the CoreCanvas2D constructor */
+  protected abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, engineOptions: FimEngineOptions,
+    imageOptions: FimImageOptions): CoreCanvas2D;
+
+  /** Derived classes must implement this method to call the CoreCanvasWebGL constructor */
+  protected abstract createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, engineOptions: FimEngineOptions,
+    imageOptions: FimImageOptions): CoreCanvasWebGL;
 }
