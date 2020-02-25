@@ -5,6 +5,7 @@
  */
 
 export { Fim } from './api/Fim';
+export { FimCapabilities } from './api/FimCapabilities';
 export { FimEngineOptions } from './api/FimEngineOptions';
 export { FimExecutionStrategy } from './api/FimExecutionStrategy';
 export { FimImage } from './api/FimImage';

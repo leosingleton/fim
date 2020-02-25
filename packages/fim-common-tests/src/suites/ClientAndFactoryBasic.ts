@@ -31,6 +31,21 @@ export function clientAndFactoryBasicSuite(
       client.dispose();
     });
 
+    it('Detects WebGL capabilities', () => {
+      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const caps = client.capabilities;
+      expect(caps.glVersion.length).toBeGreaterThan(0);
+      expect(caps.glShadingLanguageVersion.length).toBeGreaterThan(0);
+      expect(caps.glVendor.length).toBeGreaterThan(0);
+      expect(caps.glRenderer.length).toBeGreaterThan(0);
+      // Skip glUnmaskedVendor and glUnmaskedRenderer because they are sometimes empty strings
+      expect(caps.glMaxRenderBufferSize).toBeGreaterThanOrEqual(1024);
+      expect(caps.glMaxTextureImageUnits).toBeGreaterThanOrEqual(4);
+      expect(caps.glMaxTextureSize).toBeGreaterThanOrEqual(1024);
+      expect(caps.glExtensions.length).toBeGreaterThan(0);
+      client.dispose();
+    });
+
     it('Creates and disposes images', () => {
       const client = factory(FimDimensions.fromWidthHeight(100, 100));
 

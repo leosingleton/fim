@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimCapabilities } from './FimCapabilities';
 import { FimEngineOptions } from './FimEngineOptions';
 import { FimImage } from './FimImage';
 import { FimImageOptions } from './FimImageOptions';
@@ -33,6 +34,9 @@ export interface Fim<TImage extends FimImage> extends FimObject {
    * used unless overridden within the image itself.
    */
   readonly defaultImageOptions: FimImageOptions;
+
+  /** Reports the browser and GPU's capabilities */
+  readonly capabilities: FimCapabilities;
 
   /**
    * Creates a new image

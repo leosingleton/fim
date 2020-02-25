@@ -4,6 +4,7 @@
 
 import { CoreCanvas } from './CoreCanvas';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
+import { FimWebGLCapabilities } from '../api/FimCapabilities';
 import { FimColor } from '../primitives/FimColor';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
@@ -93,6 +94,28 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       default:
         throw new FimError(FimErrorCode.WebGLFramebufferStatusUnknown, `FramebufferStatus ${status}`);
     }
+  }
+
+  /**
+   * Detects the browser and GPU capabilities. It is best to create a small CoreCanvasWebGL instance solely for calling
+   * this method in order to avoid exceeding the GPU's maximum render buffer dimensions.
+   */
+  public detectCapabilities(): FimWebGLCapabilities {
+    const gl = this.getContext();
+    const dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
+
+    return {
+      glVersion: gl.getParameter(gl.VERSION),
+      glShadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+      glVendor: gl.getParameter(gl.VENDOR),
+      glRenderer: gl.getParameter(gl.RENDERER),
+      glUnmaskedVendor: dbgRenderInfo ? gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL) : '',
+      glUnmaskedRenderer: dbgRenderInfo ? gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL) : '',
+      glMaxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
+      glMaxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
+      glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      glExtensions: gl.getSupportedExtensions().sort()
+    };
   }
 
   public fillCanvas(color: FimColor | string): void {

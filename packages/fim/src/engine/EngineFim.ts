@@ -6,6 +6,7 @@ import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { Fim } from '../api/Fim';
+import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
@@ -28,11 +29,42 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
     // creation.
     this.engineOptions = deepCopy(defaultEngineOptions);
     this.defaultImageOptions = deepCopy(defaultImageOptions);
+
+    // Detect the browser and GPU's capabilities. This is a bit hacky, but works by:
+    //  1. Initializing the non-GPU capabilities. This is needed to call createCoreCanvasWebGL().
+    //  2. Creating a tiny, temporary WebGL canvas. We do this to ensure the canvas is smaller than the maximum render
+    //      buffer size, but have a chicken-and-egg problem of not knowing the size without discovering capabilities.
+    //  3. We discover GPU capabilities from the temporary WebGL canvas. The properties on the capabilities object are
+    //      readonly, so we force copy them over with any typecasts.
+    this.capabilities = {
+      supportsOffscreenCanvas: (typeof OffscreenCanvas !== 'undefined'),
+      glVersion: '',
+      glShadingLanguageVersion: '',
+      glVendor: '',
+      glRenderer: '',
+      glUnmaskedVendor: '',
+      glUnmaskedRenderer: '',
+      glMaxRenderBufferSize: 0,
+      glMaxTextureImageUnits: 0,
+      glMaxTextureSize: 0,
+      glExtensions: []
+    };
+    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10), 'DetectCapabilities',
+      this.engineOptions, this.defaultImageOptions);
+    try {
+      const glCapabilities = tinyCanvas.detectCapabilities();
+      for (const prop in glCapabilities) {
+        (this.capabilities as any)[prop] = (glCapabilities as any)[prop];
+      }
+    } finally {
+      tinyCanvas.dispose();
+    }
   }
 
   public readonly maxImageDimensions: FimDimensions;
   public readonly engineOptions: FimEngineOptions;
   public readonly defaultImageOptions: FimImageOptions;
+  public readonly capabilities: FimCapabilities;
 
   // Force parentObject to be a more specific type
   public parentObject: never;
