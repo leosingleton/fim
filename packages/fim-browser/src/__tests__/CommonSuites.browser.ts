@@ -12,6 +12,13 @@ import { clientAndFactoryBasicSuite, coreCanvas2D, coreCanvasWebGL } from '@leos
 clientAndFactoryBasicSuite('Client and Factory Basic suite for Browsers',
   (maxImageDimensions) => FimBrowserFactory.create(maxImageDimensions));
 
+clientAndFactoryBasicSuite('Client and Factory Basic suite for Browsers with OffscreenCanvas disabled',
+    (maxImageDimensions) => {
+  const fim = FimBrowserFactory.create(maxImageDimensions);
+  fim.engineOptions.disableOffscreenCanvas = true;
+  return fim;
+});
+
 coreCanvas2D('CoreBrowserCanvas2D',
   (dimensions, imageHandle) => new CoreBrowserCanvas2D(dimensions, imageHandle));
 
