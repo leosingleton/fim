@@ -37,10 +37,14 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
 
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
     this.ensureNotDisposed();
+
+    dimensions = dimensions ?? this.maxImageDimensions;
+    options = options ?? {};
+
     return this.createEngineImage(dimensions, options, imageName);
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
-  protected abstract createEngineImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+  protected abstract createEngineImage(dimensions: FimDimensions, options?: FimImageOptions, imageName?: string):
     TEngineImage;
 }

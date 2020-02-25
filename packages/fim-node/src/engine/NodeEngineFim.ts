@@ -11,7 +11,7 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage> {
     // TODO
   }
 
-  protected createEngineImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+  protected createEngineImage(dimensions: FimDimensions, options?: FimImageOptions, imageName?: string):
       NodeEngineImage {
     return new NodeEngineImage(this, dimensions, options, imageName);
   }

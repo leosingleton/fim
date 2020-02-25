@@ -11,7 +11,7 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage> {
     // TODO
   }
 
-  protected createEngineImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string):
+  protected createEngineImage(dimensions: FimDimensions, options?: FimImageOptions, imageName?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(this, dimensions, options, imageName);
   }
