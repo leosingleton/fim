@@ -45,6 +45,33 @@ export class FimColor {
   }
 
   /**
+   * Compares two colors and returns their similarity (ignoring alpha channel)
+   * @param color Second color to compare
+   * @returns A value ranging from 0.0 (if equal) to 1.0 (if completely different)
+   */
+  public distance(color: FimColor | string): number {
+    if (typeof(color) === 'string') {
+      color = FimColor.fromString(color);
+    }
+
+    return (Math.abs(this.r - color.r) + Math.abs(this.g - color.g) + Math.abs(this.b - color.b)) / (255 * 3);
+  }
+
+  /** Uses the ITU-R BT.709 formula to calculate luminance from RGB */
+  public getLuminance(): number {
+    const value =
+      this.r * 0.2126 + // Red
+      this.g * 0.7152 + // Green
+      this.b * 0.0722;  // Blue
+    return Math.round(value / 255);
+  }
+
+  /** Returns the color as an OpenGL-style vector, of size 4, with values from 0.0 to 1.0. */
+  public toVector(): number[] {
+    return [this.r / 255, this.g / 255, this.b / 255, this.a / 255];
+  }
+
+  /**
    * Constructs a FimColor from RGBA byte values, where each component is an integer from 0 to 255
    * @param red Red component
    * @param green Green component
@@ -129,19 +156,5 @@ export class FimColor {
       default:
         throw new FimError(FimErrorCode.InvalidParameter, `Invalid: ${color}`);
     }
-  }
-
-  /** Uses the ITU-R BT.709 formula to calculate luminance from RGB */
-  public getLuminance(): number {
-    const value =
-      this.r * 0.2126 + // Red
-      this.g * 0.7152 + // Green
-      this.b * 0.0722;  // Blue
-    return Math.round(value / 255);
-  }
-
-  /** Returns the color as an OpenGL-style vector, of size 4, with values from 0.0 to 1.0. */
-  public toVector(): number[] {
-    return [this.r / 255, this.g / 255, this.b / 255, this.a / 255];
   }
 }

@@ -62,4 +62,12 @@ describe('FimColor', () => {
     expect(red.toVector()).toEqual([1, 0, 0, 1]);
   });
 
+  it('Computes distance', () => {
+    const black = FimColor.fromString('#000');
+    const white = FimColor.fromString('#fff');
+    expect(black.distance(white)).toEqual(1);
+    expect(black.distance(black)).toEqual(0);
+    expect(white.distance(white)).toEqual(0);
+  });
+
 });
