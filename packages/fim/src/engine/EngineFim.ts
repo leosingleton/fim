@@ -50,8 +50,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
       glMaxTextureSize: 0,
       glExtensions: []
     };
-    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10), 'DetectCapabilities',
-      this.engineOptions, this.defaultImageOptions);
+    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10), 'DetectCapabilities', {});
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
       for (const prop in glCapabilities) {
@@ -101,7 +100,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
     const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
-    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.handle, me.engineOptions, {});
+    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.handle, {});
     return glCanvas;
   }
 
@@ -129,10 +128,10 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
     TEngineImage;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  protected abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, engineOptions: FimEngineOptions,
-    imageOptions: FimImageOptions): CoreCanvas2D;
+  protected abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions):
+    CoreCanvas2D;
 
   /** Derived classes must implement this method to call the CoreCanvasWebGL constructor */
-  protected abstract createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, engineOptions: FimEngineOptions,
-    imageOptions: FimImageOptions): CoreCanvasWebGL;
+  protected abstract createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions):
+    CoreCanvasWebGL;
 }
