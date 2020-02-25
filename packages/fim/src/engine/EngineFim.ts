@@ -50,7 +50,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage> extends Engine
       glMaxTextureSize: 0,
       glExtensions: []
     };
-    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10), 'DetectCapabilities', {});
+    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10),
+      `${this.handle}/DetectCapabilities`, {});
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
       for (const prop in glCapabilities) {
