@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimExecutionOptions, defaultExecutionOptions } from '../../../api/FimExecutionOptions';
-import { FimImageOptions, defaultImageOptions } from '../../../api/FimImageOptions';
-import { FimColor } from '../../../primitives/FimColor';
-import { FimDimensions } from '../../../primitives/FimDimensions';
-import { FimError, FimErrorCode } from '../../../primitives/FimError';
-import { FimPoint } from '../../../primitives/FimPoint';
-import { FimRect } from '../../../primitives/FimRect';
+import { FimExecutionOptions, defaultExecutionOptions } from '../api/FimExecutionOptions';
+import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
+import { FimColor } from '../primitives/FimColor';
+import { FimDimensions } from '../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
 import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */

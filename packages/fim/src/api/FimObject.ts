@@ -6,12 +6,6 @@ import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 
 /** Common properties for all objects in the FIM API */
 export interface FimObject {
-  /** Unique value identifying this object */
-  readonly shortHandle: string;
-
-  /** Handle including the full path from parent to child objects */
-  readonly handle: string;
-
   /**
    * Releases memory and/or GPU resources.
    *

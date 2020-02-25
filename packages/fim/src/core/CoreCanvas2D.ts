@@ -4,10 +4,10 @@
 
 import { CoreCanvas } from './CoreCanvas';
 import { RenderingContext2D } from './types/RenderingContext2D';
-import { FimColor } from '../../../primitives/FimColor';
-import { FimError, FimErrorCode } from '../../../primitives/FimError';
-import { FimPoint } from '../../../primitives/FimPoint';
-import { FimRect } from '../../../primitives/FimRect';
+import { FimColor } from '../primitives/FimColor';
+import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
 import { makeDisposable, IDisposable, using } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */

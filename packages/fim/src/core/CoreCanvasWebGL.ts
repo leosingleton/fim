@@ -4,9 +4,9 @@
 
 import { CoreCanvas } from './CoreCanvas';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
-import { FimColor } from '../../../primitives/FimColor';
-import { FimError, FimErrorCode } from '../../../primitives/FimError';
-import { FimPoint } from '../../../primitives/FimPoint';
+import { FimColor } from '../primitives/FimColor';
+import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimPoint } from '../primitives/FimPoint';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvasWebGL extends CoreCanvas {

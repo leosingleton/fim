@@ -13,14 +13,6 @@ export interface FimExecutionOptions {
   maxGLMemory: number;
 
   /**
-   * WebGL calls can block for a significant amount of time, making the execution thread unresponsive. If set, this
-   * function is awaited between WebGL calls to give the message loop and other code time to execute.
-   *
-   * For a sample implementation, see the TaskScheduler in the @leosingleton/commonlibs NPM package.
-   */
-  nice?: () => Promise<void>;
-
-  /**
    * Checks for errors on every WebGL call. While useful for debugging, enabling this can have a negative impact on
    * WebGL's ability to pipeline GPU operations.
    */

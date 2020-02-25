@@ -4,21 +4,15 @@
 
 /** Flags for FimObject.releaseResources() */
 export const enum FimReleaseResourcesFlags {
-  /** Releases memory consumed by DOM canvas objects */
-  DomCanvas = (1 << 0),
-
-  /** Releases memory consumed by OffscreenCanvas objects */
-  OffscreenCanvas = (1 << 1),
-
-  /** Releases memory consumed by any type of non-WebGL canvas */
-  Canvas = DomCanvas | OffscreenCanvas,
+  /** Releases memory consumed by any type of non-WebGL canvas, both DOM and OffscreenCanvas */
+  Canvas = (1 << 0),
 
   /** Releases WebGL texture memory */
-  WebGLTexture = (1 << 2),
+  WebGLTexture = (1 << 1),
 
   /** Releases all WebGL resources */
-  WebGL = (1 << 3),
+  WebGL = (1 << 2),
 
   /** Releases all resources, WebGL and non-WebGL */
-  All = Canvas | WebGL
+  All = Canvas | WebGLTexture | WebGL
 }

@@ -4,13 +4,10 @@
 
 /** Options for FIM factory methods */
 export interface FimFactoryOptions {
-  /** Disables optimizations for debugging */
-  disableOptimizations?: boolean;
 }
 
 /** Default values if no FimFactoryOptions is provided */
 export const defaultFactoryOptions: FimFactoryOptions = {
-  disableOptimizations: false
 };
 
 /**
@@ -24,6 +21,5 @@ export function mergeFactoryOptions(parent: FimFactoryOptions, child: FimFactory
   }
 
   return {
-    disableOptimizations: child.disableOptimizations ?? parent.disableOptimizations
   };
 }
