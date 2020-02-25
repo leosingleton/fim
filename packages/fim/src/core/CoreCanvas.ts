@@ -15,15 +15,15 @@ import { deepCopy } from '@leosingleton/commonlibs';
 export abstract class CoreCanvas {
   /**
    * Derived classes must override this constructor to instantiate the canvasElement object
-   * @param canvasDimensions Canvas dimensions
-   * @param imageHandle Handle of the image that owns this canvas. Used only for debugging.
+   * @param dimensions Canvas dimensions
+   * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
    * @param imageOptions Image options
    */
-  protected constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
+  protected constructor(dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions,
       imageOptions?: FimImageOptions) {
-    this.canvasDimensions = canvasDimensions.toFloor();
-    this.imageHandle = imageHandle;
+    this.canvasDimensions = dimensions.toFloor();
+    this.imageHandle = handle;
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
     this.imageOptions = imageOptions ?? deepCopy(defaultImageOptions);
   }
