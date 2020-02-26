@@ -6,6 +6,13 @@ import { TestImages } from '../misc/TestImages';
 import { FimDimensions, FimColor } from '@leosingleton/fim';
 import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 
+/** Small 100x100 canvas dimensions */
+const small = FimDimensions.fromWidthHeight(100, 100);
+
+const red = FimColor.fromString('#f00');
+const green = FimColor.fromString('#0f0');
+const blue = FimColor.fromString('#00f');
+
 /**
  * Executes a suite of common tests using the CoreCanvas2D objects created via factory methods
  * @param description Description to show in the test framework
@@ -18,37 +25,34 @@ export function coreCanvas2D(
   describe(description, () => {
 
     it('Creates and disposes', () => {
-      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Creates and disposes`);
+      const canvas = factory(small, `${description} - Creates and disposes`);
       canvas.dispose();
     });
 
     it('Gets and sets pixels', async () => {
-      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Gets and sets pixels`);
-      const color = FimColor.fromString('#f0f');
-      const pixelData = TestImages.solidPixelData(100, 100, color);
+      const canvas = factory(small, `${description} - Gets and sets pixels`);
+      const pixelData = TestImages.solidPixelData(small, red);
       await canvas.loadPixelDataAsync(pixelData);
-      expect(canvas.getPixel(50, 50)).toEqual(color);
+      expect(canvas.getPixel(50, 50)).toEqual(red);
       canvas.dispose();
     });
 
     it('Fills with solid colors', () => {
-      const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Fills with solid colors`);
-      const color = FimColor.fromString('#0f0');
-      canvas.fillCanvas(color);
-      expect(canvas.getPixel(50, 50)).toEqual(color);
+      const canvas = factory(small, `${description} - Fills with solid colors`);
+      canvas.fillCanvas(green);
+      expect(canvas.getPixel(50, 50)).toEqual(green);
       canvas.dispose();
     });
 
     it('Copies from one canvas to another', () => {
-      const canvas1 = factory(FimDimensions.fromWidthHeight(50, 50),
+      const canvas1 = factory(small,
         `${description} - Copies from one canvas to another`);
-      const color = FimColor.fromString('#00f');
-      canvas1.fillCanvas(color);
+      canvas1.fillCanvas(blue);
 
-      const canvas2 = factory(FimDimensions.fromWidthHeight(50, 50),
+      const canvas2 = factory(small,
         `${description} - Copies from one canvas to another`);
       canvas2.copyFrom(canvas1);
-      expect(canvas2.getPixel(25, 25)).toEqual(color);
+      expect(canvas2.getPixel(50, 50)).toEqual(blue);
 
       canvas1.dispose();
       canvas2.dispose();

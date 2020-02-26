@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimColor } from '@leosingleton/fim';
+import { FimColor, FimDimensions } from '@leosingleton/fim';
 
 export namespace TestImages {
   /**
@@ -50,20 +50,19 @@ export namespace TestImages {
 
   /**
    * Returns an array of RGBA pixel data with a solid color
-   * @param width Width, in pixels
-   * @param height Height, in pixels
+   * @param dimensions Output dimensions, in pixels
    * @param color Color to fill
    */
-  export function solidPixelData(width: number, height: number, color: FimColor | string): Uint8Array {
+  export function solidPixelData(dimensions: FimDimensions, color: FimColor | string): Uint8Array {
     // Ensure color is a FimColor object
     if (!(color instanceof FimColor)) {
       color = FimColor.fromString(color);
     }
 
-    const result = new Uint8Array(width * height * 4);
-    for (let y = 0; y < height; y++) {
-      const yOffset = y * width;
-      for (let x = 0; x < width; x++) {
+    const result = new Uint8Array(dimensions.getArea() * 4);
+    for (let y = 0; y < dimensions.h; y++) {
+      const yOffset = y * dimensions.w;
+      for (let x = 0; x < dimensions.w; x++) {
         const offset = (yOffset + x) * 4;
         result[offset] = color.r;
         result[offset + 1] = color.g;

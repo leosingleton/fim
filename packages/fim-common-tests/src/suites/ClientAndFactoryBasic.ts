@@ -5,6 +5,13 @@
 import { Fim, FimColor, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
 import { TestImages } from '../misc/TestImages';
 
+/** Small 100x100 canvas dimensions */
+const small = FimDimensions.fromWidthHeight(100, 100);
+
+const red = FimColor.fromString('#f00');
+const green = FimColor.fromString('#0f0');
+const blue = FimColor.fromString('#00f');
+
 /**
  * Executes a suite of common tests using the FIM client created via factory methods
  * @param description Description to show in the test framework
@@ -17,7 +24,7 @@ export function clientAndFactoryBasicSuite(
   describe(description, () => {
 
     it('Creates and disposes', () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
       client.dispose();
 
       // Double-dispose throws an exception
@@ -25,7 +32,7 @@ export function clientAndFactoryBasicSuite(
     });
 
     it('Handles multiple releaseAllResources() calls', () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
       client.releaseAllResources();
       client.releaseAllResources();
       client.releaseAllResources();
@@ -33,7 +40,7 @@ export function clientAndFactoryBasicSuite(
     });
 
     it('Detects WebGL capabilities', () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
       const caps = client.capabilities;
       expect(caps.glVersion.length).toBeGreaterThan(0);
       expect(caps.glShadingLanguageVersion.length).toBeGreaterThan(0);
@@ -48,50 +55,44 @@ export function clientAndFactoryBasicSuite(
     });
 
     it('Creates and disposes images', () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
 
       const img1 = client.createImage();
-      img1.fillSolid('#f00');
+      img1.fillSolid(red);
       img1.dispose();
 
       const img2 = client.createImage();
-      img2.fillSolid('#00f');
+      img2.fillSolid(blue);
       img2.dispose();
 
       client.dispose();
     });
 
     it('Supports fillSolid() and getPixel()', () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
       const image = client.createImage();
-      image.fillSolid('#f00');
-
-      const color = image.getPixel(50, 50);
-      expect(color).toEqual(FimColor.fromString('#f00'));
-
+      image.fillSolid(red);
+      expect(image.getPixel(50, 50)).toEqual(red);
       client.dispose();
     });
 
     it('Supports loading pixels from array data', async () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
       const image = client.createImage();
-      const pixelData = TestImages.solidPixelData(100, 100, '#f00');
+      const pixelData = TestImages.solidPixelData(small, green);
       await image.loadPixelDataAsync(pixelData);
-
-      const color = image.getPixel(50, 50);
-      expect(color).toEqual(FimColor.fromString('#f00'));
-
+      expect(image.getPixel(50, 50)).toEqual(green);
       client.dispose();
     });
 
     it('Supports debug mode, including tracing and warnings', () => {
-      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const client = factory(small);
       client.engineOptions.debugMode = true;
       client.engineOptions.showTracing = true;
       client.engineOptions.showWarnings = true;
 
       const image = client.createImage();
-      image.fillSolid('#f00');
+      image.fillSolid(red);
 
       image.releaseAllResources();
       client.releaseAllResources();
