@@ -159,4 +159,17 @@ export abstract class CoreCanvas2D extends CoreCanvas {
         destCoords.xLeft, destCoords.yTop, destCoords.dim.w, destCoords.dim.h);
     });
   }
+
+  /**
+   * Exports the canvas contents to a PNG file
+   * @returns Compressed PNG file as a Uint8Array
+   */
+  public abstract exportToPngAsync(): Promise<Uint8Array>;
+
+  /**
+   * Exports the canvas contents to a JPEG file
+   * @param quality Optional compression quality (0.0 to 1.0)
+   * @returns Compressed JPEG file as a Uint8Array
+   */
+  public abstract exportToJpegAsync(quality: number): Promise<Uint8Array>;
 }

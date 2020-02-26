@@ -35,4 +35,20 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
   protected createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
     return new CoreNodeCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
+
+  public async exportToPngAsync(): Promise<Uint8Array> {
+    const buffer = this.canvasElement.toBuffer(MimeTypes.PNG);
+    return new Uint8Array(buffer);
+  }
+
+  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
+    const buffer = this.canvasElement.toBuffer(MimeTypes.JPEG, { quality });
+    return new Uint8Array(buffer);
+  }
+}
+
+/** Mime type parameters for `Canvas.toBuffer()` */
+const enum MimeTypes {
+  PNG = 'image/png',
+  JPEG = 'image/jpeg'
 }

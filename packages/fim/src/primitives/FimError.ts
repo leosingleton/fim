@@ -152,6 +152,8 @@ export const enum FimErrorCode {
   /** FIM4200: Attempted to call a method on a disposed object */
   ObjectDisposed = 4200,
 
+  /** FIM4300: Attempted to read from an image or use it as an input before its contents were initialized */
+  ImageUninitialized = 4300,
 
   //
   // 5000-series errors are used for resource exhaustion

@@ -50,4 +50,17 @@ export interface FimImage extends FimObject {
    *    be automatically rescaled. If not provided, then `pixelData` must be the same dimensions as the image.
    */
   loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void>;
+
+  /**
+   * Exports the image contents to a PNG file
+   * @returns Compressed PNG file as a Uint8Array
+   */
+  exportToPngAsync(): Promise<Uint8Array>;
+
+  /**
+   * Exports the image contents to a JPEG file
+   * @param quality Optional compression quality (0.0 to 1.0)
+   * @returns Compressed JPEG file as a Uint8Array
+   */
+  exportToJpegAsync(quality?: number): Promise<Uint8Array>;
 }

@@ -108,6 +108,46 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.contentTexture.isCurrent = false;
   }
 
+  /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
+  private populateContentCanvas(): void {
+    const me = this;
+    me.allocateContentCanvas();
+
+    if (me.contentCanvas.isCurrent) {
+      // If a canvas is already current, this function is a no-op
+      return;
+    } else if (me.contentFillColor.isCurrent) {
+      // Copy the fill color to the canvas to make it current
+      me.contentCanvas.imageContent.fillCanvas(me.contentFillColor.imageContent);
+      me.contentCanvas.isCurrent = true;
+      return;
+    } else if (me.contentTexture.isCurrent) {
+      // TODO: Copy texture to canvas
+      throw new FimError(FimErrorCode.NotImplemented);
+    } else {
+      throw new FimError(FimErrorCode.ImageUninitialized, me.handle);
+    }
+  }
+
+  /** Ensures `contentTexture.imageContent` is allocated and contains the current image data */
+  private populateContentTexture(): void {
+    const me = this;
+    me.allocateContentTexture();
+
+    if (me.contentTexture.isCurrent) {
+      // If a texture is already current, this function is a no-op
+      return;
+    } else if (me.contentFillColor.isCurrent) {
+      // TODO: Fill texture with solid color
+      throw new FimError(FimErrorCode.NotImplemented);
+    } else if (me.contentCanvas.isCurrent) {
+      // TODO: Copy canvas to texture
+      throw new FimError(FimErrorCode.NotImplemented);
+    } else {
+      throw new FimError(FimErrorCode.ImageUninitialized, me.handle);
+    }
+  }
+
   /** Releases any resources used by `contentCanvas.imageContent` */
   private releaseContentCanvas(): void {
     const canvas = this.contentCanvas;
@@ -186,6 +226,28 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.contentCanvas.isCurrent = true;
 
     // TODO: release resources based on optimization settings
+  }
+
+  public async exportToPngAsync(): Promise<Uint8Array> {
+    const me = this;
+    me.ensureNotDisposed();
+    me.populateContentCanvas();
+    const png = await me.contentCanvas.imageContent.exportToPngAsync();
+
+    // TODO: release resources based on optimization settings
+
+    return png;
+  }
+
+  public async exportToJpegAsync(quality = 0.95): Promise<Uint8Array> {
+    const me = this;
+    me.ensureNotDisposed();
+    me.populateContentCanvas();
+    const jpeg = await me.contentCanvas.imageContent.exportToJpegAsync(quality);
+
+    // TODO: release resources based on optimization settings
+
+    return jpeg;
   }
 }
 

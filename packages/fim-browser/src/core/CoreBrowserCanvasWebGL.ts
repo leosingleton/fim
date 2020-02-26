@@ -22,6 +22,9 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
     this.canvasElement = canvas;
   }
 
+  /** Canvas pool of WebGL canvases */
+  private static canvasPool = new DomCanvasPoolWebGL();
+
   private canvasElement: DisposableCanvas;
 
   protected disposeSelf(): void {
@@ -36,7 +39,4 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
   protected getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
   }
-
-  /** Canvas pool of WebGL canvases */
-  private static canvasPool = new DomCanvasPoolWebGL();
 }

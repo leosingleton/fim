@@ -22,6 +22,9 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     this.canvasElement = canvas;
   }
 
+  /** Canvas pool of 2D canvases */
+  private static canvasPool = new DomCanvasPool();
+
   private canvasElement: DisposableCanvas;
 
   protected disposeSelf(): void {
@@ -41,6 +44,29 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     return new CoreBrowserCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
-  /** Canvas pool of 2D canvases */
-  private static canvasPool = new DomCanvasPool();
+  public async exportToPngAsync(): Promise<Uint8Array> {
+    const blob = await this.toPngBlobAsync();
+    const buffer = await new Response(blob).arrayBuffer();
+    return new Uint8Array(buffer);
+  }
+
+  /** Helper function for `exportToPngAsync()` */
+  private toPngBlobAsync(): Promise<Blob> {
+    return new Promise<Blob>(resolve => {
+      this.canvasElement.toBlob(blob => resolve(blob));
+    });
+  }
+
+  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
+    const blob = await this.toJpegBlobAsync(quality);
+    const buffer = await new Response(blob).arrayBuffer();
+    return new Uint8Array(buffer);
+  }
+
+  /** Helper function for `exportToJpegAsync()` */
+  private toJpegBlobAsync(quality: number): Promise<Blob> {
+    return new Promise<Blob>(resolve => {
+      this.canvasElement.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+    });
+  }
 }

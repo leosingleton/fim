@@ -38,4 +38,16 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
     return new CoreBrowserOffscreenCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions,
       this.imageOptions);
   }
+
+  public async exportToPngAsync(): Promise<Uint8Array> {
+    const blob = await this.canvasElement.convertToBlob({});
+    const buffer = await new Response(blob).arrayBuffer();
+    return new Uint8Array(buffer);
+  }
+
+  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
+    const blob = await this.canvasElement.convertToBlob({ type: 'image/jpeg', quality });
+    const buffer = await new Response(blob).arrayBuffer();
+    return new Uint8Array(buffer);
+  }
 }
