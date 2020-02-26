@@ -46,5 +46,5 @@ export interface FimImage extends FimObject {
    * Loads the image contents from RGBA data
    * @param pixelData An array containing 4 bytes per pixel, in RGBA order
    */
-  loadPixelDataAsync(pixelData: Uint8Array): Promise<void>;
+  loadPixelDataAsync(pixelData: Uint8ClampedArray): Promise<void>;
 }

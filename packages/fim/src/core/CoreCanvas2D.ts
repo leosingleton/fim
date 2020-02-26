@@ -5,15 +5,19 @@
 import { CoreCanvas } from './CoreCanvas';
 import { RenderingContext2D } from './types/RenderingContext2D';
 import { FimColor } from '../primitives/FimColor';
+import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
-import { makeDisposable, IDisposable, using } from '@leosingleton/commonlibs';
+import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas2D extends CoreCanvas {
   /** Derived classes must override this method to call canvas.getContext('2d') */
   protected abstract getContext(): RenderingContext2D;
+
+  /** Derived classes must implement this method to call the CoreCanvas2D constructor */
+  protected abstract createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D;
 
   /**
    * Helper function to construct a 2D drawing context
@@ -79,22 +83,50 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   /**
    * Loads the image contents from RGBA data
    * @param pixelData An array containing 4 bytes per pixel, in RGBA order
+   * @param dimensions Optional dimensions of the pixel data. If not provided, it is assumed to be the same dimensions
+   *    as the canvas.
    */
-  public async loadPixelDataAsync(pixelData: Uint8Array): Promise<void> {
-    this.ensureNotDisposed();
+  public async loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void> {
+    const me = this;
+    me.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions
-    const dim = this.canvasDimensions;
-    const expectedLength = dim.getArea() * 4;
+    dimensions = dimensions ?? me.canvasDimensions;
+    const sameDimensions = dimensions.equals(me.canvasDimensions);
+    const expectedLength = dimensions.getArea() * 4;
     if (pixelData.length !== expectedLength) {
-      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dim}`);
+      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dimensions}`);
     }
 
-    using(this.createDrawingContext(), ctx => {
-      const imgData = ctx.createImageData(dim.w, dim.h);
-      imgData.data.set(pixelData);
-      ctx.putImageData(imgData, 0, 0);
-    });
+    if (typeof createImageBitmap !== 'undefined' && !me.engineOptions.disableImageBitmap) {
+      // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
+      // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
+      // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit
+      // tests. However, createImageBitmap() is not yet supported on Safari or Edge.
+      await DisposableSet.usingAsync(async disposable => {
+        // Enable image smoothing if we are rescaling the image
+        const ctx = disposable.addDisposable(this.createDrawingContext(sameDimensions));
+
+        const imageData = new ImageData(pixelData, dimensions.w, dimensions.h);
+        const imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
+
+        ctx.drawImage(imageBitmap, 0, 0, dimensions.w, dimensions.h, 0, 0, me.canvasDimensions.w,
+          me.canvasDimensions.h);
+      });
+    } else if (dimensions.equals(me.canvasDimensions)) {
+      // This implementation is slightly slower than the drawImage() one above, but has better browser compatibility
+      using(me.createDrawingContext(), ctx => {
+        const imgData = ctx.createImageData(dimensions.w, dimensions.h);
+        imgData.data.set(pixelData);
+        ctx.putImageData(imgData, 0, 0);
+      });
+    } else {
+      // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
+      await usingAsync(me.createTemporaryCanvas2D(dimensions), async temp => {
+        await temp.loadPixelDataAsync(pixelData, dimensions);
+        me.copyFrom(temp);
+      });
+    }
   }
 
   /**

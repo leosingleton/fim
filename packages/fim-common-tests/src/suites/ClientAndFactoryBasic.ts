@@ -85,6 +85,16 @@ export function clientAndFactoryBasicSuite(
       client.dispose();
     });
 
+    it('Supports loading pixels from array data (ImageBitmap disabled)', async () => {
+      const client = factory(small);
+      client.engineOptions.disableImageBitmap = true;
+      const image = client.createImage();
+      const pixelData = TestImages.solidPixelData(small, green);
+      await image.loadPixelDataAsync(pixelData);
+      expect(image.getPixel(50, 50)).toEqual(green);
+      client.dispose();
+    });
+
     it('Supports debug mode, including tracing and warnings', () => {
       const client = factory(small);
       client.engineOptions.debugMode = true;

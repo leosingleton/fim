@@ -53,13 +53,13 @@ export namespace TestImages {
    * @param dimensions Output dimensions, in pixels
    * @param color Color to fill
    */
-  export function solidPixelData(dimensions: FimDimensions, color: FimColor | string): Uint8Array {
+  export function solidPixelData(dimensions: FimDimensions, color: FimColor | string): Uint8ClampedArray {
     // Ensure color is a FimColor object
     if (!(color instanceof FimColor)) {
       color = FimColor.fromString(color);
     }
 
-    const result = new Uint8Array(dimensions.getArea() * 4);
+    const result = new Uint8ClampedArray(dimensions.getArea() * 4);
     for (let y = 0; y < dimensions.h; y++) {
       const yOffset = y * dimensions.w;
       for (let x = 0; x < dimensions.w; x++) {

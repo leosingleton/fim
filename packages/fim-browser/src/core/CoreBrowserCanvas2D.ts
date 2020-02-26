@@ -37,6 +37,10 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
+  protected createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
+    return new CoreBrowserCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
+  }
+
   /** Canvas pool of 2D canvases */
   private static canvasPool = new DomCanvasPool();
 }

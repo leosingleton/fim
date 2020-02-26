@@ -31,4 +31,8 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
   protected getContext(): RenderingContext2D {
     return this.canvasElement.getContext('2d');
   }
+
+  protected createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
+    return new CoreNodeCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
+  }
 }

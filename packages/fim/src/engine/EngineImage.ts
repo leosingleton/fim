@@ -169,7 +169,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
-  public async loadPixelDataAsync(pixelData: Uint8Array): Promise<void> {
+  public async loadPixelDataAsync(pixelData: Uint8ClampedArray): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 

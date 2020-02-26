@@ -22,6 +22,12 @@ export interface FimEngineOptions {
   disableOffscreenCanvas: boolean;
 
   /**
+   * Disables image bitmap support. This can be useful for debugging, as not all web browsers support ImageBitmap
+   * objects yet.
+   */
+  disableImageBitmap: boolean;
+
+  /**
    * If set to a positive number, the WebGL render buffer is limited to the lower of this value or the GPU's stated
    * capabilities.
    */
@@ -52,6 +58,7 @@ export const defaultEngineOptions: FimEngineOptions = {
   maxCanvasMemory: 0,
   maxGLMemory: 0,
   disableOffscreenCanvas: false,
+  disableImageBitmap: false,
   maxGLRenderBufferSize: 0,
   maxGLTextureSize: 0,
   debugMode: false,
