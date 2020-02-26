@@ -131,10 +131,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     TEngineImage;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  protected abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions):
-    CoreCanvas2D;
+  public abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D;
 
   /** Derived classes must implement this method to call the CoreCanvasWebGL constructor */
-  protected abstract createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions):
+  public abstract createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions):
     CoreCanvasWebGL;
 }

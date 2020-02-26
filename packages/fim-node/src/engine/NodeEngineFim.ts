@@ -14,12 +14,11 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
     return new NodeEngineImage(this, dimensions, options, imageName);
   }
 
-  protected createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
+  public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
     return new CoreNodeCanvas2D(dimensions, handle, this.engineOptions, options);
   }
 
-  protected createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions):
-      CoreCanvasWebGL {
+  public createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvasWebGL {
     return new CoreNodeCanvasWebGL(dimensions, handle, this.engineOptions, options);
   }
 }

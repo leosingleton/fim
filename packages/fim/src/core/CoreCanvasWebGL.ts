@@ -3,12 +3,15 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
+import { CoreShader } from './CoreShader';
+import { CoreTexture } from './CoreTexture';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';
 import { FimColor } from '../primitives/FimColor';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
+import { FimDimensions } from '../primitives/FimDimensions';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvasWebGL extends CoreCanvas {
@@ -132,6 +135,21 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
       glExtensions: gl.getSupportedExtensions().sort()
     };
+  }
+
+  /**
+   * Calls the CoreShader constructor
+   */
+  public createCoreShader(): CoreShader {
+    return new CoreShader(this);
+  }
+
+  /**
+   * Calls the CoreTexture constructor
+   * @param dimensions Texture dimensions
+   */
+  public createCoreTexture(dimensions: FimDimensions): CoreTexture {
+    return new CoreTexture(this, dimensions);
   }
 
   public fillCanvas(color: FimColor | string): void {
