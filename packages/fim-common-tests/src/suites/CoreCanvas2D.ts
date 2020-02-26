@@ -60,6 +60,19 @@ export function coreCanvas2D(
       canvas2.dispose();
     });
 
+    it('Imports from PNG', async () => {
+      const canvas = factory(smallFourSquares, `${description} - Imports from PNG`);
+      const png = TestImages.fourSquaresPng();
+      await canvas.loadFromPngAsync(png);
+
+      expect(canvas.getPixel(32, 32).distance(red)).toEqual(0);
+      expect(canvas.getPixel(96, 32).distance(green)).toEqual(0);
+      expect(canvas.getPixel(32, 96).distance(blue)).toEqual(0);
+      expect(canvas.getPixel(96, 96).distance(black)).toEqual(0);
+
+      canvas.dispose();
+    });
+
     it('Imports from JPEG', async () => {
       const canvas = factory(smallFourSquares, `${description} - Imports from JPEG`);
       const jpeg = TestImages.fourSquaresJpeg();

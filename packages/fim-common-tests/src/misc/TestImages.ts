@@ -60,6 +60,32 @@ export namespace TestImages {
   }
 
   /**
+   * A Base64-encoded string containing a 128x128 pixel PNG. The image consists of four solid-colored squares:
+   * - Top-Left = Red
+   * - Top-Right = Green
+   * - Bottom-Left = Blue
+   * - Bottom-Right = Black
+   */
+  export const fourSquaresPngBase64 =
+    'iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA' +
+    'yklEQVR42u3TgQkAMBACMe3+O3/nEHIbSLCX7To+4EUAAAgAAAEAIAAABACAAAAQAAACAEAAAAgA' +
+    'AAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAABK' +
+    'k9uf4AECAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAAIAAABACAAAAQAAAC' +
+    'AEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAHY7gN6wgP+U5DwswAAAABJRU5ErkJggg==';
+
+  /**
+   * Returns a 128x128 pixel PNG as a byte array. The image consists of four solid-colored squares:
+   * - Top-Left = Red
+   * - Top-Right = Green
+   * - Bottom-Left = Blue
+   * - Bottom-Right = Black
+   */
+  export function fourSquaresPng(): Uint8Array {
+    // Base64-decode the data
+    return Uint8Array.from(atobPortable(fourSquaresPngBase64), c => c.charCodeAt(0));
+  }
+
+  /**
    * Returns an array of RGBA pixel data with a solid color
    * @param dimensions Output dimensions, in pixels
    * @param color Color to fill
