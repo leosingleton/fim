@@ -45,6 +45,9 @@ export interface FimImage extends FimObject {
   /**
    * Loads the image contents from RGBA data
    * @param pixelData An array containing 4 bytes per pixel, in RGBA order
+   * @param dimensions Optional dimensions of `pixelData`. If not provided, it is assumed to be the same dimensions as
+   *    the image. If provided, the dimensions may be different from the image, in which case the image contents will
+   *    be automatically rescaled. If not provided, then `pixelData` must be the same dimensions as the image.
    */
-  loadPixelDataAsync(pixelData: Uint8ClampedArray): Promise<void>;
+  loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void>;
 }

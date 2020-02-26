@@ -8,6 +8,9 @@ import { TestImages } from '../misc/TestImages';
 /** Small 100x100 canvas dimensions */
 const small = FimDimensions.fromWidthHeight(100, 100);
 
+/** Medium 500x500 canvas dimensions */
+const medium = FimDimensions.fromWidthHeight(500, 500);
+
 const red = FimColor.fromString('#f00');
 const green = FimColor.fromString('#0f0');
 const blue = FimColor.fromString('#00f');
@@ -85,6 +88,15 @@ export function clientAndFactoryBasicSuite(
       client.dispose();
     });
 
+    it('Supports loading pixels from array data with rescale', async () => {
+      const client = factory(small);
+      const image = client.createImage();
+      const pixelData = TestImages.solidPixelData(medium, blue);
+      await image.loadPixelDataAsync(pixelData, medium);
+      expect(image.getPixel(50, 50)).toEqual(blue);
+      client.dispose();
+    });
+
     it('Supports loading pixels from array data (ImageBitmap disabled)', async () => {
       const client = factory(small);
       client.engineOptions.disableImageBitmap = true;
@@ -92,6 +104,16 @@ export function clientAndFactoryBasicSuite(
       const pixelData = TestImages.solidPixelData(small, green);
       await image.loadPixelDataAsync(pixelData);
       expect(image.getPixel(50, 50)).toEqual(green);
+      client.dispose();
+    });
+
+    it('Supports loading pixels from array data with rescale (ImageBitmap disabled)', async () => {
+      const client = factory(small);
+      client.engineOptions.disableImageBitmap = true;
+      const image = client.createImage();
+      const pixelData = TestImages.solidPixelData(medium, blue);
+      await image.loadPixelDataAsync(pixelData, medium);
+      expect(image.getPixel(50, 50)).toEqual(blue);
       client.dispose();
     });
 

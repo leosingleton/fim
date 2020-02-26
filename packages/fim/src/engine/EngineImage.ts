@@ -169,20 +169,20 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
-  public async loadPixelDataAsync(pixelData: Uint8ClampedArray): Promise<void> {
+  public async loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions
-    const dim = me.imageDimensions;
-    const expectedLength = dim.getArea() * 4;
+    dimensions = dimensions ?? me.imageDimensions;
+    const expectedLength = dimensions.getArea() * 4;
     if (pixelData.length !== expectedLength) {
-      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dim}`);
+      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dimensions}`);
     }
 
     me.invalidateContent();
     me.allocateContentCanvas();
-    await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData);
+    await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
     me.contentCanvas.isCurrent = true;
 
     // TODO: release resources based on optimization settings
