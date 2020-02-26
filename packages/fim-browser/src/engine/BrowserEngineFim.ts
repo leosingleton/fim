@@ -8,9 +8,9 @@ import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, EngineFim } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
 
-export class BrowserEngineFim extends EngineFim<BrowserEngineImage> {
+export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader> {
   protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(this, dimensions, options, imageName);

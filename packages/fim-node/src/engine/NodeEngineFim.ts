@@ -6,9 +6,9 @@ import { NodeEngineImage } from './NodeEngineImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, EngineFim } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
 
-export class NodeEngineFim extends EngineFim<NodeEngineImage> {
+export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
   protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
       NodeEngineImage {
     return new NodeEngineImage(this, dimensions, options, imageName);

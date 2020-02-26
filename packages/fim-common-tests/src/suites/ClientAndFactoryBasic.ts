@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim, FimDimensions, FimImage, FimColor } from '@leosingleton/fim';
+import { Fim, FimColor, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
 
 /**
  * Executes a suite of common tests using the FIM client created via factory methods
@@ -11,7 +11,7 @@ import { Fim, FimDimensions, FimImage, FimColor } from '@leosingleton/fim';
  */
 export function clientAndFactoryBasicSuite(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage>
+  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
 ): void {
   describe(description, () => {
 

@@ -7,13 +7,14 @@ import { FimEngineOptions } from './FimEngineOptions';
 import { FimImage } from './FimImage';
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
+import { FimShader } from './FimShader';
 import { FimDimensions } from '../primitives/FimDimensions';
 
 /**
  * Parent object when using the FIM library. This object holds images, shaders, and operations used to manipulate 2D
  * images within JavaScript using WebGL.
  */
-export interface Fim<TImage extends FimImage> extends FimObject {
+export interface Fim<TImage extends FimImage, TShader extends FimShader> extends FimObject {
   /** Maximum dimensions of any image */
   readonly maxImageDimensions: FimDimensions;
 

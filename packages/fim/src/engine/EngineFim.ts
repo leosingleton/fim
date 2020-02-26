@@ -5,6 +5,7 @@
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
+import { EngineShader } from './EngineShader';
 import { Fim } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
@@ -16,7 +17,8 @@ import { FimDimensions } from '../primitives/FimDimensions';
 import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Client implementation of the Fim interface */
-export abstract class EngineFim<TEngineImage extends EngineImage> extends EngineObject implements Fim<TEngineImage> {
+export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader extends EngineShader>
+    extends EngineObject implements Fim<TEngineImage, TEngineShader> {
   /**
    * Constructor
    * @param maxImageDimensions Maximum dimensions of any image
