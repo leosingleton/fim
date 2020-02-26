@@ -78,10 +78,10 @@ export function coreCanvas2D(
       const jpeg = TestImages.fourSquaresJpeg();
       await canvas.loadFromJpegAsync(jpeg);
 
-      expect(canvas.getPixel(32, 32).distance(red)).toBeLessThan(0.2);
-      expect(canvas.getPixel(96, 32).distance(green)).toBeLessThan(0.2);
-      expect(canvas.getPixel(32, 96).distance(blue)).toBeLessThan(0.2);
-      expect(canvas.getPixel(96, 96).distance(black)).toBeLessThan(0.2);
+      expect(canvas.getPixel(32, 32).distance(red)).toBeLessThan(0.002);
+      expect(canvas.getPixel(96, 32).distance(green)).toBeLessThan(0.002);
+      expect(canvas.getPixel(32, 96).distance(blue)).toBeLessThan(0.002);
+      expect(canvas.getPixel(96, 96).distance(black)).toBeLessThan(0.002);
 
       canvas.dispose();
     });
