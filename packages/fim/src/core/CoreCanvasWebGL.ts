@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
+import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';
 import { FimColor } from '../primitives/FimColor';
@@ -13,6 +14,19 @@ import { FimPoint } from '../primitives/FimPoint';
 export abstract class CoreCanvasWebGL extends CoreCanvas {
   /** Derived classes must override this method to call canvas.getContext('webgl') */
   protected abstract getContext(): RenderingContextWebGL;
+
+  /** Shader and texture objects that belong to this WebGL canvas */
+  public childObjects: CoreWebGLObject[] = [];
+
+  public dispose(): void {
+    // Dispose all child objects
+    for (const child of this.childObjects) {
+      child.dispose();
+    }
+    this.childObjects = [];
+
+    super.dispose();
+  }
 
   /** Checks for any WebGL errors and throws a FimError if there are any */
   protected throwWebGLErrors(): void {
@@ -101,6 +115,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * this method in order to avoid exceeding the GPU's maximum render buffer dimensions.
    */
   public detectCapabilities(): FimWebGLCapabilities {
+    this.ensureNotDisposed();
+
     const gl = this.getContext();
     const dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
 
@@ -120,6 +136,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   public fillCanvas(color: FimColor | string): void {
     const me = this;
+
+    me.ensureNotDisposed();
     const gl = me.getContext();
     const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
 
@@ -137,6 +155,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   public getPixel(x: number, y: number): FimColor {
     const me = this;
+
+    me.ensureNotDisposed();
     const gl = me.getContext();
     const pixel = new Uint8Array(4);
 

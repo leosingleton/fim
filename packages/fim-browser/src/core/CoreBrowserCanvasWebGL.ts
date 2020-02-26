@@ -24,7 +24,7 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
 
   private canvasElement: DisposableCanvas;
 
-  public dispose() {
+  protected disposeSelf(): void {
     this.canvasElement.dispose();
     this.canvasElement = undefined;
   }

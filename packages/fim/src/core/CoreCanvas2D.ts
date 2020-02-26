@@ -24,6 +24,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    */
   public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
       RenderingContext2D & IDisposable {
+    this.ensureNotDisposed();
+
     const ctx = this.getContext();
     if (!ctx) {
       // Safari on iOS has a limit of 288 MB total for all canvases on a page. It logs this message to the console if
@@ -61,6 +63,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   public getPixel(x: number, y: number): FimColor {
     let result: FimColor;
     const point = FimPoint.fromXY(x, y).toFloor();
+
+    this.ensureNotDisposed();
     this.validateCoordinates(point);
 
     using(this.createDrawingContext(), ctx => {
@@ -77,6 +81,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param pixelData An array containing 4 bytes per pixel, in RGBA order
    */
   public loadPixelData(pixelData: Uint8Array): void {
+    this.ensureNotDisposed();
+
     // Validate the array size matches the expected dimensions
     const dim = this.canvasDimensions;
     const expectedLength = dim.getArea() * 4;
@@ -102,6 +108,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
     destCoords = (destCoords ?? FimRect.fromDimensions(this.canvasDimensions)).toFloor();
 
+    this.ensureNotDisposed();
     srcCanvas.validateRect(srcCoords);
     this.validateRect(destCoords);
 

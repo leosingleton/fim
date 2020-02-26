@@ -40,8 +40,24 @@ export abstract class CoreCanvas {
   /** Image options */
   public readonly imageOptions: FimImageOptions;
 
+  /** Disposed the WebGL canvas and all related objects, such as shaders and textures */
+  public dispose(): void {
+    this.disposeSelf();
+    this.isDisposed = true;
+  }
+
+  /** Set by the dispose() method */
+  protected isDisposed = false;
+
+  /** Throws an exception if the object is disposed */
+  protected ensureNotDisposed(): void {
+    if (this.isDisposed) {
+      throw new FimError(FimErrorCode.ObjectDisposed, `${this.imageHandle} is disposed`);
+    }
+  }
+
   /** Derived classes must override this method to dispose the canvas */
-  public abstract dispose(): void;
+  protected abstract disposeSelf(): void;
 
   /** Derived classes must override this method to return a CanvasImageSource */
   public abstract getImageSource(): CanvasImageSource;

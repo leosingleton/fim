@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvasWebGL } from './CoreCanvasWebGL';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 
 /** Wrapper around objects that are associated with a WebGL canvas */
 export class CoreWebGLObject {
@@ -11,17 +12,32 @@ export class CoreWebGLObject {
    * @param canvas The parent WebGL canvas
    */
   public constructor(parent: CoreCanvasWebGL) {
+    // Establish the parent/child relationship
+    parent.childObjects.push(this);
     this.parentCanvas = parent;
   }
 
   /** The parent WebGL canvas */
-  public readonly parentCanvas: CoreCanvasWebGL;
+  public parentCanvas: CoreCanvasWebGL;
 
   /** Disposes all GPU resources */
   public dispose(): void {
-    this.isDisposed = true;
+    const me = this;
+
+    // Remove the parent/child relationship
+    me.parentCanvas.childObjects = me.parentCanvas.childObjects.filter(c => c !== me);
+    me.parentCanvas = undefined;
+
+    me.isDisposed = true;
   }
 
   /** Set by the dispose() method */
   protected isDisposed = false;
+
+  /** Throws an exception if the object is disposed */
+  protected ensureNotDisposed(): void {
+    if (this.isDisposed) {
+      throw new FimError(FimErrorCode.ObjectDisposed, `Child of ${this.parentCanvas.imageHandle} is disposed`);
+    }
+  }
 }

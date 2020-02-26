@@ -21,7 +21,7 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
 
   private glContext: WebGLRenderingContext;
 
-  public dispose() {
+  protected disposeSelf(): void {
     const gl = this.glContext;
     if (gl) {
       const ext = gl.getExtension('STACKGL_destroy_context');

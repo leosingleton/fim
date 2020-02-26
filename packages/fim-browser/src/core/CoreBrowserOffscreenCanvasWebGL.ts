@@ -18,7 +18,7 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
 
   private canvasElement: OffscreenCanvas;
 
-  public dispose() {
+  protected disposeSelf(): void {
     // Chrome is the only browser that currently supports OffscreenCanvas, and I've never actually hit an out-of-memory
     // error with it, even on mobile, but it probably doesn't hurt to resize the canvas to zero.
     this.canvasElement.width = 0;
