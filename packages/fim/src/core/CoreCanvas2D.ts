@@ -80,7 +80,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * Loads the image contents from RGBA data
    * @param pixelData An array containing 4 bytes per pixel, in RGBA order
    */
-  public loadPixelData(pixelData: Uint8Array): void {
+  public async loadPixelDataAsync(pixelData: Uint8Array): Promise<void> {
     this.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions

@@ -40,11 +40,11 @@ export interface FimImage extends FimObject {
    * @param y Y-offset, in pixels
    * @returns RGBA color value
    */
-  getPixelAsync(x: number, y: number): Promise<FimColor>;
+  getPixel(x: number, y: number): FimColor;
 
   /**
    * Loads the image contents from RGBA data
    * @param pixelData An array containing 4 bytes per pixel, in RGBA order
    */
-  loadPixelData(pixelData: Uint8Array): void;
+  loadPixelDataAsync(pixelData: Uint8Array): Promise<void>;
 }

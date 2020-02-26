@@ -61,12 +61,12 @@ export function clientAndFactoryBasicSuite(
       client.dispose();
     });
 
-    it('Supports fillSolid() and getPixelAsync()', async () => {
+    it('Supports fillSolid() and getPixel()', () => {
       const client = factory(FimDimensions.fromWidthHeight(100, 100));
       const image = client.createImage();
       image.fillSolid('#f00');
 
-      const color = await image.getPixelAsync(50, 50);
+      const color = image.getPixel(50, 50);
       expect(color).toEqual(FimColor.fromString('#f00'));
 
       client.dispose();
@@ -76,9 +76,9 @@ export function clientAndFactoryBasicSuite(
       const client = factory(FimDimensions.fromWidthHeight(100, 100));
       const image = client.createImage();
       const pixelData = TestImages.solidPixelData(100, 100, '#f00');
-      image.loadPixelData(pixelData);
+      await image.loadPixelDataAsync(pixelData);
 
-      const color = await image.getPixelAsync(50, 50);
+      const color = image.getPixel(50, 50);
       expect(color).toEqual(FimColor.fromString('#f00'));
 
       client.dispose();

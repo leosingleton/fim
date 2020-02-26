@@ -22,11 +22,11 @@ export function coreCanvas2D(
       canvas.dispose();
     });
 
-    it('Gets and sets pixels', () => {
+    it('Gets and sets pixels', async () => {
       const canvas = factory(FimDimensions.fromWidthHeight(100, 100), `${description} - Gets and sets pixels`);
       const color = FimColor.fromString('#f0f');
       const pixelData = TestImages.solidPixelData(100, 100, color);
-      canvas.loadPixelData(pixelData);
+      await canvas.loadPixelDataAsync(pixelData);
       expect(canvas.getPixel(50, 50)).toEqual(color);
       canvas.dispose();
     });

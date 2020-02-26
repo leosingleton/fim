@@ -153,7 +153,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
-  public async getPixelAsync(x: number, y: number): Promise<FimColor> {
+  public getPixel(x: number, y: number): FimColor {
     const me = this;
     me.ensureNotDisposed();
 
@@ -169,7 +169,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     throw new FimError(FimErrorCode.NotImplemented);
   }
 
-  public loadPixelData(pixelData: Uint8Array): void {
+  public async loadPixelDataAsync(pixelData: Uint8Array): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 
@@ -182,7 +182,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     me.invalidateContent();
     me.allocateContentCanvas();
-    me.contentCanvas.imageContent.loadPixelData(pixelData);
+    await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData);
     me.contentCanvas.isCurrent = true;
 
     // TODO: release resources based on optimization settings
