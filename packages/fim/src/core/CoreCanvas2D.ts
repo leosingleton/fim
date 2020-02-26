@@ -165,14 +165,20 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   /**
    * Loads the image contents from a PNG file
    * @param pngFile PNG file, as a Uint8Array
+   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
+   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
+   *    to fit this canvas.
    */
-  public abstract loadFromPngAsync(pngFile: Uint8Array): Promise<void>;
+  public abstract loadFromPngAsync(pngFile: Uint8Array, allowRescale?: boolean): Promise<void>;
 
   /**
    * Loads the image contents from a JPEG file
    * @param jpegFile JPEG file, as a Uint8Array
+   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
+   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
+   *    to fit this canvas.
    */
-  public abstract loadFromJpegAsync(jpegFile: Uint8Array): Promise<void>;
+  public abstract loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void>;
 
   /**
    * Copies contents from another canvas. All inputs supports both cropping and rescaling.

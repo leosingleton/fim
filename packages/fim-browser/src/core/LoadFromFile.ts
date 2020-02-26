@@ -9,8 +9,12 @@ import { CoreCanvas2D, CoreMimeType } from '@leosingleton/fim/internals';
  * @param destCanvas Destination `CoreCanvas2D`
  * @param file Image file, as a Uint8Array
  * @param mimeType Mime type of the image file
+ * @param allowRescale With the default value of `false`, then the dimensions of `file` must match the dimensions of
+ *    `destCanvas`. Otherwise, if `allowRescale` is `true`, then the contents of `file` will be automatically rescaled
+ *    to fit `destCanvas`.
  */
-export function loadFromFileAsync(destCanvas: CoreCanvas2D, file: Uint8Array, mimeType: CoreMimeType): Promise<void> {
+export function loadFromFileAsync(destCanvas: CoreCanvas2D, file: Uint8Array, mimeType: CoreMimeType,
+    allowRescale: boolean): Promise<void> {
   // Create a Blob holding the binary data and load it onto an HTMLImageElement
   const blob = new Blob([file], { type: mimeType });
 
@@ -22,7 +26,7 @@ export function loadFromFileAsync(destCanvas: CoreCanvas2D, file: Uint8Array, mi
     // On success, copy the image to a FimCanvas and return it via the Promise
     img.onload = () => {
       try {
-        destCanvas.loadFromImage(img);
+        destCanvas.loadFromImage(img, allowRescale);
         resolve();
       } catch (err) {
         // The call to createCanvas() or createDrawingContext() could fail if we run out of memory

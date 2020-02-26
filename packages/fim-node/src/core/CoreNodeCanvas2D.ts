@@ -36,16 +36,16 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return new CoreNodeCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
-  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
-    return this.loadFromFileAsync(pngFile);
+  public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+    return this.loadFromFileAsync(pngFile, allowRescale);
   }
 
-  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
-    return this.loadFromFileAsync(jpegFile);
+  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
+    return this.loadFromFileAsync(jpegFile, allowRescale);
   }
 
   /** Internal implementation for `loadFromPngAsync()` and `loadFromJpegAsync()` */
-  private loadFromFileAsync(file: Uint8Array): Promise<void> {
+  private loadFromFileAsync(file: Uint8Array, allowRescale: boolean): Promise<void> {
     // Create a Buffer holding the binary data and load it onto an HTMLImageElement. Unlike the browser's Blob,
     // Node.js's Buffer doesn't care about mime types so accepts multiple file formats.
     const buffer = Buffer.from(file);
@@ -55,7 +55,7 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
 
       // On success, copy the image to a FimCanvas and return it via the Promise
       img.onload = () => {
-        this.loadFromImage(img);
+        this.loadFromImage(img, allowRescale);
         resolve();
       };
 

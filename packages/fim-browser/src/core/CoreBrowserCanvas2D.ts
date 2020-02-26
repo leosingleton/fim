@@ -45,12 +45,12 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     return new CoreBrowserCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
-  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
-    return loadFromFileAsync(this, pngFile, CoreMimeType.PNG);
+  public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+    return loadFromFileAsync(this, pngFile, CoreMimeType.PNG, allowRescale);
   }
 
-  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
-    return loadFromFileAsync(this, jpegFile, CoreMimeType.JPEG);
+  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
+    return loadFromFileAsync(this, jpegFile, CoreMimeType.JPEG, allowRescale);
   }
 
   public async exportToPngAsync(): Promise<Uint8Array> {

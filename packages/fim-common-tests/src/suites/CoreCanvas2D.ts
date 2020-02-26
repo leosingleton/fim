@@ -12,6 +12,9 @@ const small = FimDimensions.fromWidthHeight(100, 100);
 /** Small 128x128 canvas dimensions, used by four squares sample image */
 const smallFourSquares = FimDimensions.fromWidthHeight(128, 128);
 
+/** Medium 500x500 canvas dimensions */
+const medium = FimDimensions.fromWidthHeight(500, 500);
+
 const red = FimColor.fromString('#f00');
 const green = FimColor.fromString('#0f0');
 const blue = FimColor.fromString('#00f');
@@ -82,6 +85,32 @@ export function coreCanvas2D(
       expect(canvas.getPixel(96, 32).distance(green)).toBeLessThan(0.002);
       expect(canvas.getPixel(32, 96).distance(blue)).toBeLessThan(0.002);
       expect(canvas.getPixel(96, 96).distance(black)).toBeLessThan(0.002);
+
+      canvas.dispose();
+    });
+
+    it('Imports from PNG with rescale', async () => {
+      const canvas = factory(medium, `${description} - Imports from PNG with rescale`);
+      const png = TestImages.fourSquaresPng();
+      await canvas.loadFromPngAsync(png, true);
+
+      expect(canvas.getPixel(125, 125).distance(red)).toEqual(0);
+      expect(canvas.getPixel(375, 125).distance(green)).toEqual(0);
+      expect(canvas.getPixel(125, 375).distance(blue)).toEqual(0);
+      expect(canvas.getPixel(375, 375).distance(black)).toEqual(0);
+
+      canvas.dispose();
+    });
+
+    it('Imports from JPEG with rescale', async () => {
+      const canvas = factory(medium, `${description} - Imports from JPEG with rescale`);
+      const jpeg = TestImages.fourSquaresJpeg();
+      await canvas.loadFromJpegAsync(jpeg, true);
+
+      expect(canvas.getPixel(125, 125).distance(red)).toBeLessThan(0.002);
+      expect(canvas.getPixel(375, 125).distance(green)).toBeLessThan(0.002);
+      expect(canvas.getPixel(125, 375).distance(blue)).toBeLessThan(0.002);
+      expect(canvas.getPixel(375, 375).distance(black)).toBeLessThan(0.002);
 
       canvas.dispose();
     });
