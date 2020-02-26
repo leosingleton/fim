@@ -9,6 +9,7 @@ import { EngineShader } from './EngineShader';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
+import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
@@ -59,6 +60,10 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   private contentFillColor: FimColor;
   private contentCanvas: CoreCanvas2D;
   private contentTexture: CoreTexture;
+
+  protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
+    // TODO
+  }
 
   public fillSolid(color: FimColor | string): void {
     this.ensureNotDisposed();
