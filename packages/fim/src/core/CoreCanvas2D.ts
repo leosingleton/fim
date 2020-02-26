@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
+import { ImageSource } from './types/ImageSource';
 import { RenderingContext2D } from './types/RenderingContext2D';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -106,7 +107,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       // tests. However, createImageBitmap() is not yet supported on Safari or Edge.
       await DisposableSet.usingAsync(async disposable => {
         // Enable image smoothing if we are rescaling the image
-        const ctx = disposable.addDisposable(this.createDrawingContext(sameDimensions));
+        const ctx = disposable.addDisposable(this.createDrawingContext(!sameDimensions));
 
         const imageData = new ImageData(pixelData, dimensions.w, dimensions.h);
         const imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
@@ -129,6 +130,49 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       });
     }
   }
+
+  /**
+   * Loads the image contents from an Image
+   * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
+   *    calling this function.
+   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
+   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
+   *    to fit this canvas.
+   */
+  public loadFromImage(image: ImageSource, allowRescale = false): void {
+    const me = this;
+    me.ensureNotDisposed();
+
+    // Validate the dimensions
+    const imageWidth = image.width as number;
+    const imageHeight = image.height as number;
+    let sameDimensions = true;
+    if (imageWidth !== me.canvasDimensions.w || imageHeight !== me.canvasDimensions.h) {
+      if (allowRescale) {
+        sameDimensions = false;
+      } else {
+        throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${me.canvasDimensions}`);
+      }
+    }
+
+    // Enable image smoothing if we are rescaling the image
+    using(me.createDrawingContext(!sameDimensions), ctx => {
+      ctx.drawImage(image as CanvasImageSource, 0, 0, imageWidth, imageHeight, 0, 0, me.canvasDimensions.w,
+        me.canvasDimensions.h);
+    });
+  }
+
+  /**
+   * Loads the image contents from a PNG file
+   * @param pngFile PNG file, as a Uint8Array
+   */
+  public abstract loadFromPngAsync(pngFile: Uint8Array): Promise<void>;
+
+  /**
+   * Loads the image contents from a JPEG file
+   * @param jpegFile JPEG file, as a Uint8Array
+   */
+  public abstract loadFromJpegAsync(jpegFile: Uint8Array): Promise<void>;
 
   /**
    * Copies contents from another canvas. All inputs supports both cropping and rescaling.

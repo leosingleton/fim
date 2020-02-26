@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
+import { loadFromFileAsync } from './LoadFromFile';
 import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvas2D extends CoreCanvas2D {
@@ -44,6 +45,14 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     return new CoreBrowserCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
+  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
+    return loadFromFileAsync(this, pngFile, CoreMimeType.PNG);
+  }
+
+  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
+    return loadFromFileAsync(this, jpegFile, CoreMimeType.JPEG);
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
     const blob = await this.toPngBlobAsync();
     const buffer = await new Response(blob).arrayBuffer();
@@ -66,7 +75,7 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
   /** Helper function for `exportToJpegAsync()` */
   private toJpegBlobAsync(quality: number): Promise<Blob> {
     return new Promise<Blob>(resolve => {
-      this.canvasElement.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+      this.canvasElement.toBlob(blob => resolve(blob), CoreMimeType.JPEG, quality);
     });
   }
 }

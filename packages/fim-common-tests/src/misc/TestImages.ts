@@ -4,6 +4,17 @@
 
 import { FimColor, FimDimensions } from '@leosingleton/fim';
 
+/** Portable implementation of atob(). Works on both browser and Node.js. */
+function atobPortable(str: string): string {
+  if (typeof atob === 'function') {
+    // Browsers natively have atob(). Just use that.
+    return atob(str);
+  } else {
+    // On Node.js, use the Buffer class
+    return Buffer.from(str, 'base64').toString('binary');
+  }
+}
+
 export namespace TestImages {
   /**
    * A Base64-encoded string containing a 128x128 pixel JPEG. The image consists of four solid-colored squares:
@@ -45,7 +56,7 @@ export namespace TestImages {
    */
   export function fourSquaresJpeg(): Uint8Array {
     // Base64-decode the data
-    return Uint8Array.from(atob(fourSquaresJpegBase64), c => c.charCodeAt(0));
+    return Uint8Array.from(atobPortable(fourSquaresJpegBase64), c => c.charCodeAt(0));
   }
 
   /**

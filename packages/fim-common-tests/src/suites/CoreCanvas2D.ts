@@ -9,9 +9,13 @@ import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 /** Small 100x100 canvas dimensions */
 const small = FimDimensions.fromWidthHeight(100, 100);
 
+/** Small 128x128 canvas dimensions, used by four squares sample image */
+const smallFourSquares = FimDimensions.fromWidthHeight(128, 128);
+
 const red = FimColor.fromString('#f00');
 const green = FimColor.fromString('#0f0');
 const blue = FimColor.fromString('#00f');
+const black = FimColor.fromString('#000');
 
 /**
  * Executes a suite of common tests using the CoreCanvas2D objects created via factory methods
@@ -45,17 +49,28 @@ export function coreCanvas2D(
     });
 
     it('Copies from one canvas to another', () => {
-      const canvas1 = factory(small,
-        `${description} - Copies from one canvas to another`);
+      const canvas1 = factory(small, `${description} - Copies from one canvas to another`);
       canvas1.fillCanvas(blue);
 
-      const canvas2 = factory(small,
-        `${description} - Copies from one canvas to another`);
+      const canvas2 = factory(small, `${description} - Copies from one canvas to another`);
       canvas2.copyFrom(canvas1);
       expect(canvas2.getPixel(50, 50)).toEqual(blue);
 
       canvas1.dispose();
       canvas2.dispose();
+    });
+
+    it('Imports from JPEG', async () => {
+      const canvas = factory(smallFourSquares, `${description} - Imports from JPEG`);
+      const jpeg = TestImages.fourSquaresJpeg();
+      await canvas.loadFromJpegAsync(jpeg);
+
+      expect(canvas.getPixel(32, 32).distance(red)).toBeLessThan(0.2);
+      expect(canvas.getPixel(96, 32).distance(green)).toBeLessThan(0.2);
+      expect(canvas.getPixel(32, 96).distance(blue)).toBeLessThan(0.2);
+      expect(canvas.getPixel(96, 96).distance(black)).toBeLessThan(0.2);
+
+      canvas.dispose();
     });
 
   });

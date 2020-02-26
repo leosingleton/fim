@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
-import { Canvas, createCanvas } from 'canvas';
+import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
+import { Canvas, Image, createCanvas } from 'canvas';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
@@ -36,19 +36,45 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return new CoreNodeCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
+  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
+    return this.loadFromFileAsync(pngFile);
+  }
+
+  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
+    return this.loadFromFileAsync(jpegFile);
+  }
+
+  /** Internal implementation for `loadFromPngAsync()` and `loadFromJpegAsync()` */
+  private loadFromFileAsync(file: Uint8Array): Promise<void> {
+    // Create a Buffer holding the binary data and load it onto an HTMLImageElement. Unlike the browser's Blob,
+    // Node.js's Buffer doesn't care about mime types so accepts multiple file formats.
+    const buffer = Buffer.from(file);
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+
+      // On success, copy the image to a FimCanvas and return it via the Promise
+      img.onload = () => {
+        this.loadFromImage(img);
+        resolve();
+      };
+
+      // On error, return an exception via the Promise
+      img.onerror = err => {
+        reject(err);
+      };
+
+      img.src = buffer;
+    });
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
-    const buffer = this.canvasElement.toBuffer(MimeTypes.PNG);
+    const buffer = this.canvasElement.toBuffer(CoreMimeType.PNG);
     return new Uint8Array(buffer);
   }
 
   public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    const buffer = this.canvasElement.toBuffer(MimeTypes.JPEG, { quality });
+    const buffer = this.canvasElement.toBuffer(CoreMimeType.JPEG, { quality });
     return new Uint8Array(buffer);
   }
-}
-
-/** Mime type parameters for `Canvas.toBuffer()` */
-const enum MimeTypes {
-  PNG = 'image/png',
-  JPEG = 'image/jpeg'
 }

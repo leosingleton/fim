@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { loadFromFileAsync } from './LoadFromFile';
 import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
@@ -39,6 +40,14 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
       this.imageOptions);
   }
 
+  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
+    return loadFromFileAsync(this, pngFile, CoreMimeType.PNG);
+  }
+
+  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
+    return loadFromFileAsync(this, jpegFile, CoreMimeType.JPEG);
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
     const blob = await this.canvasElement.convertToBlob({});
     const buffer = await new Response(blob).arrayBuffer();
@@ -46,7 +55,7 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
   }
 
   public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    const blob = await this.canvasElement.convertToBlob({ type: 'image/jpeg', quality });
+    const blob = await this.canvasElement.convertToBlob({ type: CoreMimeType.JPEG, quality });
     const buffer = await new Response(blob).arrayBuffer();
     return new Uint8Array(buffer);
   }

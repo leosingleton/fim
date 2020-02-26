@@ -11,8 +11,10 @@
 export { CoreCanvas } from '../core/CoreCanvas';
 export { CoreCanvas2D } from '../core/CoreCanvas2D';
 export { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
+export { CoreMimeType } from '../core/CoreMimeType';
 export { CoreShader } from '../core/CoreShader';
 export { CoreTexture } from '../core/CoreTexture';
+export { ImageSource } from '../core/types/ImageSource';
 export { RenderingContext2D } from '../core/types/RenderingContext2D';
 export { RenderingContextWebGL } from '../core/types/RenderingContextWebGL';
 export { EngineFim } from '../engine/EngineFim';
