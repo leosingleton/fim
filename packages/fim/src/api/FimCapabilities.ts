@@ -10,6 +10,9 @@ export interface FimCapabilities extends FimBrowserCapabilities, FimWebGLCapabil
 export interface FimBrowserCapabilities {
   /** Whether the current browser supports offscreen canvases */
   readonly supportsOffscreenCanvas: boolean;
+
+  /** Whether the current browser supports ImageBitmap */
+  readonly supportsImageBitmap: boolean;
 }
 
 /** Exposes the GPU's capabilties */

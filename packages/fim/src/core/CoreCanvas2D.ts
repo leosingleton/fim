@@ -99,7 +99,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dimensions}`);
     }
 
-    if (typeof createImageBitmap !== 'undefined' && !me.engineOptions.disableImageBitmap) {
+    if (!me.engineOptions.disableImageBitmap) {
       // According to https://stackoverflow.com/questions/7721898/is-putimagedata-faster-than-drawimage/7722892,
       // drawImage() is faster than putImageData() on most browsers. Plus, it supports cropping and rescaling.
       // In addition, on Chrome 72, the pixel data was being slightly changed by putImageData() and breaking unit

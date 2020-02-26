@@ -178,7 +178,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const gl = me.getContext();
     const pixel = new Uint8Array(4);
 
-    // Scale the coordinates and flip Y, as the coordinates for readPixels start in the lower-left corner
+    // Flip Y, as the coordinates for readPixels start in the lower-left corner
     const point = FimPoint.fromXY(x, this.canvasDimensions.h - y - 1).toFloor();
     this.validateCoordinates(point);
 

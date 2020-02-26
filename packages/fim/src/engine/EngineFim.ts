@@ -41,6 +41,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     //      readonly, so we force copy them over with any typecasts.
     this.capabilities = {
       supportsOffscreenCanvas: (typeof OffscreenCanvas !== 'undefined'),
+      supportsImageBitmap: (typeof createImageBitmap !== 'undefined'),
       glVersion: '',
       glShadingLanguageVersion: '',
       glVendor: '',
@@ -62,6 +63,12 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     } finally {
       tinyCanvas.dispose();
     }
+
+    // Limit engine options to detected capabilities
+    this.engineOptions.disableOffscreenCanvas = !this.capabilities.supportsOffscreenCanvas;
+    this.engineOptions.disableImageBitmap = !this.capabilities.supportsImageBitmap;
+    this.engineOptions.maxGLRenderBufferSize = this.capabilities.glMaxRenderBufferSize;
+    this.engineOptions.maxGLTextureSize = this.capabilities.glMaxTextureSize;
   }
 
   public readonly maxImageDimensions: FimDimensions;

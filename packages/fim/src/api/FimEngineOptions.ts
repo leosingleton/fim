@@ -52,13 +52,16 @@ export interface FimEngineOptions {
   showWarnings: boolean;
 }
 
-/** Default values when FIM is first instantiated */
+/**
+ * Default values when FIM is first instantiated. Note that EngineFim does browser and GPU capability detection, and
+ * may immediately change them based on actual capabilities.
+ */
 export const defaultEngineOptions: FimEngineOptions = {
   executionStrategy: FimExecutionStrategy.MaximizeSpeed,
   maxCanvasMemory: 0,
   maxGLMemory: 0,
-  disableOffscreenCanvas: false,
-  disableImageBitmap: false,
+  disableOffscreenCanvas: true,
+  disableImageBitmap: true,
   maxGLRenderBufferSize: 0,
   maxGLTextureSize: 0,
   debugMode: false,

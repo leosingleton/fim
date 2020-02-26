@@ -17,7 +17,7 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader
   }
 
   public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
-    if (this.capabilities.supportsOffscreenCanvas && !this.engineOptions.disableOffscreenCanvas) {
+    if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvas2D(dimensions, handle, this.engineOptions, options);
     } else {
       return new CoreBrowserCanvas2D(dimensions, handle, this.engineOptions, options);
@@ -25,7 +25,7 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader
   }
 
   public createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvasWebGL {
-    if (this.capabilities.supportsOffscreenCanvas && !this.engineOptions.disableOffscreenCanvas) {
+    if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvasWebGL(dimensions, handle, this.engineOptions, options);
     } else {
       return new CoreBrowserCanvasWebGL(dimensions, handle, this.engineOptions, options);
