@@ -77,7 +77,8 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   private allocateContentCanvas(): void {
     const me = this;
 
-    if (!me.contentCanvas.imageContent) {
+    // If a canvas is already allocated, this function is a no-op
+    if (me.contentCanvas.imageContent) {
       return;
     }
 
@@ -89,7 +90,8 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   private allocateContentTexture(): void {
     const me = this;
 
-    if (!me.contentTexture.imageContent) {
+    // If a texture is already allocated, this function is a no-op
+    if (me.contentTexture.imageContent) {
       return;
     }
 

@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Fim, FimColor, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { TestImages } from '../misc/TestImages';
 
 /**
  * Executes a suite of common tests using the FIM client created via factory methods
@@ -64,6 +65,18 @@ export function clientAndFactoryBasicSuite(
       const client = factory(FimDimensions.fromWidthHeight(100, 100));
       const image = client.createImage();
       image.fillSolid('#f00');
+
+      const color = await image.getPixelAsync(50, 50);
+      expect(color).toEqual(FimColor.fromString('#f00'));
+
+      client.dispose();
+    });
+
+    it('Supports loading pixels from array data', async () => {
+      const client = factory(FimDimensions.fromWidthHeight(100, 100));
+      const image = client.createImage();
+      const pixelData = TestImages.solidPixelData(100, 100, '#f00');
+      image.loadPixelData(pixelData);
 
       const color = await image.getPixelAsync(50, 50);
       expect(color).toEqual(FimColor.fromString('#f00'));
