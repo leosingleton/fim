@@ -30,7 +30,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
-    this.engineOptions = deepCopy(defaultEngineOptions);
+    const engineOptions = this.engineOptions = deepCopy(defaultEngineOptions);
     this.defaultImageOptions = deepCopy(defaultImageOptions);
 
     // Detect the browser and GPU's capabilities. This is a bit hacky, but works by:
@@ -39,7 +39,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     //      buffer size, but have a chicken-and-egg problem of not knowing the size without discovering capabilities.
     //  3. We discover GPU capabilities from the temporary WebGL canvas. The properties on the capabilities object are
     //      readonly, so we force copy them over with any typecasts.
-    this.capabilities = {
+    const capabilities: FimCapabilities = this.capabilities = {
       supportsOffscreenCanvas: (typeof OffscreenCanvas !== 'undefined'),
       supportsImageBitmap: (typeof createImageBitmap !== 'undefined'),
       glVersion: '',
@@ -58,17 +58,17 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
       for (const prop in glCapabilities) {
-        (this.capabilities as any)[prop] = (glCapabilities as any)[prop];
+        (capabilities as any)[prop] = (glCapabilities as any)[prop];
       }
     } finally {
       tinyCanvas.dispose();
     }
 
     // Limit engine options to detected capabilities
-    this.engineOptions.disableOffscreenCanvas = !this.capabilities.supportsOffscreenCanvas;
-    this.engineOptions.disableImageBitmap = !this.capabilities.supportsImageBitmap;
-    this.engineOptions.maxGLRenderBufferSize = this.capabilities.glMaxRenderBufferSize;
-    this.engineOptions.maxGLTextureSize = this.capabilities.glMaxTextureSize;
+    engineOptions.disableOffscreenCanvas = !capabilities.supportsOffscreenCanvas;
+    engineOptions.disableImageBitmap = !capabilities.supportsImageBitmap;
+    engineOptions.maxGLRenderBufferSize = capabilities.glMaxRenderBufferSize;
+    engineOptions.maxGLTextureSize = capabilities.glMaxTextureSize;
   }
 
   public readonly maxImageDimensions: FimDimensions;
