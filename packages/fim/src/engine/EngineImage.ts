@@ -258,8 +258,15 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     const me = this;
     me.ensureNotDisposed();
 
-    // TODO: Ensure srcImage belongs to the same EngineFim instance
-    // TODO: Ensure srcImage !== this
+    // copyFrom() does not support copying from itself
+    if (srcImage === this) {
+      throw new FimError(FimErrorCode.InvalidParameter, '!copyFrom self');
+    }
+
+    // Ensure srcImage belongs to the same EngineFim instance
+    if (me.parentObject !== srcImage.parentObject) {
+      throw new FimError(FimErrorCode.InvalidParameter, 'copyFrom wrong FIM');
+    }
 
     srcImage.populateContentCanvas();
     me.invalidateContent();

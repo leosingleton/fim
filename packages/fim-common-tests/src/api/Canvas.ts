@@ -119,6 +119,33 @@ export function fimTestSuiteCanvas(
       });
     });
 
+    it('copyFrom() doesn\'t allow an uninitialized source image', () => {
+      using(factory(small), fim => {
+        const image1 = fim.createImage();
+        const image2 = fim.createImage();
+        expect(() => image1.copyFrom(image2)).toThrow();
+      });
+    });
+
+    it('copyFrom() doesn\'t allow copying itself', () => {
+      using(factory(small), fim => {
+        const image = fim.createImage();
+        image.fillSolid(red);
+        expect(() => image.copyFrom(image)).toThrow();
+      });
+    });
+
+    it('copyFrom() doesn\'t allow copying from another FIM instance', () => {
+      using(factory(small), fim1 => {
+        using(factory(small), fim2 => {
+          const image1 = fim1.createImage();
+          const image2 = fim2.createImage();
+          image2.fillSolid(red);
+          expect(() => image1.copyFrom(image2)).toThrow();
+        });
+      });
+    });
+
     it('Supports debug mode, including tracing and warnings', () => {
       using(factory(small), fim => {
         fim.engineOptions.debugMode = true;
