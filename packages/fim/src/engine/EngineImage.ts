@@ -229,6 +229,30 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
+  public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+    const me = this;
+    me.ensureNotDisposed();
+
+    me.invalidateContent();
+    me.allocateContentCanvas();
+    await me.contentCanvas.imageContent.loadFromPngAsync(pngFile, allowRescale);
+    me.contentCanvas.isCurrent = true;
+
+    // TODO: release resources based on optimization settings
+  }
+
+  public async loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
+    const me = this;
+    me.ensureNotDisposed();
+
+    me.invalidateContent();
+    me.allocateContentCanvas();
+    await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
+    me.contentCanvas.isCurrent = true;
+
+    // TODO: release resources based on optimization settings
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
     const me = this;
     me.ensureNotDisposed();

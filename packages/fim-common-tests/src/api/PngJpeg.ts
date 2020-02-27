@@ -2,7 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { red, small } from '../common/Globals';
+import { black, blue, bottomLeft, bottomRight, green, medium, red, small, smallFourSquares, topLeft,
+  topRight } from '../common/Globals';
+import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
@@ -12,6 +14,58 @@ export function fimTestSuitePngJpeg(
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   describe(`Fim PNG/JPEG - ${description}`, () => {
+
+    it('Imports from PNG', async () => {
+      await usingAsync(factory(smallFourSquares), async fim => {
+        const image = fim.createImage();
+        const png = TestImages.fourSquaresPng();
+        await image.loadFromPngAsync(png);
+
+        expect(image.getPixel(topLeft()).distance(red)).toEqual(0);
+        expect(image.getPixel(topRight()).distance(green)).toEqual(0);
+        expect(image.getPixel(bottomLeft()).distance(blue)).toEqual(0);
+        expect(image.getPixel(bottomRight()).distance(black)).toEqual(0);
+      });
+    });
+
+    it('Imports from JPEG', async () => {
+      await usingAsync(factory(smallFourSquares), async fim => {
+        const image = fim.createImage();
+        const jpeg = TestImages.fourSquaresJpeg();
+        await image.loadFromJpegAsync(jpeg);
+
+        expect(image.getPixel(topLeft()).distance(red)).toBeLessThan(0.002);
+        expect(image.getPixel(topRight()).distance(green)).toBeLessThan(0.002);
+        expect(image.getPixel(bottomLeft()).distance(blue)).toBeLessThan(0.002);
+        expect(image.getPixel(bottomRight()).distance(black)).toBeLessThan(0.002);
+      });
+    });
+
+    it('Imports from PNG with rescale', async () => {
+      await usingAsync(factory(medium), async fim => {
+        const image = fim.createImage();
+        const png = TestImages.fourSquaresPng();
+        await image.loadFromPngAsync(png, true);
+
+        expect(image.getPixel(topLeft(medium)).distance(red)).toEqual(0);
+        expect(image.getPixel(topRight(medium)).distance(green)).toEqual(0);
+        expect(image.getPixel(bottomLeft(medium)).distance(blue)).toEqual(0);
+        expect(image.getPixel(bottomRight(medium)).distance(black)).toEqual(0);
+      });
+    });
+
+    it('Imports from JPEG with rescale', async () => {
+      await usingAsync(factory(medium), async fim => {
+        const image = fim.createImage();
+        const jpeg = TestImages.fourSquaresJpeg();
+        await image.loadFromJpegAsync(jpeg, true);
+
+        expect(image.getPixel(topLeft(medium)).distance(red)).toBeLessThan(0.002);
+        expect(image.getPixel(topRight(medium)).distance(green)).toBeLessThan(0.002);
+        expect(image.getPixel(bottomLeft(medium)).distance(blue)).toBeLessThan(0.002);
+        expect(image.getPixel(bottomRight(medium)).distance(black)).toBeLessThan(0.002);
+      });
+    });
 
     it('Exports to PNG', async () => {
       await usingAsync(factory(small), async fim => {
