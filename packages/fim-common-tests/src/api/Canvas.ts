@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { blue, green, medium, red, small, smallMidpoint } from '../common/Globals';
+import { blue, green, medium, midpoint, red, small } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
@@ -17,7 +17,7 @@ export function fimTestSuiteCanvas(
       const client = factory(small);
       const image = client.createImage();
       image.fillSolid(red);
-      expect(image.getPixel(smallMidpoint)).toEqual(red);
+      expect(image.getPixel(midpoint(small))).toEqual(red);
       client.dispose();
     });
 
@@ -26,7 +26,7 @@ export function fimTestSuiteCanvas(
       const image = client.createImage();
       const pixelData = TestImages.solidPixelData(small, green);
       await image.loadPixelDataAsync(pixelData);
-      expect(image.getPixel(smallMidpoint)).toEqual(green);
+      expect(image.getPixel(midpoint(small))).toEqual(green);
       client.dispose();
     });
 
@@ -35,7 +35,7 @@ export function fimTestSuiteCanvas(
       const image = client.createImage();
       const pixelData = TestImages.solidPixelData(medium, blue);
       await image.loadPixelDataAsync(pixelData, medium);
-      expect(image.getPixel(smallMidpoint)).toEqual(blue);
+      expect(image.getPixel(midpoint(small))).toEqual(blue);
       client.dispose();
     });
 
@@ -45,7 +45,7 @@ export function fimTestSuiteCanvas(
       const image = client.createImage();
       const pixelData = TestImages.solidPixelData(small, green);
       await image.loadPixelDataAsync(pixelData);
-      expect(image.getPixel(smallMidpoint)).toEqual(green);
+      expect(image.getPixel(midpoint(small))).toEqual(green);
       client.dispose();
     });
 
@@ -55,7 +55,7 @@ export function fimTestSuiteCanvas(
       const image = client.createImage();
       const pixelData = TestImages.solidPixelData(medium, blue);
       await image.loadPixelDataAsync(pixelData, medium);
-      expect(image.getPixel(smallMidpoint)).toEqual(blue);
+      expect(image.getPixel(midpoint(small))).toEqual(blue);
       client.dispose();
     });
 

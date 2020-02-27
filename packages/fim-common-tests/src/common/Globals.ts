@@ -4,14 +4,19 @@
 
 import { FimColor, FimDimensions, FimPoint } from '@leosingleton/fim';
 
-/** Small 100x100 canvas dimensions */
-export const small = FimDimensions.fromWidthHeight(100, 100);
-
-/** Midpoint of the small 100x100 canvas */
-export const smallMidpoint = FimPoint.fromXY(50, 50);
+/** Small 100x50 canvas dimensions */
+export const small = FimDimensions.fromWidthHeight(100, 50);
 
 /** Small 128x128 canvas dimensions, used by four squares sample image */
 export const smallFourSquares = FimDimensions.fromWidthHeight(128, 128);
+
+/** Medium 480x640 canvas dimensions */
+export const medium = FimDimensions.fromWidthHeight(480, 640);
+
+/** Returns the midpoint of the provided dimensions */
+export function midpoint(dimensions: FimDimensions): FimPoint {
+  return FimPoint.fromXY(dimensions.w * 0.5, dimensions.h * 0.5).toFloor();
+}
 
 /** Returns a point in the top-left quadrant */
 export function topLeft(dimensions = smallFourSquares): FimPoint {
@@ -32,12 +37,6 @@ export function bottomLeft(dimensions = smallFourSquares): FimPoint {
 export function bottomRight(dimensions = smallFourSquares): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.75, dimensions.h * 0.75).toFloor();
 }
-
-/** Medium 500x500 canvas dimensions */
-export const medium = FimDimensions.fromWidthHeight(500, 500);
-
-/** Midpoint of the medium 500x500 canvas */
-export const mediumMidpoint = FimPoint.fromXY(250, 250);
 
 export const red = FimColor.fromString('#f00');
 export const green = FimColor.fromString('#0f0');
