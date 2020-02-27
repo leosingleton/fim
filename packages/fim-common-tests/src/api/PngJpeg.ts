@@ -94,5 +94,31 @@ export function fimTestSuitePngJpeg(
       });
     });
 
+    it('Creates from PNG', async () => {
+      await usingAsync(factory(medium), async fim => {
+        const png = TestImages.fourSquaresPng();
+        const image = await fim.createImageFromPngAsync(png);
+
+        expect(image.imageDimensions).toEqual(smallFourSquares);
+        expect(image.getPixel(topLeft()).distance(red)).toEqual(0);
+        expect(image.getPixel(topRight()).distance(green)).toEqual(0);
+        expect(image.getPixel(bottomLeft()).distance(blue)).toEqual(0);
+        expect(image.getPixel(bottomRight()).distance(black)).toEqual(0);
+      });
+    });
+
+    it('Creates from JPEG', async () => {
+      await usingAsync(factory(medium), async fim => {
+        const jpeg = TestImages.fourSquaresJpeg();
+        const image = await fim.createImageFromJpegAsync(jpeg);
+
+        expect(image.imageDimensions).toEqual(smallFourSquares);
+        expect(image.getPixel(topLeft()).distance(red)).toBeLessThan(0.002);
+        expect(image.getPixel(topRight()).distance(green)).toBeLessThan(0.002);
+        expect(image.getPixel(bottomLeft()).distance(blue)).toBeLessThan(0.002);
+        expect(image.getPixel(bottomRight()).distance(black)).toBeLessThan(0.002);
+      });
+    });
+
   });
 }
