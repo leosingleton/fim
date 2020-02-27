@@ -7,11 +7,11 @@ import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
-TestSuites.fim('Fim test suite for Node',
+TestSuites.fim('FimNodeFactory',
   (maxImageDimensions) => FimNodeFactory.create(maxImageDimensions));
 
 TestSuites.coreCanvas2D('CoreNodeCanvas2D',
-  (dimensions, imageHandle) => new CoreNodeCanvas2D(dimensions, imageHandle));
+  (dimensions) => new CoreNodeCanvas2D(dimensions, 'UnitTest'));
 
 TestSuites.coreCanvasWebGL('CoreNodeCanvasWebGL',
-  (dimensions, imageHandle) => new CoreNodeCanvasWebGL(dimensions, imageHandle));
+  (dimensions) => new CoreNodeCanvasWebGL(dimensions, 'UnitTest'));

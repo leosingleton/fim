@@ -15,7 +15,7 @@ import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
  */
 export function coreCanvas2DTestSuite(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas2D
+  factory: (dimensions: FimDimensions) => CoreCanvas2D
 ): void {
   describe(description, () => {
     coreCanvas2DTestSuiteCreateDispose(description, factory);

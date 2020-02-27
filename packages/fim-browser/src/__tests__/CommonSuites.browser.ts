@@ -9,10 +9,10 @@ import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
-TestSuites.fim('Fim test suite for Browsers',
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled',
   (maxImageDimensions) => FimBrowserFactory.create(maxImageDimensions));
 
-TestSuites.fim('Fim test suite for Browsers with OffscreenCanvas disabled',
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled',
     (maxImageDimensions) => {
   const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.disableOffscreenCanvas = true;
@@ -20,13 +20,13 @@ TestSuites.fim('Fim test suite for Browsers with OffscreenCanvas disabled',
 });
 
 TestSuites.coreCanvas2D('CoreBrowserCanvas2D',
-  (dimensions, imageHandle) => new CoreBrowserCanvas2D(dimensions, imageHandle));
+  (dimensions) => new CoreBrowserCanvas2D(dimensions, 'UnitTest'));
 
 TestSuites.coreCanvasWebGL('CoreBrowserCanvasWebGL',
-  (dimensions, imageHandle) => new CoreBrowserCanvasWebGL(dimensions, imageHandle));
+  (dimensions) => new CoreBrowserCanvasWebGL(dimensions, 'UnitTest'));
 
 TestSuites.coreCanvas2D('CoreBrowserOffscreenCanvas2D',
-  (dimensions, imageHandle) => new CoreBrowserOffscreenCanvas2D(dimensions, imageHandle));
+  (dimensions) => new CoreBrowserOffscreenCanvas2D(dimensions, 'UnitTest'));
 
 TestSuites.coreCanvasWebGL('CoreBrowserOffscreenCanvasWebGL',
-  (dimensions, imageHandle) => new CoreBrowserOffscreenCanvasWebGL(dimensions, imageHandle));
+  (dimensions) => new CoreBrowserOffscreenCanvasWebGL(dimensions, 'UnitTest'));

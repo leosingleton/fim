@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { blue, red, small } from '../common/Globals';
+import { using } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Create/dispose tests for Fim */
@@ -10,36 +11,34 @@ export function fimTestSuiteCreateDispose(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`${description} - Create/Dispose`, () => {
+  describe(`Fim Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const client = factory(small);
-      client.dispose();
+      const fim = factory(small);
+      fim.dispose();
 
       // Double-dispose throws an exception
-      expect(() => client.dispose()).toThrow();
+      expect(() => fim.dispose()).toThrow();
     });
 
     it('Handles multiple releaseAllResources() calls', () => {
-      const client = factory(small);
-      client.releaseAllResources();
-      client.releaseAllResources();
-      client.releaseAllResources();
-      client.dispose();
+      using(factory(small), fim => {
+        fim.releaseAllResources();
+        fim.releaseAllResources();
+        fim.releaseAllResources();
+      });
     });
 
     it('Creates and disposes images', () => {
-      const client = factory(small);
+      using(factory(small), fim => {
+        const img1 = fim.createImage();
+        img1.fillSolid(red);
+        img1.dispose();
 
-      const img1 = client.createImage();
-      img1.fillSolid(red);
-      img1.dispose();
-
-      const img2 = client.createImage();
-      img2.fillSolid(blue);
-      img2.dispose();
-
-      client.dispose();
+        const img2 = fim.createImage();
+        img2.fillSolid(blue);
+        img2.dispose();
+      });
     });
 
   });

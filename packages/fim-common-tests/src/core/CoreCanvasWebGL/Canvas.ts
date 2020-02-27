@@ -3,21 +3,22 @@
 // See LICENSE in the project root for license information.
 
 import { green, midpoint, small } from '../../common/Globals';
+import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
 
 /** CoreCanvasWebGL test cases for canvas operations */
 export function coreCanvasWebGLTestSuiteCanvas(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions) => CoreCanvasWebGL
 ): void {
-  describe(description, () => {
+  describe(`CoreCanvasWebGL Canvas - ${description}`, () => {
 
     it('Fills with solid colors', () => {
-      const canvas = factory(small, `${description} - Fills with solid colors`);
-      canvas.fillCanvas(green);
-      expect(canvas.getPixel(midpoint(small))).toEqual(green);
-      canvas.dispose();
+      using(factory(small), canvas => {
+        canvas.fillCanvas(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+      });
     });
 
   });

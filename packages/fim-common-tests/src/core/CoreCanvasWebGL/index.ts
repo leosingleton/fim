@@ -14,7 +14,7 @@ import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
  */
 export function coreCanvasWebGLTestSuite(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions) => CoreCanvasWebGL
 ): void {
   describe(description, () => {
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);

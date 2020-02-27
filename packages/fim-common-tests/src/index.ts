@@ -33,7 +33,7 @@ export namespace TestSuites {
    */
   export function coreCanvas2D(
     description: string,
-    factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas2D
+    factory: (dimensions: FimDimensions) => CoreCanvas2D
   ): void {
     coreCanvas2DTestSuite(description, factory);
   }
@@ -45,7 +45,7 @@ export namespace TestSuites {
    */
   export function coreCanvasWebGL(
     description: string,
-    factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvasWebGL
+    factory: (dimensions: FimDimensions) => CoreCanvasWebGL
   ): void {
     coreCanvasWebGLTestSuite(description, factory);
   }

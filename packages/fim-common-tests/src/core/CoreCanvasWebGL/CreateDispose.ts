@@ -9,12 +9,12 @@ import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
 /** CoreCanvasWebGL test cases for create/dispose */
 export function coreCanvasWebGLTestSuiteCreateDispose(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions) => CoreCanvasWebGL
 ): void {
-  describe(description, () => {
+  describe(`CoreCanvasWebGL Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const canvas = factory(small, `${description} - Creates and disposes`);
+      const canvas = factory(small);
       canvas.dispose();
     });
 

@@ -4,41 +4,41 @@
 
 import { blue, green, midpoint, red, small } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
+import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 
 /** CoreCanvas2D test cases around canvases */
 export function coreCanvas2DTestSuiteCanvas(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas2D
+  factory: (dimensions: FimDimensions) => CoreCanvas2D
 ): void {
-  describe(description, () => {
+  describe(`CoreCanvas2D Canvas - ${description}`, () => {
 
     it('Gets and sets pixels', async () => {
-      const canvas = factory(small, `${description} - Gets and sets pixels`);
-      const pixelData = TestImages.solidPixelData(small, red);
-      await canvas.loadPixelDataAsync(pixelData);
-      expect(canvas.getPixel(midpoint(small))).toEqual(red);
-      canvas.dispose();
+      await usingAsync(factory(small), async canvas => {
+        const pixelData = TestImages.solidPixelData(small, red);
+        await canvas.loadPixelDataAsync(pixelData);
+        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+      });
     });
 
     it('Fills with solid colors', () => {
-      const canvas = factory(small, `${description} - Fills with solid colors`);
-      canvas.fillCanvas(green);
-      expect(canvas.getPixel(midpoint(small))).toEqual(green);
-      canvas.dispose();
+      using(factory(small), canvas => {
+        canvas.fillCanvas(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+      });
     });
 
     it('Copies from one canvas to another', () => {
-      const canvas1 = factory(small, `${description} - Copies from one canvas to another`);
-      canvas1.fillCanvas(blue);
+      using(factory(small), canvas1 => {
+        canvas1.fillCanvas(blue);
 
-      const canvas2 = factory(small, `${description} - Copies from one canvas to another`);
-      canvas2.copyFrom(canvas1);
-      expect(canvas2.getPixel(midpoint(small))).toEqual(blue);
-
-      canvas1.dispose();
-      canvas2.dispose();
+        using(factory(small), canvas2 => {
+          canvas2.copyFrom(canvas1);
+          expect(canvas2.getPixel(midpoint(small))).toEqual(blue);
+        });
+      });
     });
 
   });

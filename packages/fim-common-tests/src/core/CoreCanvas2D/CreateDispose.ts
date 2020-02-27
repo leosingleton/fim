@@ -9,12 +9,12 @@ import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 /** CoreCanvas2D tests around create/dispose */
 export function coreCanvas2DTestSuiteCreateDispose(
   description: string,
-  factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas2D
+  factory: (dimensions: FimDimensions) => CoreCanvas2D
 ): void {
-  describe(`${description} - Create/Dispose`, () => {
+  describe(`CoreCanvas2D Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const canvas = factory(small, `${description} - Creates and disposes`);
+      const canvas = factory(small);
       canvas.dispose();
     });
 

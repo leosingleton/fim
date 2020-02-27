@@ -11,6 +11,7 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "dependencies": {
+    "@leosingleton/commonlibs": "latest",
     "@leosingleton/fim": "^2.0.0-alpha"
   },
   "main": "build/index.js",
