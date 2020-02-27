@@ -4,7 +4,7 @@
  * Released under the MIT license
  */
 
-export { TestImages } from './misc/TestImages';
-export { clientAndFactoryBasicSuite } from './suites/ClientAndFactoryBasic';
-export { coreCanvas2D } from './suites/CoreCanvas2D';
-export { coreCanvasWebGL } from './suites/CoreCanvasWebGL';
+export { TestImages } from './common/TestImages';
+export { clientAndFactoryBasicSuite } from './api';
+export { coreCanvas2D } from './core/CoreCanvas2D';
+export { coreCanvasWebGL } from './core/CoreCanvasWebGL';

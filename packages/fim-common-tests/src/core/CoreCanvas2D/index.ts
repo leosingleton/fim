@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { TestImages } from '../misc/TestImages';
+import { TestImages } from '../../common/TestImages';
 import { FimDimensions, FimColor } from '@leosingleton/fim';
 import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
 

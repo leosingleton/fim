@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Fim, FimColor, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
-import { TestImages } from '../misc/TestImages';
+import { TestImages } from '../common/TestImages';
 
 /** Small 100x100 canvas dimensions */
 const small = FimDimensions.fromWidthHeight(100, 100);
