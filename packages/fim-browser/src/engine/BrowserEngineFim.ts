@@ -16,6 +16,16 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader
     return new BrowserEngineImage(this, dimensions, options, imageName);
   }
 
+  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
+      Promise<BrowserEngineImage> {
+    return BrowserEngineImage.createFromPngAsync(this, pngFile, options, imageName);
+  }
+
+  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
+      Promise<BrowserEngineImage> {
+    return BrowserEngineImage.createFromJpegAsync(this, jpegFile, options, imageName);
+  }
+
   public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
     if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvas2D(dimensions, handle, this.engineOptions, options);

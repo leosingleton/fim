@@ -126,16 +126,32 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
 
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
     this.ensureNotDisposed();
+    return this.createEngineImage(dimensions ?? this.maxImageDimensions, options ?? {}, imageName);
+  }
 
-    dimensions = dimensions ?? this.maxImageDimensions;
-    options = options ?? {};
+  public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, imageName?: string):
+      Promise<TEngineImage> {
+    this.ensureNotDisposed();
+    return this.createEngineImageFromPngAsync(pngFile, options ?? {}, imageName);
+  }
 
-    return this.createEngineImage(dimensions, options, imageName);
+  public createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, imageName?: string):
+      Promise<TEngineImage> {
+    this.ensureNotDisposed();
+    return this.createEngineImageFromJpegAsync(jpegFile, options ?? {}, imageName);
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
     TEngineImage;
+
+  /** Derived classes must implement this method to create a TEngineImage from a PNG file */
+  protected abstract createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
+    Promise<TEngineImage>;
+
+  /** Derived classes must implement this method to create a TEngineImage from a JPEG file */
+  protected abstract createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
+    Promise<TEngineImage>;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
   public abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D;

@@ -50,4 +50,20 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * @param imageName Optional name specified when creating the object to help with debugging
    */
   createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TImage;
+
+  /**
+   * Creates a new image from a PNG file
+   * @param pngFile PNG file, as a Uint8Array
+   * @param options Optional overrides to the image options from the parent Fim object
+   * @param imageName Optional name specified when creating the object to help with debugging
+   */
+  createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, imageName?: string): Promise<TImage>;
+
+  /**
+   * Creates a new image from a JPEG file
+   * @param jpegFile JPEG file, as a Uint8Array
+   * @param options Optional overrides to the image options from the parent Fim object
+   * @param imageName Optional name specified when creating the object to help with debugging
+   */
+  createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, imageName?: string): Promise<TImage>;
 }

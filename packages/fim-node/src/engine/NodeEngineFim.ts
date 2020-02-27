@@ -14,6 +14,16 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
     return new NodeEngineImage(this, dimensions, options, imageName);
   }
 
+  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
+      Promise<NodeEngineImage> {
+    return NodeEngineImage.createFromPngAsync(this, pngFile, options, imageName);
+  }
+
+  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
+      Promise<NodeEngineImage> {
+    return NodeEngineImage.createFromJpegAsync(this, jpegFile, options, imageName);
+  }
+
   public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
     return new CoreNodeCanvas2D(dimensions, handle, this.engineOptions, options);
   }

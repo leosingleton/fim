@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loadFromFileAsync } from './LoadFromFile';
+import { loadCanvasFromFileAsync } from './LoadFromFile';
 import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
@@ -41,11 +41,11 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
   }
 
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadFromFileAsync(this, pngFile, CoreMimeType.PNG, allowRescale);
+    return loadCanvasFromFileAsync(this, pngFile, CoreMimeType.PNG, allowRescale);
   }
 
   public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadFromFileAsync(this, jpegFile, CoreMimeType.JPEG, allowRescale);
+    return loadCanvasFromFileAsync(this, jpegFile, CoreMimeType.JPEG, allowRescale);
   }
 
   public async exportToPngAsync(): Promise<Uint8Array> {
