@@ -3,12 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { small } from '../common/Globals';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** WebGL tests for Fim */
 export function fimTestSuiteWebGL(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
+  factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   describe(`${description} - WebGL`, () => {
 

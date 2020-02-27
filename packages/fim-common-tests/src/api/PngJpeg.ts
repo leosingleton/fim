@@ -3,12 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { red, small } from '../common/Globals';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Fim test cases around PNG and JPEG encoding/decoding */
 export function fimTestSuitePngJpeg(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
+  factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   describe(description, () => {
 

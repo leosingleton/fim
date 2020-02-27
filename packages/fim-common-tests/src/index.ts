@@ -7,7 +7,7 @@
 import { fimTestSuite } from './api';
 import { coreCanvas2DTestSuite } from './core/CoreCanvas2D';
 import { coreCanvasWebGLTestSuite } from './core/CoreCanvasWebGL';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
 export { TestImages } from './common/TestImages';
@@ -21,7 +21,7 @@ export namespace TestSuites {
    */
   export function fim(
     description: string,
-    factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
+    factory: (maxImageDimensions: FimDimensions) => Fim
   ): void {
     fimTestSuite(description, factory);
   }

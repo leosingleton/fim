@@ -4,7 +4,7 @@
  * Released under the MIT license
  */
 
-export { Fim } from './api/Fim';
+export { Fim, FimBase } from './api/Fim';
 export { FimCapabilities } from './api/FimCapabilities';
 export { FimEngineOptions } from './api/FimEngineOptions';
 export { FimExecutionStrategy } from './api/FimExecutionStrategy';

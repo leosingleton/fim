@@ -4,12 +4,12 @@
 
 import { blue, green, medium, red, small } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Fim test cases around canvas manipulation */
 export function fimTestSuiteCanvas(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
+  factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   describe(description, () => {
 

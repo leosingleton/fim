@@ -6,7 +6,7 @@ import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
 import { fimTestSuitePngJpeg } from './PngJpeg';
 import { fimTestSuiteWebGL } from './WebGL';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /**
  * Executes a suite of common tests using the FIM client created via factory methods
@@ -15,7 +15,7 @@ import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
  */
 export function fimTestSuite(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
+  factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   fimTestSuiteCreateDispose(description, factory);
   fimTestSuiteCanvas(description, factory);

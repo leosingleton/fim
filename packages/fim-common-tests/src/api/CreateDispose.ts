@@ -3,12 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { blue, red, small } from '../common/Globals';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Create/dispose tests for Fim */
 export function fimTestSuiteCreateDispose(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
+  factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   describe(`${description} - Create/Dispose`, () => {
 
