@@ -70,11 +70,10 @@ export abstract class CoreCanvas {
 
   /**
    * Gets the pixel color at the specified coordinate
-   * @param x X-coordinate, in pixels
-   * @param y Y-coordinate, in pixels
+   * @param point X and Y coordinates, in pixels
    * @returns Pixel color
    */
-  public abstract getPixel(x: number, y: number): FimColor;
+  public abstract getPixel(point: FimPoint): FimColor;
 
   /** Throws an exception if the coordinates are outside of the canvas */
   public validateCoordinates(point: FimPoint): void {

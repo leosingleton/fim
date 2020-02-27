@@ -171,7 +171,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.throwWebGLErrorsDebug();
   }
 
-  public getPixel(x: number, y: number): FimColor {
+  public getPixel(point: FimPoint): FimColor {
     const me = this;
 
     me.ensureNotDisposed();
@@ -179,7 +179,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const pixel = new Uint8Array(4);
 
     // Flip Y, as the coordinates for readPixels start in the lower-left corner
-    const point = FimPoint.fromXY(x, this.canvasDimensions.h - y - 1).toFloor();
+    point = FimPoint.fromXY(point.x, this.canvasDimensions.h - point.y - 1).toFloor();
     this.validateCoordinates(point);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);

@@ -6,6 +6,7 @@ import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
+import { FimPoint } from '../primitives/FimPoint';
 
 /** Represents an image and its data within the FIM library */
 export interface FimImage extends FimObject {
@@ -36,11 +37,10 @@ export interface FimImage extends FimObject {
    *
    * Note that this call is fairly inefficient, and should only be used infrequently, mainly for debugging.
    *
-   * @param x X-offset, in pixels
-   * @param y Y-offset, in pixels
+   * @param point X and Y coordinates, in pixels
    * @returns RGBA color value
    */
-  getPixel(x: number, y: number): FimColor;
+  getPixel(point: FimPoint): FimColor;
 
   /**
    * Loads the image contents from RGBA data

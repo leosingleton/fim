@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { green, small } from '../../common/Globals';
+import { green, small, smallMidpoint } from '../../common/Globals';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
 
@@ -16,7 +16,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
     it('Fills with solid colors', () => {
       const canvas = factory(small, `${description} - Fills with solid colors`);
       canvas.fillCanvas(green);
-      expect(canvas.getPixel(50, 50)).toEqual(green);
+      expect(canvas.getPixel(smallMidpoint)).toEqual(green);
       canvas.dispose();
     });
 

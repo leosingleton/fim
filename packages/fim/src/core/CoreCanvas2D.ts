@@ -65,9 +65,9 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     });
   }
 
-  public getPixel(x: number, y: number): FimColor {
+  public getPixel(point: FimPoint): FimColor {
     let result: FimColor;
-    const point = FimPoint.fromXY(x, y).toFloor();
+    point = point.toFloor();
 
     this.ensureNotDisposed();
     this.validateCoordinates(point);

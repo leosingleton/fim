@@ -10,11 +10,12 @@ import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
-import { FimColor } from '../primitives/FimColor';
-import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreTexture } from '../core/CoreTexture';
+import { FimColor } from '../primitives/FimColor';
+import { FimDimensions } from '../primitives/FimDimensions';
+import { FimPoint } from '../primitives/FimPoint';
 
 /** Internal implementation of the FimImage interface */
 export abstract class EngineImage extends EngineObject implements FimImage {
@@ -193,7 +194,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
-  public getPixel(x: number, y: number): FimColor {
+  public getPixel(point: FimPoint): FimColor {
     const me = this;
     me.ensureNotDisposed();
 
@@ -202,7 +203,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
 
     if (me.contentCanvas.isCurrent) {
-      return me.contentCanvas.imageContent.getPixel(x, y);
+      return me.contentCanvas.imageContent.getPixel(point);
     }
 
     // TODO: copy GL to canvas and read a pixel
