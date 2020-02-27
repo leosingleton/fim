@@ -21,10 +21,10 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 
-        expect(image.getPixel(topLeft()).distance(red)).toEqual(0);
-        expect(image.getPixel(topRight()).distance(green)).toEqual(0);
-        expect(image.getPixel(bottomLeft()).distance(blue)).toEqual(0);
-        expect(image.getPixel(bottomRight()).distance(black)).toEqual(0);
+        expect(image.getPixel(topLeft())).toEqual(red);
+        expect(image.getPixel(topRight())).toEqual(green);
+        expect(image.getPixel(bottomLeft())).toEqual(blue);
+        expect(image.getPixel(bottomRight())).toEqual(black);
       });
     });
 
@@ -47,10 +47,10 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png, true);
 
-        expect(image.getPixel(topLeft(medium)).distance(red)).toEqual(0);
-        expect(image.getPixel(topRight(medium)).distance(green)).toEqual(0);
-        expect(image.getPixel(bottomLeft(medium)).distance(blue)).toEqual(0);
-        expect(image.getPixel(bottomRight(medium)).distance(black)).toEqual(0);
+        expect(image.getPixel(topLeft(medium))).toEqual(red);
+        expect(image.getPixel(topRight(medium))).toEqual(green);
+        expect(image.getPixel(bottomLeft(medium))).toEqual(blue);
+        expect(image.getPixel(bottomRight(medium))).toEqual(black);
       });
     });
 
@@ -100,10 +100,10 @@ export function fimTestSuitePngJpeg(
         const image = await fim.createImageFromPngAsync(png);
 
         expect(image.imageDimensions).toEqual(smallFourSquares);
-        expect(image.getPixel(topLeft()).distance(red)).toEqual(0);
-        expect(image.getPixel(topRight()).distance(green)).toEqual(0);
-        expect(image.getPixel(bottomLeft()).distance(blue)).toEqual(0);
-        expect(image.getPixel(bottomRight()).distance(black)).toEqual(0);
+        expect(image.getPixel(topLeft())).toEqual(red);
+        expect(image.getPixel(topRight())).toEqual(green);
+        expect(image.getPixel(bottomLeft())).toEqual(blue);
+        expect(image.getPixel(bottomRight())).toEqual(black);
       });
     });
 

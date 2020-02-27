@@ -21,10 +21,10 @@ export function coreCanvas2DTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png);
 
-        expect(canvas.getPixel(topLeft()).distance(red)).toEqual(0);
-        expect(canvas.getPixel(topRight()).distance(green)).toEqual(0);
-        expect(canvas.getPixel(bottomLeft()).distance(blue)).toEqual(0);
-        expect(canvas.getPixel(bottomRight()).distance(black)).toEqual(0);
+        expect(canvas.getPixel(topLeft())).toEqual(red);
+        expect(canvas.getPixel(topRight())).toEqual(green);
+        expect(canvas.getPixel(bottomLeft())).toEqual(blue);
+        expect(canvas.getPixel(bottomRight())).toEqual(black);
       });
     });
 
@@ -45,10 +45,10 @@ export function coreCanvas2DTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png, true);
 
-        expect(canvas.getPixel(topLeft(medium)).distance(red)).toEqual(0);
-        expect(canvas.getPixel(topRight(medium)).distance(green)).toEqual(0);
-        expect(canvas.getPixel(bottomLeft(medium)).distance(blue)).toEqual(0);
-        expect(canvas.getPixel(bottomRight(medium)).distance(black)).toEqual(0);
+        expect(canvas.getPixel(topLeft(medium))).toEqual(red);
+        expect(canvas.getPixel(topRight(medium))).toEqual(green);
+        expect(canvas.getPixel(bottomLeft(medium))).toEqual(blue);
+        expect(canvas.getPixel(bottomRight(medium))).toEqual(black);
       });
     });
 

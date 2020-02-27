@@ -181,7 +181,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   public abstract loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void>;
 
   /**
-   * Copies contents from another canvas. All inputs supports both cropping and rescaling.
+   * Copies contents from another canvas. Supports both cropping and rescaling.
    * @param srcCanvas Source canvas
    * @param srcCoords Coordinates of source canvas to copy from
    * @param destCoords Coordinates of destination canvas to copy to

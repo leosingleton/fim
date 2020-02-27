@@ -24,3 +24,4 @@ export { FimColorChannels } from './primitives/FimColorChannels';
 export { FimDimensions } from './primitives/FimDimensions';
 export { FimError, FimErrorCode } from './primitives/FimError';
 export { FimPoint } from './primitives/FimPoint';
+export { FimRect } from './primitives/FimRect';

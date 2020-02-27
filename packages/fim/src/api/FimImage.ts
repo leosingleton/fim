@@ -7,6 +7,7 @@ import { FimObject } from './FimObject';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
 
 /** Represents an image and its data within the FIM library */
 export interface FimImage extends FimObject {
@@ -68,6 +69,14 @@ export interface FimImage extends FimObject {
    *    to fit this canvas.
    */
   loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void>;
+
+  /**
+   * Copies contents from another image. Supports both cropping and rescaling.
+   * @param srcImage Source image
+   * @param srcCoords Coordinates of source image to copy from
+   * @param destCoords Coordinates of destination image to copy to
+   */
+  copyFrom(srcImage: FimImage, srcCoords?: FimRect, destCoords?: FimRect): void;
 
   /**
    * Exports the image contents to a PNG file

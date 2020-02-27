@@ -16,6 +16,7 @@ import { CoreTexture } from '../core/CoreTexture';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
 
 /** Internal implementation of the FimImage interface */
 export abstract class EngineImage extends EngineObject implements FimImage {
@@ -248,6 +249,22 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
+    me.contentCanvas.isCurrent = true;
+
+    // TODO: release resources based on optimization settings
+  }
+
+  public copyFrom(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): void {
+    const me = this;
+    me.ensureNotDisposed();
+
+    // TODO: Ensure srcImage belongs to the same EngineFim instance
+    // TODO: Ensure srcImage !== this
+
+    srcImage.populateContentCanvas();
+    me.invalidateContent();
+    me.allocateContentCanvas();
+    me.contentCanvas.imageContent.copyFrom(srcImage.contentCanvas.imageContent, srcCoords, destCoords);
     me.contentCanvas.isCurrent = true;
 
     // TODO: release resources based on optimization settings
