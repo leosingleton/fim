@@ -10,7 +10,7 @@ import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
  * @param description Description to show in the test framework
  * @param factory Lambda to create the CoreCanvasWebGL instance
  */
-export function coreCanvasWebGL(
+export function coreCanvasWebGLTestSuite(
   description: string,
   factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvasWebGL
 ): void {

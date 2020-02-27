@@ -5,11 +5,13 @@
 import { FimNodeFactory } from '../factory/FimNodeFactory';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
-import { clientAndFactoryBasicSuite, coreCanvas2D, coreCanvasWebGL } from '@leosingleton/fim-common-tests';
+import { TestSuites } from '@leosingleton/fim-common-tests';
 
-clientAndFactoryBasicSuite('Client and Factory Basic suite for Node',
+TestSuites.fim('Fim test suite for Node',
   (maxImageDimensions) => FimNodeFactory.create(maxImageDimensions));
 
-coreCanvas2D('CoreNodeCanvas2D', (dimensions, imageHandle) => new CoreNodeCanvas2D(dimensions, imageHandle));
+TestSuites.coreCanvas2D('CoreNodeCanvas2D',
+  (dimensions, imageHandle) => new CoreNodeCanvas2D(dimensions, imageHandle));
 
-coreCanvasWebGL('CoreNodeCanvasWebGL', (dimensions, imageHandle) => new CoreNodeCanvasWebGL(dimensions, imageHandle));
+TestSuites.coreCanvasWebGL('CoreNodeCanvasWebGL',
+  (dimensions, imageHandle) => new CoreNodeCanvasWebGL(dimensions, imageHandle));

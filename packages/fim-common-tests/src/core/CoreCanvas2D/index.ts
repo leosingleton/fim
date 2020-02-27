@@ -25,7 +25,7 @@ const black = FimColor.fromString('#000');
  * @param description Description to show in the test framework
  * @param factory Lambda to create the CoreCanvas2D instance
  */
-export function coreCanvas2D(
+export function coreCanvas2DTestSuite(
   description: string,
   factory: (dimensions: FimDimensions, imageHandle: string) => CoreCanvas2D
 ): void {

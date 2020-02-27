@@ -20,7 +20,7 @@ const blue = FimColor.fromString('#00f');
  * @param description Description to show in the test framework
  * @param factory Lambda to call FimXYZFactory.create()
  */
-export function clientAndFactoryBasicSuite(
+export function fimTestSuite(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim<FimImage, FimShader>
 ): void {
