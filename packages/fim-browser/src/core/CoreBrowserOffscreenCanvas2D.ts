@@ -35,7 +35,7 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
+  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
     return new CoreBrowserOffscreenCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions,
       this.imageOptions);
   }

@@ -6,7 +6,7 @@ import { CoreCanvasWebGL } from './CoreCanvasWebGL';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 
 /** Wrapper around objects that are associated with a WebGL canvas */
-export class CoreWebGLObject {
+export abstract class CoreWebGLObject {
   /**
    * Constructor
    * @param canvas The parent WebGL canvas
@@ -24,12 +24,17 @@ export class CoreWebGLObject {
   public dispose(): void {
     const me = this;
 
+    me.disposeSelf();
+
     // Remove the parent/child relationship
     me.parentCanvas.childObjects = me.parentCanvas.childObjects.filter(c => c !== me);
     me.parentCanvas = undefined;
 
     me.isDisposed = true;
   }
+
+  /** Derived classes must implement this method to dispose their own resources */
+  protected abstract disposeSelf(): void;
 
   /** Set by the dispose() method */
   protected isDisposed = false;

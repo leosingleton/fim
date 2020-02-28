@@ -158,6 +158,10 @@ export const enum FimErrorCode {
   /** FIM4300: Attempted to read from an image or use it as an input before its contents were initialized */
   ImageUninitialized = 4300,
 
+  /** FIM4301: Attempted to write from an image marked readonly */
+  ImageReadonly = 4301,
+
+
   //
   // 5000-series errors are used for resource exhaustion
   //

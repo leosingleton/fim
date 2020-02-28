@@ -18,7 +18,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   protected abstract getContext(): RenderingContext2D;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  protected abstract createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D;
+  public abstract createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D;
 
   /**
    * Helper function to construct a 2D drawing context

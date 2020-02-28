@@ -14,4 +14,7 @@ export class CoreShader extends CoreWebGLObject {
   public constructor(parent: CoreCanvasWebGL) {
     super(parent);
   }
+
+  protected disposeSelf(): void {
+  }
 }

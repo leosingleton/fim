@@ -43,7 +43,7 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement;
   }
 
-  protected getContext(): RenderingContextWebGL {
+  public getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
   }
 

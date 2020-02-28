@@ -42,7 +42,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** Derived classes must override this method to call `canvas.getContext('webgl')` */
-  protected abstract getContext(): RenderingContextWebGL;
+  public abstract getContext(): RenderingContextWebGL;
 
   /** Shader and texture objects that belong to this WebGL canvas */
   public childObjects: CoreWebGLObject[] = [];
@@ -129,7 +129,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** Checks for any WebGL errors and throws a FimError if there are any */
-  protected throwWebGLErrors(): void {
+  public throwWebGLErrors(): void {
     const gl = this.getContext();
     const errors: FimError[] = [];
     let done = false;
@@ -148,7 +148,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** If we are in debugging mode, checks for any WebGL errors and throws a FimError if there are any */
-  protected throwWebGLErrorsDebug(): void {
+  public throwWebGLErrorsDebug(): void {
     if (this.engineOptions.debugMode) {
       this.throwWebGLErrors();
     }
@@ -186,7 +186,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** Validates the result of gl.checkFramebufferStatus() and throws on a non-complete value */
-  protected throwOnIncompleteFrameBufferStatus(target: number): void {
+  public throwOnIncompleteFrameBufferStatus(target: number): void {
     const gl = this.getContext();
     const status = gl.checkFramebufferStatus(target);
     switch (status) {
@@ -294,12 +294,17 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * this method in order to avoid exceeding the GPU's maximum render buffer dimensions.
    */
   public detectCapabilities(): FimWebGLCapabilities {
-    this.ensureNotDisposed();
+    const me = this;
+    me.ensureNotDisposed();
 
-    const gl = this.getContext();
+    if (me.cachedCapabilities) {
+      return me.cachedCapabilities;
+    }
+
+    const gl = me.getContext();
     const dbgRenderInfo = gl.getExtension('WEBGL_debug_renderer_info');
 
-    return {
+    me.cachedCapabilities = {
       glVersion: gl.getParameter(gl.VERSION),
       glShadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
       glVendor: gl.getParameter(gl.VENDOR),
@@ -311,7 +316,11 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
       glExtensions: gl.getSupportedExtensions().sort()
     };
+    return me.cachedCapabilities;
   }
+
+  /** Cache the result of `detectCapabilities()` to speed up later calls */
+  private cachedCapabilities: FimWebGLCapabilities;
 
   /**
    * Calls the CoreShader constructor
@@ -323,9 +332,10 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   /**
    * Calls the CoreTexture constructor
    * @param dimensions Texture dimensions
+   * @param options Texture options. Must be fully computed with default values populated.
    */
-  public createCoreTexture(dimensions: FimDimensions): CoreTexture {
-    return new CoreTexture(this, dimensions);
+  public createCoreTexture(dimensions: FimDimensions, options: FimImageOptions): CoreTexture {
+    return new CoreTexture(this, dimensions, options);
   }
 
   public fillCanvas(color: FimColor | string): void {

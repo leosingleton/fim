@@ -99,7 +99,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     // TODO: calculate downscaled dimensions
     const glCanvas = me.parentObject.getWebGLCanvas();
-    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.imageDimensions);
+    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.imageDimensions, me.getImageOptions());
   }
 
   /** Sets `isCurrent` to `false` on all of the content objects */
