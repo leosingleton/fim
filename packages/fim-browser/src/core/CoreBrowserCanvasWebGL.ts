@@ -20,6 +20,13 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
     canvas.id = imageHandle;
     document.body.appendChild(canvas);
     this.canvasElement = canvas;
+
+    // Register event listeners
+    canvas.addEventListener('webglcontextlost', this.onContextLost.bind(this), false);
+    canvas.addEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
+    canvas.addEventListener('webglcontextcreationerror', this.onContextCreationError.bind(this), false);
+
+    this.finishInitialization();
   }
 
   /** Canvas pool of WebGL canvases */
@@ -28,7 +35,13 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
   private canvasElement: DisposableCanvas;
 
   protected disposeSelf(): void {
-    this.canvasElement.dispose();
+    // Remove event listeners
+    const canvasElement = this.canvasElement;
+    canvasElement.removeEventListener('webglcontextlost', this.onContextLost.bind(this), false);
+    canvasElement.removeEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
+    canvasElement.removeEventListener('webglcontextcreationerror', this.onContextCreationError.bind(this), false);
+
+    canvasElement.dispose();
     this.canvasElement = undefined;
   }
 

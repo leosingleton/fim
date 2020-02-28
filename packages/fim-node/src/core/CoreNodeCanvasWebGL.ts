@@ -17,6 +17,8 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
     if (!gl) {
       throw new FimError(FimErrorCode.NoWebGL);
     }
+
+    this.finishInitialization();
   }
 
   private glContext: WebGLRenderingContext;

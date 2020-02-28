@@ -8,28 +8,116 @@ import { CoreTexture } from './CoreTexture';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';
+import { FimImageOptions } from '../api/FimImageOptions';
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
+import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
-import { FimDimensions } from '../primitives/FimDimensions';
+import { UnhandledError } from '@leosingleton/commonlibs';
+import { FimTextureSampling } from '../api/FimTextureSampling';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvasWebGL extends CoreCanvas {
-  /** Derived classes must override this method to call canvas.getContext('webgl') */
+  /**
+   * Derived classes must call this function at the end of their constructor once they have initialized the object to
+   * the point where `getContext()` can be called.
+   */
+  protected finishInitialization(): void {
+    const me = this;
+    me.loadExtensions();
+
+    // Disable unneeded features, as we are doing 2D graphics
+    const gl = me.getContext();
+    gl.disable(gl.BLEND);
+    me.throwWebGLErrorsDebug();
+    gl.disable(gl.CULL_FACE);
+    me.throwWebGLErrorsDebug();
+    gl.disable(gl.DEPTH_TEST);
+    me.throwWebGLErrors();
+  }
+
+  /** Derived classes must override this method to call `canvas.getContext('webgl')` */
   protected abstract getContext(): RenderingContextWebGL;
 
   /** Shader and texture objects that belong to this WebGL canvas */
   public childObjects: CoreWebGLObject[] = [];
 
   public dispose(): void {
+    const me = this;
+
     // Dispose all child objects
-    for (const child of this.childObjects) {
+    for (const child of me.childObjects) {
       child.dispose();
     }
-    this.childObjects = [];
+    me.childObjects = [];
+
+    // Remove all callbacks
+    me.contextLostHandlers = [];
+    me.contextRestoredHandlers = [];
 
     super.dispose();
   }
+
+  /**
+   * Registers a callback to invoke when a WebGL context lost event occurs
+   * @param handler Handler to invoke
+   */
+  public registerContextLostHandler(handler: () => void): void {
+    this.contextLostHandlers.push(handler);
+  }
+
+  /**
+   * Registers a callback to invoke when a WebGL context restored event occurs
+   * @param handler Handler to invoke
+   */
+  public registerContextRestoredHandler(handler: () => void): void {
+    this.contextRestoredHandlers.push(handler);
+  }
+
+  /** Derived classes should register for the `webglcontextlost` event and call this handler */
+  protected onContextLost(): void {
+    console.log('Lost WebGL context');
+    event.preventDefault();
+
+    for (const handler of this.contextLostHandlers) {
+      try {
+        handler();
+      } catch (err) {
+        UnhandledError.reportError(err);
+      }
+    }
+  }
+
+  /** Derived classes should register for the `webglcontextrestored` event and call this handler */
+  protected onContextRestored(): void {
+    console.log('WebGL context restored');
+
+    // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
+    this.loadExtensions();
+
+    for (const handler of this.contextRestoredHandlers) {
+      try {
+        handler();
+      } catch (err) {
+        UnhandledError.reportError(err);
+      }
+    }
+  }
+
+  /** Derived classes should register for the `webglcontextcreationerror` event and call this handler */
+  protected onContextCreationError(event: WebGLContextEvent): void {
+    this.contextFailMessage = event.statusMessage;
+  }
+
+  /** Context lost callbacks */
+  private contextLostHandlers: (() => void)[] = [];
+
+  /** Context restored callbacks */
+  private contextRestoredHandlers: (() => void)[] = [];
+
+  /** Returns additional error details in case `getContext('webgl')` fails */
+  private contextFailMessage: string;
 
   /** Checks for any WebGL errors and throws a FimError if there are any */
   protected throwWebGLErrors(): void {
@@ -111,6 +199,53 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       default:
         throw new FimError(FimErrorCode.WebGLFramebufferStatusUnknown, `FramebufferStatus ${status}`);
     }
+  }
+
+  /** Loads WebGL extensions. Called from the constructor and on context restored notifications. */
+  private loadExtensions(): void {
+    const me = this;
+    const gl = me.getContext();
+    me.extensionTexture32 = gl.getExtension('OES_texture_float');
+    me.extensionTextureLinear32 = gl.getExtension('OES_texture_float_linear');
+    me.extensionColorBuffer32 = gl.getExtension('WEBGL_color_buffer_float');
+    me.extensionTexture16 = gl.getExtension('OES_texture_half_float');
+    me.extensionTextureLinear16 = gl.getExtension('OES_texture_half_float_linear');
+    me.extensionColorBuffer16 = gl.getExtension('EXT_color_buffer_half_float');
+  }
+
+  private extensionTexture32: OES_texture_float;
+  private extensionTextureLinear32: OES_texture_float_linear;
+  private extensionColorBuffer32: WEBGL_color_buffer_float;
+  private extensionTexture16: OES_texture_half_float;
+  private extensionTextureLinear16: OES_texture_half_float_linear;
+  private extensionColorBuffer16: any;
+
+  /**
+   * Calculates the maximum color depth for a CoreTexture
+   * @param options Texture options. Must be fully computed with default values populated.
+   */
+  public getMaxTextureDepth(options: FimImageOptions): FimBitsPerPixel {
+    const bpp = options.bpp;
+    const linear = (options.sampling === FimTextureSampling.Linear);
+
+    if (bpp >= FimBitsPerPixel.BPP32) {
+      if (this.extensionTexture32 && this.extensionColorBuffer32) {
+        if (!linear || this.extensionTextureLinear32) {
+          return FimBitsPerPixel.BPP32;
+        }
+      }
+    }
+
+    if (bpp >= FimBitsPerPixel.BPP16) {
+      const ext = this.extensionTexture16;
+      if (ext && this.extensionColorBuffer16) {
+        if (!linear || this.extensionTextureLinear16) {
+          return FimBitsPerPixel.BPP16;
+        }
+      }
+    }
+
+    return FimBitsPerPixel.BPP8;
   }
 
   /**

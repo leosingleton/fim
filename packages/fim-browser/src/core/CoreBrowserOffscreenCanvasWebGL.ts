@@ -13,16 +13,29 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
   public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
       imageOptions?: FimImageOptions) {
     super(canvasDimensions, imageHandle, engineOptions, imageOptions);
-    this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
+    const canvas = this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
+
+    // Register event listeners
+    canvas.addEventListener('webglcontextlost', this.onContextLost.bind(this), false);
+    canvas.addEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
+    canvas.addEventListener('webglcontextcreationerror', this.onContextCreationError.bind(this), false);
+
+    this.finishInitialization();
   }
 
   private canvasElement: OffscreenCanvas;
 
   protected disposeSelf(): void {
+    // Remove event listeners
+    const canvasElement = this.canvasElement;
+    canvasElement.removeEventListener('webglcontextlost', this.onContextLost.bind(this), false);
+    canvasElement.removeEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
+    canvasElement.removeEventListener('webglcontextcreationerror', this.onContextCreationError.bind(this), false);
+
     // Chrome is the only browser that currently supports OffscreenCanvas, and I've never actually hit an out-of-memory
     // error with it, even on mobile, but it probably doesn't hurt to resize the canvas to zero.
-    this.canvasElement.width = 0;
-    this.canvasElement.height = 0;
+    canvasElement.width = 0;
+    canvasElement.height = 0;
     this.canvasElement = undefined;
   }
 
