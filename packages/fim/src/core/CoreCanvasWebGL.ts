@@ -249,6 +249,33 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /**
+   * Converts a FimBitsPerPixel value to the WebGL constant
+   * @param bpp FimBitsPerPixel
+   * @return Constant used by WebGL function calls
+   */
+  public getTextureDepthConstant(bpp: FimBitsPerPixel): number {
+    const me = this;
+    const gl = me.getContext();
+
+    switch (bpp) {
+      case FimBitsPerPixel.BPP8:
+        return gl.UNSIGNED_BYTE;
+
+      case FimBitsPerPixel.BPP16:
+        return me.extensionTexture16.HALF_FLOAT_OES;
+
+      case FimBitsPerPixel.BPP32:
+        return gl.FLOAT;
+    }
+
+    this.throwUnreachableCodeError(bpp);
+  }
+
+  private throwUnreachableCodeError(value: never): never {
+    throw new FimError(FimErrorCode.UnreachableCode, value);
+  }
+
+  /**
    * Detects the browser and GPU capabilities. It is best to create a small CoreCanvasWebGL instance solely for calling
    * this method in order to avoid exceeding the GPU's maximum render buffer dimensions.
    */

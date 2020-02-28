@@ -107,6 +107,9 @@ export const enum FimErrorCode {
   /** FIM2002: Not implemented */
   NotImplemented = 2002,
 
+  /** FIM2003: Code path expected to be unreachable was hit */
+  UnreachableCode = 2003,
+
   /** FIM2100: Invalid opcode */
   InvalidOpcode = 2100,
 
