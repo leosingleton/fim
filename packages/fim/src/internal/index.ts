@@ -8,6 +8,8 @@
 //    import ... from '@leosingleton/fim/internals';
 //
 
+export { defaultEngineOptions } from '../api/FimEngineOptions';
+export { defaultImageOptions, mergeImageOptions } from '../api/FimImageOptions';
 export { CoreCanvas } from '../core/CoreCanvas';
 export { CoreCanvas2D } from '../core/CoreCanvas2D';
 export { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';

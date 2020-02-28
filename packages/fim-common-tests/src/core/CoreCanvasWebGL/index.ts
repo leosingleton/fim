@@ -4,6 +4,7 @@
 
 import { coreCanvasWebGLTestSuiteCanvas } from './Canvas';
 import { coreCanvasWebGLTestSuiteCreateDispose } from './CreateDispose';
+import { coreCanvasWebGLTestSuiteTexture } from './Texture';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
 
@@ -19,5 +20,6 @@ export function coreCanvasWebGLTestSuite(
   describe(description, () => {
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);
     coreCanvasWebGLTestSuiteCanvas(description, factory);
+    coreCanvasWebGLTestSuiteTexture(description, factory);
   });
 }
