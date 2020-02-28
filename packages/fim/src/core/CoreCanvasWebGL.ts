@@ -25,6 +25,13 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   protected finishInitialization(): void {
     const me = this;
+
+    // Register event listeners
+    me.addCanvasEventListener(EventListenerType.ContextLost, this.onContextLost.bind(this), false);
+    me.addCanvasEventListener(EventListenerType.ContextRestored, this.onContextRestored.bind(this), false);
+    me.addCanvasEventListener(EventListenerType.ContextCreationError, this.onContextCreationError.bind(this), false);
+
+    // Load WebGL extensions
     me.loadExtensions();
 
     const gl = me.getContext();
@@ -60,8 +67,21 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.contextLostHandlers = [];
     me.contextRestoredHandlers = [];
 
+    // Remove event listeners
+    me.removeCanvasEventListener(EventListenerType.ContextLost, this.onContextLost.bind(this), false);
+    me.removeCanvasEventListener(EventListenerType.ContextRestored, this.onContextRestored.bind(this), false);
+    me.removeCanvasEventListener(EventListenerType.ContextCreationError, this.onContextCreationError.bind(this), false);
+
     super.dispose();
   }
+
+  /** Derived classes must implement this method to call `canvas.addEventListener()` */
+  protected abstract addCanvasEventListener(type: EventListenerType, listener: EventListenerObject,
+    options: boolean): void;
+
+  /** Derived classes must implement this method to call `canvas.removeEventListener()` */
+  protected abstract removeCanvasEventListener(type: EventListenerType, listener: EventListenerObject,
+    options: boolean): void;
 
   /**
    * Registers a callback to invoke when a WebGL context lost event occurs
@@ -79,8 +99,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     this.contextRestoredHandlers.push(handler);
   }
 
-  /** Derived classes should register for the `webglcontextlost` event and call this handler */
-  protected onContextLost(): void {
+  /** Handler for the `webglcontextlost` event */
+  private onContextLost(): void {
     console.log('Lost WebGL context');
     event.preventDefault();
 
@@ -93,8 +113,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     }
   }
 
-  /** Derived classes should register for the `webglcontextrestored` event and call this handler */
-  protected onContextRestored(): void {
+  /** Handler for the `webglcontextrestored` event */
+  private onContextRestored(): void {
     console.log('WebGL context restored');
 
     // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
@@ -109,8 +129,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     }
   }
 
-  /** Derived classes should register for the `webglcontextcreationerror` event and call this handler */
-  protected onContextCreationError(event: WebGLContextEvent): void {
+  /** Handler for the `webglcontextcreationerror` event */
+  private onContextCreationError(event: WebGLContextEvent): void {
     this.contextFailMessage = event.statusMessage;
   }
 
@@ -371,4 +391,11 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
+}
+
+/** Type parameter values for `HTMLCanvasElement.addEventListener()` */
+const enum EventListenerType {
+  ContextLost = 'webglcontextlost',
+  ContextRestored = 'webglcontextrestored',
+  ContextCreationError = 'webglcontextcreationerror'
 }

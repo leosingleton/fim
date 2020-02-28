@@ -36,4 +36,12 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
   public getContext(): RenderingContextWebGL {
     return this.glContext;
   }
+
+  protected addCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {
+    // Not supported by headless-gl
+  }
+
+  protected removeCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {
+    // Not supported by headless-gl
+  }
 }

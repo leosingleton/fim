@@ -13,12 +13,7 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
   public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
       imageOptions?: FimImageOptions) {
     super(canvasDimensions, imageHandle, engineOptions, imageOptions);
-    const canvas = this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
-
-    // Register event listeners
-    canvas.addEventListener('webglcontextlost', this.onContextLost.bind(this), false);
-    canvas.addEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
-    canvas.addEventListener('webglcontextcreationerror', this.onContextCreationError.bind(this), false);
+    this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
 
     this.finishInitialization();
   }
@@ -26,16 +21,10 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
   private canvasElement: OffscreenCanvas;
 
   protected disposeSelf(): void {
-    // Remove event listeners
-    const canvasElement = this.canvasElement;
-    canvasElement.removeEventListener('webglcontextlost', this.onContextLost.bind(this), false);
-    canvasElement.removeEventListener('webglcontextrestored', this.onContextRestored.bind(this), false);
-    canvasElement.removeEventListener('webglcontextcreationerror', this.onContextCreationError.bind(this), false);
-
     // Chrome is the only browser that currently supports OffscreenCanvas, and I've never actually hit an out-of-memory
     // error with it, even on mobile, but it probably doesn't hurt to resize the canvas to zero.
-    canvasElement.width = 0;
-    canvasElement.height = 0;
+    this.canvasElement.width = 0;
+    this.canvasElement.height = 0;
     this.canvasElement = undefined;
   }
 
@@ -45,6 +34,14 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
 
   public getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
+  }
+
+  protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {
+    this.canvasElement.addEventListener(type, listener, options);
+  }
+
+  protected removeCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {
+    this.canvasElement.removeEventListener(type, listener, options);
   }
 
   public fillCanvas(color: FimColor | string): void {
