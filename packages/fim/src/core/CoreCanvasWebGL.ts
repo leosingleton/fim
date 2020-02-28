@@ -27,8 +27,12 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
     me.loadExtensions();
 
-    // Disable unneeded features, as we are doing 2D graphics
     const gl = me.getContext();
+    if (!gl) {
+      me.throwNoWebGLError();
+    }
+
+    // Disable unneeded features, as we are doing 2D graphics
     gl.disable(gl.BLEND);
     me.throwWebGLErrorsDebug();
     gl.disable(gl.CULL_FACE);
@@ -119,6 +123,11 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   /** Returns additional error details in case `getContext('webgl')` fails */
   private contextFailMessage: string;
 
+  /** Throws an error if the browser does not support WebGL */
+  private throwNoWebGLError(): never {
+    throw new FimError(FimErrorCode.NoWebGL, this.contextFailMessage);
+  }
+
   /** Checks for any WebGL errors and throws a FimError if there are any */
   protected throwWebGLErrors(): void {
     const gl = this.getContext();
@@ -205,12 +214,17 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   private loadExtensions(): void {
     const me = this;
     const gl = me.getContext();
+    if (!gl) {
+      me.throwNoWebGLError();
+    }
+
     me.extensionTexture32 = gl.getExtension('OES_texture_float');
     me.extensionTextureLinear32 = gl.getExtension('OES_texture_float_linear');
     me.extensionColorBuffer32 = gl.getExtension('WEBGL_color_buffer_float');
     me.extensionTexture16 = gl.getExtension('OES_texture_half_float');
     me.extensionTextureLinear16 = gl.getExtension('OES_texture_half_float_linear');
     me.extensionColorBuffer16 = gl.getExtension('EXT_color_buffer_half_float');
+    me.throwWebGLErrorsDebug();
   }
 
   private extensionTexture32: OES_texture_float;

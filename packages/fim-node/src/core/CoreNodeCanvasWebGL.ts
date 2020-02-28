@@ -13,10 +13,7 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
     super(canvasDimensions, imageHandle, engineOptions, imageOptions);
 
     // Create the canvas using headless-gl
-    const gl = this.glContext = createContext(canvasDimensions.w, canvasDimensions.h);
-    if (!gl) {
-      throw new FimError(FimErrorCode.NoWebGL);
-    }
+    this.glContext = createContext(canvasDimensions.w, canvasDimensions.h);
 
     this.finishInitialization();
   }
