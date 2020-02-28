@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimDimensions } from './FimDimensions';
+
 /** Exception class thrown when an error occurs */
 export class FimError extends Error {
   public constructor(code: FimErrorCode, message?: string, errors?: Error[]) {
@@ -82,6 +84,56 @@ export class FimError extends Error {
     // Wrap non-FimErrors in a FimError
     return new FimError(FimErrorCode.NonFimError, message, [error]);
   }
+
+  /**
+   * Throws an UnreachableCode error
+   * @param value Value which was unexpected
+   */
+  public static throwOnUnreachableCode(value: never): never {
+    throw new FimError(FimErrorCode.UnreachableCode, value);
+  }
+
+  /**
+   * Throws an InvalidParameter error
+   * @param value Value of the invalid parameter
+   */
+  public static throwOnInvalidParameter(value: any): never {
+    throw new FimError(FimErrorCode.InvalidParameter, `${value} invalid`);
+  }
+
+  /**
+   * Throws an InvalidDimensions error
+   * @param expectedDimensions Expected dimensions
+   * @param actualDimensions Actual dimensions
+   */
+  public static throwOnInvalidDimensions(expectedDimensions: FimDimensions, actualDimensions: FimDimensions | number):
+      never {
+    throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${expectedDimensions} but got ${actualDimensions}`);
+  }
+
+  /**
+   * Throws an ObjectDisposed error
+   * @param handle Handle of the object that is disposed
+   */
+  public static throwOnObjectDisposed(handle: string): never {
+    throw new FimError(FimErrorCode.ObjectDisposed, `${handle} disposed`);
+  }
+
+  /**
+   * Throws an ImageUnitialized error
+   * @param handle Handle of the image that is uninitialized
+   */
+  public static throwOnImageUninitialized(handle: string): never {
+    throw new FimError(FimErrorCode.ImageUninitialized, `${handle} uninitialized`);
+  }
+
+  /**
+   * Throws an ImageReadonly error
+   * @param handle Handle of the image that is readonly
+   */
+  public static throwOnImageReadonly(handle: string): never {
+    throw new FimError(FimErrorCode.ImageReadonly, `${handle} readonly`);
+  }
 }
 
 /** Error codes */
@@ -109,9 +161,6 @@ export const enum FimErrorCode {
 
   /** FIM2003: Code path expected to be unreachable was hit */
   UnreachableCode = 2003,
-
-  /** FIM2100: Invalid opcode */
-  InvalidOpcode = 2100,
 
 
   //

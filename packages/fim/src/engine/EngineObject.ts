@@ -5,7 +5,7 @@
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { EngineObjectType } from './EngineObjectType';
-import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimError } from '../primitives/FimError';
 
 /** Base class for all objects in the FIM API */
 export abstract class EngineObject implements FimObject {
@@ -114,7 +114,7 @@ export abstract class EngineObject implements FimObject {
   /** Throws an exception if the object is disposed */
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
-      throw new FimError(FimErrorCode.ObjectDisposed, `${this.handle} is disposed`);
+      FimError.throwOnObjectDisposed(this.handle);
     }
   }
 }

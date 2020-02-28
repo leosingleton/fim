@@ -6,7 +6,7 @@ import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions'
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
-import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimError } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -40,7 +40,7 @@ export abstract class CoreCanvas {
   /** Image options */
   public readonly imageOptions: FimImageOptions;
 
-  /** Disposed the WebGL canvas and all related objects, such as shaders and textures */
+  /** Dispose the WebGL canvas and all related objects, such as shaders and textures */
   public dispose(): void {
     this.disposeSelf();
     this.isDisposed = true;
@@ -52,7 +52,7 @@ export abstract class CoreCanvas {
   /** Throws an exception if the object is disposed */
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
-      throw new FimError(FimErrorCode.ObjectDisposed, `${this.imageHandle} is disposed`);
+      FimError.throwOnObjectDisposed(this.imageHandle);
     }
   }
 
@@ -79,7 +79,7 @@ export abstract class CoreCanvas {
   public validateCoordinates(point: FimPoint): void {
     const rect = FimRect.fromDimensions(this.canvasDimensions);
     if (!rect.containsPoint(point)) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${point} invalid`);
+      FimError.throwOnInvalidParameter(point);
     }
   }
 
@@ -87,7 +87,7 @@ export abstract class CoreCanvas {
   public validateRect(rect: FimRect): void {
     const outer = FimRect.fromDimensions(this.canvasDimensions);
     if (!outer.containsRect(rect)) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${rect} invalid`);
+      FimError.throwOnInvalidParameter(rect);
     }
   }
 }

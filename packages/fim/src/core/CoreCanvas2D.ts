@@ -97,7 +97,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     const sameDimensions = dimensions.equals(me.canvasDimensions);
     const expectedLength = dimensions.getArea() * 4;
     if (pixelData.length !== expectedLength) {
-      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dimensions}`);
+      FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
     }
 
     if (!me.engineOptions.disableImageBitmap) {
@@ -144,20 +144,19 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.ensureNotDisposed();
 
     // Validate the dimensions
-    const imageWidth = image.width as number;
-    const imageHeight = image.height as number;
+    const imageDimensions = FimDimensions.fromWidthHeight(image.width, image.height);
     let sameDimensions = true;
-    if (imageWidth !== me.canvasDimensions.w || imageHeight !== me.canvasDimensions.h) {
+    if (!imageDimensions.equals(me.canvasDimensions)) {
       if (allowRescale) {
         sameDimensions = false;
       } else {
-        throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${me.canvasDimensions}`);
+        FimError.throwOnInvalidDimensions(me.canvasDimensions, imageDimensions);
       }
     }
 
     // Enable image smoothing if we are rescaling the image
     using(me.createDrawingContext(!sameDimensions), ctx => {
-      ctx.drawImage(image as CanvasImageSource, 0, 0, imageWidth, imageHeight, 0, 0, me.canvasDimensions.w,
+      ctx.drawImage(image as CanvasImageSource, 0, 0, imageDimensions.w, imageDimensions.h, 0, 0, me.canvasDimensions.w,
         me.canvasDimensions.h);
     });
   }

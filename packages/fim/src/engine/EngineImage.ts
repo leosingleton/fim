@@ -127,7 +127,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       // TODO: Copy texture to canvas
       throw new FimError(FimErrorCode.NotImplemented);
     } else {
-      throw new FimError(FimErrorCode.ImageUninitialized, me.handle);
+      FimError.throwOnImageUninitialized(me.handle);
     }
   }
 
@@ -146,7 +146,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       // TODO: Copy canvas to texture
       throw new FimError(FimErrorCode.NotImplemented);
     } else {
-      throw new FimError(FimErrorCode.ImageUninitialized, me.handle);
+      FimError.throwOnImageUninitialized(me.handle);
     }
   }
 
@@ -219,7 +219,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     dimensions = dimensions ?? me.imageDimensions;
     const expectedLength = dimensions.getArea() * 4;
     if (pixelData.length !== expectedLength) {
-      throw new FimError(FimErrorCode.InvalidDimensions, `Expected ${dimensions}`);
+      FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
     }
 
     me.invalidateContent();
@@ -260,12 +260,12 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     // copyFrom() does not support copying from itself
     if (srcImage === this) {
-      throw new FimError(FimErrorCode.InvalidParameter, '!copyFrom self');
+      throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.handle} !copyFrom self`);
     }
 
     // Ensure srcImage belongs to the same EngineFim instance
     if (me.parentObject !== srcImage.parentObject) {
-      throw new FimError(FimErrorCode.InvalidParameter, 'copyFrom wrong FIM');
+      throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.handle} copyFrom wrong FIM`);
     }
 
     srcImage.populateContentCanvas();

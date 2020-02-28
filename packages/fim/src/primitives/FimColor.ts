@@ -125,7 +125,7 @@ export class FimColor {
    */
   public static fromString(color: string): FimColor {
     if (color[0] !== '#') {
-      throw new FimError(FimErrorCode.InvalidParameter, `Invalid: ${color}`);
+      FimError.throwOnInvalidParameter(color);
     }
 
     /** Parses a 1 character hex number */
@@ -154,7 +154,7 @@ export class FimColor {
         return this.fromRGBABytes(parse2(1), parse2(3), parse2(5), parse2(7));
 
       default:
-        throw new FimError(FimErrorCode.InvalidParameter, `Invalid: ${color}`);
+        FimError.throwOnInvalidParameter(color);
     }
   }
 }

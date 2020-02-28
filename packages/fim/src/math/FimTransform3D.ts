@@ -45,7 +45,7 @@ export class FimTransform3D {
   public transformVertexArray(values: number[]): number[] {
     // Ensure the input is an array of size 4 vectors
     if (values.length % 4 !== 0) {
-      throw new FimError(FimErrorCode.InvalidParameter, 'ArraySize');
+      throw new FimError(FimErrorCode.InvalidParameter, `Invalid size ${values.length}`);
     }
 
     const result = [];

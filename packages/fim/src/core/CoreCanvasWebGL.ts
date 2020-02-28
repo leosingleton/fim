@@ -282,11 +282,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
         return gl.FLOAT;
     }
 
-    this.throwUnreachableCodeError(bpp);
-  }
-
-  private throwUnreachableCodeError(value: never): never {
-    throw new FimError(FimErrorCode.UnreachableCode, value);
+    FimError.throwOnUnreachableCode(bpp);
   }
 
   /**

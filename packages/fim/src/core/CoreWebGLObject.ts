@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvasWebGL } from './CoreCanvasWebGL';
-import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimError } from '../primitives/FimError';
 
 /** Wrapper around objects that are associated with a WebGL canvas */
 export abstract class CoreWebGLObject {
@@ -42,7 +42,7 @@ export abstract class CoreWebGLObject {
   /** Throws an exception if the object is disposed */
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
-      throw new FimError(FimErrorCode.ObjectDisposed, `Child of ${this.parentCanvas.imageHandle} is disposed`);
+      FimError.throwOnObjectDisposed(`Child of ${this.parentCanvas.imageHandle}`);
     }
   }
 }

@@ -11,7 +11,7 @@ import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimDimensions } from '../primitives/FimDimensions';
-import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimError } from '../primitives/FimError';
 import { using } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
@@ -181,11 +181,12 @@ export class CoreTexture extends CoreWebGLObject {
 
   /** Returns the underlying WebGL framebuffer backing this texture */
   public getFramebuffer(): WebGLFramebuffer {
-    if (this.imageOptions.glReadOnly) {
+    const me = this;
+    if (me.imageOptions.glReadOnly) {
       // Cannot write to an input only texture
-      throw new FimError(FimErrorCode.ImageReadonly);
+      FimError.throwOnImageReadonly(`${me.parentCanvas.imageHandle}/Texture`);
     }
-    return this.fb;
+    return me.fb;
   }
 
   /** Returns the WebGL constant for the texture's format */
@@ -201,11 +202,7 @@ export class CoreTexture extends CoreWebGLObject {
       case FimColorChannels.RGBA:       return gl.RGBA;
     }
 
-    me.throwUnreachableCodeError(channels);
-  }
-
-  private throwUnreachableCodeError(value: never): never {
-    throw new FimError(FimErrorCode.UnreachableCode, value);
+    FimError.throwOnUnreachableCode(channels);
   }
 
   /**
