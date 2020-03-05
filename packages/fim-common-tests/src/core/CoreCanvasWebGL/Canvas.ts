@@ -18,11 +18,11 @@ export function coreCanvasWebGLTestSuiteCanvas(
 
     it('Fills with solid colors', () => {
       using(factory(small), canvas => {
-        canvas.fillCanvas(red);
+        canvas.fillSolid(red);
         expect(canvas.getPixel(midpoint(small))).toEqual(red);
-        canvas.fillCanvas(green);
+        canvas.fillSolid(green);
         expect(canvas.getPixel(midpoint(small))).toEqual(green);
-        canvas.fillCanvas(blue);
+        canvas.fillSolid(blue);
         expect(canvas.getPixel(midpoint(small))).toEqual(blue);
       });
     });
@@ -45,7 +45,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
       using(factory(small), canvas => {
         // Create a canvas of solid red
         const temp = canvas.createTemporaryCanvas2D(small);
-        temp.fillCanvas(red);
+        temp.fillSolid(red);
 
         // Copy the canvas to a texture
         const texture = canvas.createCoreTexture(small, defaultImageOptions);

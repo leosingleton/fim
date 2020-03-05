@@ -52,7 +52,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     return makeDisposable(ctx, ctx => ctx.restore());
   }
 
-  public fillCanvas(color: FimColor | string): void {
+  public fillSolid(color: FimColor | string): void {
     // Force color to be a string
     const colorString = (typeof(color) === 'string') ? color : color.string;
 

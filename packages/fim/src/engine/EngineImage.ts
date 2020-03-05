@@ -120,7 +120,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       return;
     } else if (me.contentFillColor.isCurrent) {
       // Copy the fill color to the canvas to make it current
-      me.contentCanvas.imageContent.fillCanvas(me.contentFillColor.imageContent);
+      me.contentCanvas.imageContent.fillSolid(me.contentFillColor.imageContent);
       me.contentCanvas.isCurrent = true;
       return;
     } else if (me.contentTexture.isCurrent) {

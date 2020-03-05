@@ -25,14 +25,14 @@ export function coreCanvas2DTestSuiteCanvas(
 
     it('Fills with solid colors', () => {
       using(factory(small), canvas => {
-        canvas.fillCanvas(green);
+        canvas.fillSolid(green);
         expect(canvas.getPixel(midpoint(small))).toEqual(green);
       });
     });
 
     it('Copies from one canvas to another', () => {
       using(factory(small), canvas1 => {
-        canvas1.fillCanvas(blue);
+        canvas1.fillSolid(blue);
 
         using(factory(small), canvas2 => {
           canvas2.copyFrom(canvas1);

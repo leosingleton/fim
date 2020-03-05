@@ -388,7 +388,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     return new CoreTexture(this, dimensions, options);
   }
 
-  public fillCanvas(color: FimColor | string): void {
+  public fillSolid(color: FimColor | string): void {
     const me = this;
 
     me.ensureNotDisposed();

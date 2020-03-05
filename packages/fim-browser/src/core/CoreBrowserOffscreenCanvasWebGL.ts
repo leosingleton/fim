@@ -50,7 +50,7 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
     this.canvasElement.removeEventListener(type, listener, options);
   }
 
-  public fillCanvas(color: FimColor | string): void {
+  public fillSolid(color: FimColor | string): void {
     // Chrome has a bug where subsequent calls to clear() do not work with OffscreenCanvas. Workaround by using a WebGL
     // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
     if (this.workaroundChromeBug) {
@@ -61,14 +61,14 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
       });
       fill.execute();
     } else {
-      // Use workaround on the next call to fillCanvas()
+      // Use workaround on the next call to fillSolid()
       this.workaroundChromeBug = true;
 
-      // Use the normal method on the first call to fillCanvas()
-      super.fillCanvas(color);
+      // Use the normal method on the first call to fillSolid()
+      super.fillSolid(color);
     }
   }
 
-  /** Set to `true` on the first call to `fillCanvas()` to use the workaround on subsequent calls */
+  /** Set to `true` on the first call to `fillSolid()` to use the workaround on subsequent calls */
   private workaroundChromeBug: boolean;
 }

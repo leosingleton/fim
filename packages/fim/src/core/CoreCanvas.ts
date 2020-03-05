@@ -70,7 +70,7 @@ export abstract class CoreCanvas {
    * Helper function to fill a canvas with a solid color
    * @param color Fill color
    */
-  public abstract fillCanvas(color: FimColor | string): void;
+  public abstract fillSolid(color: FimColor | string): void;
 
   /**
    * Gets the pixel color at the specified coordinate

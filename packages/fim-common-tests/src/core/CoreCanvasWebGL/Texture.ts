@@ -55,7 +55,7 @@ export function coreCanvasWebGLTestSuiteTexture(
         expect(canvas.getPixel(midpoint(small))).toEqual(red);
 
         // Clear the WebGL canvas
-        canvas.fillCanvas(black);
+        canvas.fillSolid(black);
         expect(canvas.getPixel(midpoint(small))).toEqual(black);
 
         // Fill with blue
@@ -69,7 +69,7 @@ export function coreCanvasWebGLTestSuiteTexture(
       using(factory(small), canvas => {
         // Create a 2D grey canvas
         const temp = canvas.createTemporaryCanvas2D(small);
-        temp.fillCanvas(grey);
+        temp.fillSolid(grey);
 
         for (const allowOversized of [false, true]) {
           for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
@@ -92,7 +92,7 @@ export function coreCanvasWebGLTestSuiteTexture(
                     texture.copyFrom(temp);
 
                     // Clear the WebGL canvas
-                    canvas.fillCanvas(black);
+                    canvas.fillSolid(black);
                     expect(canvas.getPixel(midpoint(small))).toEqual(black);
 
                     // Render the texture to the WebGL canvas
