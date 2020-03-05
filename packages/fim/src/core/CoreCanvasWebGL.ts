@@ -287,26 +287,22 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /**
    * Calculates the maximum color depth for a CoreTexture
-   * @param options Texture options. Must be fully computed with default values populated.
+   * @param sampling Type of texture sampling to compute the maximum for. Some GPUs have different limits for linear
+   *    versus nearest sampling.
    */
-  public getMaxTextureDepth(options: FimImageOptions): FimBitsPerPixel {
-    const bpp = options.bpp;
-    const linear = (options.sampling === FimTextureSampling.Linear);
+  public getMaxTextureDepth(sampling: FimTextureSampling): FimBitsPerPixel {
+    const linear = (sampling === FimTextureSampling.Linear);
 
-    if (bpp >= FimBitsPerPixel.BPP32) {
-      if (this.extensionTexture32 && this.extensionColorBuffer32) {
-        if (!linear || this.extensionTextureLinear32) {
-          return FimBitsPerPixel.BPP32;
-        }
+    if (this.extensionTexture32 && this.extensionColorBuffer32) {
+      if (!linear || this.extensionTextureLinear32) {
+        return FimBitsPerPixel.BPP32;
       }
     }
 
-    if (bpp >= FimBitsPerPixel.BPP16) {
-      const ext = this.extensionTexture16;
-      if (ext && this.extensionColorBuffer16) {
-        if (!linear || this.extensionTextureLinear16) {
-          return FimBitsPerPixel.BPP16;
-        }
+    const ext = this.extensionTexture16;
+    if (ext && this.extensionColorBuffer16) {
+      if (!linear || this.extensionTextureLinear16) {
+        return FimBitsPerPixel.BPP16;
       }
     }
 
@@ -314,8 +310,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /**
-   * Converts a FimBitsPerPixel value to the WebGL constant
-   * @param bpp FimBitsPerPixel
+   * Converts a `FimBitsPerPixel` value to the WebGL constant
+   * @param bpp `FimBitsPerPixel`
    * @return Constant used by WebGL function calls
    */
   public getTextureDepthConstant(bpp: FimBitsPerPixel): number {
@@ -361,7 +357,9 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       glMaxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
       glMaxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
       glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-      glExtensions: gl.getSupportedExtensions().sort()
+      glExtensions: gl.getSupportedExtensions().sort(),
+      glMaxTextureDepthLinear: me.getMaxTextureDepth(FimTextureSampling.Linear),
+      glMaxTextureDepthNearest: me.getMaxTextureDepth(FimTextureSampling.Nearest)
     };
     return me.cachedCapabilities;
   }
@@ -386,8 +384,18 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * @param handle Optional texture handle, for debugging
    */
   public createCoreTexture(dimensions?: FimDimensions, options?: FimImageOptions, handle?: string): CoreTexture {
-    return new CoreTexture(this, handle ?? `${this.imageHandle}/Texture`, dimensions ?? this.canvasDimensions,
-      mergeImageOptions(this.imageOptions, options));
+    const me = this;
+
+    // If options are not specified, limit the BPP to match the WebGL capabilities
+    const maxBPP = me.getMaxTextureDepth(me.imageOptions.sampling);
+    if (!options) {
+      options = { bpp: maxBPP };
+    } else if (!options.bpp) {
+      options.bpp = maxBPP;
+    }
+
+    return new CoreTexture(me, handle ?? `${me.imageHandle}/Texture`, dimensions ?? me.canvasDimensions,
+      mergeImageOptions(me.imageOptions, options));
   }
 
   public fillSolid(color: FimColor | string): void {

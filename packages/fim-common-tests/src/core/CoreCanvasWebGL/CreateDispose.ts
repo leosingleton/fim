@@ -4,7 +4,7 @@
 
 import { small } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
-import { FimBitsPerPixel, FimDimensions, FimImageOptions, FimTextureSampling } from '@leosingleton/fim';
+import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for create/dispose */
@@ -19,25 +19,17 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
       canvas.dispose();
     });
 
-    it('Calculates max texture depth', () => {
+    it('Calculates max texture depth with linear filtering', () => {
       using(factory(small), canvas => {
-        const options: FimImageOptions = {
-          bpp: FimBitsPerPixel.BPP32,
-          sampling: FimTextureSampling.Linear
-        };
-        const bpp = canvas.getMaxTextureDepth(options);
+        const bpp = canvas.getMaxTextureDepth(FimTextureSampling.Linear);
         expect(bpp).toBeGreaterThanOrEqual(FimBitsPerPixel.BPP8);
       });
     });
 
-    it('Calculates max texture depth when limited to 8 BPP', () => {
+    it('Calculates max texture depth with nearest filtering', () => {
       using(factory(small), canvas => {
-        const options: FimImageOptions = {
-          bpp: FimBitsPerPixel.BPP8,
-          sampling: FimTextureSampling.Nearest
-        };
-        const bpp = canvas.getMaxTextureDepth(options);
-        expect(bpp).toEqual(FimBitsPerPixel.BPP8);
+        const bpp = canvas.getMaxTextureDepth(FimTextureSampling.Nearest);
+        expect(bpp).toBeGreaterThanOrEqual(FimBitsPerPixel.BPP8);
       });
     });
 

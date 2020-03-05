@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
+
 /** Exposes the browser and GPU's capabilties */
 export interface FimCapabilities extends FimBrowserCapabilities, FimWebGLCapabilities {
 }
@@ -27,4 +29,10 @@ export interface FimWebGLCapabilities {
   readonly glMaxTextureImageUnits: number;
   readonly glMaxTextureSize: number;
   readonly glExtensions: string[];
+
+  /** Maximum texture depth when using linear sampling */
+  readonly glMaxTextureDepthLinear: FimBitsPerPixel;
+
+  /** Maximum texture depth when using nearest pixel sampling */
+  readonly glMaxTextureDepthNearest: FimBitsPerPixel;
 }

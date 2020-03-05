@@ -13,6 +13,7 @@ import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { deepCopy } from '@leosingleton/commonlibs';
 
@@ -51,7 +52,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       glMaxRenderBufferSize: 0,
       glMaxTextureImageUnits: 0,
       glMaxTextureSize: 0,
-      glExtensions: []
+      glExtensions: [],
+      glMaxTextureDepthLinear: FimBitsPerPixel.BPP8,
+      glMaxTextureDepthNearest: FimBitsPerPixel.BPP8
     };
     const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10),
       `${this.handle}/DetectCapabilities`, {});

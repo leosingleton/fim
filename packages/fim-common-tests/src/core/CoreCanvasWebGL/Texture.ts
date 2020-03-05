@@ -5,7 +5,7 @@
 import { black, blue, grey, midpoint, red, small, medium } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimColorChannels, FimDimensions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, CoreTexture, defaultImageOptions, mergeImageOptions } from '@leosingleton/fim/internals';
+import { CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for textures */
 export function coreCanvasWebGLTestSuiteTexture(
@@ -37,10 +37,10 @@ export function coreCanvasWebGLTestSuiteTexture(
 
     it('Creates readonly', () => {
       using(factory(small), canvas => {
-        const options = mergeImageOptions(defaultImageOptions, {
-          glReadOnly: true
+        const texture = canvas.createCoreTexture(undefined, {
+          glReadOnly: true,
+          bpp: FimBitsPerPixel.BPP8 // glReadOnly only supports 8 bits per pixel
         });
-        const texture = canvas.createCoreTexture(undefined, options);
         texture.dispose();
       });
     });

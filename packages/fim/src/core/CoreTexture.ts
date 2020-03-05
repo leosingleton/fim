@@ -28,8 +28,26 @@ export class CoreTexture extends CoreWebGLObject {
     super(parent, handle);
     this.textureDimensions = dimensions.toFloor();
     this.imageOptions = options;
-    const bpp = this.bpp = Math.min(parent.getMaxTextureDepth(options), options.bpp);
     this.hasImage = false;
+
+    // Ensure the requested BPP does not exceed WebGL's maximum
+    const bpp = options.bpp;
+    const maxBPP = parent.getMaxTextureDepth(options.sampling);
+    if (bpp > maxBPP) {
+      FimError.throwOnInvalidParameter(`BPP${bpp} (>${maxBPP})`);
+    }
+
+    // glReadOnly textures are limited to 8 BPP, as FIM doesn't have any input formats that support higher to load the
+    // texture contents from.
+    if (options.glReadOnly && bpp > FimBitsPerPixel.BPP8) {
+      FimError.throwOnInvalidParameter(`BPP${bpp} (RO)`);
+    }
+
+    // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
+    // so just deny it altogether.
+    if (options.glReadOnly && options.channels === FimColorChannels.Greyscale) {
+      FimError.throwOnInvalidParameter(`BPP${bpp} (Grey)`);
+    }
 
     // Create a texture
     const gl = parent.getContext();
@@ -82,9 +100,6 @@ export class CoreTexture extends CoreWebGLObject {
 
   /** Image options */
   public readonly imageOptions: FimImageOptions;
-
-  /** Actual color depth of this texture. May be lower than requested due to WebGL capabilities. */
-  public readonly bpp: FimBitsPerPixel;
 
   /** Throws an exception if the rectangle extends outside of the texture */
   public validateRect(rect: FimRect): void {
