@@ -42,4 +42,5 @@ export const red = FimColor.fromString('#f00');
 export const green = FimColor.fromString('#0f0');
 export const blue = FimColor.fromString('#00f');
 export const black = FimColor.fromString('#000');
+export const grey = FimColor.fromString('#888');
 export const white = FimColor.fromString('#fff');

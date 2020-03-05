@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { midpoint, red, small } from '../../common/Globals';
+import { black, blue, grey, midpoint, red, small, medium } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
-import { FimDimensions } from '@leosingleton/fim';
+import { FimBitsPerPixel, FimColorChannels, FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreTexture, defaultImageOptions, mergeImageOptions } from '@leosingleton/fim/build/internal';
 
 /** CoreCanvasWebGL test cases for textures */
@@ -45,18 +45,65 @@ export function coreCanvasWebGLTestSuiteTexture(
       });
     });
 
-    it('Fills with a solid color', () => {
+    it('Fills with solid colors', () => {
       using(factory(small), canvas => {
         const texture = canvas.createCoreTexture(small, defaultImageOptions);
 
-        // Fill the texture with the color red
+        // Fill with red
         texture.fillSolid(red);
-
-        // Render the texture to the WebGL canvas
         canvas.copyFrom(texture);
-
-        // Ensure the output is red
         expect(canvas.getPixel(midpoint(small))).toEqual(red);
+
+        // Clear the WebGL canvas
+        canvas.fillCanvas(black);
+        expect(canvas.getPixel(midpoint(small))).toEqual(black);
+
+        // Fill with blue
+        texture.fillSolid(blue);
+        canvas.copyFrom(texture);
+        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+      });
+    });
+
+    xit('Supports all combinations of channels, bits per pixel, and flags', () => {
+      using(factory(small), canvas => {
+        // Create a 2D grey canvas
+        const temp = canvas.createTemporaryCanvas2D(small);
+        temp.fillCanvas(grey);
+
+        for (const allowOversized of [false, true]) {
+          for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
+            for (const channels of [FimColorChannels.Greyscale, FimColorChannels.RGB, FimColorChannels.RGBA]) {
+              for (const downscale of [0.5, 0.8, 1.0]) {
+                for (const glDownscale of [0.25, 0.5, 1.0]) {
+                  for (const glReadOnly of [false, true]) {
+                    // Create a texture with the requested image options
+                    const texture = canvas.createCoreTexture(medium, {
+                      allowOversized,
+                      backup: false,
+                      bpp,
+                      channels,
+                      downscale,
+                      glDownscale,
+                      glReadOnly
+                    });
+
+                    // Copy the 2D grey canvas to the texture
+                    texture.copyFrom(temp);
+
+                    // Clear the WebGL canvas
+                    canvas.fillCanvas(black);
+                    expect(canvas.getPixel(midpoint(small))).toEqual(black);
+
+                    // Render the texture to the WebGL canvas
+                    canvas.copyFrom(texture);
+                    expect(canvas.getPixel(midpoint(small))).toEqual(grey);
+                  }
+                }
+              }
+            }
+          }
+        }
       });
     });
 

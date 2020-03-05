@@ -18,8 +18,12 @@ export function coreCanvasWebGLTestSuiteCanvas(
 
     it('Fills with solid colors', () => {
       using(factory(small), canvas => {
+        canvas.fillCanvas(red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(red);
         canvas.fillCanvas(green);
         expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        canvas.fillCanvas(blue);
+        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
       });
     });
 
