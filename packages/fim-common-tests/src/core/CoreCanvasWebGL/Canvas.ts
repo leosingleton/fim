@@ -2,12 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
-  topRight } from '../../common/Globals';
-import { TestImages } from '../../common/TestImages';
-import { using, usingAsync } from '@leosingleton/commonlibs';
+//import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
+//  topRight } from '../../common/Globals';
+import { green, midpoint, small } from '../../common/Globals';
+import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, CoreTexture, defaultImageOptions } from '@leosingleton/fim/build/internal';
+//import { CoreCanvasWebGL, CoreTexture, defaultImageOptions } from '@leosingleton/fim/build/internal';
+import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
 
 /** CoreCanvasWebGL test cases for canvas operations */
 export function coreCanvasWebGLTestSuiteCanvas(
@@ -89,7 +90,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
  * @param canvas WebGL canvas
  * @returns WebGL texture. The caller is responsible for calling `dispose()` on the result.
  */
-async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTexture> {
+/*async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTexture> {
   const texture = canvas.createCoreTexture(smallFourSquares, defaultImageOptions);
 
   // Load the JPEG to a temporary canvas then copy it to the texture
@@ -101,3 +102,4 @@ async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTe
 
   return texture;
 }
+*/
