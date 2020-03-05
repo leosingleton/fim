@@ -68,7 +68,7 @@ export function coreCanvasWebGLTestSuiteTexture(
     xit('Supports all combinations of channels, bits per pixel, and flags', () => {
       using(factory(small), canvas => {
         // Create a 2D grey canvas
-        const temp = canvas.createTemporaryCanvas2D(small);
+        const temp = canvas.createTemporaryCanvas2D();
         temp.fillSolid(grey);
 
         for (const allowOversized of [false, true]) {

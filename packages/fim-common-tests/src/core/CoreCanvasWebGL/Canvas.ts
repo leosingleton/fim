@@ -44,7 +44,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
     xit('Copies from textures 2', () => {
       using(factory(small), canvas => {
         // Create a canvas of solid red
-        const temp = canvas.createTemporaryCanvas2D(small);
+        const temp = canvas.createTemporaryCanvas2D();
         temp.fillSolid(red);
 
         // Copy the canvas to a texture
