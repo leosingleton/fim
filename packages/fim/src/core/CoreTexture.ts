@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CoreCanvas2D } from './CoreCanvas2D';
+import { CoreCanvas } from './CoreCanvas';
 import { CoreCanvasWebGL } from './CoreCanvasWebGL';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { FimImageOptions } from '../api/FimImageOptions';
@@ -140,9 +140,10 @@ export class CoreTexture extends CoreWebGLObject {
    * Copies contents from another canvas. Supports neither cropping nor rescaling.
    * @param srcCanvas Source canvas
    */
-  public copyFrom(srcCanvas: CoreCanvas2D): void {
+  public copyFrom(srcCanvas: CoreCanvas): void {
     const me = this;
     const parent = me.parentCanvas;
+    const gl = parent.getContext();
 
     // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
@@ -158,20 +159,18 @@ export class CoreTexture extends CoreWebGLObject {
       return;
     }
 
-    const gl = parent.getContext();
-
     // Report telemetry for debugging
     //recordTexImage2D(srcImage, this);
 
-    this.bind(0);
+    me.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     parent.throwWebGLErrorsDebug();
-    const format = this.getGLFormat();
+    const format = me.getGLFormat();
     gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, srcCanvas.getImageSource() as HTMLImageElement);
     parent.throwWebGLErrorsDebug();
-    this.unbind(0);
+    me.unbind(0);
 
-    this.hasImage = true;
+    me.hasImage = true;
   }
 
   protected disposeSelf(): void {
