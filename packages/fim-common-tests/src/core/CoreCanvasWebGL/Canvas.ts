@@ -2,13 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-//import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
-//  topRight } from '../../common/Globals';
-import { green, midpoint, small } from '../../common/Globals';
-import { using } from '@leosingleton/commonlibs';
+import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
+  topRight } from '../../common/Globals';
+import { TestImages } from '../../common/TestImages';
+import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
-//import { CoreCanvasWebGL, CoreTexture, defaultImageOptions } from '@leosingleton/fim/build/internal';
-import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
+import { CoreCanvasWebGL, CoreTexture, defaultImageOptions } from '@leosingleton/fim/build/internal';
 
 /** CoreCanvasWebGL test cases for canvas operations */
 export function coreCanvasWebGLTestSuiteCanvas(
@@ -24,7 +23,39 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-    /*it('Copies from textures', async () => {
+    it('Copies from textures 1', () => {
+      using(factory(small), canvas => {
+        // Create a texture of solid blue
+        const texture = canvas.createCoreTexture(small, defaultImageOptions);
+        texture.fillSolid(blue);
+
+        // Copy the texture
+        canvas.copyFrom(texture);
+
+        // Ensure the texture copied correctly
+        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+      });
+    });
+
+    xit('Copies from textures 2', () => {
+      using(factory(small), canvas => {
+        // Create a canvas of solid red
+        const temp = canvas.createTemporaryCanvas2D(small);
+        temp.fillCanvas(red);
+
+        // Copy the canvas to a texture
+        const texture = canvas.createCoreTexture(small, defaultImageOptions);
+        texture.copyFrom(temp);
+
+        // Copy the texture
+        canvas.copyFrom(texture);
+
+        // Ensure the texture copied correctly
+        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+      });
+    });
+
+    xit('Copies from textures 3', async () => {
       await usingAsync(factory(smallFourSquares), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);
@@ -32,13 +63,13 @@ export function coreCanvasWebGLTestSuiteCanvas(
         // Copy the texture
         canvas.copyFrom(texture);
 
-        // Check a few pixels to ensure the texture rendered correctly
+        // Ensure the texture copied correctly
         expect(canvas.getPixel(topLeft())).toEqual(red);
         expect(canvas.getPixel(topRight())).toEqual(green);
         expect(canvas.getPixel(bottomLeft())).toEqual(blue);
         expect(canvas.getPixel(bottomRight())).toEqual(black);
       });
-    });*/
+    });
 
     /*it('Copies from textures with srcCoords', async () => {
       await usingAsync(factory(medium), async canvas => {
@@ -90,7 +121,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
  * @param canvas WebGL canvas
  * @returns WebGL texture. The caller is responsible for calling `dispose()` on the result.
  */
-/*async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTexture> {
+async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTexture> {
   const texture = canvas.createCoreTexture(smallFourSquares, defaultImageOptions);
 
   // Load the JPEG to a temporary canvas then copy it to the texture
@@ -102,4 +133,3 @@ export function coreCanvasWebGLTestSuiteCanvas(
 
   return texture;
 }
-*/
