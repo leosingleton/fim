@@ -5,7 +5,7 @@
 import { green, midpoint, red, small } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, CoreShader, defaultImageOptions } from '@leosingleton/fim/build/internal';
+import { CoreCanvasWebGL, CoreShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Sample WebGL shader to fill with a solid color */
@@ -52,7 +52,7 @@ export function coreCanvasWebGLTestSuiteShader(
     it('Executes a simple fill shader, outputting to a texture', () => {
       using(factory(small), canvas => {
         const shader = canvas.createCoreShader(testFillShader);
-        const texture = canvas.createCoreTexture(small, defaultImageOptions);
+        const texture = canvas.createCoreTexture();
 
         // Fill the texture with the color green
         shader.setUniform('uColor', [0, 1, 0, 1]);

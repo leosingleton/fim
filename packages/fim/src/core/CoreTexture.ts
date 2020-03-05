@@ -20,12 +20,12 @@ export class CoreTexture extends CoreWebGLObject {
   /**
    * Constructor
    * @param parent The parent WebGL canvas
+   * @param handle Texture handle, for debugging
    * @param dimensions Texture dimensions
    * @param options Texture options. Must be fully computed with default values populated.
-   * @param handle Optional texture handle, for debugging
    */
-  public constructor(parent: CoreCanvasWebGL, dimensions: FimDimensions, options: FimImageOptions, handle?: string) {
-    super(parent, handle ?? `${parent.imageHandle}/Texture`);
+  public constructor(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions, options: FimImageOptions) {
+    super(parent, handle);
     this.textureDimensions = dimensions.toFloor();
     this.imageOptions = options;
     const bpp = this.bpp = Math.min(parent.getMaxTextureDepth(options), options.bpp);

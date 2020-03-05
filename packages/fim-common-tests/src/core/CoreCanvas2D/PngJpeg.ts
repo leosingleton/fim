@@ -7,7 +7,7 @@ import { black, blue, bottomLeft, bottomRight, green, medium, red, smallFourSqua
 import { TestImages } from '../../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
+import { CoreCanvas2D } from '@leosingleton/fim/internals';
 
 /** CoreCanvas2D test cases for PNG and JPEG support */
 export function coreCanvas2DTestSuitePngJpeg(

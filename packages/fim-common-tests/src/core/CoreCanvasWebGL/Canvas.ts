@@ -7,7 +7,7 @@ import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smal
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, CoreTexture, defaultImageOptions } from '@leosingleton/fim/build/internal';
+import { CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for canvas operations */
 export function coreCanvasWebGLTestSuiteCanvas(
@@ -30,7 +30,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
     it('Copies from textures 1', () => {
       using(factory(small), canvas => {
         // Create a texture of solid blue
-        const texture = canvas.createCoreTexture(small, defaultImageOptions);
+        const texture = canvas.createCoreTexture();
         texture.fillSolid(blue);
 
         // Copy the texture
@@ -48,7 +48,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
         temp.fillSolid(red);
 
         // Copy the canvas to a texture
-        const texture = canvas.createCoreTexture(small, defaultImageOptions);
+        const texture = canvas.createCoreTexture();
         texture.copyFrom(temp);
 
         // Copy the texture
@@ -126,7 +126,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
  * @returns WebGL texture. The caller is responsible for calling `dispose()` on the result.
  */
 async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTexture> {
-  const texture = canvas.createCoreTexture(smallFourSquares, defaultImageOptions);
+  const texture = canvas.createCoreTexture(smallFourSquares);
 
   // Load the JPEG to a temporary canvas then copy it to the texture
   await usingAsync(canvas.createTemporaryCanvas2D(smallFourSquares), async temp => {

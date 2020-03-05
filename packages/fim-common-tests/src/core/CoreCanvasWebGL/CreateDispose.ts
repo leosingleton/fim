@@ -5,7 +5,7 @@
 import { small } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimImageOptions, FimTextureSampling } from '@leosingleton/fim';
-import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
+import { CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for create/dispose */
 export function coreCanvasWebGLTestSuiteCreateDispose(

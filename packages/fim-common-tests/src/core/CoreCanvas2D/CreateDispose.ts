@@ -4,7 +4,7 @@
 
 import { small } from '../../common/Globals';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
+import { CoreCanvas2D } from '@leosingleton/fim/internals';
 
 /** CoreCanvas2D tests around create/dispose */
 export function coreCanvas2DTestSuiteCreateDispose(

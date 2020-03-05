@@ -6,7 +6,7 @@ import { blue, green, midpoint, red, small } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
+import { CoreCanvas2D } from '@leosingleton/fim/internals';
 
 /** CoreCanvas2D test cases around canvases */
 export function coreCanvas2DTestSuiteCanvas(

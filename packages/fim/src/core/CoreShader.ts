@@ -22,13 +22,13 @@ export class CoreShader extends CoreWebGLObject {
   /**
    * Constructor
    * @param parent The parent WebGL canvas
+   * @param handle Shader handle, for debugging
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
-   * @param handle Optional shader handle, for debugging
    */
-  public constructor(parent: CoreCanvasWebGL, fragmentShader: GlslShader,
-      vertexShader: GlslShader = defaultVertexShader, handle?: string) {
-    super(parent, handle ?? `${parent.imageHandle}/Shader`);
+  public constructor(parent: CoreCanvasWebGL, handle: string, fragmentShader: GlslShader,
+      vertexShader: GlslShader = defaultVertexShader) {
+    super(parent, handle);
 
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;

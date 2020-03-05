@@ -5,7 +5,7 @@
 import { black, blue, grey, midpoint, red, small, medium } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimColorChannels, FimDimensions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, CoreTexture, defaultImageOptions, mergeImageOptions } from '@leosingleton/fim/build/internal';
+import { CoreCanvasWebGL, CoreTexture, defaultImageOptions, mergeImageOptions } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for textures */
 export function coreCanvasWebGLTestSuiteTexture(
@@ -16,10 +16,10 @@ export function coreCanvasWebGLTestSuiteTexture(
 
     it('Creates and disposes', () => {
       using(factory(small), canvas => {
-        const texture1 = canvas.createCoreTexture(small, defaultImageOptions);
+        const texture1 = canvas.createCoreTexture();
         texture1.dispose();
 
-        const texture2 = canvas.createCoreTexture(small, defaultImageOptions);
+        const texture2 = canvas.createCoreTexture();
         texture2.dispose();
       });
     });
@@ -28,7 +28,7 @@ export function coreCanvasWebGLTestSuiteTexture(
       let texture: CoreTexture;
 
       using(factory(small), canvas => {
-        texture = canvas.createCoreTexture(small, defaultImageOptions);
+        texture = canvas.createCoreTexture();
       });
 
       // Since the parent canvas was disposed, dispose() on the child object will throw an exception
@@ -40,14 +40,14 @@ export function coreCanvasWebGLTestSuiteTexture(
         const options = mergeImageOptions(defaultImageOptions, {
           glReadOnly: true
         });
-        const texture = canvas.createCoreTexture(small, options);
+        const texture = canvas.createCoreTexture(undefined, options);
         texture.dispose();
       });
     });
 
     it('Fills with solid colors', () => {
       using(factory(small), canvas => {
-        const texture = canvas.createCoreTexture(small, defaultImageOptions);
+        const texture = canvas.createCoreTexture();
 
         // Fill with red
         texture.fillSolid(red);

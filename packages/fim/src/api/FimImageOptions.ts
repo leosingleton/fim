@@ -82,7 +82,7 @@ export const defaultImageOptions: FimImageOptions = {
  * @param parent Parent object. Has lower precidence.
  * @param child Child object. Has higher precidence. May be undefined.
  */
-export function mergeImageOptions(parent: FimImageOptions, child: FimImageOptions): FimImageOptions {
+export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptions): FimImageOptions {
   if (!child) {
     return parent;
   }

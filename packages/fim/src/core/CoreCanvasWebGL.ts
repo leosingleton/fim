@@ -8,7 +8,7 @@ import { CoreTexture } from './CoreTexture';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';
-import { FimImageOptions } from '../api/FimImageOptions';
+import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
 import { FimTextureSampling } from '../api/FimTextureSampling';
 import { FimTransform2D } from '../math/FimTransform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
@@ -376,16 +376,18 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * @param handle Optional shader handle, for debugging
    */
   public createCoreShader(fragmentShader: GlslShader, vertexShader?: GlslShader, handle?: string): CoreShader {
-    return new CoreShader(this, fragmentShader, vertexShader, handle);
+    return new CoreShader(this, handle ?? `${this.imageHandle}/Shader`, fragmentShader, vertexShader);
   }
 
   /**
    * Calls the CoreTexture constructor
-   * @param dimensions Texture dimensions
-   * @param options Texture options. Must be fully computed with default values populated.
+   * @param dimensions Optional texture dimensions. Defaults to the size of this canvas.
+   * @param options Optional image options. Values that are unspecified are inherited from this canvas's image options.
+   * @param handle Optional texture handle, for debugging
    */
-  public createCoreTexture(dimensions: FimDimensions, options: FimImageOptions): CoreTexture {
-    return new CoreTexture(this, dimensions, options);
+  public createCoreTexture(dimensions?: FimDimensions, options?: FimImageOptions, handle?: string): CoreTexture {
+    return new CoreTexture(this, handle ?? `${this.imageHandle}/Texture`, dimensions ?? this.canvasDimensions,
+      mergeImageOptions(this.imageOptions, options));
   }
 
   public fillSolid(color: FimColor | string): void {
@@ -465,7 +467,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     if (!me.shaderCopy) {
       const shader = require('../../build/core/glsl/copy.glsl.js');
-      me.shaderCopy = new CoreShader(me, shader, undefined, `${me.imageHandle}/CopyShader`);
+      me.shaderCopy = me.createCoreShader(shader, undefined,`${me.imageHandle}/CopyShader`);
     }
 
     return me.shaderCopy;
@@ -483,7 +485,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     if (!me.shaderFill) {
       const shader = require('../../build/core/glsl/fill.glsl.js');
-      me.shaderFill = new CoreShader(me, shader, undefined, `${me.imageHandle}/FillShader`);
+      me.shaderFill = me.createCoreShader(shader, undefined, `${me.imageHandle}/FillShader`);
     }
 
     return me.shaderFill;
