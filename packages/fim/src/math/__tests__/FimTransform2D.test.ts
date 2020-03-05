@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimTransform2D } from '../FimTransform2D';
+import { FimDimensions } from '../../primitives/FimDimensions';
 import { FimPoint } from '../../primitives/FimPoint';
 import { FimRect } from '../../primitives/FimRect';
 
@@ -86,7 +87,7 @@ describe('Transform2D', () => {
   it('Calculates matrices based on source coordinates', () => {
     const mat = FimTransform2D.fromSrcCoords(
       FimRect.fromXYWidthHeight(25, 50, 25, 25),
-      FimRect.fromXYWidthHeight(0, 0, 100, 100));
+      FimDimensions.fromWidthHeight(100, 100));
 
     expect(mat.transformXY(FimPoint.fromXY(-1, -1))).toEqual(FimPoint.fromXY(-3, -3));
     expect(mat.transformXY(FimPoint.fromXY(1, -1))).toEqual(FimPoint.fromXY(5, -3));

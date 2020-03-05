@@ -2,9 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
 import { DisposableCanvas, DomCanvasPoolWebGL } from './DomCanvasPool';
 import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
@@ -40,6 +41,10 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
 
   public getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
+  }
+
+  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
+    return new CoreBrowserCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

@@ -9,13 +9,16 @@ import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';
 import { FimImageOptions } from '../api/FimImageOptions';
+import { FimTextureSampling } from '../api/FimTextureSampling';
+import { FimTransform2D } from '../math/FimTransform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
+import { FimRect } from '../primitives/FimRect';
 import { UnhandledError } from '@leosingleton/commonlibs';
-import { FimTextureSampling } from '../api/FimTextureSampling';
+import { GlslShader } from 'webpack-glsl-minify';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvasWebGL extends CoreCanvas {
@@ -110,6 +113,16 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       } catch (err) {
         UnhandledError.reportError(err);
       }
+    }
+
+    // Free the built-in fragment shaders
+    if (this.shaderCopy) {
+      this.shaderCopy.dispose();
+      this.shaderCopy = undefined;
+    }
+    if (this.shaderFill) {
+      this.shaderFill.dispose();
+      this.shaderFill = undefined;
     }
   }
 
@@ -230,6 +243,24 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     }
   }
 
+  /** Throws an exception if the WebGL context is lost */
+  public throwOnContextLost(): void {
+    const gl = this.getContext();
+    if (gl.isContextLost()) {
+      throw new FimError(FimErrorCode.WebGLContextLost);
+    }
+  }
+
+  /**
+   * Throws an exception if the object is not a child of this WebGL canvas
+   * @param child Child object
+   */
+  public throwOnNotChild(child: CoreWebGLObject): void {
+    if (child.parentCanvas !== this) {
+      FimError.throwOnInvalidParameter(`${child.handle} is not child of ${this.imageHandle}`);
+    }
+  }
+
   /** Loads WebGL extensions. Called from the constructor and on context restored notifications. */
   private loadExtensions(): void {
     const me = this;
@@ -340,9 +371,12 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /**
    * Calls the CoreShader constructor
+   * @param fragmentShader Fragment shader, created using webpack-glsl-minify
+   * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
+   * @param handle Optional shader handle, for debugging
    */
-  public createCoreShader(): CoreShader {
-    return new CoreShader(this);
+  public createCoreShader(fragmentShader: GlslShader, vertexShader?: GlslShader, handle?: string): CoreShader {
+    return new CoreShader(this, fragmentShader, vertexShader, handle);
   }
 
   /**
@@ -391,6 +425,70 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
+
+  /**
+   * Copies contents from a CoreTexture. Supports both cropping and rescaling.
+   * @param srcTexture Source texture
+   * @param srcCoords Coordinates of source canvas to copy from
+   * @param destCoords Coordinates of destination canvas to copy to
+   */
+  public copyFrom(srcTexture: CoreTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+    const me = this;
+    me.ensureNotDisposed();
+
+    // Default parameters
+    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcTexture.textureDimensions)).toFloor();
+    destCoords = (destCoords ?? FimRect.fromDimensions(me.canvasDimensions)).toFloor();
+
+    srcTexture.validateRect(srcCoords);
+    me.validateRect(destCoords);
+
+    // Calculate the transformation matrix to achieve the requested srcCoords
+    const matrix = FimTransform2D.fromSrcCoords(srcCoords, srcTexture.textureDimensions);
+
+    const copyShader = me.getCopyShader();
+    copyShader.setUniforms({
+      uInput: srcTexture
+    });
+    copyShader.applyVertexMatrix(matrix);
+    copyShader.execute(undefined, destCoords);
+  }
+
+  /**
+   * Returns the built-in copy shader. Each WebGL canvas has an instance of this fragment shader, which is automatically
+   * created on first use and disposed.
+   */
+  public getCopyShader(): CoreShader {
+    const me = this;
+    me.ensureNotDisposed();
+
+    if (!me.shaderCopy) {
+      const shader = require('../../build/core/glsl/copy.glsl.js');
+      me.shaderCopy = new CoreShader(me, shader, undefined, `${me.imageHandle}/CopyShader`);
+    }
+
+    return me.shaderCopy;
+  }
+
+  private shaderCopy: CoreShader;
+
+  /**
+   * Returns the built-in fill shader. Each WebGL canvas has an instance of this fragment shader, which is automatically
+   * created on first use and disposed.
+   */
+  public getFillShader(): CoreShader {
+    const me = this;
+    me.ensureNotDisposed();
+
+    if (!me.shaderFill) {
+      const shader = require('../../build/core/glsl/fill.glsl.js');
+      me.shaderFill = new CoreShader(me, shader, undefined, `${me.imageHandle}/FillShader`);
+    }
+
+    return me.shaderFill;
+  }
+
+  private shaderFill: CoreShader;
 }
 
 /** Type parameter values for `HTMLCanvasElement.addEventListener()` */

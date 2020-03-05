@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
@@ -103,7 +104,7 @@ export class FimTransform2D {
    * @param srcDimensions Dimensions of the input texture, in pixels (as a rectangle with top-left of 0,0)
    * @returns 2D transformation matrix
    */
-  public static fromSrcCoords(srcCoords: FimRect, srcDimensions: FimRect): FimTransform2D {
+  public static fromSrcCoords(srcCoords: FimRect, srcDimensions: FimDimensions): FimTransform2D {
     // Calculate the center points of each rectangle
     const centerCoords = srcCoords.getCenter();
     const centerDimensions = srcDimensions.getCenter();
@@ -111,11 +112,11 @@ export class FimTransform2D {
     // First, translate so that the origin (currently at the center of srcDimensions) is moved to the center of
     // srcCoords (keep in mind Y in inverted)
     const result = new FimTransform2D();
-    result.translation((centerDimensions.x - centerCoords.x) * 2 / srcDimensions.dim.w,
-      (centerCoords.y - centerDimensions.y) * 2 / srcDimensions.dim.h);
+    result.translation((centerDimensions.x - centerCoords.x) * 2 / srcDimensions.w,
+      (centerCoords.y - centerDimensions.y) * 2 / srcDimensions.h);
 
     // Finally, scale to the right size.
-    result.rescale(srcDimensions.dim.w / srcCoords.dim.w, srcDimensions.dim.h / srcCoords.dim.h);
+    result.rescale(srcDimensions.w / srcCoords.dim.w, srcDimensions.h / srcCoords.dim.h);
 
     return result;
   }

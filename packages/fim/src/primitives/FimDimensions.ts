@@ -2,6 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimPoint } from './FimPoint';
+
 /** Simple class for holding a set of dimensions */
 export class FimDimensions {
   /** Width */
@@ -23,6 +25,11 @@ export class FimDimensions {
   /** Returns the area of the rectangle, in pixels */
   public getArea(): number {
     return this.w * this.h;
+  }
+
+  /** Returns the point at the center of the rectangle */
+  public getCenter(): FimPoint {
+    return FimPoint.fromXY(this.w / 2, this.h / 2);
   }
 
   /** Scales a rectangle by a multiplier */

@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreBrowserOffscreenCanvas2D } from './CoreBrowserOffscreenCanvas2D';
 import { FimColor, FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
@@ -34,6 +35,11 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
 
   public getContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
+  }
+
+  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
+    return new CoreBrowserOffscreenCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions,
+      this.imageOptions);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

@@ -12,6 +12,7 @@ import { FimColor } from '../primitives/FimColor';
 import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
+import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
@@ -21,9 +22,10 @@ export class CoreTexture extends CoreWebGLObject {
    * @param parent The parent WebGL canvas
    * @param dimensions Texture dimensions
    * @param options Texture options. Must be fully computed with default values populated.
+   * @param handle Optional texture handle, for debugging
    */
-  public constructor(parent: CoreCanvasWebGL, dimensions: FimDimensions, options: FimImageOptions) {
-    super(parent);
+  public constructor(parent: CoreCanvasWebGL, dimensions: FimDimensions, options: FimImageOptions, handle?: string) {
+    super(parent, handle ?? `${parent.imageHandle}/Texture`);
     this.textureDimensions = dimensions.toFloor();
     this.imageOptions = options;
     const bpp = this.bpp = Math.min(parent.getMaxTextureDepth(options), options.bpp);
@@ -84,6 +86,14 @@ export class CoreTexture extends CoreWebGLObject {
   /** Actual color depth of this texture. May be lower than requested due to WebGL capabilities. */
   public readonly bpp: FimBitsPerPixel;
 
+  /** Throws an exception if the rectangle extends outside of the texture */
+  public validateRect(rect: FimRect): void {
+    const outer = FimRect.fromDimensions(this.textureDimensions);
+    if (!outer.containsRect(rect)) {
+      FimError.throwOnInvalidParameter(rect);
+    }
+  }
+
   public bind(textureUnit: number): void {
     this.bindInternal(textureUnit, this.texture);
   }
@@ -102,7 +112,10 @@ export class CoreTexture extends CoreWebGLObject {
     parent.throwWebGLErrorsDebug();
   }
 
-  /** Fills the texture with a solid color */
+  /**
+   * Fills the texture with a solid color
+   * @param color Fill color
+   */
   public fillSolid(color: FimColor | string): void {
     const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
     const parent = this.parentCanvas;
@@ -184,7 +197,7 @@ export class CoreTexture extends CoreWebGLObject {
     const me = this;
     if (me.imageOptions.glReadOnly) {
       // Cannot write to an input only texture
-      FimError.throwOnImageReadonly(`${me.parentCanvas.imageHandle}/Texture`);
+      FimError.throwOnImageReadonly(me.handle);
     }
     return me.fb;
   }
@@ -207,7 +220,7 @@ export class CoreTexture extends CoreWebGLObject {
 
   /**
    * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
-   * texture as the output of a FimGLProgram.
+   * texture as the output of a `CoreShader.execute()` call.
    */
   public hasImage: boolean;
 

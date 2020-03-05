@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreNodeCanvas2D } from './CoreNodeCanvas2D';
 import { FimDimensions, FimError, FimErrorCode, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 import createContext from 'gl';
 
 /** Wrapper around the headless-gl WebGL library */
@@ -35,6 +36,10 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
 
   public getContext(): RenderingContextWebGL {
     return this.glContext;
+  }
+
+  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
+    return new CoreNodeCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
   }
 
   protected addCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {

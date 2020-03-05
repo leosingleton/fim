@@ -10,12 +10,18 @@ export abstract class CoreWebGLObject {
   /**
    * Constructor
    * @param canvas The parent WebGL canvas
+   * @param handle Handle, used for debugging
    */
-  public constructor(parent: CoreCanvasWebGL) {
+  public constructor(parent: CoreCanvasWebGL, handle: string) {
     // Establish the parent/child relationship
     parent.childObjects.push(this);
     this.parentCanvas = parent;
+
+    this.handle = handle;
   }
+
+  /** Handle of this object. Used only for display purposes for debugging. */
+  public readonly handle: string;
 
   /** The parent WebGL canvas */
   public parentCanvas: CoreCanvasWebGL;
@@ -42,7 +48,7 @@ export abstract class CoreWebGLObject {
   /** Throws an exception if the object is disposed */
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
-      FimError.throwOnObjectDisposed(`Child of ${this.parentCanvas.imageHandle}`);
+      FimError.throwOnObjectDisposed(this.handle);
     }
   }
 }

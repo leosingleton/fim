@@ -17,9 +17,6 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   /** Derived classes must override this method to call canvas.getContext('2d') */
   protected abstract getContext(): RenderingContext2D;
 
-  /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  public abstract createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D;
-
   /**
    * Helper function to construct a 2D drawing context
    * @param destCanvas HTML or offscreen canvas to create drawing context of

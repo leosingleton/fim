@@ -201,6 +201,9 @@ export const enum FimErrorCode {
   /** FIM4102: Invalid dimensions */
   InvalidDimensions = 4102,
 
+  /** FIM4103: Invalid operation on an object based on its current state */
+  InvalidState = 4103,
+
   /** FIM4200: Attempted to call a method on a disposed object */
   ObjectDisposed = 4200,
 

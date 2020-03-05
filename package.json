@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/jasmine": "latest",
+    "@types/webpack": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "eslint": "latest",

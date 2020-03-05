@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreCanvas2D } from './CoreCanvas2D';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
@@ -61,6 +62,9 @@ export abstract class CoreCanvas {
 
   /** Derived classes must override this method to return a CanvasImageSource */
   public abstract getImageSource(): CanvasImageSource;
+
+  /** Derived classes must implement this method to call the CoreCanvas2D constructor */
+  public abstract createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D;
 
   /**
    * Helper function to fill a canvas with a solid color

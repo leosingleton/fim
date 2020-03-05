@@ -9,7 +9,7 @@ import { FimError } from '../primitives/FimError';
 export class CoreArrayBuffer {
   /**
    * Constructor
-   * @param gl WebGL contxet
+   * @param glCanvas WebGL canvas
    * @param program WebGL program
    * @param attributeName Name of the attribute in the program
    * @param size Size of each vector
