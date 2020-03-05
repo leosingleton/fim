@@ -394,6 +394,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.ensureNotDisposed();
     const gl = me.getContext();
     const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    const cVec = c.toVector();
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     me.throwWebGLErrorsDebug();
@@ -401,7 +402,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.throwWebGLErrorsDebug();
     gl.disable(gl.SCISSOR_TEST);
     me.throwWebGLErrorsDebug();
-    gl.clearColor(c.r / 255, c.g / 255, c.b / 255, c.a / 255);
+    gl.clearColor(cVec[0], cVec[1], cVec[2], cVec[3]);
     me.throwWebGLErrorsDebug();
     gl.clear(gl.COLOR_BUFFER_BIT);
     me.throwWebGLErrorsDebug();
