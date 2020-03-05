@@ -37,9 +37,9 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement.getContext('webgl');
   }
 
-  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
-    return new CoreBrowserOffscreenCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions,
-      this.imageOptions);
+  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
+      imageOptions: FimImageOptions): CoreCanvas2D {
+    return new CoreBrowserOffscreenCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

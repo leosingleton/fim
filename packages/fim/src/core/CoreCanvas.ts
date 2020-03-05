@@ -63,8 +63,21 @@ export abstract class CoreCanvas {
   /** Derived classes must override this method to return a CanvasImageSource */
   public abstract getImageSource(): CanvasImageSource;
 
+  /**
+   * Creates a temporary canvas using `CoreCanvas2D`
+   * @param dimensions Optional canvas dimensions. If unspecified, defaults to the same dimensions as this canvas.
+   * @param imageOptions Optional image options. If unspecified, inherits the image options from this canvas.
+   * @returns `CoreCanvas2D` instance of the same type as this canvas. The caller is reponsible for calling `dispose()`
+   *    on the returned object.
+   */
+  public createTemporaryCanvas2D(dimensions?: FimDimensions, imageOptions?: FimImageOptions): CoreCanvas2D {
+    return this.createCanvas2D(dimensions ?? this.canvasDimensions, `${this.imageHandle}/Temp`, this.engineOptions,
+      imageOptions ?? this.imageOptions);
+  }
+
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  public abstract createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D;
+  protected abstract createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string,
+    engineOptions: FimEngineOptions, imageOptions: FimImageOptions): CoreCanvas2D;
 
   /**
    * Helper function to fill a canvas with a solid color

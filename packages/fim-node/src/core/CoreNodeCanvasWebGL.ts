@@ -38,8 +38,9 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
     return this.glContext;
   }
 
-  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
-    return new CoreNodeCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
+  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
+      imageOptions: FimImageOptions): CoreCanvas2D {
+    return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
   }
 
   protected addCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {

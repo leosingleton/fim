@@ -41,8 +41,9 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  public createTemporaryCanvas2D(dimensions: FimDimensions): CoreCanvas2D {
-    return new CoreBrowserCanvas2D(dimensions, `${this.imageHandle}/Temp`, this.engineOptions, this.imageOptions);
+  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
+      imageOptions: FimImageOptions): CoreCanvas2D {
+    return new CoreBrowserCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
   }
 
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
