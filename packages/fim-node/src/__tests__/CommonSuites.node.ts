@@ -5,13 +5,22 @@
 import { FimNodeFactory } from '../factory/FimNodeFactory';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
+import { deepCopy } from '@leosingleton/commonlibs';
+import { defaultEngineOptions } from '@leosingleton/fim/internals';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
-TestSuites.fim('FimNodeFactory',
-  (maxImageDimensions) => FimNodeFactory.create(maxImageDimensions));
+TestSuites.fim('FimNodeFactory', (maxImageDimensions) => {
+  const fim = FimNodeFactory.create(maxImageDimensions);
+  fim.engineOptions.debugMode = true;
+  return fim;
+});
+
+// Always enable debugMode on unit tests to help catch bugs
+const engineOptions = deepCopy(defaultEngineOptions);
+engineOptions.debugMode = true;
 
 TestSuites.coreCanvas2D('CoreNodeCanvas2D',
-  (dimensions) => new CoreNodeCanvas2D(dimensions, 'UnitTest'));
+  (dimensions) => new CoreNodeCanvas2D(dimensions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvasWebGL('CoreNodeCanvasWebGL',
-  (dimensions) => new CoreNodeCanvasWebGL(dimensions, 'UnitTest'));
+  (dimensions) => new CoreNodeCanvasWebGL(dimensions, 'UnitTest', engineOptions));
