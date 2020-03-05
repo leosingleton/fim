@@ -9,10 +9,14 @@ import { deepCopy } from '@leosingleton/commonlibs';
 import { defaultEngineOptions } from '@leosingleton/fim/internals';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
-TestSuites.fim('FimNodeFactory', (maxImageDimensions) => {
+TestSuites.fim('FimNodeFactory (debug mode)', (maxImageDimensions) => {
   const fim = FimNodeFactory.create(maxImageDimensions);
   fim.engineOptions.debugMode = true;
   return fim;
+});
+
+TestSuites.fim('FimNodeFactory', (maxImageDimensions) => {
+  return FimNodeFactory.create(maxImageDimensions);
 });
 
 // Always enable debugMode on unit tests to help catch bugs

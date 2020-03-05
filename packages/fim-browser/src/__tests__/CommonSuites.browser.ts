@@ -11,15 +11,25 @@ import { deepCopy } from '@leosingleton/commonlibs';
 import { defaultEngineOptions } from '@leosingleton/fim/internals';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', (maxImageDimensions) => {
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', (maxImageDimensions) => {
   const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.debugMode = true;
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', (maxImageDimensions) => {
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', (maxImageDimensions) => {
   const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.debugMode = true;
+  fim.engineOptions.disableOffscreenCanvas = true;
+  return fim;
+});
+
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', (maxImageDimensions) => {
+  return FimBrowserFactory.create(maxImageDimensions);
+});
+
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', (maxImageDimensions) => {
+  const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.disableOffscreenCanvas = true;
   return fim;
 });
