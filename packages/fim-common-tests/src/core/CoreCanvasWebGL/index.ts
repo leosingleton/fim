@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { coreCanvasWebGLTestSuiteCanvas } from './Canvas';
+import { coreCanvasWebGLTestSuiteCapabilities } from './Capabilities';
 import { coreCanvasWebGLTestSuiteCreateDispose } from './CreateDispose';
 import { coreCanvasWebGLTestSuiteShader } from './Shader';
 import { coreCanvasWebGLTestSuiteTexture } from './Texture';
@@ -20,6 +21,7 @@ export function coreCanvasWebGLTestSuite(
 ): void {
   describe(description, () => {
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);
+    coreCanvasWebGLTestSuiteCapabilities(description, factory);
     coreCanvasWebGLTestSuiteCanvas(description, factory);
     coreCanvasWebGLTestSuiteShader(description, factory);
     coreCanvasWebGLTestSuiteTexture(description, factory);

@@ -4,7 +4,7 @@
 
 import { large, small } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
-import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
+import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for create/dispose */
@@ -18,20 +18,6 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
       const canvas = factory(small);
       canvas.dispose();
       expect(() => canvas.dispose()).toThrow(); // Double dispose throws exception
-    });
-
-    it('Calculates max texture depth with linear filtering', () => {
-      using(factory(small), canvas => {
-        const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Linear);
-        expect(bpp).toContain(FimBitsPerPixel.BPP8);
-      });
-    });
-
-    it('Calculates max texture depth with nearest filtering', () => {
-      using(factory(small), canvas => {
-        const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Nearest);
-        expect(bpp).toContain(FimBitsPerPixel.BPP8);
-      });
     });
 
     xit('Create/dispose stress', () => {
