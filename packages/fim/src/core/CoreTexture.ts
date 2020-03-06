@@ -125,14 +125,16 @@ export class CoreTexture extends CoreWebGLObject {
    * @param color Fill color
    */
   public fillSolid(color: FimColor | string): void {
+    const me = this;
+    me.ensureNotDisposed();
     const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
-    const parent = this.parentCanvas;
+    const parent = me.parentCanvas;
     const gl = parent.getContext();
-    const destinationFramebuffer = this.getFramebuffer();
+    const destinationFramebuffer = me.getFramebuffer();
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, destinationFramebuffer);
     parent.throwWebGLErrorsDebug();
-    gl.viewport(0, 0, this.textureDimensions.w, this.textureDimensions.h);
+    gl.viewport(0, 0, me.textureDimensions.w, me.textureDimensions.h);
     parent.throwWebGLErrorsDebug();
     gl.disable(gl.SCISSOR_TEST);
     parent.throwWebGLErrorsDebug();
@@ -141,7 +143,35 @@ export class CoreTexture extends CoreWebGLObject {
     gl.clear(gl.COLOR_BUFFER_BIT);
     parent.throwWebGLErrorsDebug();
 
-    this.hasImage = true;
+    me.hasImage = true;
+  }
+
+  /**
+   * Loads the texture contents from RGBA data
+   * @param pixelData An array containing 4 bytes per pixel, in RGBA order
+   */
+  public loadPixelData(pixelData: Uint8ClampedArray): void {
+    const me = this;
+    me.ensureNotDisposed();
+    const parent = me.parentCanvas;
+    const gl = parent.getContext();
+
+    // Validate the array size matches the expected dimensions
+    const dimensions = me.textureDimensions;
+    const expectedLength = dimensions.getArea() * 4;
+    if (pixelData.length !== expectedLength) {
+      FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
+    }
+
+    me.bind(0);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    parent.throwWebGLErrorsDebug();
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, dimensions.w, dimensions.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+      new Uint8Array(pixelData));
+    parent.throwWebGLErrorsDebug();
+    me.unbind(0);
+
+    me.hasImage = true;
   }
 
   /**
@@ -150,6 +180,7 @@ export class CoreTexture extends CoreWebGLObject {
    */
   public copyFrom(srcCanvas: CoreCanvas): void {
     const me = this;
+    me.ensureNotDisposed();
     const parent = me.parentCanvas;
     const gl = parent.getContext();
 
@@ -202,6 +233,7 @@ export class CoreTexture extends CoreWebGLObject {
   /** Returns the underlying WebGL framebuffer backing this texture */
   public getFramebuffer(): WebGLFramebuffer {
     const me = this;
+    me.ensureNotDisposed();
     if (me.imageOptions.glReadOnly) {
       // Cannot write to an input only texture
       FimError.throwOnImageReadonly(me.handle);

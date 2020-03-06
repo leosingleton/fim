@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, grey, midpoint, red, small, medium } from '../../common/Globals';
+import { black, blue, green, grey, midpoint, red, small, medium } from '../../common/Globals';
+import { TestImages } from '../../common/TestImages';
 import { using } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
@@ -62,6 +63,18 @@ export function coreCanvasWebGLTestSuiteTexture(
         texture.fillSolid(blue);
         canvas.copyFrom(texture);
         expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+      });
+    });
+
+    it('Loads from pixel data', () => {
+      using(factory(small), canvas => {
+        // Load a texture with green
+        const texture = canvas.createCoreTexture();
+        texture.loadPixelData(TestImages.solidPixelData(small, green));
+
+        // Ensure the texture is green
+        canvas.copyFrom(texture);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
       });
     });
 
