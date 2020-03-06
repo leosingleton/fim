@@ -20,7 +20,6 @@ export { FimTransform3D } from './math/FimTransform3D';
 export { FimTwoTriangles } from './math/FimTwoTriangles';
 export { FimBitsPerPixel } from './primitives/FimBitsPerPixel';
 export { FimColor } from './primitives/FimColor';
-export { FimColorChannels } from './primitives/FimColorChannels';
 export { FimDimensions } from './primitives/FimDimensions';
 export { FimError, FimErrorCode } from './primitives/FimError';
 export { FimPoint } from './primitives/FimPoint';

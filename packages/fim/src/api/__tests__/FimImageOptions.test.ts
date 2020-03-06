@@ -5,7 +5,6 @@
 import { FimImageOptions, defaultImageOptions, mergeImageOptions } from '../FimImageOptions';
 import { FimTextureSampling } from '../FimTextureSampling';
 import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
-import { FimColorChannels } from '../../primitives/FimColorChannels';
 
 describe('FimImageOptions', () => {
 
@@ -22,7 +21,6 @@ describe('FimImageOptions', () => {
   it('Child options win merge', () => {
     const parent: FimImageOptions = {
       bpp: FimBitsPerPixel.BPP16,
-      channels: FimColorChannels.RGBA,
       sampling: FimTextureSampling.Nearest,
       backup: false,
       allowOversized: true,
@@ -32,7 +30,6 @@ describe('FimImageOptions', () => {
     };
     const child: FimImageOptions = {
       bpp: FimBitsPerPixel.BPP8,
-      channels: FimColorChannels.RGB,
       sampling: FimTextureSampling.Linear,
       backup: true,
       allowOversized: false,
@@ -42,7 +39,6 @@ describe('FimImageOptions', () => {
     };
     const options = mergeImageOptions(parent, child);
     expect(options.bpp).toEqual(child.bpp);
-    expect(options.channels).toEqual(child.channels);
     expect(options.sampling).toEqual(child.sampling);
     expect(options.backup).toEqual(child.backup);
     expect(options.allowOversized).toEqual(child.allowOversized);

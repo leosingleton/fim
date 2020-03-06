@@ -4,18 +4,19 @@
 
 import { FimTextureSampling } from './FimTextureSampling';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
-import { FimColorChannels } from '../primitives/FimColorChannels';
 
 /**
  * Options during FimImage creation. All values are optional. If undefined, the value is inherited from the FIM-level
  * default, or from built-in defaults.
+ *
+ * Note that as of FIM v2, the color channel options have been removed. All images are RGBA format. Greyscale and RGB
+ * have limited support as rendering targets in WebGL, and it's not worth the effort to support, as the client would
+ * always have to implement a fallback to an RGBA implementation anyway. Plus, some implementations use RGBA
+ * internally anyway, negating the memory savings of the other format.
  */
 export interface FimImageOptions {
   /** Bits per pixel */
   bpp?: FimBitsPerPixel;
-
-  /** Color channels */
-  channels?: FimColorChannels;
 
   /** Texture sampling options for WebGL minification and magnification */
   sampling?: FimTextureSampling;
@@ -68,7 +69,6 @@ export interface FimImageOptions {
 /** Default values if no FimImageOptions is configured */
 export const defaultImageOptions: FimImageOptions = {
   bpp: FimBitsPerPixel.BPP16,
-  channels: FimColorChannels.RGBA,
   sampling: FimTextureSampling.Linear,
   backup: false,
   allowOversized: false,
@@ -89,7 +89,6 @@ export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptio
 
   return {
     bpp: child.bpp ?? parent.bpp,
-    channels: child.channels ?? parent.channels,
     sampling: child.sampling ?? parent.sampling,
     backup: child.backup ?? parent.backup,
     allowOversized: child.allowOversized ?? parent.allowOversized,

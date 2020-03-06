@@ -9,7 +9,6 @@ import { FimImageOptions } from '../api/FimImageOptions';
 import { FimTextureSampling } from '../api/FimTextureSampling';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
-import { FimColorChannels } from '../primitives/FimColorChannels';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
@@ -43,12 +42,6 @@ export class CoreTexture extends CoreWebGLObject {
       FimError.throwOnInvalidParameter(`BPP${bpp} (RO)`);
     }
 
-    // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
-    // so just deny it altogether.
-    if (!options.glReadOnly && options.channels === FimColorChannels.Greyscale) {
-      FimError.throwOnInvalidParameter('RW+Grey');
-    }
-
     // Create a texture
     const gl = parent.getContext();
     const texture = gl.createTexture();
@@ -71,7 +64,7 @@ export class CoreTexture extends CoreWebGLObject {
       // If the texture is not readonly, create a framebuffer to back this texture
       if (!options.glReadOnly) {
         // Allocate the texture
-        const format = this.getGLFormat();
+        const format = gl.RGBA;
         const depth = parent.getTextureDepthConstant(bpp);
         gl.texImage2D(gl.TEXTURE_2D, 0, format, dimensions.w, dimensions.h, 0, format, depth, null);
         parent.throwWebGLErrorsDebug();
@@ -180,7 +173,7 @@ export class CoreTexture extends CoreWebGLObject {
     me.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     parent.throwWebGLErrorsDebug();
-    const format = me.getGLFormat();
+    const format = gl.RGBA;
     gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, srcCanvas.getImageSource() as HTMLImageElement);
     parent.throwWebGLErrorsDebug();
     me.unbind(0);
@@ -214,22 +207,6 @@ export class CoreTexture extends CoreWebGLObject {
       FimError.throwOnImageReadonly(me.handle);
     }
     return me.fb;
-  }
-
-  /** Returns the WebGL constant for the texture's format */
-  private getGLFormat(): number {
-    const me = this;
-    const parent = me.parentCanvas;
-    const gl = parent.getContext();
-    const channels = me.imageOptions.channels;
-
-    switch (channels) {
-      case FimColorChannels.Greyscale:  return gl.LUMINANCE;
-      case FimColorChannels.RGB:        return gl.RGB;
-      case FimColorChannels.RGBA:       return gl.RGBA;
-    }
-
-    FimError.throwOnUnreachableCode(channels);
   }
 
   /**
