@@ -31,9 +31,9 @@ export class CoreTexture extends CoreWebGLObject {
 
     // Ensure the requested BPP does not exceed WebGL's maximum
     const bpp = options.bpp;
-    const maxBPP = parent.getMaxTextureDepth(options.sampling);
-    if (bpp > maxBPP) {
-      FimError.throwOnInvalidParameter(`BPP${bpp} (>${maxBPP})`);
+    const bppCaps = parent.getSupportedColorDepths(options.sampling);
+    if (bppCaps.indexOf(bpp) === -1) {
+      FimError.throwOnInvalidParameter(`BPP${bpp} !${bppCaps}`);
     }
 
     // glReadOnly textures are limited to 8 BPP, as FIM doesn't have any input formats that support higher to load the

@@ -290,27 +290,39 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   private extensionColorBuffer16: any;
 
   /**
-   * Calculates the maximum color depth for a CoreTexture
+   * Calculates the supported color depth for a CoreTexture
    * @param sampling Type of texture sampling to compute the maximum for. Some GPUs have different limits for linear
    *    versus nearest sampling.
    */
-  public getMaxTextureDepth(sampling: FimTextureSampling): FimBitsPerPixel {
+  public getSupportedColorDepths(sampling: FimTextureSampling): FimBitsPerPixel[] {
+    const result = [FimBitsPerPixel.BPP8];
     const linear = (sampling === FimTextureSampling.Linear);
-
-    if (this.extensionTexture32 && this.extensionColorBuffer32) {
-      if (!linear || this.extensionTextureLinear32) {
-        return FimBitsPerPixel.BPP32;
-      }
-    }
 
     const ext = this.extensionTexture16;
     if (ext && this.extensionColorBuffer16) {
       if (!linear || this.extensionTextureLinear16) {
-        return FimBitsPerPixel.BPP16;
+        result.push(FimBitsPerPixel.BPP16);
       }
     }
 
-    return FimBitsPerPixel.BPP8;
+    if (this.extensionTexture32 && this.extensionColorBuffer32) {
+      if (!linear || this.extensionTextureLinear32) {
+        result.push(FimBitsPerPixel.BPP32);
+      }
+    }
+
+    return result;
+  }
+
+  /** Calculates the default color depth for a CoreTexture */
+  public getDefaultColorDepth(): FimBitsPerPixel {
+    const linearCaps = this.getSupportedColorDepths(FimTextureSampling.Linear);
+    const nearestCaps = this.getSupportedColorDepths(FimTextureSampling.Nearest);
+    if (linearCaps.indexOf(FimBitsPerPixel.BPP16) !== -1 && nearestCaps.indexOf(FimBitsPerPixel.BPP16)) {
+      return FimBitsPerPixel.BPP16;
+    } else {
+      return FimBitsPerPixel.BPP8;
+    }
   }
 
   /**
@@ -362,8 +374,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       glMaxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
       glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
       glExtensions: gl.getSupportedExtensions().sort(),
-      glMaxTextureDepthLinear: me.getMaxTextureDepth(FimTextureSampling.Linear),
-      glMaxTextureDepthNearest: me.getMaxTextureDepth(FimTextureSampling.Nearest)
+      glTextureDepthsLinear: me.getSupportedColorDepths(FimTextureSampling.Linear),
+      glTextureDepthsNearest: me.getSupportedColorDepths(FimTextureSampling.Nearest)
     };
     return me.cachedCapabilities;
   }
@@ -391,11 +403,10 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
 
     // If options are not specified, limit the BPP to match the WebGL capabilities
-    const maxBPP = me.getMaxTextureDepth(me.imageOptions.sampling);
     if (!options) {
-      options = { bpp: maxBPP };
+      options = { bpp: me.getDefaultColorDepth() };
     } else if (!options.bpp) {
-      options.bpp = maxBPP;
+      options.bpp = me.getDefaultColorDepth();
     }
 
     return new CoreTexture(me, handle ?? `${me.imageHandle}/Texture`, dimensions ?? me.canvasDimensions,

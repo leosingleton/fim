@@ -30,9 +30,9 @@ export interface FimWebGLCapabilities {
   readonly glMaxTextureSize: number;
   readonly glExtensions: string[];
 
-  /** Maximum texture depth when using linear sampling */
-  readonly glMaxTextureDepthLinear: FimBitsPerPixel;
+  /** Texture depths supported when using linear sampling */
+  readonly glTextureDepthsLinear: FimBitsPerPixel[];
 
-  /** Maximum texture depth when using nearest pixel sampling */
-  readonly glMaxTextureDepthNearest: FimBitsPerPixel;
+  /** Texture depths supported when using nearest pixel sampling */
+  readonly glTextureDepthsNearest: FimBitsPerPixel[];
 }

@@ -80,10 +80,10 @@ export function coreCanvasWebGLTestSuiteTexture(
                 for (const glReadOnly of [false, true]) {
                   for (const sampling of [FimTextureSampling.Linear, FimTextureSampling.Nearest]) {
                     // Ensure the desired combination is valid
-                    if (sampling === FimTextureSampling.Linear && bpp > caps.glMaxTextureDepthLinear) {
+                    if (sampling === FimTextureSampling.Linear && caps.glTextureDepthsLinear.indexOf(bpp) === -1) {
                       continue;
                     }
-                    if (sampling === FimTextureSampling.Nearest && bpp > caps.glMaxTextureDepthNearest) {
+                    if (sampling === FimTextureSampling.Nearest && caps.glTextureDepthsNearest.indexOf(bpp) === -1) {
                       continue;
                     }
                     if (glReadOnly && bpp > FimBitsPerPixel.BPP8) {

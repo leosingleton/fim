@@ -13,7 +13,6 @@ import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
-import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { deepCopy } from '@leosingleton/commonlibs';
 
@@ -32,7 +31,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
     const engineOptions = this.engineOptions = deepCopy(defaultEngineOptions);
-    this.defaultImageOptions = deepCopy(defaultImageOptions);
+    const imageOptions = this.defaultImageOptions = deepCopy(defaultImageOptions);
 
     // Detect the browser and GPU's capabilities. This is a bit hacky, but works by:
     //  1. Initializing the non-GPU capabilities. This is needed to call createCoreCanvasWebGL().
@@ -53,8 +52,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       glMaxTextureImageUnits: 0,
       glMaxTextureSize: 0,
       glExtensions: [],
-      glMaxTextureDepthLinear: FimBitsPerPixel.BPP8,
-      glMaxTextureDepthNearest: FimBitsPerPixel.BPP8
+      glTextureDepthsLinear: [],
+      glTextureDepthsNearest: []
     };
     const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10),
       `${this.handle}/DetectCapabilities`, {});
@@ -63,6 +62,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       for (const prop in glCapabilities) {
         (capabilities as any)[prop] = (glCapabilities as any)[prop];
       }
+
+      // Also set the default imageOptions to a valid color depth
+      imageOptions.bpp = tinyCanvas.getDefaultColorDepth();
     } finally {
       tinyCanvas.dispose();
     }
