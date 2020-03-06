@@ -44,8 +44,10 @@ export abstract class CoreCanvas {
 
   /** Dispose the WebGL canvas and all related objects, such as shaders and textures */
   public dispose(): void {
-    this.disposeSelf();
-    this.isDisposed = true;
+    const me = this;
+    me.ensureNotDisposed();
+    me.disposeSelf();
+    me.isDisposed = true;
   }
 
   /** Set by the dispose() method */

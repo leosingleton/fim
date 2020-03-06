@@ -13,6 +13,9 @@ export const smallFourSquares = FimDimensions.fromWidthHeight(128, 128);
 /** Medium 480x640 canvas dimensions */
 export const medium = FimDimensions.fromWidthHeight(480, 640);
 
+/** Large 1920x1080 canvas dimensions */
+export const large = FimDimensions.fromWidthHeight(1920, 1080);
+
 /** Returns the midpoint of the provided dimensions */
 export function midpoint(dimensions: FimDimensions): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.5, dimensions.h * 0.5).toFloor();

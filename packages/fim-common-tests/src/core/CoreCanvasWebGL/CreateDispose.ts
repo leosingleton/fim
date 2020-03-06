@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { small } from '../../common/Globals';
+import { large, small } from '../../common/Globals';
 import { using } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/internals';
@@ -31,6 +31,14 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
         const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Nearest);
         expect(bpp).toContain(FimBitsPerPixel.BPP8);
       });
+    });
+
+    xit('Create/dispose stress', () => {
+      for (let n = 0; n < 100; n++) {
+        using(factory(large), canvas => {
+          canvas.createCoreTexture();
+        });
+      }
     });
 
   });

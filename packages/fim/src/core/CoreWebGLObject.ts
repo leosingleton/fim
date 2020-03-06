@@ -29,6 +29,7 @@ export abstract class CoreWebGLObject {
   /** Disposes all GPU resources */
   public dispose(): void {
     const me = this;
+    me.ensureNotDisposed();
 
     me.disposeSelf();
 

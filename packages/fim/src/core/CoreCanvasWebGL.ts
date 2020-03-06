@@ -60,6 +60,11 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   public dispose(): void {
     const me = this;
 
+    // Remove event listeners
+    me.removeCanvasEventListener(EventListenerType.ContextLost, this.onContextLost.bind(this), false);
+    me.removeCanvasEventListener(EventListenerType.ContextRestored, this.onContextRestored.bind(this), false);
+    me.removeCanvasEventListener(EventListenerType.ContextCreationError, this.onContextCreationError.bind(this), false);
+
     // Dispose all child objects
     for (const child of me.childObjects) {
       child.dispose();
@@ -69,11 +74,6 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     // Remove all callbacks
     me.contextLostHandlers = [];
     me.contextRestoredHandlers = [];
-
-    // Remove event listeners
-    me.removeCanvasEventListener(EventListenerType.ContextLost, this.onContextLost.bind(this), false);
-    me.removeCanvasEventListener(EventListenerType.ContextRestored, this.onContextRestored.bind(this), false);
-    me.removeCanvasEventListener(EventListenerType.ContextCreationError, this.onContextCreationError.bind(this), false);
 
     super.dispose();
   }
@@ -531,7 +531,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 }
 
 /** Type parameter values for `HTMLCanvasElement.addEventListener()` */
-const enum EventListenerType {
+export const enum EventListenerType {
   ContextLost = 'webglcontextlost',
   ContextRestored = 'webglcontextrestored',
   ContextCreationError = 'webglcontextcreationerror'
