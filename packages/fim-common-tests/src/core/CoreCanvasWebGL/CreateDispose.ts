@@ -17,6 +17,7 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
     it('Creates and disposes', () => {
       const canvas = factory(small);
       canvas.dispose();
+      expect(() => canvas.dispose()).toThrow(); // Double dispose throws exception
     });
 
     it('Calculates max texture depth with linear filtering', () => {
