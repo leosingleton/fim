@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreBrowserOffscreenCanvas2D } from './CoreBrowserOffscreenCanvas2D';
+import { CoreBrowserTexture } from './CoreBrowserTexture';
 import { FimColor, FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 
@@ -40,6 +41,11 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
   protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
       imageOptions: FimImageOptions): CoreCanvas2D {
     return new CoreBrowserOffscreenCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  }
+
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
+      options: FimImageOptions): CoreBrowserTexture {
+    return new CoreBrowserTexture(parent, handle, dimensions, options);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

@@ -15,7 +15,7 @@ import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
-export class CoreTexture extends CoreWebGLObject {
+export abstract class CoreTexture extends CoreWebGLObject {
   /**
    * Constructor
    * @param parent The parent WebGL canvas
@@ -181,36 +181,33 @@ export class CoreTexture extends CoreWebGLObject {
   public copyFrom(srcCanvas: CoreCanvas): void {
     const me = this;
     me.ensureNotDisposed();
-    const parent = me.parentCanvas;
-    const gl = parent.getContext();
 
     // WebGL's texImage2D() will normally rescale an input image to the texture dimensions. However, if the input image
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
-    const maxDimension = parent.detectCapabilities().glMaxTextureSize;
+    const maxDimension = me.parentCanvas.detectCapabilities().glMaxTextureSize;
     if (srcCanvas.canvasDimensions.w > maxDimension || srcCanvas.canvasDimensions.h > maxDimension) {
       // Slow path: first copy the source canvas to a smaller canvas
       using(srcCanvas.createTemporaryCanvas2D(me.textureDimensions), temp => {
         temp.copyFrom(srcCanvas);
         me.copyFrom(temp);
       });
-
-      return;
+    } else {
+      // Fast path: implementation is below
+      me.copyFromInternal(srcCanvas);
+      me.hasImage = true;
     }
-
-    // Report telemetry for debugging
-    //recordTexImage2D(srcImage, this);
-
-    me.bind(0);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    parent.throwWebGLErrorsDebug();
-    const format = gl.RGBA;
-    gl.texImage2D(gl.TEXTURE_2D, 0, format, format, gl.UNSIGNED_BYTE, srcCanvas.getImageSource() as HTMLImageElement);
-    parent.throwWebGLErrorsDebug();
-    me.unbind(0);
-
-    me.hasImage = true;
   }
+
+  /**
+   * Internal implementation of `copyFrom()`. Derived classes must implement this function.
+   *
+   * When this is called, we can be ensured that this object is not disposed and that the dimensions of `srcCanvas`
+   * match this texture's dimensions.
+   *
+   * @param srcCanvas Source canvas, of the same dimensions as this texture
+   */
+  protected abstract copyFromInternal(srcCanvas: CoreCanvas): void;
 
   protected disposeSelf(): void {
     const gl = this.parentCanvas.getContext();

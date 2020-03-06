@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreNodeCanvas2D } from './CoreNodeCanvas2D';
+import { CoreNodeTexture } from './CoreNodeTexture';
 import { FimDimensions, FimError, FimErrorCode, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
 import createContext from 'gl';
@@ -41,6 +42,11 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
   protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
       imageOptions: FimImageOptions): CoreCanvas2D {
     return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  }
+
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
+      options: FimImageOptions): CoreNodeTexture {
+    return new CoreNodeTexture(parent, handle, dimensions, options);
   }
 
   protected addCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {

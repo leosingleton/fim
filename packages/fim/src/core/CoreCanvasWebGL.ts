@@ -409,9 +409,13 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       options.bpp = me.getDefaultColorDepth();
     }
 
-    return new CoreTexture(me, handle ?? `${me.imageHandle}/Texture`, dimensions ?? me.canvasDimensions,
+    return me.createCoreTextureInternal(me, handle ?? `${me.imageHandle}/Texture`, dimensions ?? me.canvasDimensions,
       mergeImageOptions(me.imageOptions, options));
   }
+
+  /** Derived classes must implement this method to call the `CoreCanvas2D` constructor */
+  protected abstract createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
+    options: FimImageOptions): CoreTexture;
 
   public fillSolid(color: FimColor | string): void {
     const me = this;
