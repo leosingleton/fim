@@ -430,10 +430,9 @@ export class CoreShader extends CoreWebGLObject {
       gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
       canvas.throwWebGLErrorsDebug();
 
-      if (outputTexture) {
-        // The texture now has an image. Set the boolean so it may be used as an input texture in the future.
-        outputTexture.hasImage = true;
-      }
+      // The output texture or canvas now has an image. Set the boolean so it may be used as an input in the future.
+      const outputTextureOrCanvas = outputTexture ?? canvas;
+      outputTextureOrCanvas.hasImage = true;
     } finally {
       // Unbind the program. This doesn't seem to be strictly necessary, but helps to catch bugs.
       gl.useProgram(null);

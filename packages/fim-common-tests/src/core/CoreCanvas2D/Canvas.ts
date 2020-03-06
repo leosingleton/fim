@@ -41,5 +41,18 @@ export function coreCanvas2DTestSuiteCanvas(
       });
     });
 
+    it('Exports to pixel data', () => {
+      using(factory(small), canvas => {
+        canvas.fillSolid(red);
+        const data = canvas.exportToPixelData();
+
+        expect(data.length).toEqual(small.getArea() * 4);
+        expect(data[0]).toEqual(255); // R
+        expect(data[1]).toEqual(0);   // G
+        expect(data[2]).toEqual(0);   // B
+        expect(data[3]).toEqual(255); // A
+      });
+    });
+
   });
 }

@@ -53,23 +53,30 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   public fillSolid(color: FimColor | string): void {
+    const me = this;
+    me.ensureNotDisposed();
+
     // Force color to be a string
     const colorString = (typeof(color) === 'string') ? color : color.string;
 
-    using(this.createDrawingContext(), ctx => {
+    using(me.createDrawingContext(), ctx => {
       ctx.fillStyle = colorString;
-      ctx.fillRect(0, 0, this.canvasDimensions.w, this.canvasDimensions.h);
+      ctx.fillRect(0, 0, me.canvasDimensions.w, me.canvasDimensions.h);
     });
+
+    me.hasImage = true;
   }
 
   public getPixel(point: FimPoint): FimColor {
+    const me = this;
     let result: FimColor;
     point = point.toFloor();
 
-    this.ensureNotDisposed();
-    this.validateCoordinates(point);
+    me.ensureNotDisposed();
+    me.ensureHasImage();
+    me.validateCoordinates(point);
 
-    using(this.createDrawingContext(), ctx => {
+    using(me.createDrawingContext(), ctx => {
       const imgData = ctx.getImageData(point.x, point.y, 1, 1);
       const data = imgData.data;
       result = FimColor.fromRGBABytes(data[0], data[1], data[2], data[3]);
@@ -126,6 +133,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
         me.copyFrom(temp);
       });
     }
+
+    me.hasImage = true;
   }
 
   /**
@@ -156,6 +165,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       ctx.drawImage(image as CanvasImageSource, 0, 0, imageDimensions.w, imageDimensions.h, 0, 0, me.canvasDimensions.w,
         me.canvasDimensions.h);
     });
+
+    me.hasImage = true;
   }
 
   /**
@@ -183,16 +194,18 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param destCoords Coordinates of destination canvas to copy to
    */
   public copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    const me = this;
+    me.ensureNotDisposed();
+
     // Default parameters
     srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
-    destCoords = (destCoords ?? FimRect.fromDimensions(this.canvasDimensions)).toFloor();
+    destCoords = (destCoords ?? FimRect.fromDimensions(me.canvasDimensions)).toFloor();
 
-    this.ensureNotDisposed();
     srcCanvas.validateRect(srcCoords);
-    this.validateRect(destCoords);
+    me.validateRect(destCoords);
 
     // copy is slightly faster than source-over
-    const op = (destCoords.dim.equals(this.canvasDimensions)) ? 'copy' : 'source-over';
+    const op = (destCoords.dim.equals(me.canvasDimensions)) ? 'copy' : 'source-over';
 
     // Enable image smoothing if we are rescaling the image
     const imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
@@ -200,10 +213,30 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     // Report telemetry for debugging
     //recordDrawImage(srcCoords, destCoords, op, imageSmoothingEnabled);
 
-    using(this.createDrawingContext(imageSmoothingEnabled, op, 1), ctx => {
+    using(me.createDrawingContext(imageSmoothingEnabled, op, 1), ctx => {
       ctx.drawImage(srcCanvas.getImageSource(), srcCoords.xLeft, srcCoords.yTop, srcCoords.dim.w, srcCoords.dim.h,
         destCoords.xLeft, destCoords.yTop, destCoords.dim.w, destCoords.dim.h);
     });
+
+    me.hasImage = true;
+  }
+
+  /**
+   * Exports the canvas contents to an array of RGBA pixels
+   * @returns An array containing 4 bytes per pixel, in RGBA order
+   */
+  public exportToPixelData(): Uint8ClampedArray {
+    const me = this;
+    me.ensureNotDisposed();
+    me.ensureHasImage();
+
+    let result: Uint8ClampedArray;
+    using(me.createDrawingContext(), ctx => {
+      const imgData = ctx.getImageData(0, 0, me.canvasDimensions.w, me.canvasDimensions.h);
+      result = imgData.data;
+    });
+
+    return result;
   }
 
   /**

@@ -390,7 +390,10 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * @param handle Optional shader handle, for debugging
    */
   public createCoreShader(fragmentShader: GlslShader, vertexShader?: GlslShader, handle?: string): CoreShader {
-    return new CoreShader(this, handle ?? `${this.imageHandle}/Shader`, fragmentShader, vertexShader);
+    const me = this;
+    me.ensureNotDisposed();
+
+    return new CoreShader(me, handle ?? `${me.imageHandle}/Shader`, fragmentShader, vertexShader);
   }
 
   /**
@@ -401,6 +404,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public createCoreTexture(dimensions?: FimDimensions, options?: FimImageOptions, handle?: string): CoreTexture {
     const me = this;
+    me.ensureNotDisposed();
 
     // If options are not specified, limit the BPP to match the WebGL capabilities
     if (!options) {
@@ -419,8 +423,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   public fillSolid(color: FimColor | string): void {
     const me = this;
-
     me.ensureNotDisposed();
+
     const gl = me.getContext();
     const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
     const cVec = c.toVector();
@@ -435,12 +439,15 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.throwWebGLErrorsDebug();
     gl.clear(gl.COLOR_BUFFER_BIT);
     me.throwWebGLErrorsDebug();
+
+    me.hasImage = true;
   }
 
   public getPixel(point: FimPoint): FimColor {
     const me = this;
-
     me.ensureNotDisposed();
+    me.ensureHasImage();
+
     const gl = me.getContext();
     const pixel = new Uint8Array(4);
 
@@ -482,6 +489,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     });
     copyShader.applyVertexMatrix(matrix);
     copyShader.execute(undefined, destCoords);
+
+    me.hasImage = true;
   }
 
   /**

@@ -7,7 +7,7 @@ import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions'
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
-import { FimError } from '../primitives/FimError';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -27,6 +27,7 @@ export abstract class CoreCanvas {
     this.imageHandle = handle;
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
     this.imageOptions = imageOptions ?? deepCopy(defaultImageOptions);
+    this.hasImage = false;
   }
 
   /** Canvas dimensions */
@@ -62,6 +63,16 @@ export abstract class CoreCanvas {
 
   /** Derived classes must override this method to return a CanvasImageSource */
   public abstract getImageSource(): CanvasImageSource;
+
+  /** Boolean indicating whether this canvas has an image. Set to true by any of the calls which set its content. */
+  public hasImage: boolean;
+
+  /** Throws an exception if the canvas does not have an image */
+  public ensureHasImage(): void {
+    if (!this.hasImage) {
+      throw new FimError(FimErrorCode.ImageUninitialized, this.imageHandle);
+    }
+  }
 
   /**
    * Creates a temporary canvas using `CoreCanvas2D`
