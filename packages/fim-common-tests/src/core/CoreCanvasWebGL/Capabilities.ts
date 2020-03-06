@@ -28,5 +28,14 @@ export function coreCanvasWebGLTestSuiteCapabilities(
       });
     });
 
+    it('Detects capabilities', () => {
+      using(factory(small), canvas => {
+        const caps = canvas.detectCapabilities();
+        expect(caps.glMaxRenderBufferSize).toBeGreaterThan(0);
+        expect(caps.glMaxTextureImageUnits).toBeGreaterThan(0);
+        expect(caps.glMaxTextureSize).toBeGreaterThan(0);
+      });
+    });
+
   });
 }
