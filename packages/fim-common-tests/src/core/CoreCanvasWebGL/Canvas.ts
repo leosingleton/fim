@@ -2,11 +2,11 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
+import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { FimDimensions } from '@leosingleton/fim';
+import { FimDimensions, FimRect } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for canvas operations */
@@ -33,7 +33,11 @@ export function coreCanvasWebGLTestSuiteCanvas(
         const texture = canvas.createCoreTexture();
         texture.fillSolid(blue);
 
-        // Copy the texture
+        // Fill the WebGL canvas with green
+        canvas.fillSolid(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+
+        // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
@@ -51,11 +55,15 @@ export function coreCanvasWebGLTestSuiteCanvas(
         const texture = canvas.createCoreTexture();
         texture.copyFrom(temp);
 
-        // Copy the texture
+        // Fill the WebGL canvas with green
+        canvas.fillSolid(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+
+        // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
-        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+        expect(canvas.getPixel(midpoint(small))).toEqual(red);
       });
     });
 
@@ -64,7 +72,11 @@ export function coreCanvasWebGLTestSuiteCanvas(
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);
 
-        // Copy the texture
+        // Fill the WebGL canvas with green
+        canvas.fillSolid(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+
+        // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
@@ -75,12 +87,16 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-    /*it('Copies from textures with srcCoords', async () => {
+    xit('Copies from textures with srcCoords', async () => {
       await usingAsync(factory(medium), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);
 
-        // Copy the texture
+        // Fill the WebGL canvas with green
+        canvas.fillSolid(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+
+        // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
 
         // Check a few pixels to ensure the texture rendered correctly
@@ -89,7 +105,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
         expect(canvas.getPixel(bottomLeft(medium))).toEqual(green);
         expect(canvas.getPixel(bottomRight(medium))).toEqual(green);
       });
-    });*/
+    });
 
 /*
 
