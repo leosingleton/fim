@@ -83,7 +83,7 @@ export function coreCanvasWebGLTestSuiteTexture(
         const caps = canvas.detectCapabilities();
 
         // Create a 2D grey canvas
-        const temp = canvas.createTemporaryCanvas2D();
+        const temp = canvas.createTemporaryCanvas2D(medium);
         temp.fillSolid(grey);
 
         for (const allowOversized of [false, true]) {
@@ -122,8 +122,7 @@ export function coreCanvasWebGLTestSuiteTexture(
 
                     // Render the texture to the WebGL canvas
                     canvas.copyFrom(texture);
-                    // BUGBUG: Copy texture to canvas doesn't work right now
-                    //expect(canvas.getPixel(midpoint(small))).toEqual(grey);
+                    expect(canvas.getPixel(midpoint(small))).toEqual(grey);
                   }
                 }
               }
