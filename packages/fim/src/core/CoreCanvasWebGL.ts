@@ -218,8 +218,12 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     }
   }
 
-  /** Validates the result of gl.checkFramebufferStatus() and throws on a non-complete value */
-  public throwOnIncompleteFrameBufferStatus(target: number): void {
+  /**
+   * Validates the result of `gl.checkFramebufferStatus()` and throws an error on a non-complete value
+   * @param target Target of the `gl.checkFramebufferStatus()` call
+   * @param message Optional message for debugging
+   */
+  public throwOnIncompleteFrameBufferStatus(target: number, message?: string): void {
     const gl = this.getContext();
     const status = gl.checkFramebufferStatus(target);
     switch (status) {
@@ -227,19 +231,19 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
         return;
 
       case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-        throw new FimError(FimErrorCode.WebGLFramebufferStatusIncompleteAttachment);
+        throw new FimError(FimErrorCode.WebGLFramebufferStatusIncompleteAttachment, message);
 
       case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-        throw new FimError(FimErrorCode.WebGLFramebufferStatusIncompleteMissingAttachment);
+        throw new FimError(FimErrorCode.WebGLFramebufferStatusIncompleteMissingAttachment, message);
 
       case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-        throw new FimError(FimErrorCode.WebGLFramebufferStatusIncompleteDimensions);
+        throw new FimError(FimErrorCode.WebGLFramebufferStatusIncompleteDimensions, message);
 
       case gl.FRAMEBUFFER_UNSUPPORTED:
-        throw new FimError(FimErrorCode.WebGLFramebufferStatusUnsupported);
+        throw new FimError(FimErrorCode.WebGLFramebufferStatusUnsupported, message);
 
       default:
-        throw new FimError(FimErrorCode.WebGLFramebufferStatusUnknown, `FramebufferStatus ${status}`);
+        throw new FimError(FimErrorCode.WebGLFramebufferStatusUnknown, `FramebufferStatus ${status} ${message}`);
     }
   }
 

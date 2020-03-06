@@ -45,8 +45,8 @@ export class CoreTexture extends CoreWebGLObject {
 
     // Most GPUs do not support rendering to a greyscale texture. There doesn't seem to be a capability to detect it,
     // so just deny it altogether.
-    if (options.glReadOnly && options.channels === FimColorChannels.Greyscale) {
-      FimError.throwOnInvalidParameter(`BPP${bpp} (Grey)`);
+    if (!options.glReadOnly && options.channels === FimColorChannels.Greyscale) {
+      FimError.throwOnInvalidParameter('RW+Grey');
     }
 
     // Create a texture
@@ -85,7 +85,7 @@ export class CoreTexture extends CoreWebGLObject {
         parent.throwWebGLErrorsDebug();
 
         // Check the framebuffer status
-        parent.throwOnIncompleteFrameBufferStatus(gl.FRAMEBUFFER);
+        parent.throwOnIncompleteFrameBufferStatus(gl.FRAMEBUFFER, JSON.stringify(options));
       }
 
       this.texture = texture;
