@@ -54,10 +54,22 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
       temp.dispose();
     });
 
-    xit('Create/dispose stress', () => {
+    it('getContext() stress', () => {
+      using(factory(large), canvas => {
+        for (let n = 0; n < 100; n++) {
+          canvas.fillSolid(red);
+          const gl = canvas.getContext();
+          expect(gl.isContextLost()).toBeFalsy();
+        }
+      });
+    });
+
+    it('Create/dispose stress', () => {
       for (let n = 0; n < 100; n++) {
         using(factory(large), canvas => {
-          canvas.createCoreTexture();
+          canvas.fillSolid(red);
+          const texture = canvas.createCoreTexture();
+          texture.fillSolid(red);
         });
       }
     });
