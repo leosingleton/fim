@@ -14,8 +14,27 @@ import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas2D extends CoreCanvas {
+  /** Returns the 2D rendering context for the canvas */
+  public getContext(): RenderingContext2D {
+    const me = this;
+    if (!me.renderingContext) {
+      me.renderingContext = this.createContext();
+      if (!me.renderingContext) {
+        // Safari on iOS has a limit of 288 MB total for all canvases on a page. It logs this message to the console if
+        // connecting to a PC for debugging, but the only error given to the JavaScript code is returning a null on
+        // getContext('2d'). This is most likely the cause of null here.
+        throw new FimError(FimErrorCode.OutOfMemory);
+      }
+    }
+
+    return me.renderingContext;
+  }
+
+  /** Cached rendering context */
+  private renderingContext: RenderingContext2D;
+
   /** Derived classes must override this method to call canvas.getContext('2d') */
-  protected abstract getContext(): RenderingContext2D;
+  protected abstract createContext(): RenderingContext2D;
 
   /**
    * Helper function to construct a 2D drawing context
@@ -29,13 +48,6 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     this.ensureNotDisposed();
 
     const ctx = this.getContext();
-    if (!ctx) {
-      // Safari on iOS has a limit of 288 MB total for all canvases on a page. It logs this message to the console if
-      // connecting to a PC for debugging, but the only errror given to the JavaScript code is returning a null on
-      // getContext('2d'). This is most likely the cause of null here.
-      throw new FimError(FimErrorCode.OutOfMemory);
-    }
-
     ctx.save();
     ctx.globalCompositeOperation = operation;
     ctx.globalAlpha = alpha;

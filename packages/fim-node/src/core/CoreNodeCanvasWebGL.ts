@@ -35,7 +35,7 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
     throw new FimError(FimErrorCode.NotImplemented, 'getImageSource() unsupported for Node.js');
   }
 
-  public getContext(): RenderingContextWebGL {
+  public createContext(): RenderingContextWebGL {
     return this.glContext;
   }
 

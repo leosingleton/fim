@@ -66,9 +66,9 @@ export function coreCanvasWebGLTestSuiteContextLost(
     xit('Simulate a context loss', async () => {
       await usingAsync(factory(small), async canvas => {
         // Simulate a context loss
-        expect(canvas.hasContext).toBeTruthy();
+        expect(canvas.isContextLost).toBeFalsy();
         await loseContextAsync(canvas);
-        expect(canvas.hasContext).toBeFalsy();
+        expect(canvas.isContextLost).toBeTruthy();
 
         // Calls while context is lost will throw an exception
         expect(() => canvas.fillSolid(red)).toThrow();
@@ -78,11 +78,11 @@ export function coreCanvasWebGLTestSuiteContextLost(
     xit('Simulate a context loss and restored', async () => {
       await usingAsync(factory(small), async canvas => {
         // Simulate a context loss and immediate restore
-        expect(canvas.hasContext).toBeTruthy();
+        expect(canvas.isContextLost).toBeFalsy();
         await loseContextAsync(canvas);
-        expect(canvas.hasContext).toBeFalsy();
+        expect(canvas.isContextLost).toBeTruthy();
         await restoreContextAsync(canvas);
-        expect(canvas.hasContext).toBeTruthy();
+        expect(canvas.isContextLost).toBeFalsy();
 
         // Calls after context is restored will succeed
         canvas.fillSolid(red);

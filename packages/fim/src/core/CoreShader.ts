@@ -36,7 +36,7 @@ export class CoreShader extends CoreWebGLObject {
 
   protected disposeSelf(): void {
     const me = this;
-    const gl = me.parentCanvas.getContext();
+    const gl = me.parentCanvas.getContext(false);
 
     if (me.program) {
       gl.deleteProgram(me.program);

@@ -45,7 +45,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-    xit('Copies from textures 2', () => {
+    it('Copies from textures 2', () => {
       using(factory(small), canvas => {
         // Create a canvas of solid red
         const temp = canvas.createTemporaryCanvas2D();
@@ -67,7 +67,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-    xit('Copies from textures 3', async () => {
+    it('Copies from textures 3', async () => {
       await usingAsync(factory(smallFourSquares), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);
@@ -87,7 +87,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-    xit('Copies from textures with srcCoords', async () => {
+    it('Copies from textures with srcCoords', async () => {
       await usingAsync(factory(medium), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);

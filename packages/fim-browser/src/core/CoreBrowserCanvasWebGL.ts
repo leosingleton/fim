@@ -40,7 +40,7 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement;
   }
 
-  public getContext(): RenderingContextWebGL {
+  public createContext(): RenderingContextWebGL {
     return this.canvasElement.getContext('webgl');
   }
 

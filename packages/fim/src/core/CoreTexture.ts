@@ -10,7 +10,7 @@ import { FimTextureSampling } from '../api/FimTextureSampling';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
-import { FimError } from '../primitives/FimError';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
 import { using } from '@leosingleton/commonlibs';
 
@@ -27,7 +27,6 @@ export abstract class CoreTexture extends CoreWebGLObject {
     super(parent, handle);
     this.textureDimensions = dimensions.toFloor();
     this.imageOptions = options;
-    this.hasImage = false;
 
     // Ensure the requested BPP does not exceed WebGL's maximum
     const bpp = options.bpp;
@@ -85,6 +84,26 @@ export abstract class CoreTexture extends CoreWebGLObject {
     } finally {
       gl.bindTexture(gl.TEXTURE_2D, null);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+  }
+
+  protected disposeSelf(): void {
+    const me = this;
+    const gl = me.parentCanvas.getContext(false);
+
+    // Report telemetry for debugging
+    // recordDispose(this, FimObjectType.GLTexture);
+
+    me.hasImage = false;
+
+    if (me.texture) {
+      gl.deleteTexture(me.texture);
+      me.texture = undefined;
+    }
+
+    if (me.fb) {
+      gl.deleteFramebuffer(me.fb);
+      me.fb = undefined;
     }
   }
 
@@ -209,27 +228,6 @@ export abstract class CoreTexture extends CoreWebGLObject {
    */
   protected abstract copyFromInternal(srcCanvas: CoreCanvas): void;
 
-  protected disposeSelf(): void {
-    const me = this;
-    me.hasImage = false;
-
-    const gl = me.parentCanvas.getContext();
-    if (gl) {
-      // Report telemetry for debugging
-      // recordDispose(this, FimObjectType.GLTexture);
-
-      if (me.texture) {
-        gl.deleteTexture(me.texture);
-        me.texture = undefined;
-      }
-
-      if (me.fb) {
-        gl.deleteFramebuffer(me.fb);
-        me.fb = undefined;
-      }
-    }
-  }
-
   /** Returns the underlying WebGL framebuffer backing this texture */
   public getFramebuffer(): WebGLFramebuffer {
     const me = this;
@@ -245,7 +243,15 @@ export abstract class CoreTexture extends CoreWebGLObject {
    * Boolean indicating whether this texture has an image. Set to true by any of the copyFrom() calls, or by using this
    * texture as the output of a `CoreShader.execute()` call.
    */
-  public hasImage: boolean;
+  public hasImage = false;
+
+  /** Throws an exception if the canvas is disposed or does not have an image */
+  public ensureNotDisposedAndHasImage(): void {
+    this.ensureNotDisposed();
+    if (!this.hasImage) {
+      throw new FimError(FimErrorCode.ImageUninitialized, this.handle);
+    }
+  }
 
   private texture: WebGLTexture;
   private fb: WebGLFramebuffer;

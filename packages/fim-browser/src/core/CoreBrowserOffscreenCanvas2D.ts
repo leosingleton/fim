@@ -31,7 +31,7 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
     return this.canvasElement;
   }
 
-  protected getContext(): RenderingContext2D {
+  protected createContext(): RenderingContext2D {
     return this.canvasElement.getContext('2d');
   }
 

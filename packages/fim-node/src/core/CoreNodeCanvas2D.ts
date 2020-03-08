@@ -29,7 +29,7 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return this.canvasElement as any;
   }
 
-  protected getContext(): RenderingContext2D {
+  protected createContext(): RenderingContext2D {
     return this.canvasElement.getContext('2d');
   }
 

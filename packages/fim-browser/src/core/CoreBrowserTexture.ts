@@ -11,6 +11,8 @@ export class CoreBrowserTexture extends CoreTexture {
     const parent = me.parentCanvas;
     const gl = parent.getContext();
 
+    srcCanvas.ensureNotDisposedAndHasImage();
+
     // Report telemetry for debugging
     //recordTexImage2D(srcImage, this);
 
