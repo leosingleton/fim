@@ -11,9 +11,14 @@ import { deepCopy } from '@leosingleton/commonlibs';
 import { defaultEngineOptions } from '@leosingleton/fim/internals';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
+const showTracing = true;
+const showWarnings = true;
+
 TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', (maxImageDimensions) => {
   const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.debugMode = true;
+  fim.engineOptions.showTracing = showTracing;
+  fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
@@ -21,22 +26,31 @@ TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', (
   const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.debugMode = true;
   fim.engineOptions.disableOffscreenCanvas = true;
+  fim.engineOptions.showTracing = showTracing;
+  fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
 TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', (maxImageDimensions) => {
-  return FimBrowserFactory.create(maxImageDimensions);
+  const fim = FimBrowserFactory.create(maxImageDimensions);
+  fim.engineOptions.showTracing = showTracing;
+  fim.engineOptions.showWarnings = showWarnings;
+  return fim;
 });
 
 TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', (maxImageDimensions) => {
   const fim = FimBrowserFactory.create(maxImageDimensions);
   fim.engineOptions.disableOffscreenCanvas = true;
+  fim.engineOptions.showTracing = showTracing;
+  fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
 // Always enable debugMode on unit tests to help catch bugs
 const engineOptions = deepCopy(defaultEngineOptions);
 engineOptions.debugMode = true;
+engineOptions.showTracing = showTracing;
+engineOptions.showWarnings = showWarnings;
 
 TestSuites.coreCanvas2D('CoreBrowserCanvas2D',
   (dimensions) => new CoreBrowserCanvas2D(dimensions, 'UnitTest', engineOptions));
