@@ -4,6 +4,7 @@
 
 import { coreCanvasWebGLTestSuiteCanvas } from './Canvas';
 import { coreCanvasWebGLTestSuiteCapabilities } from './Capabilities';
+import { coreCanvasWebGLTestSuiteContextLost } from './ContextLost';
 import { coreCanvasWebGLTestSuiteCreateDispose } from './CreateDispose';
 import { coreCanvasWebGLTestSuiteShader } from './Shader';
 import { coreCanvasWebGLTestSuiteTexture } from './Texture';
@@ -25,5 +26,6 @@ export function coreCanvasWebGLTestSuite(
     coreCanvasWebGLTestSuiteCanvas(description, factory);
     coreCanvasWebGLTestSuiteShader(description, factory);
     coreCanvasWebGLTestSuiteTexture(description, factory);
+    coreCanvasWebGLTestSuiteContextLost(description, factory);
   });
 }

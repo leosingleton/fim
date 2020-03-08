@@ -54,7 +54,7 @@ export abstract class CoreCanvas {
   protected isDisposed = false;
 
   /** Throws an exception if the object is disposed */
-  protected ensureNotDisposed(): void {
+  public ensureNotDisposed(): void {
     if (this.isDisposed) {
       FimError.throwOnObjectDisposed(this.imageHandle);
     }
@@ -69,8 +69,9 @@ export abstract class CoreCanvas {
   /** Boolean indicating whether this canvas has an image. Set to true by any of the calls which set its content. */
   public hasImage: boolean;
 
-  /** Throws an exception if the canvas does not have an image */
-  public ensureHasImage(): void {
+  /** Throws an exception if the canvas is disposed or does not have an image */
+  public ensureNotDisposedAndHasImage(): void {
+    this.ensureNotDisposed();
     if (!this.hasImage) {
       throw new FimError(FimErrorCode.ImageUninitialized, this.imageHandle);
     }

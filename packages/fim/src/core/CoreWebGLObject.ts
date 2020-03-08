@@ -47,7 +47,7 @@ export abstract class CoreWebGLObject {
   protected isDisposed = false;
 
   /** Throws an exception if the object is disposed */
-  protected ensureNotDisposed(): void {
+  public ensureNotDisposed(): void {
     if (this.isDisposed) {
       FimError.throwOnObjectDisposed(this.handle);
     }

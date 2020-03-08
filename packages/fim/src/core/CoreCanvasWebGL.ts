@@ -54,6 +54,17 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   /** Derived classes must override this method to call `canvas.getContext('webgl')` */
   public abstract getContext(): RenderingContextWebGL;
 
+  /** Set to `false` whenever the WebGL context is lost */
+  public hasContext = true;
+
+  /** Throws an exception if the canvas is disposed or if the WebGL context is lost */
+  public ensureNotDisposedAndHasContext(): void {
+    this.ensureNotDisposed();
+    if (!this.hasContext) {
+      throw new FimError(FimErrorCode.WebGLContextLost, this.imageHandle);
+    }
+  }
+
   /** Shader and texture objects that belong to this WebGL canvas */
   public childObjects: CoreWebGLObject[] = [];
 
@@ -103,11 +114,22 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** Handler for the `webglcontextlost` event */
-  private onContextLost(): void {
-    console.log('Lost WebGL context');
-    event.preventDefault();
+  private onContextLost(event?: Event): void {
+    // The unit test mocks may not pass an Event object. In this case, skip the preventDefaults() call.
+    if (event) {
+      event.preventDefault();
+    }
 
-    for (const handler of this.contextLostHandlers) {
+    const me = this;
+    const engineOptions = me.engineOptions;
+    if (engineOptions.showTracing || engineOptions.showWarnings) {
+      console.log('WebGL context lost');
+    }
+
+    me.hasContext = false;
+    me.hasImage = false;
+
+    for (const handler of me.contextLostHandlers) {
       try {
         handler();
       } catch (err) {
@@ -115,25 +137,31 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       }
     }
 
-    // Free the built-in fragment shaders
-    if (this.shaderCopy) {
-      this.shaderCopy.dispose();
-      this.shaderCopy = undefined;
+    // Dispose all child objects
+    for (const child of me.childObjects) {
+      child.dispose();
     }
-    if (this.shaderFill) {
-      this.shaderFill.dispose();
-      this.shaderFill = undefined;
-    }
+    me.childObjects = [];
+
+    // If we were using any built-in fragment shaders, they got disposed in the step above
+    me.shaderCopy = undefined;
+    me.shaderFill = undefined;
   }
 
   /** Handler for the `webglcontextrestored` event */
-  private onContextRestored(): void {
-    console.log('WebGL context restored');
+  private onContextRestored(_event?: Event): void {
+    const me = this;
+    const engineOptions = me.engineOptions;
+    if (engineOptions.showTracing || engineOptions.showWarnings) {
+      console.log('WebGL context restored');
+    }
+
+    me.hasContext = true;
 
     // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
-    this.loadExtensions();
+    me.loadExtensions();
 
-    for (const handler of this.contextRestoredHandlers) {
+    for (const handler of me.contextRestoredHandlers) {
       try {
         handler();
       } catch (err) {
@@ -354,7 +382,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public detectCapabilities(): FimWebGLCapabilities {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
 
     if (me.cachedCapabilities) {
       return me.cachedCapabilities;
@@ -391,7 +419,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public createCoreShader(fragmentShader: GlslShader, vertexShader?: GlslShader, handle?: string): CoreShader {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
 
     return new CoreShader(me, handle ?? `${me.imageHandle}/Shader`, fragmentShader, vertexShader);
   }
@@ -404,7 +432,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public createCoreTexture(dimensions?: FimDimensions, options?: FimImageOptions, handle?: string): CoreTexture {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
 
     // If options are not specified, limit the BPP to match the WebGL capabilities
     if (!options) {
@@ -423,7 +451,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   public fillSolid(color: FimColor | string): void {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
 
     const gl = me.getContext();
     const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
@@ -445,8 +473,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   public getPixel(point: FimPoint): FimColor {
     const me = this;
-    me.ensureNotDisposed();
-    me.ensureHasImage();
+    me.ensureNotDisposedAndHasImage();
 
     const gl = me.getContext();
     const pixel = new Uint8Array(4);
@@ -471,7 +498,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public copyFrom(srcTexture: CoreTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
+    srcTexture.ensureNotDisposed();
 
     // Default parameters
     srcCoords = (srcCoords ?? FimRect.fromDimensions(srcTexture.textureDimensions)).toFloor();
@@ -499,7 +527,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public getCopyShader(): CoreShader {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
 
     if (!me.shaderCopy) {
       const shader = require('../../build/core/glsl/copy.glsl.js');
@@ -517,7 +545,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public getFillShader(): CoreShader {
     const me = this;
-    me.ensureNotDisposed();
+    me.ensureNotDisposedAndHasContext();
 
     if (!me.shaderFill) {
       const shader = require('../../build/core/glsl/fill.glsl.js');

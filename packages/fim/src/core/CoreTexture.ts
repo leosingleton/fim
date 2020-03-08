@@ -210,19 +210,22 @@ export abstract class CoreTexture extends CoreWebGLObject {
   protected abstract copyFromInternal(srcCanvas: CoreCanvas): void;
 
   protected disposeSelf(): void {
-    const gl = this.parentCanvas.getContext();
+    const me = this;
+    me.hasImage = false;
+
+    const gl = me.parentCanvas.getContext();
     if (gl) {
       // Report telemetry for debugging
       // recordDispose(this, FimObjectType.GLTexture);
 
-      if (this.texture) {
-        gl.deleteTexture(this.texture);
-        this.texture = undefined;
+      if (me.texture) {
+        gl.deleteTexture(me.texture);
+        me.texture = undefined;
       }
 
-      if (this.fb) {
-        gl.deleteFramebuffer(this.fb);
-        this.fb = undefined;
+      if (me.fb) {
+        gl.deleteFramebuffer(me.fb);
+        me.fb = undefined;
       }
     }
   }

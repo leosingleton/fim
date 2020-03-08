@@ -72,8 +72,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     let result: FimColor;
     point = point.toFloor();
 
-    me.ensureNotDisposed();
-    me.ensureHasImage();
+    me.ensureNotDisposedAndHasImage();
     me.validateCoordinates(point);
 
     using(me.createDrawingContext(), ctx => {
@@ -196,6 +195,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   public copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
     const me = this;
     me.ensureNotDisposed();
+    srcCanvas.ensureNotDisposedAndHasImage();
 
     // Default parameters
     srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
@@ -227,8 +227,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    */
   public exportToPixelData(): Uint8ClampedArray {
     const me = this;
-    me.ensureNotDisposed();
-    me.ensureHasImage();
+    me.ensureNotDisposedAndHasImage();
 
     let result: Uint8ClampedArray;
     using(me.createDrawingContext(), ctx => {
