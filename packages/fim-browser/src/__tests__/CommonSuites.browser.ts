@@ -11,6 +11,7 @@ import { deepCopy } from '@leosingleton/commonlibs';
 import { defaultEngineOptions } from '@leosingleton/fim/internals';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
+// Enable these two for more detailed info in the console when running unit tests
 const showTracing = true;
 const showWarnings = true;
 
