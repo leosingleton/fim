@@ -63,7 +63,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
 ): void {
   describe(`CoreCanvasWebGL Context Lost - ${description}`, () => {
 
-    xit('Simulate a context loss', async () => {
+    it('Simulate a context loss', async () => {
       await usingAsync(factory(small), async canvas => {
         // Simulate a context loss
         expect(canvas.isContextLost).toBeFalsy();
@@ -75,7 +75,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
       });
     });
 
-    xit('Simulate a context loss and restored', async () => {
+    it('Simulate a context loss and restored', async () => {
       await usingAsync(factory(small), async canvas => {
         // Simulate a context loss and immediate restore
         expect(canvas.isContextLost).toBeFalsy();
@@ -90,7 +90,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
       });
     });
 
-    xit('Simulate a complex context loss', async () => {
+    it('Simulate a complex context loss', async () => {
       await usingAsync(factory(small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);

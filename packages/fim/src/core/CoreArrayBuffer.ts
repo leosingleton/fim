@@ -30,10 +30,13 @@ export class CoreArrayBuffer {
     const me = this;
     me.ensureNotDisposed();
 
+    const gl = me.glCanvas.getContext(false);
+
     // Dispose the ArrayBuffer
-    const gl = me.glCanvas.getContext();
-    gl.deleteBuffer(me.buffer);
-    me.buffer = undefined;
+    if (me.buffer) {
+      gl.deleteBuffer(me.buffer);
+      me.buffer = undefined;
+    }
 
     // Ensure this object is no longer used
     me.glCanvas = undefined;
