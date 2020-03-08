@@ -15,6 +15,7 @@ import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { deepCopy } from '@leosingleton/commonlibs';
+import { GlslShader } from 'webpack-glsl-minify';
 
 /** Client implementation of the Fim interface */
 export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader extends EngineShader>
@@ -157,6 +158,10 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   /** Derived classes must implement this method to create a TEngineImage from a JPEG file */
   protected abstract createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
     Promise<TEngineImage>;
+
+  /** Derived classes must implement this method to call the TEngineShader constructor */
+  public abstract createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string):
+    TEngineShader;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
   public abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D;

@@ -9,6 +9,7 @@ import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
 import { FimShader } from './FimShader';
 import { FimDimensions } from '../primitives/FimDimensions';
+import { GlslShader } from 'webpack-glsl-minify';
 
 /**
  * Parent object when using the FIM library. This object holds images, shaders, and operations used to manipulate 2D
@@ -66,4 +67,12 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * @param imageName Optional name specified when creating the object to help with debugging
    */
   createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, imageName?: string): Promise<TImage>;
+
+  /**
+   * Creates a WebGL fragment shader for performing processing on an image
+   * @param fragmentShader Fragment shader, created using webpack-glsl-minify
+   * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
+   * @param shaderName Optional shader name, for debugging
+   */
+  createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string): TShader;
 }

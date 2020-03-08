@@ -7,6 +7,7 @@ import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
+import { GlslShader } from 'webpack-glsl-minify';
 
 export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
   protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
@@ -22,6 +23,10 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
   protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
       Promise<NodeEngineImage> {
     return NodeEngineImage.createFromJpegAsync(this, jpegFile, options, imageName);
+  }
+
+  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string): EngineShader {
+    return new EngineShader(this, fragmentShader, vertexShader, shaderName);
   }
 
   public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {

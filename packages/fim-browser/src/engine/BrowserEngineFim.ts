@@ -9,6 +9,7 @@ import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
+import { GlslShader } from 'webpack-glsl-minify';
 
 export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader> {
   protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
@@ -24,6 +25,10 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader
   protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
       Promise<BrowserEngineImage> {
     return BrowserEngineImage.createFromJpegAsync(this, jpegFile, options, imageName);
+  }
+
+  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string): EngineShader {
+    return new EngineShader(this, fragmentShader, vertexShader, shaderName);
   }
 
   public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
