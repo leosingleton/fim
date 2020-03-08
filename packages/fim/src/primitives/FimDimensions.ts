@@ -55,6 +55,10 @@ export class FimDimensions {
     return new FimDimensions(width, height);
   }
 
+  public static fromSquareDimension(dimension: number): FimDimensions {
+    return new FimDimensions(dimension, dimension);
+  }
+
   public static min(d1: FimDimensions, d2: FimDimensions): FimDimensions {
     return new FimDimensions(Math.min(d1.w, d2.w), Math.min(d1.h, d2.h));
   }

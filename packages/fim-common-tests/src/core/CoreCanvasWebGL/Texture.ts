@@ -132,5 +132,21 @@ export function coreCanvasWebGLTestSuiteTexture(
       });
     });
 
+    it('Prevents creation of oversized textures', () => {
+      using(factory(small), canvas => {
+        const caps = canvas.detectCapabilities();
+        const dim = FimDimensions.fromWidthHeight(caps.glMaxTextureSize + 1, 10);
+        expect(() => canvas.createCoreTexture(dim, { glReadOnly: true })).toThrow();
+      });
+    });
+
+    it('Prevents creation of oversized framebuffers', () => {
+      using(factory(small), canvas => {
+        const caps = canvas.detectCapabilities();
+        const dim = FimDimensions.fromWidthHeight(caps.glMaxRenderBufferSize + 1, 10);
+        expect(() => canvas.createCoreTexture(dim)).toThrow();
+      });
+    });
+
   });
 }

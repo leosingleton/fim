@@ -28,6 +28,21 @@ export abstract class CoreTexture extends CoreWebGLObject {
     this.textureDimensions = dimensions.toFloor();
     this.imageOptions = options;
 
+    // Ensure the dimensions do not exceed WebGL's maximum texture size
+    const caps = parent.detectCapabilities();
+    const maxTextureSize = FimDimensions.fromSquareDimension(caps.glMaxTextureSize);
+    if (dimensions.w > maxTextureSize.w || dimensions.h > maxTextureSize.h) {
+      FimError.throwOnInvalidDimensions(maxTextureSize, dimensions);
+    }
+
+    // Ensure the dimensions do not exceed WebGL's max output buffer size
+    if (!options.glReadOnly) {
+      const maxRenderBufferSize = FimDimensions.fromSquareDimension(caps.glMaxRenderBufferSize);
+      if (dimensions.w > maxRenderBufferSize.w || dimensions.h > maxRenderBufferSize.h) {
+        FimError.throwOnInvalidDimensions(maxRenderBufferSize, dimensions);
+      }
+    }
+
     // Ensure the requested BPP does not exceed WebGL's maximum
     const bpp = options.bpp;
     const bppCaps = parent.getSupportedColorDepths(options.sampling);
