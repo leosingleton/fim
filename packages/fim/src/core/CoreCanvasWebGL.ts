@@ -166,6 +166,13 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   /** Handler for the `webglcontextrestored` event */
   private onContextRestored(_event?: Event): void {
     const me = this;
+
+    // There appears to be a race condition where the onContextRestored() handler is getting called on a disposed object
+    // even though we remove the listener at the very top of the dispose() function. Silently ignore it if this happens.
+    if (me.isDisposed) {
+      return;
+    }
+
     const engineOptions = me.engineOptions;
     if (engineOptions.showTracing || engineOptions.showWarnings) {
       console.log('WebGL context restored');
