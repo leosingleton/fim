@@ -6,7 +6,7 @@ import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, sma
   topRight } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { FimDimensions, FimRect } from '@leosingleton/fim';
+import { FimDimensions, FimRect, FimPoint } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for canvas operations */
@@ -94,7 +94,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
 
         // Fill the WebGL canvas with green
         canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        expect(canvas.getPixel(midpoint(medium))).toEqual(green);
 
         // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
@@ -107,47 +107,44 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-/*
-
     it('Copies from textures with srcCoords and destCoords', async () => {
-      await DisposableSet.usingAsync(async disposable => {
-        const fim = disposable.addDisposable(new FimWeb(canvasFactory));
-        const gl = disposable.addDisposable(fim.createGLCanvas(240, 240, '#00f'));
-
+      await usingAsync(factory(medium), async canvas => {
         // Create a test image the size of the canvas
-        const texture = disposable.addDisposable(gl.createTexture(240, 240));
-        const jpeg = FimTestImages.fourSquaresJpeg();
-        const buffer = disposable.addDisposable(await fim.createCanvasFromJpegAsync(jpeg));
-        texture.copyFrom(buffer);
+        const texture = await createFourSquaresTexture(canvas, medium);
 
-        // Copy the texture
-        gl.copyFrom(texture,
-          FimRect.fromXYWidthHeight(0, 0, texture.w / 2, texture.h / 2),
-          FimRect.fromXYWidthHeight(120, 120, 120, 120));
+        // Fill the WebGL canvas with blue
+        canvas.fillSolid(blue);
+        expect(canvas.getPixel(midpoint(medium))).toEqual(blue);
+
+        // Copy the texture to the WebGL canvas
+        canvas.copyFrom(texture,
+          FimRect.fromPoints(FimPoint.fromXY(0, 0), midpoint(medium)),
+          FimRect.fromPointWidthHeight(midpoint(medium), medium.w / 2, medium.h / 2));
 
         // Check a few pixels to ensure the texture rendered correctly
-        expectToBeCloseTo(gl.getPixel(60, 60), FimColor.fromString('#00f'));
-        expectToBeCloseTo(gl.getPixel(180, 60), FimColor.fromString('#00f'));
-        expectToBeCloseTo(gl.getPixel(60, 180), FimColor.fromString('#00f'));
-        expectToBeCloseTo(gl.getPixel(180, 180), FimColor.fromString('#f00'));
+        expect(canvas.getPixel(topLeft(medium))).toEqual(blue);
+        expect(canvas.getPixel(topRight(medium))).toEqual(blue);
+        expect(canvas.getPixel(bottomLeft(medium))).toEqual(blue);
+        expect(canvas.getPixel(bottomRight(medium))).toEqual(red);
       });
     });
-*/
+
   });
 }
 
 /**
  * Loads the four squares test pattern onto a WebGL texture
  * @param canvas WebGL canvas
+ * @param dimensions Dimensions of the output texture. Defaults to 128x128 (smallFourSquares dimensions)
  * @returns WebGL texture. The caller is responsible for calling `dispose()` on the result.
  */
-async function createFourSquaresTexture(canvas: CoreCanvasWebGL): Promise<CoreTexture> {
-  const texture = canvas.createCoreTexture(smallFourSquares);
+async function createFourSquaresTexture(canvas: CoreCanvasWebGL, dimensions = smallFourSquares): Promise<CoreTexture> {
+  const texture = canvas.createCoreTexture(dimensions);
 
   // Load the JPEG to a temporary canvas then copy it to the texture
-  await usingAsync(canvas.createTemporaryCanvas2D(smallFourSquares), async temp => {
+  await usingAsync(canvas.createTemporaryCanvas2D(dimensions), async temp => {
     const jpeg = TestImages.fourSquaresPng();
-    await temp.loadFromJpegAsync(jpeg);
+    await temp.loadFromJpegAsync(jpeg, true);
     texture.copyFrom(temp);
   });
 
