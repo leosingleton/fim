@@ -233,10 +233,6 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.hasImage = true;
   }
 
-  /**
-   * Exports the canvas contents to an array of RGBA pixels
-   * @returns An array containing 4 bytes per pixel, in RGBA order
-   */
   public exportToPixelData(): Uint8ClampedArray {
     const me = this;
     me.ensureNotDisposedAndHasImage();

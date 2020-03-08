@@ -6,6 +6,7 @@ import { coreCanvasWebGLTestSuiteCanvas } from './Canvas';
 import { coreCanvasWebGLTestSuiteCapabilities } from './Capabilities';
 import { coreCanvasWebGLTestSuiteContextLost } from './ContextLost';
 import { coreCanvasWebGLTestSuiteCreateDispose } from './CreateDispose';
+import { coreCanvasWebGLTestSuiteExportCopyTo } from './ExportCopyTo';
 import { coreCanvasWebGLTestSuiteShader } from './Shader';
 import { coreCanvasWebGLTestSuiteTexture } from './Texture';
 import { FimDimensions } from '@leosingleton/fim';
@@ -24,6 +25,7 @@ export function coreCanvasWebGLTestSuite(
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);
     coreCanvasWebGLTestSuiteCapabilities(description, factory);
     coreCanvasWebGLTestSuiteCanvas(description, factory);
+    coreCanvasWebGLTestSuiteExportCopyTo(description, factory);
     coreCanvasWebGLTestSuiteShader(description, factory);
     coreCanvasWebGLTestSuiteTexture(description, factory);
     coreCanvasWebGLTestSuiteContextLost(description, factory);

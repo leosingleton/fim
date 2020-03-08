@@ -3,9 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { loadCanvasFromFileAsync } from './LoadFromFile';
-import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
+import { FimDimensions, FimEngineOptions, FimImageOptions, FimError, FimErrorCode, FimRect } from '@leosingleton/fim';
+import { CoreCanvas, CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
+import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
@@ -36,6 +37,17 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
   protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
       imageOptions: FimImageOptions): CoreCanvas2D {
     return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  }
+
+  public copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    if (srcCanvas instanceof CoreNodeCanvasWebGL) {
+      // CoreNodeCanvasWebGL doesn't expose the getImageSource() needed by the base class because WebGL->2D isn't a
+      // straightforward copy. We're copying between two different Node.js libraries (headless-gl -> Canvas), so
+      // need to use an intermediate binary buffer to make it work.
+      throw new FimError(FimErrorCode.NotImplemented); // TODO!
+    } else {
+      super.copyFrom(srcCanvas, srcCoords, destCoords);
+    }
   }
 
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {

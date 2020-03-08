@@ -106,6 +106,12 @@ export abstract class CoreCanvas {
    */
   public abstract getPixel(point: FimPoint): FimColor;
 
+  /**
+   * Exports the canvas contents to an array of RGBA pixels
+   * @returns An array containing 4 bytes per pixel, in RGBA order
+   */
+  public abstract exportToPixelData(): Uint8ClampedArray;
+
   /** Throws an exception if the coordinates are outside of the canvas */
   public validateCoordinates(point: FimPoint): void {
     const rect = FimRect.fromDimensions(this.canvasDimensions);
