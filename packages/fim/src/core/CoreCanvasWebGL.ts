@@ -525,25 +525,32 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     return FimColor.fromRGBABytes(pixel[0], pixel[1], pixel[2], pixel[3]);
   }
 
-  public exportToPixelData(): Uint8ClampedArray {
+  public exportToPixelData(srcCoords?: FimRect): Uint8ClampedArray {
     const me = this;
     me.ensureNotDisposedAndHasImage();
 
+    // Default parameter
+    srcCoords = srcCoords ?? FimRect.fromDimensions(me.canvasDimensions);
+    me.validateRect(srcCoords);
+
+    // Flip Y, as the coordinates for readPixels start in the lower-left corner
+    srcCoords = FimRect.fromXYWidthHeight(srcCoords.xLeft, me.canvasDimensions.h - srcCoords.yBottom,
+      srcCoords.dim.w, srcCoords.dim.h);
+
     const gl = me.getContext();
-    const dimensions = me.canvasDimensions;
-    const data = new Uint8Array(dimensions.getArea() * 4);
+    const data = new Uint8Array(srcCoords.getArea() * 4);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     me.throwWebGLErrorsDebug();
-    gl.readPixels(0, 0, dimensions.w, dimensions.h, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    gl.readPixels(srcCoords.xLeft, srcCoords.yTop, srcCoords.dim.w, srcCoords.dim.h, gl.RGBA, gl.UNSIGNED_BYTE, data);
     me.throwWebGLErrors();
 
     // Flip the image on the Y axis
-    const row = dimensions.w * 4;
+    const row = srcCoords.dim.w * 4;
     const temp = new Uint8Array(row);
-    for (let y = 0; y < Math.floor(dimensions.h / 2); y++) {
+    for (let y = 0; y < Math.floor(srcCoords.dim.h / 2); y++) {
       const offset1 = y * row;
-      const offset2 = (dimensions.h - y - 1) * row;
+      const offset2 = (srcCoords.dim.h - y - 1) * row;
       temp.set(data.subarray(offset1, offset1 + row));
       data.set(data.subarray(offset2, offset2 + row), offset1);
       data.set(temp, offset2);

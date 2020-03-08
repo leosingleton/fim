@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { blue, green, midpoint, red, small } from '../../common/Globals';
+import { blue, green, midpoint, red, small, smallFourSquares } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { FimDimensions } from '@leosingleton/fim';
+import { FimDimensions, FimRect, FimPoint } from '@leosingleton/fim';
 import { CoreCanvas2D } from '@leosingleton/fim/internals';
 
 /** CoreCanvas2D test cases around canvases */
@@ -50,6 +50,24 @@ export function coreCanvas2DTestSuiteCanvas(
         expect(data[0]).toEqual(255); // R
         expect(data[1]).toEqual(0);   // G
         expect(data[2]).toEqual(0);   // B
+        expect(data[3]).toEqual(255); // A
+      });
+    });
+
+    it('Exports a region to pixel data', async () => {
+      await usingAsync(factory(smallFourSquares), async canvas => {
+        // Load the four squares test pattern
+        await canvas.loadFromPngAsync(TestImages.fourSquaresPng());
+
+        // Export only the bottom-left corner (blue)
+        const srcCoords = FimRect.fromXYWidthHeight(0, smallFourSquares.h / 2, smallFourSquares.w / 2,
+          smallFourSquares.h / 2);
+        const data = canvas.exportToPixelData(srcCoords);
+
+        expect(data.length).toEqual(srcCoords.getArea() * 4);
+        expect(data[0]).toEqual(0);   // R
+        expect(data[1]).toEqual(0);   // G
+        expect(data[2]).toEqual(255); // B
         expect(data[3]).toEqual(255); // A
       });
     });

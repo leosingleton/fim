@@ -108,9 +108,10 @@ export abstract class CoreCanvas {
 
   /**
    * Exports the canvas contents to an array of RGBA pixels
+   * @param srcCoords Source coordinate to export, in pixels. If unspecified, the full canvas is exported.
    * @returns An array containing 4 bytes per pixel, in RGBA order
    */
-  public abstract exportToPixelData(): Uint8ClampedArray;
+  public abstract exportToPixelData(srcCoords?: FimRect): Uint8ClampedArray;
 
   /** Throws an exception if the coordinates are outside of the canvas */
   public validateCoordinates(point: FimPoint): void {

@@ -45,6 +45,23 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
       // straightforward copy. We're copying between two different Node.js libraries (headless-gl -> Canvas), so
       // need to use an intermediate binary buffer to make it work.
       throw new FimError(FimErrorCode.NotImplemented); // TODO!
+      /*
+      const me = this;
+      me.ensureNotDisposed();
+      srcCanvas.ensureNotDisposedAndHasImage();
+
+      // Default parameters
+      srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
+      destCoords = (destCoords ?? FimRect.fromDimensions(me.canvasDimensions)).toFloor();
+
+      srcCanvas.validateRect(srcCoords);
+      me.validateRect(destCoords);
+
+      // TODO
+      throw new FimError(FimErrorCode.NotImplemented);
+
+      me.hasImage = true;
+      */
     } else {
       super.copyFrom(srcCanvas, srcCoords, destCoords);
     }

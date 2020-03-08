@@ -233,13 +233,16 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.hasImage = true;
   }
 
-  public exportToPixelData(): Uint8ClampedArray {
+  public exportToPixelData(srcCoords?: FimRect): Uint8ClampedArray {
     const me = this;
     me.ensureNotDisposedAndHasImage();
 
+    // Default parameter
+    srcCoords = srcCoords ?? FimRect.fromDimensions(me.canvasDimensions);
+
     let result: Uint8ClampedArray;
     using(me.createDrawingContext(), ctx => {
-      const imgData = ctx.getImageData(0, 0, me.canvasDimensions.w, me.canvasDimensions.h);
+      const imgData = ctx.getImageData(srcCoords.xLeft, srcCoords.yTop, srcCoords.dim.w, srcCoords.dim.h);
       result = imgData.data;
     });
 

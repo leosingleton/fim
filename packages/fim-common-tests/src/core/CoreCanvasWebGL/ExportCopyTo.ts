@@ -5,7 +5,7 @@
 import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../../common/Globals';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { FimDimensions } from '@leosingleton/fim';
+import { FimDimensions, FimRect } from '@leosingleton/fim';
 import { CoreCanvasWebGL } from '@leosingleton/fim/internals';
 import { TestImages } from '../../common/TestImages';
 
@@ -31,19 +31,8 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
 
     it('Exports to pixel data without flipping image', async () => {
       await usingAsync(factory(smallFourSquares), async canvas => {
-        // Load the four squares test pattern on to a texture
-        const texture = canvas.createCoreTexture();
-        await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
-          await temp.loadFromPngAsync(TestImages.fourSquaresPng());
-          texture.copyFrom(temp);
-        });
-
-        // Render the texture to the WebGL canvas
-        canvas.copyFrom(texture);
-        expect(canvas.getPixel(topLeft())).toEqual(red);
-        expect(canvas.getPixel(topRight())).toEqual(green);
-        expect(canvas.getPixel(bottomLeft())).toEqual(blue);
-        expect(canvas.getPixel(bottomRight())).toEqual(black);
+        // Render the four squares test pattern onto a WebGL canvas
+        await renderFourSquares(canvas);
 
         // Export the WebGL canvas to pixel data
         const data = canvas.exportToPixelData();
@@ -56,6 +45,24 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
           expect(temp.getPixel(bottomLeft())).toEqual(blue);
           expect(temp.getPixel(bottomRight())).toEqual(black);
         });
+      });
+    });
+
+    it('Exports a region to pixel data', async () => {
+      await usingAsync(factory(smallFourSquares), async canvas => {
+        // Render the four squares test pattern onto a WebGL canvas
+        await renderFourSquares(canvas);
+
+        // Export only the bottom-left corner (blue)
+        const srcCoords = FimRect.fromXYWidthHeight(0, smallFourSquares.h / 2, smallFourSquares.w / 2,
+          smallFourSquares.h / 2);
+        const data = canvas.exportToPixelData(srcCoords);
+
+        expect(data.length).toEqual(srcCoords.getArea() * 4);
+        expect(data[0]).toEqual(0);   // R
+        expect(data[1]).toEqual(0);   // G
+        expect(data[2]).toEqual(255); // B
+        expect(data[3]).toEqual(255); // A
       });
     });
 
@@ -92,4 +99,21 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
   });
+}
+
+/** Helper function to render the four squares test pattern onto a WebGL canvas */
+async function renderFourSquares(canvas: CoreCanvasWebGL): Promise<void> {
+  // Load the four squares test pattern on to a texture
+  const texture = canvas.createCoreTexture();
+  await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
+    await temp.loadFromPngAsync(TestImages.fourSquaresPng());
+    texture.copyFrom(temp);
+  });
+
+  // Render the texture to the WebGL canvas
+  canvas.copyFrom(texture);
+  expect(canvas.getPixel(topLeft())).toEqual(red);
+  expect(canvas.getPixel(topRight())).toEqual(green);
+  expect(canvas.getPixel(bottomLeft())).toEqual(blue);
+  expect(canvas.getPixel(bottomRight())).toEqual(black);
 }
