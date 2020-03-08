@@ -85,6 +85,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   public dispose(): void {
     const me = this;
+    me.isDisposing = true;
 
     // Remove event listeners
     me.removeCanvasEventListener(EventListenerType.ContextLost, this.onContextLost.bind(this), false);
@@ -101,8 +102,22 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.contextLostHandlers = [];
     me.contextRestoredHandlers = [];
 
+    // Some WebGL implementations support an extension to force a context loss. This seems to help on Chrome, where unit
+    // tests may create hundreds of WebGL contexts before the garbage collector cleans up the unused ones.
+    const gl = me.getContext(false);
+    const extension = gl.getExtension('WEBGL_lose_context');
+    if (extension) {
+      extension.loseContext();
+    }
+
     super.dispose();
   }
+
+  /**
+   * Set to true at the beginning of the `dispose()` function to prevent race conditions between `dispose()` and
+   * `onContextLost()` and `onContextRestored()`
+   */
+  private isDisposing = false;
 
   /** Derived classes must implement this method to call `canvas.addEventListener()` */
   protected abstract addCanvasEventListener(type: EventListenerType, listener: EventListenerObject,
@@ -130,12 +145,18 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /** Handler for the `webglcontextlost` event */
   private onContextLost(event?: Event): void {
+    const me = this;
+
     // The unit test mocks may not pass an Event object. In this case, skip the preventDefaults() call.
     if (event) {
       event.preventDefault();
     }
 
-    const me = this;
+    // onContextLost() may get called during the implementation of dispose() itself. If so, ignore it.
+    if (me.isDisposed || me.isDisposing) {
+      return;
+    }
+
     const engineOptions = me.engineOptions;
     if (engineOptions.showTracing || engineOptions.showWarnings) {
       console.log('WebGL context lost');
@@ -169,7 +190,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     // There appears to be a race condition where the onContextRestored() handler is getting called on a disposed object
     // even though we remove the listener at the very top of the dispose() function. Silently ignore it if this happens.
-    if (me.isDisposed) {
+    if (me.isDisposed || me.isDisposing) {
       return;
     }
 
