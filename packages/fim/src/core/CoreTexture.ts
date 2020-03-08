@@ -12,7 +12,7 @@ import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
-import { using } from '@leosingleton/commonlibs';
+import { deepCopy, using } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
 export abstract class CoreTexture extends CoreWebGLObject {
@@ -26,7 +26,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
   public constructor(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions, options: FimImageOptions) {
     super(parent, handle);
     this.textureDimensions = dimensions.toFloor();
-    this.imageOptions = options;
+    this.imageOptions = deepCopy(options);
 
     // Ensure the dimensions do not exceed WebGL's maximum texture size
     const caps = parent.detectCapabilities();

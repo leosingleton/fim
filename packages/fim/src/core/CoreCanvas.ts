@@ -26,7 +26,7 @@ export abstract class CoreCanvas {
     this.canvasDimensions = dimensions.toFloor();
     this.imageHandle = handle;
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
-    this.imageOptions = imageOptions ?? deepCopy(defaultImageOptions);
+    this.imageOptions = deepCopy(imageOptions ?? defaultImageOptions);
     this.hasImage = false;
   }
 
