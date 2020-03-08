@@ -66,7 +66,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
       });
     });
 
-    xit('Copies to a CoreCanvas2D', () => {
+    it('Copies to a CoreCanvas2D', () => {
       using(factory(small), canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);
@@ -79,7 +79,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
       });
     });
 
-    xit('Copies to a CoreTexture', () => {
+    it('Copies to a CoreTexture', () => {
       using(factory(small), canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);

@@ -3,10 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { loadCanvasFromFileAsync } from './LoadFromFile';
-import { FimDimensions, FimEngineOptions, FimImageOptions, FimError, FimErrorCode, FimRect } from '@leosingleton/fim';
+import { FimDimensions, FimEngineOptions, FimImageOptions, FimRect } from '@leosingleton/fim';
 import { CoreCanvas, CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
 import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
+import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
@@ -39,13 +40,11 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
   }
 
-  public copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public async copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     if (srcCanvas instanceof CoreNodeCanvasWebGL) {
       // CoreNodeCanvasWebGL doesn't expose the getImageSource() needed by the base class because WebGL->2D isn't a
       // straightforward copy. We're copying between two different Node.js libraries (headless-gl -> Canvas), so
       // need to use an intermediate binary buffer to make it work.
-      throw new FimError(FimErrorCode.NotImplemented); // TODO!
-      /*
       const me = this;
       me.ensureNotDisposed();
       srcCanvas.ensureNotDisposedAndHasImage();
@@ -57,11 +56,19 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
       srcCanvas.validateRect(srcCoords);
       me.validateRect(destCoords);
 
-      // TODO
-      throw new FimError(FimErrorCode.NotImplemented);
+      const data = srcCanvas.exportToPixelData(srcCoords);
+      if (destCoords.equals(FimRect.fromDimensions(me.canvasDimensions))) {
+        // Fast case: The destination is the entire canvas
+        await me.loadPixelDataAsync(data, srcCoords.dim);
+      } else {
+        // Slow case: The destination is not the entire canvas. Use a temporary canvas to load the pixel data.
+        await usingAsync(me.createTemporaryCanvas2D(srcCoords.dim), async temp => {
+          await temp.loadPixelDataAsync(data);
+          await me.copyFrom(temp, undefined, destCoords);
+        });
+      }
 
       me.hasImage = true;
-      */
     } else {
       super.copyFrom(srcCanvas, srcCoords, destCoords);
     }
