@@ -76,7 +76,7 @@ export interface FimImage extends FimObject {
    * @param srcCoords Coordinates of source image to copy from
    * @param destCoords Coordinates of destination image to copy to
    */
-  copyFrom(srcImage: FimImage, srcCoords?: FimRect, destCoords?: FimRect): void;
+  copyFromAsync(srcImage: FimImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void>;
 
   /**
    * Exports the image contents to a PNG file

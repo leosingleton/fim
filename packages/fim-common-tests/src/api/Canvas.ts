@@ -68,18 +68,18 @@ export function fimTestSuiteCanvas(
         await image1.loadPixelDataAsync(pixelData);
 
         const image2 = fim.createImage();
-        image2.copyFrom(image1);
+        await image2.copyFromAsync(image1);
         expect(image2.getPixel(midpoint(small))).toEqual(red);
       });
     });
 
     it('Copies from a solid fill to an image', async () => {
-      using(factory(small), fim => {
+      await usingAsync(factory(small), async fim => {
         const image1 = fim.createImage();
         image1.fillSolid(red);
 
         const image2 = fim.createImage();
-        image2.copyFrom(image1);
+        await image2.copyFromAsync(image1);
         expect(image2.getPixel(midpoint(small))).toEqual(red);
       });
     });
@@ -91,14 +91,14 @@ export function fimTestSuiteCanvas(
         const image2 = fim.createImage();
 
         // Scale image1 (128x128) to medium size (480x640)
-        image2.copyFrom(image1);
+        await image2.copyFromAsync(image1);
         expect(image2.getPixel(topLeft(medium))).toEqual(red);
         expect(image2.getPixel(topRight(medium))).toEqual(green);
         expect(image2.getPixel(bottomLeft(medium))).toEqual(blue);
         expect(image2.getPixel(bottomRight(medium))).toEqual(black);
 
         // Copy image1 (128x128) to the top-left corner without rescaling (128x128 destination)
-        image2.copyFrom(image1, undefined, FimRect.fromDimensions(smallFourSquares));
+        await image2.copyFromAsync(image1, undefined, FimRect.fromDimensions(smallFourSquares));
         expect(image2.getPixel(topLeft())).toEqual(red);
         expect(image2.getPixel(topRight())).toEqual(green);
         expect(image2.getPixel(bottomLeft())).toEqual(blue);
@@ -111,7 +111,7 @@ export function fimTestSuiteCanvas(
         expect(image2.getPixel(bottomRight(medium))).toEqual(black);
 
         // Copy part of the top-right corner (32x32) of image1 to the entire image2 (480x640)
-        image2.copyFrom(image1, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
+        await image2.copyFromAsync(image1, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
         expect(image2.getPixel(topLeft(medium))).toEqual(green);
         expect(image2.getPixel(topRight(medium))).toEqual(green);
         expect(image2.getPixel(bottomLeft(medium))).toEqual(green);
@@ -119,29 +119,29 @@ export function fimTestSuiteCanvas(
       });
     });
 
-    it('copyFrom() doesn\'t allow an uninitialized source image', () => {
-      using(factory(small), fim => {
+    xit('copyFrom() doesn\'t allow an uninitialized source image', async () => {
+      await usingAsync(factory(small), async fim => {
         const image1 = fim.createImage();
         const image2 = fim.createImage();
-        expect(() => image1.copyFrom(image2)).toThrow();
+        await expectAsync(image1.copyFromAsync(image2)).toBeRejectedWithError();
       });
     });
 
-    it('copyFrom() doesn\'t allow copying itself', () => {
-      using(factory(small), fim => {
+    xit('copyFrom() doesn\'t allow copying itself', async () => {
+      await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
         image.fillSolid(red);
-        expect(() => image.copyFrom(image)).toThrow();
+        await expectAsync(image.copyFromAsync(image)).toBeRejectedWithError();
       });
     });
 
-    it('copyFrom() doesn\'t allow copying from another FIM instance', () => {
-      using(factory(small), fim1 => {
-        using(factory(small), fim2 => {
+    xit('copyFrom() doesn\'t allow copying from another FIM instance', async () => {
+      await usingAsync(factory(small), async fim1 => {
+        await usingAsync(factory(small), async fim2 => {
           const image1 = fim1.createImage();
           const image2 = fim2.createImage();
           image2.fillSolid(red);
-          expect(() => image1.copyFrom(image2)).toThrow();
+          await expectAsync(image1.copyFromAsync(image2)).toBeRejectedWithError();
         });
       });
     });

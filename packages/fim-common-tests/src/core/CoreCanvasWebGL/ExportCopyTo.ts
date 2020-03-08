@@ -66,27 +66,27 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
       });
     });
 
-    it('Copies to a CoreCanvas2D', () => {
-      using(factory(small), canvas => {
+    it('Copies to a CoreCanvas2D', async () => {
+      await usingAsync(factory(small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);
 
         // Copy the WebGL canvas to a CoreCanvas2D
-        using(canvas.createTemporaryCanvas2D(), temp => {
-          temp.copyFrom(canvas);
+        await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
+          await temp.copyFromAsync(canvas);
           expect(temp.getPixel(midpoint(small))).toEqual(red);
         });
       });
     });
 
-    it('Copies to a CoreTexture', () => {
-      using(factory(small), canvas => {
+    it('Copies to a CoreTexture', async () => {
+      await usingAsync(factory(small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);
 
         // Copy the WebGL canvas to a CoreTexture
         const texture = canvas.createCoreTexture();
-        texture.copyFrom(canvas);
+        await texture.copyFromAsync(canvas);
 
         // Fill the WebGL canvas with green
         canvas.fillSolid(green);
@@ -107,7 +107,7 @@ async function renderFourSquares(canvas: CoreCanvasWebGL): Promise<void> {
   const texture = canvas.createCoreTexture();
   await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
     await temp.loadFromPngAsync(TestImages.fourSquaresPng());
-    texture.copyFrom(temp);
+    await texture.copyFromAsync(temp);
   });
 
   // Render the texture to the WebGL canvas

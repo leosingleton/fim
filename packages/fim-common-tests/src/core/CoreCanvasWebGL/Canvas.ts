@@ -45,15 +45,15 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
-    it('Copies from textures 2', () => {
-      using(factory(small), canvas => {
+    it('Copies from textures 2', async () => {
+      await usingAsync(factory(small), async canvas => {
         // Create a canvas of solid red
         const temp = canvas.createTemporaryCanvas2D();
         temp.fillSolid(red);
 
         // Copy the canvas to a texture
         const texture = canvas.createCoreTexture();
-        texture.copyFrom(temp);
+        await texture.copyFromAsync(temp);
 
         // Fill the WebGL canvas with green
         canvas.fillSolid(green);
@@ -145,7 +145,7 @@ async function createFourSquaresTexture(canvas: CoreCanvasWebGL, dimensions = sm
   await usingAsync(canvas.createTemporaryCanvas2D(dimensions), async temp => {
     const jpeg = TestImages.fourSquaresPng();
     await temp.loadFromJpegAsync(jpeg, true);
-    texture.copyFrom(temp);
+    await texture.copyFromAsync(temp);
   });
 
   return texture;

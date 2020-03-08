@@ -6,7 +6,7 @@ import { CoreCanvas, CoreTexture } from '@leosingleton/fim/internals';
 
 /** Implementation of `CoreTexture` for web browsers */
 export class CoreBrowserTexture extends CoreTexture {
-  protected copyFromInternal(srcCanvas: CoreCanvas): void {
+  protected async copyFromInternalAsync(srcCanvas: CoreCanvas): Promise<void> {
     const me = this;
     const parent = me.parentCanvas;
     const gl = parent.getContext();

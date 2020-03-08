@@ -30,12 +30,12 @@ export function coreCanvas2DTestSuiteCanvas(
       });
     });
 
-    it('Copies from one canvas to another', () => {
-      using(factory(small), canvas1 => {
+    it('Copies from one canvas to another', async () => {
+      await usingAsync(factory(small), async canvas1 => {
         canvas1.fillSolid(blue);
 
-        using(factory(small), canvas2 => {
-          canvas2.copyFrom(canvas1);
+        await usingAsync(factory(small), async canvas2 => {
+          await canvas2.copyFromAsync(canvas1);
           expect(canvas2.getPixel(midpoint(small))).toEqual(blue);
         });
       });

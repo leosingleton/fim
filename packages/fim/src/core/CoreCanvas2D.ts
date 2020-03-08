@@ -141,7 +141,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
       await usingAsync(me.createTemporaryCanvas2D(dimensions), async temp => {
         await temp.loadPixelDataAsync(pixelData, dimensions);
-        await me.copyFrom(temp);
+        await me.copyFromAsync(temp);
       });
     }
 
@@ -204,7 +204,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param srcCoords Coordinates of source canvas to copy from
    * @param destCoords Coordinates of destination canvas to copy to
    */
-  public async copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+  public async copyFromAsync(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
     srcCanvas.ensureNotDisposedAndHasImage();

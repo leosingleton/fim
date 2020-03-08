@@ -40,7 +40,7 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
   }
 
-  public async copyFrom(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+  public async copyFromAsync(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     if (srcCanvas instanceof CoreNodeCanvasWebGL) {
       // CoreNodeCanvasWebGL doesn't expose the getImageSource() needed by the base class because WebGL->2D isn't a
       // straightforward copy. We're copying between two different Node.js libraries (headless-gl -> Canvas), so
@@ -64,13 +64,13 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
         // Slow case: The destination is not the entire canvas. Use a temporary canvas to load the pixel data.
         await usingAsync(me.createTemporaryCanvas2D(srcCoords.dim), async temp => {
           await temp.loadPixelDataAsync(data);
-          await me.copyFrom(temp, undefined, destCoords);
+          await super.copyFromAsync(temp, undefined, destCoords);
         });
       }
 
       me.hasImage = true;
     } else {
-      super.copyFrom(srcCanvas, srcCoords, destCoords);
+      return super.copyFromAsync(srcCanvas, srcCoords, destCoords);
     }
   }
 

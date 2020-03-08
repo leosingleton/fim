@@ -4,7 +4,7 @@
 
 import { black, blue, green, grey, midpoint, red, small, medium } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
-import { using } from '@leosingleton/commonlibs';
+import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
 
@@ -78,8 +78,8 @@ export function coreCanvasWebGLTestSuiteTexture(
       });
     });
 
-    it('Supports all combinations of channels, bits per pixel, and flags', () => {
-      using(factory(small), canvas => {
+    it('Supports all combinations of channels, bits per pixel, and flags', async () => {
+      await usingAsync(factory(small), async canvas => {
         const caps = canvas.detectCapabilities();
 
         // Create a 2D grey canvas
@@ -114,7 +114,7 @@ export function coreCanvasWebGLTestSuiteTexture(
                     });
 
                     // Copy the 2D grey canvas to the texture
-                    texture.copyFrom(temp);
+                    await texture.copyFromAsync(temp);
 
                     // Clear the WebGL canvas
                     canvas.fillSolid(black);

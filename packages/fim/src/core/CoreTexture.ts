@@ -12,7 +12,7 @@ import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
-import { deepCopy, using } from '@leosingleton/commonlibs';
+import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
 export abstract class CoreTexture extends CoreWebGLObject {
@@ -212,7 +212,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
    * Copies contents from another canvas. Supports neither cropping nor rescaling.
    * @param srcCanvas Source canvas
    */
-  public copyFrom(srcCanvas: CoreCanvas): void {
+  public async copyFromAsync(srcCanvas: CoreCanvas): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 
@@ -222,13 +222,13 @@ export abstract class CoreTexture extends CoreWebGLObject {
     const maxDimension = me.parentCanvas.detectCapabilities().glMaxTextureSize;
     if (srcCanvas.canvasDimensions.w > maxDimension || srcCanvas.canvasDimensions.h > maxDimension) {
       // Slow path: first copy the source canvas to a smaller canvas
-      using(srcCanvas.createTemporaryCanvas2D(me.textureDimensions), temp => {
-        temp.copyFrom(srcCanvas);
-        me.copyFrom(temp);
+      await usingAsync(srcCanvas.createTemporaryCanvas2D(me.textureDimensions), async temp => {
+        await temp.copyFromAsync(srcCanvas);
+        await me.copyFromAsync(temp);
       });
     } else {
       // Fast path: implementation is below
-      me.copyFromInternal(srcCanvas);
+      await me.copyFromInternalAsync(srcCanvas);
       me.hasImage = true;
     }
   }
@@ -241,7 +241,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
    *
    * @param srcCanvas Source canvas, of the same dimensions as this texture
    */
-  protected abstract copyFromInternal(srcCanvas: CoreCanvas): void;
+  protected abstract copyFromInternalAsync(srcCanvas: CoreCanvas): Promise<void>;
 
   /** Returns the underlying WebGL framebuffer backing this texture */
   public getFramebuffer(): WebGLFramebuffer {

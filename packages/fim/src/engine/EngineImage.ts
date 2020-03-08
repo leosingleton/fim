@@ -254,7 +254,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
-  public copyFrom(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): void {
+  public async copyFromAsync(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 
@@ -271,7 +271,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     srcImage.populateContentCanvas();
     me.invalidateContent();
     me.allocateContentCanvas();
-    me.contentCanvas.imageContent.copyFrom(srcImage.contentCanvas.imageContent, srcCoords, destCoords);
+    await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, srcCoords, destCoords);
     me.contentCanvas.isCurrent = true;
 
     // TODO: release resources based on optimization settings
