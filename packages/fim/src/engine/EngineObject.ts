@@ -117,4 +117,13 @@ export abstract class EngineObject implements FimObject {
       FimError.throwOnObjectDisposed(this.handle);
     }
   }
+
+  /** Throws an exception if the object is disposed or does not have a WebGL context */
+  protected ensureNotDisposedAndHasContext(): void {
+    // Check not only ourselves but also parent objects, recursively
+    this.ensureNotDisposed();
+    if (this.parentObject) {
+      this.parentObject.ensureNotDisposedAndHasContext();
+    }
+  }
 }

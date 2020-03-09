@@ -123,6 +123,14 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   /** The WebGL canvas created by getWebGLCanvas() */
   private glCanvas: CoreCanvasWebGL;
 
+  protected ensureNotDisposedAndHasContext(): void {
+    super.ensureNotDisposedAndHasContext();
+
+    // Child objects recursively call their parents. As parent, we must check the WebGL context.
+    const gl = this.getWebGLCanvas();
+    gl.throwOnContextLost();
+  }
+
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
     if ((flags & FimReleaseResourcesFlags.WebGL) && this.glCanvas) {
       this.glCanvas.dispose();
