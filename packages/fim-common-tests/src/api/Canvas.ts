@@ -6,7 +6,7 @@ import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, sma
   topRight } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimRect } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimRect, FimError } from '@leosingleton/fim';
 
 /** Fim test cases around canvas manipulation */
 export function fimTestSuiteCanvas(
@@ -119,29 +119,50 @@ export function fimTestSuiteCanvas(
       });
     });
 
-    xit('copyFrom() doesn\'t allow an uninitialized source image', async () => {
+    it('copyFrom() doesn\'t allow an uninitialized source image', async () => {
       await usingAsync(factory(small), async fim => {
         const image1 = fim.createImage();
         const image2 = fim.createImage();
-        await expectAsync(image1.copyFromAsync(image2)).toBeRejectedWithError();
+
+        let err: any;
+        try {
+          await image1.copyFromAsync(image2);
+        } catch (e) {
+          err = e;
+        }
+        expect(err).toBeInstanceOf(FimError);
       });
     });
 
-    xit('copyFrom() doesn\'t allow copying itself', async () => {
+    it('copyFrom() doesn\'t allow copying itself', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
         image.fillSolid(red);
-        await expectAsync(image.copyFromAsync(image)).toBeRejectedWithError();
+
+        let err: any;
+        try {
+          await image.copyFromAsync(image);
+        } catch (e) {
+          err = e;
+        }
+        expect(err).toBeInstanceOf(FimError);
       });
     });
 
-    xit('copyFrom() doesn\'t allow copying from another FIM instance', async () => {
+    it('copyFrom() doesn\'t allow copying from another FIM instance', async () => {
       await usingAsync(factory(small), async fim1 => {
         await usingAsync(factory(small), async fim2 => {
           const image1 = fim1.createImage();
           const image2 = fim2.createImage();
           image2.fillSolid(red);
-          await expectAsync(image1.copyFromAsync(image2)).toBeRejectedWithError();
+
+          let err: any;
+          try {
+            await image1.copyFromAsync(image2);
+          } catch (e) {
+            err = e;
+          }
+          expect(err).toBeInstanceOf(FimError);
         });
       });
     });
