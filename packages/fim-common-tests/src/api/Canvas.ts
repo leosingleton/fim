@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { expectErrorAsync } from '../common/Async';
 import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
@@ -123,14 +124,7 @@ export function fimTestSuiteCanvas(
       await usingAsync(factory(small), async fim => {
         const image1 = fim.createImage();
         const image2 = fim.createImage();
-
-        let err: any;
-        try {
-          await image1.copyFromAsync(image2);
-        } catch (e) {
-          err = e;
-        }
-        expect(err).toBeInstanceOf(FimError);
+        (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
       });
     });
 
@@ -138,14 +132,7 @@ export function fimTestSuiteCanvas(
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
         image.fillSolid(red);
-
-        let err: any;
-        try {
-          await image.copyFromAsync(image);
-        } catch (e) {
-          err = e;
-        }
-        expect(err).toBeInstanceOf(FimError);
+        (await expectErrorAsync(image.copyFromAsync(image))).toBeInstanceOf(FimError);
       });
     });
 
@@ -155,14 +142,7 @@ export function fimTestSuiteCanvas(
           const image1 = fim1.createImage();
           const image2 = fim2.createImage();
           image2.fillSolid(red);
-
-          let err: any;
-          try {
-            await image1.copyFromAsync(image2);
-          } catch (e) {
-            err = e;
-          }
-          expect(err).toBeInstanceOf(FimError);
+          (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
         });
       });
     });
