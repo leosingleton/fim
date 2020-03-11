@@ -28,7 +28,7 @@ export class EngineShader extends EngineObject implements FimShader {
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
-    if (flags & FimReleaseResourcesFlags.WebGL) {
+    if (flags & FimReleaseResourcesFlags.WebGLShader) {
       if (this.shader) {
         this.shader.dispose();
         this.shader = undefined;

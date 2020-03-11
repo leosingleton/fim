@@ -117,15 +117,24 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     // the requested resolution.
     const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
     const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.handle, {});
+
+    // Register context lost handler. We don't worry about context restore events, as the FIM engine always allocates
+    // textures and shaders on first use.
+    glCanvas.registerContextLostHandler(() => this.onContextLost());
+
     return glCanvas;
   }
 
   /** The WebGL canvas created by getWebGLCanvas() */
   private glCanvas: CoreCanvasWebGL;
 
-  protected ensureNotDisposedAndHasContext(): void {
-    super.ensureNotDisposedAndHasContext();
+  /** Handler invoked whenever `glCanvas` loses its WebGL context */
+  private onContextLost(): void {
+    // Release all shaders and textures
+    this.releaseResources(FimReleaseResourcesFlags.WebGLShader | FimReleaseResourcesFlags.WebGLTexture);
+  }
 
+  protected ensureNotDisposedAndHasContext(): void {
     // Child objects recursively call their parents. As parent, we must check the WebGL context.
     const gl = this.getWebGLCanvas();
     gl.throwOnContextLost();
