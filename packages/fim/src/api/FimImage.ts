@@ -41,7 +41,7 @@ export interface FimImage extends FimObject {
    * @param point X and Y coordinates, in pixels
    * @returns RGBA color value
    */
-  getPixel(point: FimPoint): FimColor;
+  getPixelAsync(point: FimPoint): Promise<FimColor>;
 
   /**
    * Loads the image contents from RGBA data

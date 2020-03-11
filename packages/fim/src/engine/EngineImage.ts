@@ -111,7 +111,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   }
 
   /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
-  private populateContentCanvas(): void {
+  private async populateContentCanvas(): Promise<void> {
     const me = this;
     me.allocateContentCanvas();
 
@@ -124,15 +124,20 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       me.contentCanvas.isCurrent = true;
       return;
     } else if (me.contentTexture.isCurrent) {
-      // TODO: Copy texture to canvas
-      throw new FimError(FimErrorCode.NotImplemented);
+      // Copy texture to the WebGL canvas
+      const glCanvas = me.parentObject.getWebGLCanvas();
+      glCanvas.copyFrom(me.contentTexture.imageContent);
+
+      // Copy the WebGL canvas to a 2D canvas
+      await me.contentCanvas.imageContent.copyFromAsync(glCanvas);
+      me.contentTexture.isCurrent = true;
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
   }
 
   /** Ensures `contentTexture.imageContent` is allocated and contains the current image data */
-  private populateContentTexture(): void {
+  private async populateContentTexture(): Promise<void> {
     const me = this;
     me.allocateContentTexture();
 
@@ -140,11 +145,13 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       // If a texture is already current, this function is a no-op
       return;
     } else if (me.contentFillColor.isCurrent) {
-      // TODO: Fill texture with solid color
-      throw new FimError(FimErrorCode.NotImplemented);
+      // Fill texture with solid color
+      me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
+      me.contentTexture.isCurrent = true;
     } else if (me.contentCanvas.isCurrent) {
-      // TODO: Copy canvas to texture
-      throw new FimError(FimErrorCode.NotImplemented);
+      // Copy canvas to texture
+      await me.contentTexture.imageContent.copyFromAsync(me.contentCanvas.imageContent);
+      me.contentTexture.isCurrent = true;
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
@@ -195,20 +202,21 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
-  public getPixel(point: FimPoint): FimColor {
+  public async getPixelAsync(point: FimPoint): Promise<FimColor> {
     const me = this;
     me.ensureNotDisposed();
 
+    // Optimization: if the image is a solid fill color, just return that color
     if (me.contentFillColor.isCurrent) {
       return me.contentFillColor.imageContent;
     }
 
-    if (me.contentCanvas.isCurrent) {
-      return me.contentCanvas.imageContent.getPixel(point);
-    }
+    await me.populateContentCanvas();
+    const color = me.contentCanvas.imageContent.getPixel(point);
 
-    // TODO: copy GL to canvas and read a pixel
-    throw new FimError(FimErrorCode.NotImplemented);
+    // TODO: release resources based on optimization settings
+
+    return color;
   }
 
   public async loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void> {
@@ -268,7 +276,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.handle} copyFrom wrong FIM`);
     }
 
-    srcImage.populateContentCanvas();
+    await srcImage.populateContentCanvas();
     me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, srcCoords, destCoords);
@@ -280,7 +288,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   public async exportToPngAsync(): Promise<Uint8Array> {
     const me = this;
     me.ensureNotDisposed();
-    me.populateContentCanvas();
+    await me.populateContentCanvas();
     const png = await me.contentCanvas.imageContent.exportToPngAsync();
 
     // TODO: release resources based on optimization settings
@@ -291,7 +299,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   public async exportToJpegAsync(quality = 0.95): Promise<Uint8Array> {
     const me = this;
     me.ensureNotDisposed();
-    me.populateContentCanvas();
+    await me.populateContentCanvas();
     const jpeg = await me.contentCanvas.imageContent.exportToJpegAsync(quality);
 
     // TODO: release resources based on optimization settings

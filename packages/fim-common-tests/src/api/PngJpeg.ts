@@ -21,10 +21,10 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 
-        expect(image.getPixel(topLeft())).toEqual(red);
-        expect(image.getPixel(topRight())).toEqual(green);
-        expect(image.getPixel(bottomLeft())).toEqual(blue);
-        expect(image.getPixel(bottomRight())).toEqual(black);
+        expect(await image.getPixelAsync(topLeft())).toEqual(red);
+        expect(await image.getPixelAsync(topRight())).toEqual(green);
+        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
       });
     });
 
@@ -34,10 +34,10 @@ export function fimTestSuitePngJpeg(
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg);
 
-        expect(image.getPixel(topLeft()).distance(red)).toBeLessThan(0.002);
-        expect(image.getPixel(topRight()).distance(green)).toBeLessThan(0.002);
-        expect(image.getPixel(bottomLeft()).distance(blue)).toBeLessThan(0.002);
-        expect(image.getPixel(bottomRight()).distance(black)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
       });
     });
 
@@ -47,10 +47,10 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png, true);
 
-        expect(image.getPixel(topLeft(medium))).toEqual(red);
-        expect(image.getPixel(topRight(medium))).toEqual(green);
-        expect(image.getPixel(bottomLeft(medium))).toEqual(blue);
-        expect(image.getPixel(bottomRight(medium))).toEqual(black);
+        expect(await image.getPixelAsync(topLeft(medium))).toEqual(red);
+        expect(await image.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image.getPixelAsync(bottomLeft(medium))).toEqual(blue);
+        expect(await image.getPixelAsync(bottomRight(medium))).toEqual(black);
       });
     });
 
@@ -60,10 +60,10 @@ export function fimTestSuitePngJpeg(
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg, true);
 
-        expect(image.getPixel(topLeft(medium)).distance(red)).toBeLessThan(0.002);
-        expect(image.getPixel(topRight(medium)).distance(green)).toBeLessThan(0.002);
-        expect(image.getPixel(bottomLeft(medium)).distance(blue)).toBeLessThan(0.002);
-        expect(image.getPixel(bottomRight(medium)).distance(black)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topLeft(medium))).distance(red)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topRight(medium))).distance(green)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomLeft(medium))).distance(blue)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomRight(medium))).distance(black)).toBeLessThan(0.002);
       });
     });
 
@@ -100,10 +100,10 @@ export function fimTestSuitePngJpeg(
         const image = await fim.createImageFromPngAsync(png);
 
         expect(image.imageDimensions).toEqual(smallFourSquares);
-        expect(image.getPixel(topLeft())).toEqual(red);
-        expect(image.getPixel(topRight())).toEqual(green);
-        expect(image.getPixel(bottomLeft())).toEqual(blue);
-        expect(image.getPixel(bottomRight())).toEqual(black);
+        expect(await image.getPixelAsync(topLeft())).toEqual(red);
+        expect(await image.getPixelAsync(topRight())).toEqual(green);
+        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
       });
     });
 
@@ -113,10 +113,10 @@ export function fimTestSuitePngJpeg(
         const image = await fim.createImageFromJpegAsync(jpeg);
 
         expect(image.imageDimensions).toEqual(smallFourSquares);
-        expect(image.getPixel(topLeft()).distance(red)).toBeLessThan(0.002);
-        expect(image.getPixel(topRight()).distance(green)).toBeLessThan(0.002);
-        expect(image.getPixel(bottomLeft()).distance(blue)).toBeLessThan(0.002);
-        expect(image.getPixel(bottomRight()).distance(black)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
       });
     });
 

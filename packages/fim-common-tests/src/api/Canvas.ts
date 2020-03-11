@@ -16,11 +16,11 @@ export function fimTestSuiteCanvas(
 ): void {
   describe(`Fim Canvas - ${description}`, () => {
 
-    it('Supports fillSolid() and getPixel()', () => {
-      using(factory(small), fim => {
+    it('Supports fillSolid() and getPixel()', async () => {
+      await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
         image.fillSolid(red);
-        expect(image.getPixel(midpoint(small))).toEqual(red);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 
@@ -29,7 +29,7 @@ export function fimTestSuiteCanvas(
         const image = fim.createImage();
         const pixelData = TestImages.solidPixelData(small, green);
         await image.loadPixelDataAsync(pixelData);
-        expect(image.getPixel(midpoint(small))).toEqual(green);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(green);
       });
     });
 
@@ -38,7 +38,7 @@ export function fimTestSuiteCanvas(
         const image = fim.createImage();
         const pixelData = TestImages.solidPixelData(medium, blue);
         await image.loadPixelDataAsync(pixelData, medium);
-        expect(image.getPixel(midpoint(small))).toEqual(blue);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(blue);
       });
     });
 
@@ -48,7 +48,7 @@ export function fimTestSuiteCanvas(
         const image = fim.createImage();
         const pixelData = TestImages.solidPixelData(small, green);
         await image.loadPixelDataAsync(pixelData);
-        expect(image.getPixel(midpoint(small))).toEqual(green);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(green);
       });
     });
 
@@ -58,7 +58,7 @@ export function fimTestSuiteCanvas(
         const image = fim.createImage();
         const pixelData = TestImages.solidPixelData(medium, blue);
         await image.loadPixelDataAsync(pixelData, medium);
-        expect(image.getPixel(midpoint(small))).toEqual(blue);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(blue);
       });
     });
 
@@ -70,7 +70,7 @@ export function fimTestSuiteCanvas(
 
         const image2 = fim.createImage();
         await image2.copyFromAsync(image1);
-        expect(image2.getPixel(midpoint(small))).toEqual(red);
+        expect(await image2.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 
@@ -81,7 +81,7 @@ export function fimTestSuiteCanvas(
 
         const image2 = fim.createImage();
         await image2.copyFromAsync(image1);
-        expect(image2.getPixel(midpoint(small))).toEqual(red);
+        expect(await image2.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 
@@ -93,30 +93,30 @@ export function fimTestSuiteCanvas(
 
         // Scale image1 (128x128) to medium size (480x640)
         await image2.copyFromAsync(image1);
-        expect(image2.getPixel(topLeft(medium))).toEqual(red);
-        expect(image2.getPixel(topRight(medium))).toEqual(green);
-        expect(image2.getPixel(bottomLeft(medium))).toEqual(blue);
-        expect(image2.getPixel(bottomRight(medium))).toEqual(black);
+        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(red);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(black);
 
         // Copy image1 (128x128) to the top-left corner without rescaling (128x128 destination)
         await image2.copyFromAsync(image1, undefined, FimRect.fromDimensions(smallFourSquares));
-        expect(image2.getPixel(topLeft())).toEqual(red);
-        expect(image2.getPixel(topRight())).toEqual(green);
-        expect(image2.getPixel(bottomLeft())).toEqual(blue);
-        expect(image2.getPixel(bottomRight())).toEqual(black);
+        expect(await image2.getPixelAsync(topLeft())).toEqual(red);
+        expect(await image2.getPixelAsync(topRight())).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight())).toEqual(black);
 
         // The top-left corner (128x128) was overwritten by the previous copy. The rest of the 480x640 image should
         // remain however.
-        expect(image2.getPixel(topRight(medium))).toEqual(green);
-        expect(image2.getPixel(bottomLeft(medium))).toEqual(blue);
-        expect(image2.getPixel(bottomRight(medium))).toEqual(black);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(black);
 
         // Copy part of the top-right corner (32x32) of image1 to the entire image2 (480x640)
         await image2.copyFromAsync(image1, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
-        expect(image2.getPixel(topLeft(medium))).toEqual(green);
-        expect(image2.getPixel(topRight(medium))).toEqual(green);
-        expect(image2.getPixel(bottomLeft(medium))).toEqual(green);
-        expect(image2.getPixel(bottomRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(green);
       });
     });
 
