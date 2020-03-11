@@ -6,7 +6,7 @@ import { expectErrorAsync } from '../common/Async';
 import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
-import { using, usingAsync } from '@leosingleton/commonlibs';
+import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimRect, FimError } from '@leosingleton/fim';
 
 /** Fim test cases around canvas manipulation */
@@ -19,7 +19,7 @@ export function fimTestSuiteCanvas(
     it('Supports fillSolid() and getPixel()', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
-        image.fillSolid(red);
+        await image.fillSolidAsync(red);
         expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
@@ -77,7 +77,7 @@ export function fimTestSuiteCanvas(
     it('Copies from a solid fill to an image', async () => {
       await usingAsync(factory(small), async fim => {
         const image1 = fim.createImage();
-        image1.fillSolid(red);
+        await image1.fillSolidAsync(red);
 
         const image2 = fim.createImage();
         await image2.copyFromAsync(image1);
@@ -131,7 +131,7 @@ export function fimTestSuiteCanvas(
     it('copyFrom() doesn\'t allow copying itself', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
-        image.fillSolid(red);
+        await image.fillSolidAsync(red);
         (await expectErrorAsync(image.copyFromAsync(image))).toBeInstanceOf(FimError);
       });
     });
@@ -141,20 +141,20 @@ export function fimTestSuiteCanvas(
         await usingAsync(factory(small), async fim2 => {
           const image1 = fim1.createImage();
           const image2 = fim2.createImage();
-          image2.fillSolid(red);
+          await image2.fillSolidAsync(red);
           (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
         });
       });
     });
 
-    it('Supports debug mode, including tracing and warnings', () => {
-      using(factory(small), fim => {
+    it('Supports debug mode, including tracing and warnings', async () => {
+      await usingAsync(factory(small), async fim => {
         fim.engineOptions.debugMode = true;
         fim.engineOptions.showTracing = true;
         fim.engineOptions.showWarnings = true;
 
         const image = fim.createImage();
-        image.fillSolid(red);
+        await image.fillSolidAsync(red);
 
         image.releaseAllResources();
         fim.releaseAllResources();

@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { blue, red, small } from '../common/Globals';
-import { using } from '@leosingleton/commonlibs';
+import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Create/dispose tests for Fim */
@@ -29,14 +29,14 @@ export function fimTestSuiteCreateDispose(
       });
     });
 
-    it('Creates and disposes images', () => {
-      using(factory(small), fim => {
+    it('Creates and disposes images', async () => {
+      await usingAsync(factory(small), async fim => {
         const img1 = fim.createImage();
-        img1.fillSolid(red);
+        await img1.fillSolidAsync(red);
         img1.dispose();
 
         const img2 = fim.createImage();
-        img2.fillSolid(blue);
+        await img2.fillSolidAsync(blue);
         img2.dispose();
       });
     });

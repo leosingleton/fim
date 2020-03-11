@@ -31,7 +31,7 @@ export interface FimImage extends FimObject {
    * Fills the image with a solid color
    * @param color Fill color
    */
-  fillSolid(color: FimColor | string): void;
+  fillSolidAsync(color: FimColor | string): Promise<void>;
 
   /**
    * Returns the value of one pixel.

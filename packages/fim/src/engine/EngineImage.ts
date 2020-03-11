@@ -188,7 +188,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
   }
 
-  public fillSolid(color: FimColor | string): void {
+  public async fillSolidAsync(color: FimColor | string): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 
