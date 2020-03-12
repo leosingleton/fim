@@ -2,7 +2,7 @@ pr: none
 
 jobs:
   - job: Build
-    timeoutInMinutes: 5
+    timeoutInMinutes: 8
     cancelTimeoutInMinutes: 2
     pool:
       vmImage: 'Ubuntu-16.04'
