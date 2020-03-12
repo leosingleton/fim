@@ -22,7 +22,7 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
 
     it('Automatically disposes shaders', () => {
       const canvas = factory(small);
-      const source = require('../../../build/core/CoreCanvasWebGL/glsl/Fill.glsl.js');
+      const source = require('../../glsl/FillUniform.glsl.js');
       const shader = canvas.createCoreShader(source);
       canvas.dispose();
       expect(() => shader.dispose()).toThrow(); // Shader is automatically disposed by WebGL canvas
