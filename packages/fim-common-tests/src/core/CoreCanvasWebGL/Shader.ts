@@ -9,7 +9,7 @@ import { CoreCanvasWebGL, CoreShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Sample WebGL shader to fill with a solid color */
-const testFillShader = require('../../core/CoreCanvasWebGL/glsl/Fill.glsl.js') as GlslShader;
+const testFillShader = require('../../glsl/FillUniform.glsl.js') as GlslShader;
 
 /** CoreCanvasWebGL test cases for shaders */
 export function coreCanvasWebGLTestSuiteShader(
