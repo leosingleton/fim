@@ -4,8 +4,5 @@
 
 import { FimImage } from './FimImage';
 
-/** Value for a WebGL shader constant */
-export type FimConstantValue = number | number[] | Float32Array | boolean;
-
 /** Value for a WebGL shader uniform */
-export type FimUniformValue = FimConstantValue | FimImage;
+export type FimValue = number | number[] | Float32Array | boolean | FimImage;

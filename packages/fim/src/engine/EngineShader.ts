@@ -9,7 +9,7 @@ import { EngineObjectType } from './EngineObjectType';
 import { LruQueue } from './types/LruQueue';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
-import { FimConstantValue, FimUniformValue } from '../api/FimValue';
+import { FimValue } from '../api/FimValue';
 import { CoreShader } from '../core/CoreShader';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreValue } from '../core/CoreValue';
@@ -67,7 +67,7 @@ export class EngineShader extends EngineObject implements FimShader {
    */
   public readonly vertexShader?: GlslShader;
 
-  public setConstant(name: string, value: FimConstantValue): void {
+  public setConstant(name: string, value: number): void {
     // Ensure the constant name is valid
     if (!this.fragmentShader.consts[name]) {
       FimError.throwOnInvalidParameter(name);
@@ -76,16 +76,16 @@ export class EngineShader extends EngineObject implements FimShader {
     this.constantValues[name] = value;
   }
 
-  public setConstants(values: { [name: string]: FimConstantValue }): void {
+  public setConstants(values: { [name: string]: number }): void {
     for (const name in values) {
       this.setConstant(name, values[name]);
     }
   }
 
   /** Constant values */
-  private constantValues: { [name: string]: FimConstantValue } = {};
+  private constantValues: { [name: string]: number } = {};
 
-  public setUniform(name: string, value: FimUniformValue): void {
+  public setUniform(name: string, value: FimValue): void {
     // Ensure the uniform name is valid
     if (!this.fragmentShader.uniforms[name]) {
       FimError.throwOnInvalidParameter(name);
@@ -94,14 +94,14 @@ export class EngineShader extends EngineObject implements FimShader {
     this.uniformValues[name] = value;
   }
 
-  public setUniforms(values: { [name: string]: FimUniformValue }): void {
+  public setUniforms(values: { [name: string]: FimValue }): void {
     for (const name in values) {
       this.setUniform(name, values[name]);
     }
   }
 
   /** Uniform values */
-  private uniformValues: { [name: string]: FimUniformValue } = {};
+  private uniformValues: { [name: string]: FimValue } = {};
 
   public setVertices(vertexPositions?: number[], textureCoords?: number[]): void {
     this.vertexPositions = vertexPositions;
@@ -179,7 +179,7 @@ export class EngineShader extends EngineObject implements FimShader {
         uniformValues[name] = texture;
       } else {
         // value is a constant
-        uniformValues[name] = value as FimConstantValue;
+        uniformValues[name] = value as CoreValue;
       }
     }
     shader.setUniforms(uniformValues);

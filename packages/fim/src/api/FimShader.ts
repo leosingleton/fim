@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimObject } from './FimObject';
-import { FimConstantValue, FimUniformValue } from './FimValue';
+import { FimValue } from './FimValue';
 import { FimTransform2D } from '../math/FimTransform2D';
 import { FimTransform3D } from '../math/FimTransform3D';
 
@@ -14,26 +14,26 @@ export interface FimShader extends FimObject {
    * @param name Name of the constant
    * @param value Value of the constant
    */
-  setConstant(name: string, value: FimConstantValue): void;
+  setConstant(name: string, value: number): void;
 
   /**
    * Sets the value of multiple constants
    * @param values A dictionary of name-value pairs
    */
-  setConstants(values: { [name: string]: FimConstantValue }): void;
+  setConstants(values: { [name: string]: number }): void;
 
   /**
    * Sets the value of a uniform
    * @param name Name of the uniform
    * @param value Value of the uniform
    */
-  setUniform(name: string, value: FimUniformValue): void;
+  setUniform(name: string, value: FimValue): void;
 
   /**
    * Sets the value of multiple uniforms
    * @param values A dictionary of name-value pairs
    */
-  setUniforms(values: { [name: string]: FimUniformValue }): void;
+  setUniforms(values: { [name: string]: FimValue }): void;
 
   /**
    * Updates the vertices. By default, we draw two triangles filling the entire rendering area.

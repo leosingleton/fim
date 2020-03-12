@@ -59,7 +59,7 @@ export class CoreShader extends CoreWebGLObject {
    * @param name Name of the constant
    * @param value Value of the constant
    */
-  public setConstant(name: string, value: CoreValue): void {
+  public setConstant(name: string, value: number): void {
     const me = this;
     me.ensureNotDisposed();
 
@@ -80,7 +80,7 @@ export class CoreShader extends CoreWebGLObject {
    * Sets the value of multiple constants
    * @param values A dictionary of name-value pairs
    */
-  public setConstants(values: { [name: string]: CoreValue }): void {
+  public setConstants(values: { [name: string]: number }): void {
     for (const name in values) {
       this.setConstant(name, values[name]);
     }

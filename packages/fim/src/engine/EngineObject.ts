@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { EngineObjectType } from './EngineObjectType';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
-import { EngineObjectType } from './EngineObjectType';
 import { FimError } from '../primitives/FimError';
 
 /** Base class for all objects in the FIM API */
