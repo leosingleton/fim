@@ -8,7 +8,7 @@ import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
-/** Sample WebGL shader to fill with a solid color specified by a constant */
+/** Sample WebGL shader to fill with a solid shade of grey specified by a constant */
 const testFillConstShader = require('../../glsl/FillConst.glsl.js') as GlslShader;
 
 /** Sample WebGL shader to fill with a solid color specified by a uniform */

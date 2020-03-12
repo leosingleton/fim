@@ -53,7 +53,7 @@ export class EngineShader extends EngineObject implements FimShader {
    * present here on the first call, after WebGL context is lost, or if the shader was automatically disposed to free
    * resources.
    */
-  private shaders: { [constantValues: string]: CoreShader };
+  private shaders: { [constantValues: string]: CoreShader } = {};
 
   /** LRU queue of the keys to the `shader` table */
   private constantValuesLru = new LruQueue<string>();
@@ -171,7 +171,7 @@ export class EngineShader extends EngineObject implements FimShader {
     const uniformValues: { [name: string]: CoreValue } = {};
     for (const name in me.uniformValues) {
       const value = me.uniformValues[name];
-      const type = me.fragmentShader.consts[name].variableType;
+      const type = me.fragmentShader.uniforms[name].variableType;
       if (type.indexOf('sampler') !== -1) {
         // value is an EngineImage instance
         const image = value as EngineImage;
