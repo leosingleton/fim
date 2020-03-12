@@ -277,7 +277,7 @@ export class CoreShader extends CoreWebGLObject {
 
   /**
    * Updates the vertices by taking the standard two triangles vertices and applying a matrix transformation.
-   * @param vertexMatrix Optional 3x3 or 4x4 matrix used to manipulate vertices. The Transform2D and Transform3D
+   * @param vertexMatrix 3x3 or 4x4 matrix used to manipulate vertices. The Transform2D and Transform3D
    *    classes can help to create the vertex transformation matrices.
    */
   public applyVertexMatrix(vertexMatrix: FimTransform2D | FimTransform3D | number[]): void {

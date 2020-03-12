@@ -136,14 +136,16 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
   }
 
-  /** Ensures `contentTexture.imageContent` is allocated and contains the current image data */
-  private async populateContentTexture(): Promise<void> {
+  /**
+   * Ensures `contentTexture.imageContent` is allocated and contains the current image data
+   * @returns The `CoreTexture` instance backing the content texture
+   */
+  public async populateContentTexture(): Promise<CoreTexture> {
     const me = this;
     me.allocateContentTexture();
 
     if (me.contentTexture.isCurrent) {
       // If a texture is already current, this function is a no-op
-      return;
     } else if (me.contentFillColor.isCurrent) {
       // Fill texture with solid color
       me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
@@ -155,6 +157,8 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
+
+    return me.contentTexture.imageContent;
   }
 
   /** Releases any resources used by `contentCanvas.imageContent` */
