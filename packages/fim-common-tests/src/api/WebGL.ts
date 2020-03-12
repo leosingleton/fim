@@ -114,6 +114,7 @@ export function fimTestSuiteWebGL(
     });
 
     it('Executes a shader with many uniform values', async () => {
+      // This test case also tests reusing a shader for many executeAsync() calls
       await usingAsync(factory(small), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
