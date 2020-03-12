@@ -289,6 +289,29 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
+  public async executeAsync(shader: EngineShader, destCoords?: FimRect): Promise<void> {
+    const me = this;
+    me.ensureNotDisposed();
+
+    // Ensure shader belongs to the same EngineFim instance
+    if (me.parentObject !== shader.parentObject) {
+      throw new FimError(FimErrorCode.InvalidParameter, `${shader.handle} execute on wrong FIM`);
+    }
+
+    me.invalidateContent();
+    me.allocateContentTexture();
+    await shader.executeAsync(me.contentTexture.imageContent, destCoords);
+    me.contentTexture.isCurrent = true;
+
+    // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
+    // lost.
+    if (me.getImageOptions().backup) {
+      await me.populateContentCanvas();
+    }
+
+    // TODO: release resources based on optimization settings
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
     const me = this;
     me.ensureNotDisposed();
