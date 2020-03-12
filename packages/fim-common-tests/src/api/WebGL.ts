@@ -2,9 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { green, grey, midpoint, small } from '../common/Globals';
+import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small, smallFourSquares, topLeft,
+  topRight } from '../common/Globals';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
+import { TestImages } from '../common/TestImages';
+
+/** Sample WebGL shader to copy a texture to the output */
+const copyShader = require('../glsl/Copy.glsl.js');
 
 /** Sample WebGL shader to fill with a solid shade of grey specified by a constant */
 const fillConstShader = require('../glsl/FillConst.glsl.js');
@@ -65,6 +70,28 @@ export function fimTestSuiteWebGL(
 
         // Ensure the output is green
         expect(await image.getPixelAsync(midpoint(small))).toEqual(green);
+      });
+    });
+
+    it('Executes a shader with an image parameter', async () => {
+      await usingAsync(factory(smallFourSquares), async fim => {
+        // Load the four squares sample on to an image
+        const srcImage = fim.createImage();
+        await srcImage.loadFromPngAsync(TestImages.fourSquaresPng());
+
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(copyShader);
+        const destImage = fim.createImage();
+
+        // Execute the shader
+        shader.setUniform('uInput', srcImage);
+        await destImage.executeAsync(shader);
+
+        // Ensure the output is the test pattern
+        expect(await destImage.getPixelAsync(topLeft())).toEqual(red);
+        expect(await destImage.getPixelAsync(topRight())).toEqual(green);
+        expect(await destImage.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await destImage.getPixelAsync(bottomRight())).toEqual(black);
       });
     });
 
