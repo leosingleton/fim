@@ -41,7 +41,9 @@ export function fimTestSuiteWebGL(
         const image = fim.createImage();
 
         // Execute the shader
-        shader.setConstant('cColor', 0.5);
+        shader.setConstants({
+          cColor: 0.5
+        });
         await image.executeAsync(shader);
 
         // Ensure the output is grey
@@ -56,7 +58,9 @@ export function fimTestSuiteWebGL(
         const image = fim.createImage();
 
         // Execute the shader
-        shader.setUniform('uColor', [0, 1, 0, 1]);
+        shader.setUniforms({
+          uColor: [0, 1, 0, 1]
+        });
         await image.executeAsync(shader);
 
         // Ensure the output is green

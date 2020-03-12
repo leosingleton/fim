@@ -44,7 +44,9 @@ export function coreCanvasWebGLTestSuiteShader(
         const shader = canvas.createCoreShader(testFillUniformShader);
 
         // Fill the output with the color red
-        shader.setUniform('uColor', [1, 0, 0, 1]);
+        shader.setUniforms({
+          uColor: [1, 0, 0, 1]
+        });
         shader.execute();
 
         // Ensure the output is red
@@ -58,7 +60,9 @@ export function coreCanvasWebGLTestSuiteShader(
         const texture = canvas.createCoreTexture();
 
         // Fill the texture with the color green
-        shader.setConstant('cColor', 0.5);
+        shader.setConstants({
+          cColor: 0.5
+        });
         shader.execute(texture);
 
         // Render the texture to the WebGL canvas
