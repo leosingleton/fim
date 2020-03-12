@@ -16,6 +16,13 @@ export interface FimEngineOptions {
   maxGLMemory: number;
 
   /**
+   * Number of instances of a single WebGL shader allowed at any time. Changing constant values causes the shader to get
+   * recompiled, resulting in multiple instances. In some cases, this may be desired, however this has the potential to
+   * create a resource leak. Set to 0 for no limit.
+   */
+  shaderInstanceLimit: number;
+
+  /**
    * Disables offscreen canvas support. This can be useful for debugging, as Chrome's support is new and still has some
    * bugs, plus regular canvases can be made visible in the browser's debugging tools.
    */
@@ -60,6 +67,7 @@ export const defaultEngineOptions: FimEngineOptions = {
   executionStrategy: FimExecutionStrategy.MaximizeSpeed,
   maxCanvasMemory: 0,
   maxGLMemory: 0,
+  shaderInstanceLimit: 4,
   disableOffscreenCanvas: true,
   disableImageBitmap: true,
   maxGLRenderBufferSize: 0,

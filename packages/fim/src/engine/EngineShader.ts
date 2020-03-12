@@ -6,6 +6,7 @@ import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
+import { LruQueue } from './types/LruQueue';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
 import { FimConstantValue, FimUniformValue } from '../api/FimValue';
@@ -53,6 +54,9 @@ export class EngineShader extends EngineObject implements FimShader {
    * resources.
    */
   private shaders: { [constantValues: string]: CoreShader };
+
+  /** LRU queue of the keys to the `shader` table */
+  private constantValuesLru = new LruQueue<string>();
 
   /** Source code for the fragment shader, created using webpack-glsl-minify */
   public readonly fragmentShader: GlslShader;
@@ -154,7 +158,11 @@ export class EngineShader extends EngineObject implements FimShader {
       // Cache the shader for future calls
       me.shaders[cv] = shader;
 
-      // TODO: Limit the number of cached shaders. Free the LRU.
+      // Limit the number of cached shaders. If needed, free the LRU.
+      me.constantValuesLru.enqueue(cv);
+      if (me.constantValuesLru.getCount() > me.parentObject.engineOptions.shaderInstanceLimit) {
+        me.constantValuesLru.dequeue();
+      }
     }
 
     // Transform the uniform values from FimUniformValue to CoreValue. The types are the same except for textures.
