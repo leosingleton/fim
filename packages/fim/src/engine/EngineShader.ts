@@ -161,7 +161,9 @@ export class EngineShader extends EngineObject implements FimShader {
       // Limit the number of cached shaders. If needed, free the LRU.
       me.constantValuesLru.enqueue(cv);
       if (me.constantValuesLru.getCount() > me.parentObject.engineOptions.shaderInstanceLimit) {
-        me.constantValuesLru.dequeue();
+        const lruCv = me.constantValuesLru.dequeue();
+        me.shaders[lruCv].dispose();
+        delete me.shaders[lruCv];
       }
     }
 
