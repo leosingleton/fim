@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { blue, red, small } from '../common/Globals';
+import { red, small } from '../common/Globals';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
@@ -36,8 +36,19 @@ export function fimTestSuiteCreateDispose(
         img1.dispose();
 
         const img2 = fim.createImage();
-        await img2.fillSolidAsync(blue);
         img2.dispose();
+      });
+    });
+
+    it('Creates and disposes shaders', async () => {
+      await usingAsync(factory(small), async fim => {
+        const fillConstShader = require('../glsl/FillConst.glsl.js');
+        const shader1 = fim.createGLShader(fillConstShader);
+        shader1.dispose();
+
+        const fillUniformShader = require('../glsl/FillUniform.glsl.js');
+        const shader2 = fim.createGLShader(fillUniformShader);
+        shader2.dispose();
       });
     });
 
