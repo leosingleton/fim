@@ -11,6 +11,11 @@ export class LruQueue<T> {
   public enqueue(value: T) {
     const me = this;
     if (me.queueValues.indexOf(value) !== -1) {
+      if (me.queueValues.length === 1) {
+        // This is the only value in the queue. It is already the tail element.
+        return;
+      }
+
       // Value already exists. Remove it
       me.queueValues = me.queueValues.filter(v => v !== value);
     }
