@@ -139,7 +139,9 @@ export class CoreShader extends CoreWebGLObject {
 
     // Ensure all of the constant values have been set
     for (const name in me.fragmentShader.consts) {
-      if (!me.constValues[name]) {
+      // Check for null or undefined
+      // eslint-disable-next-line eqeqeq
+      if (me.constValues[name] == null) {
         throw new FimError(FimErrorCode.InvalidState, `${me.handle} ${name} not set`);
       }
     }

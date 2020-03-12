@@ -5,7 +5,7 @@
 import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimColor } from '@leosingleton/fim';
 import { TestImages } from '../common/TestImages';
 
 /** Sample WebGL shader to copy a texture to the output */
@@ -92,6 +92,26 @@ export function fimTestSuiteWebGL(
         expect(await destImage.getPixelAsync(topRight())).toEqual(green);
         expect(await destImage.getPixelAsync(bottomLeft())).toEqual(blue);
         expect(await destImage.getPixelAsync(bottomRight())).toEqual(black);
+      });
+    });
+
+    it('Executes a shader with many constant values', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillConstShader);
+        const image = fim.createImage();
+
+        for (let color = 0; color < 1; color += 0.01) {
+          // Execute the shader
+          shader.setConstants({
+            cColor: color
+          });
+          await image.executeAsync(shader);
+
+          // Ensure the output is the right shade of grey
+          const expected = FimColor.fromRGBAFloats(color, color, color, 1);
+          expect((await image.getPixelAsync(midpoint(small))).distance(expected)).toBeLessThan(0.05);
+        }
       });
     });
 
