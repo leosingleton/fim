@@ -136,7 +136,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
-    if ((flags & FimReleaseResourcesFlags.WebGL) && this.glCanvas) {
+    if (((flags & FimReleaseResourcesFlags.WebGL) === FimReleaseResourcesFlags.WebGL) && this.glCanvas) {
       this.glCanvas.dispose();
       this.glCanvas = undefined;
     }

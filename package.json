@@ -47,6 +47,7 @@
     "lint": "npx eslint . --ext js,ts",
     "test": "npm run build && npm run test:node && npm run test:browser",
     "test:browser": "npx webpack --config=webpack.karma.js && npx karma start",
+    "test:browser:debug": "npx webpack --config=webpack.karma.js && npx karma start --single-run=false --browsers Chrome",
     "test:node": "npx jest",
     "test:node:xvfb": "xvfb-run -s \"-ac -screen 0 1280x1024x24\" npm run test:node"
   }
