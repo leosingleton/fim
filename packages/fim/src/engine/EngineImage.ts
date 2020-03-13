@@ -113,18 +113,19 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
   private async populateContentCanvas(): Promise<void> {
     const me = this;
-    me.allocateContentCanvas();
 
     if (me.contentCanvas.isCurrent) {
       // If a canvas is already current, this function is a no-op
       return;
     } else if (me.contentFillColor.isCurrent) {
       // Copy the fill color to the canvas to make it current
+      me.allocateContentCanvas();
       me.contentCanvas.imageContent.fillSolid(me.contentFillColor.imageContent);
       me.contentCanvas.isCurrent = true;
       return;
     } else if (me.contentTexture.isCurrent) {
       // Copy texture to the WebGL canvas
+      me.allocateContentCanvas();
       const glCanvas = me.parentObject.getWebGLCanvas();
       glCanvas.copyFrom(me.contentTexture.imageContent);
 
@@ -142,16 +143,17 @@ export abstract class EngineImage extends EngineObject implements FimImage {
    */
   public async populateContentTexture(): Promise<CoreTexture> {
     const me = this;
-    me.allocateContentTexture();
 
     if (me.contentTexture.isCurrent) {
       // If a texture is already current, this function is a no-op
     } else if (me.contentFillColor.isCurrent) {
       // Fill texture with solid color
+      me.allocateContentTexture();
       me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
       me.contentTexture.isCurrent = true;
     } else if (me.contentCanvas.isCurrent) {
       // Copy canvas to texture
+      me.allocateContentTexture();
       await me.contentTexture.imageContent.copyFromAsync(me.contentCanvas.imageContent);
       me.contentTexture.isCurrent = true;
     } else {
