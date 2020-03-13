@@ -159,6 +159,16 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     return this.isContextLostValue;
   }
 
+  public registerContextLostHandler(handler: () => void): void {
+    const glCanvas = this.getWebGLCanvas();
+    glCanvas.registerContextLostHandler(handler);
+  }
+
+  public registerContextRestoredHandler(handler: () => void): void {
+    const glCanvas = this.getWebGLCanvas();
+    glCanvas.registerContextRestoredHandler(handler);
+  }
+
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
     this.ensureNotDisposed();
     return this.createEngineImage(dimensions ?? this.maxImageDimensions, options ?? {}, imageName);

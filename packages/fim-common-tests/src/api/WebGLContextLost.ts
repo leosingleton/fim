@@ -58,6 +58,33 @@ export function fimTestSuiteWebGLContextLost(
       });
     });
 
+    it('Allows handlers to be registered', async () => {
+      await usingAsync(factory(small), async fim => {
+        let isLost = 0, isRestored = 0;
+
+        fim.registerContextLostHandler(() => {
+          isLost++;
+        });
+
+        fim.registerContextRestoredHandler(() => {
+          isRestored++;
+        });
+
+        expect(isLost).toEqual(0);
+        expect(isRestored).toEqual(0);
+
+        await loseFimContextAsync(fim);
+
+        expect(isLost).toEqual(1);
+        expect(isRestored).toEqual(0);
+
+        await restoreFimContextAsync(fim);
+
+        expect(isLost).toEqual(1);
+        expect(isRestored).toEqual(1);
+      });
+    });
+
     it('Shaders automatically recover from context loss', async () => {
       await usingAsync(factory(small), async fim => {
         // Create a WebGL shader and destination image

@@ -51,6 +51,18 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
   isContextLost(): boolean;
 
   /**
+   * Registers a callback to invoke when a WebGL context lost event occurs
+   * @param handler Handler to invoke
+   */
+  registerContextLostHandler(handler: () => void): void;
+
+  /**
+   * Registers a callback to invoke when a WebGL context restored event occurs
+   * @param handler Handler to invoke
+   */
+  registerContextRestoredHandler(handler: () => void): void;
+
+  /**
    * Creates a new image
    * @param dimensions Image dimensions
    * @param options Optional overrides to the image options from the parent Fim object
