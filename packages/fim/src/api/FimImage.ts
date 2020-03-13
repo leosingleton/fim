@@ -5,6 +5,7 @@
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
 import { FimShader } from './FimShader';
+import { FimShaderWrapper } from './FimShaderWrapper';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
@@ -95,7 +96,7 @@ export interface FimImage extends FimObject {
    *    is the full image. Note that the coordinates use the top-left as the origin, to be consistent with all other FIM
    *    API parameters, despite WebGL typically using bottom-left.
    */
-  executeAsync(shader: FimShader, destCoords?: FimRect): Promise<void>;
+  executeAsync(shader: FimShader | FimShaderWrapper, destCoords?: FimRect): Promise<void>;
 
   /**
    * Exports the image contents to a PNG file

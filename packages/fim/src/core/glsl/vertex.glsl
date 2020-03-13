@@ -9,7 +9,8 @@ attribute vec2 aTex;
 varying vec2 vCoord;
 
 // Simple vertex shader which accepts vertices and texture coordinates as attributes for doing 2D rendering
-void main() {
+void main()
+{
   gl_Position = aPos;
   vCoord = aTex;
 }

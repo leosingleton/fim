@@ -5,6 +5,7 @@
 import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
 import { fimTestSuitePngJpeg } from './PngJpeg';
+import { fimTestSuiteShaders } from './Shaders';
 import { fimTestSuiteWebGL } from './WebGL';
 import { fimTestSuiteWebGLContextLost } from './WebGLContextLost';
 import { Fim, FimDimensions } from '@leosingleton/fim';
@@ -23,4 +24,5 @@ export function fimTestSuite(
   fimTestSuitePngJpeg(description, factory);
   fimTestSuiteWebGL(description, factory);
   fimTestSuiteWebGLContextLost(description, factory);
+  fimTestSuiteShaders(description, factory);
 }
