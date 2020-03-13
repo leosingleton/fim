@@ -87,6 +87,9 @@ export abstract class EngineObject implements FimObject {
    */
   protected abstract releaseOwnResources(flags: FimReleaseResourcesFlags): void;
 
+  /** Derived classes must implement this method to handle WebGL context loss */
+  protected abstract onContextLost(): void;
+
   public dispose(): void {
     this.ensureNotDisposed();
 

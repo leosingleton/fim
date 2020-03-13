@@ -37,6 +37,13 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   public readonly imageDimensions: FimDimensions;
   public readonly imageOptions: FimImageOptions;
 
+  /** Boolean value returned by `hasImage()` */
+  private hasImageValue = false;
+
+  public hasImage(): boolean {
+    return this.hasImageValue;
+  }
+
   // Force parentObject to be a more specific type
   public parentObject: EngineFim<EngineImage, EngineShader>;
 
@@ -108,6 +115,16 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.contentFillColor.isCurrent = false;
     me.contentCanvas.isCurrent = false;
     me.contentTexture.isCurrent = false;
+    this.hasImageValue = false;
+  }
+
+  /**
+   * Marks one of the image content values as current
+   * @param ic The `ImageContent` object to mark as current
+   */
+  private markCurrent<T>(ic: ImageContent<T>): void {
+    ic.isCurrent = true;
+    this.hasImageValue = true;
   }
 
   /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
@@ -116,13 +133,10 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     if (me.contentCanvas.isCurrent) {
       // If a canvas is already current, this function is a no-op
-      return;
     } else if (me.contentFillColor.isCurrent) {
       // Copy the fill color to the canvas to make it current
       me.allocateContentCanvas();
       me.contentCanvas.imageContent.fillSolid(me.contentFillColor.imageContent);
-      me.contentCanvas.isCurrent = true;
-      return;
     } else if (me.contentTexture.isCurrent) {
       // Copy texture to the WebGL canvas
       me.allocateContentCanvas();
@@ -131,10 +145,11 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
       // Copy the WebGL canvas to a 2D canvas
       await me.contentCanvas.imageContent.copyFromAsync(glCanvas);
-      me.contentTexture.isCurrent = true;
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
+
+    me.markCurrent(me.contentCanvas);
   }
 
   /**
@@ -150,16 +165,15 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       // Fill texture with solid color
       me.allocateContentTexture();
       me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
-      me.contentTexture.isCurrent = true;
     } else if (me.contentCanvas.isCurrent) {
       // Copy canvas to texture
       me.allocateContentTexture();
       await me.contentTexture.imageContent.copyFromAsync(me.contentCanvas.imageContent);
-      me.contentTexture.isCurrent = true;
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
 
+    me.markCurrent(me.contentTexture);
     return me.contentTexture.imageContent;
   }
 
@@ -194,6 +208,24 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
   }
 
+  protected onContextLost(): void {
+    const me = this;
+
+    // WebGL textures must be recreated after context loss. Freeing the texture may also make hasImageValue false, if
+    // if this was our only copy of the image contents.
+    me.releaseContentTexture();
+    const hasImage = me.hasImageValue = me.contentFillColor.isCurrent || me.contentCanvas.isCurrent;
+
+    // Handle the image option to fill the image with a solid color if we lost the image contents
+    if (!hasImage) {
+      const imageOptions = me.getImageOptions();
+      if (imageOptions.fillColorOnContextLost) {
+        me.contentFillColor.imageContent = imageOptions.fillColorOnContextLost;
+        me.markCurrent(me.contentFillColor);
+      }
+    }
+  }
+
   public async fillSolidAsync(color: FimColor | string): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
@@ -203,7 +235,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     me.invalidateContent();
     me.contentFillColor.imageContent = color;
-    me.contentFillColor.isCurrent = true;
+    me.markCurrent(me.contentFillColor);
 
     // TODO: release resources based on optimization settings
   }
@@ -239,7 +271,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
-    me.contentCanvas.isCurrent = true;
+    me.markCurrent(me.contentCanvas);
 
     // TODO: release resources based on optimization settings
   }
@@ -251,7 +283,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadFromPngAsync(pngFile, allowRescale);
-    me.contentCanvas.isCurrent = true;
+    me.markCurrent(me.contentCanvas);
 
     // TODO: release resources based on optimization settings
   }
@@ -263,7 +295,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
-    me.contentCanvas.isCurrent = true;
+    me.markCurrent(me.contentCanvas);
 
     // TODO: release resources based on optimization settings
   }
@@ -286,7 +318,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, srcCoords, destCoords);
-    me.contentCanvas.isCurrent = true;
+    me.markCurrent(me.contentCanvas);
 
     // TODO: release resources based on optimization settings
   }
@@ -303,7 +335,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.invalidateContent();
     me.allocateContentTexture();
     await shader.executeAsync(me.contentTexture.imageContent, destCoords);
-    me.contentTexture.isCurrent = true;
+    me.markCurrent(me.contentTexture);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.

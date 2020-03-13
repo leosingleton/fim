@@ -16,6 +16,9 @@ class MyObject extends EngineObject {
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
     delete this.resources;
   }
+
+  protected onContextLost(): void {
+  }
 }
 
 describe('EngineObject', () => {

@@ -29,6 +29,15 @@ export interface FimImage extends FimObject {
   readonly imageOptions: FimImageOptions;
 
   /**
+   * Returns `true` if the image has contents. When `false`, using this image an an input parameter will throw an
+   * exception. Note that the behavior of a WebGL context loss varies depending on the image options. By default,
+   * `hasImage()` may return `false` if there is no `imageOptions.backup` was not enabled. However if
+   * `imageOptions.fillColorOnContextLost` is set, then the image is initialized to the specified fill color and
+   * `hasImage()` returns `true`.
+   */
+  hasImage(): boolean;
+
+  /**
    * Fills the image with a solid color
    * @param color Fill color
    */

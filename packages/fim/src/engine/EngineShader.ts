@@ -44,6 +44,10 @@ export class EngineShader extends EngineObject implements FimShader {
     }
   }
 
+  protected onContextLost(): void {
+    this.releaseOwnResources(FimReleaseResourcesFlags.All);
+  }
+
   // Force parentObject to be a more specific type
   public parentObject: EngineFim<EngineImage, EngineShader>;
 

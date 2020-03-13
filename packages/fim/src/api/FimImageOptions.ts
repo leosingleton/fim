@@ -4,6 +4,7 @@
 
 import { FimTextureSampling } from './FimTextureSampling';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
+import { FimColor } from '../primitives/FimColor';
 
 /**
  * Options during FimImage creation. All values are optional. If undefined, the value is inherited from the FIM-level
@@ -35,6 +36,14 @@ export interface FimImageOptions {
    * Setting this value to true allows the image to be larger than the parent FIM instance.
    */
   allowOversized?: boolean;
+
+  /**
+   * By default, when the WebGL context is lost, and `backup` was not enabled, an image may lose its contents, in
+   * which case `FimImage.hasImage` gets set to `false` and the image may no longer be used as input until its contents
+   * are reinitialized. However, setting `fillColorOnContextLost` changes the behavior and automatically reinitializes
+   * the image to the specified fill color.
+   */
+  fillColorOnContextLost?: FimColor;
 
   /**
    * Creates a WebGL texture that is read-only. According to WebGL docs, this is a hint that may offer some performance
@@ -92,6 +101,7 @@ export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptio
     sampling: child.sampling ?? parent.sampling,
     backup: child.backup ?? parent.backup,
     allowOversized: child.allowOversized ?? parent.allowOversized,
+    fillColorOnContextLost: child.fillColorOnContextLost ?? parent.fillColorOnContextLost,
     glReadOnly: child.glReadOnly ?? parent.glReadOnly,
     downscale: child.downscale ?? parent.downscale,
     glDownscale: child.glDownscale ?? parent.glDownscale
