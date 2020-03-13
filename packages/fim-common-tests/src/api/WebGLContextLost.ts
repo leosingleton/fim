@@ -47,7 +47,7 @@ export function fimTestSuiteWebGLContextLost(
       });
     });
 
-    it('Simulate a context loss and restored', async () => {
+    it('Simulate a context loss and restore', async () => {
       await usingAsync(factory(small), async fim => {
         expect(fim.isContextLost()).toBeFalsy();
         await loseFimContextAsync(fim);

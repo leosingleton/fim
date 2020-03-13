@@ -2,12 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { expectErrorAsync } from '../common/Async';
 import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { copyShader, fillConstShader, fillUniformShader } from '../common/Shaders';
-import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimColor, FimDimensions, FimTwoTriangles, FimTransform3D } from '@leosingleton/fim';
 import { TestImages } from '../common/TestImages';
+import { using, usingAsync } from '@leosingleton/commonlibs';
+import { Fim, FimColor, FimDimensions, FimError, FimTwoTriangles, FimTransform3D } from '@leosingleton/fim';
 
 /** WebGL tests for Fim */
 export function fimTestSuiteWebGL(
@@ -171,6 +172,26 @@ export function fimTestSuiteWebGL(
       using(factory(small), fim => {
         const shader = fim.createGLShader(fillUniformShader);
         expect(() => shader.setUniform('uInvalid', 0.5)).toThrow();
+      });
+    });
+
+    it('Throws on missing constants', async () => {
+      await usingAsync(factory(small), async fim => {
+        const shader = fim.createGLShader(fillConstShader);
+        const image = fim.createImage();
+
+        // Missing constant cColor
+        (await expectErrorAsync(image.executeAsync(shader))).toBeInstanceOf(FimError);
+      });
+    });
+
+    it('Throws on missing uniforms', async () => {
+      await usingAsync(factory(small), async fim => {
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+
+        // Missing uniform uColor
+        (await expectErrorAsync(image.executeAsync(shader))).toBeInstanceOf(FimError);
       });
     });
 

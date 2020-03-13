@@ -47,12 +47,3 @@ export const blue = FimColor.fromString('#00f');
 export const black = FimColor.fromString('#000');
 export const grey = FimColor.fromString('#888');
 export const white = FimColor.fromString('#fff');
-
-/** Sample WebGL shader to copy a texture to the output */
-export const copyShader = require('../glsl/Copy.glsl.js');
-
-/** Sample WebGL shader to fill with a solid shade of grey specified by a constant */
-export const fillConstShader = require('../glsl/FillConst.glsl.js');
-
-/** Sample WebGL shader to fill with a solid color specified by a constant */
-export const fillUniformShader = require('../glsl/FillUniform.glsl.js');
