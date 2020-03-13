@@ -1,5 +1,10 @@
 pr: none
 
+trigger:
+  branches:
+    include:
+    - '*'
+
 jobs:
   - job: Build
     timeoutInMinutes: 8
