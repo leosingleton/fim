@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { red, small } from '../common/Globals';
+import { fillConstShader, fillUniformShader } from '../common/Shaders';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
 
 /** Create/dispose tests for Fim */
 export function fimTestSuiteCreateDispose(
@@ -42,14 +43,27 @@ export function fimTestSuiteCreateDispose(
 
     it('Creates and disposes shaders', async () => {
       await usingAsync(factory(small), async fim => {
-        const fillConstShader = require('../glsl/FillConst.glsl.js');
         const shader1 = fim.createGLShader(fillConstShader);
         shader1.dispose();
 
-        const fillUniformShader = require('../glsl/FillUniform.glsl.js');
         const shader2 = fim.createGLShader(fillUniformShader);
         shader2.dispose();
       });
+    });
+
+    it('Parent automatically disposes children', () => {
+      let shader: FimShader;
+      let image: FimImage;
+
+      using(factory(small), fim => {
+        shader = fim.createGLShader(fillConstShader);
+        image = fim.createImage();
+      });
+
+      // The shader and image are automatically disposed by the parent FIM instance. Calling dispose() again on these
+      // objects should throw an exception.
+      expect(() => shader.dispose()).toThrow();
+      expect(() => image.dispose()).toThrow();
     });
 
   });
