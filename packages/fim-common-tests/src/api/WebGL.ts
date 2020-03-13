@@ -5,7 +5,7 @@
 import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimColor } from '@leosingleton/fim';
+import { Fim, FimColor, FimDimensions, FimTwoTriangles, FimTransform3D } from '@leosingleton/fim';
 import { TestImages } from '../common/TestImages';
 
 /** Sample WebGL shader to copy a texture to the output */
@@ -129,6 +129,42 @@ export function fimTestSuiteWebGL(
           const expected = FimColor.fromRGBAFloats(color, color, color, 1);
           expect((await image.getPixelAsync(midpoint(small))).distance(expected)).toBeLessThan(0.05);
         }
+      });
+    });
+
+    it('Executes a shader with vertex positions and texture coords', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+
+        // Execute the shader
+        shader.setUniforms({
+          uColor: [1, 0, 0, 1]
+        });
+        shader.setVertices(FimTwoTriangles.vertexPositions, FimTwoTriangles.textureCoords);
+        await image.executeAsync(shader);
+
+        // Ensure the output is red
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
+      });
+    });
+
+    it('Executes a shader with a vertex matrix', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+
+        // Execute the shader
+        shader.setUniforms({
+          uColor: [0, 0, 1, 1]
+        });
+        shader.applyVertexMatrix(new FimTransform3D());
+        await image.executeAsync(shader);
+
+        // Ensure the output is blue
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(blue);
       });
     });
 
