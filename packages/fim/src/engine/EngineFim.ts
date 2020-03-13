@@ -142,7 +142,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     }
   }
 
-  protected onContextLost(): void {
+  private onContextLost(): void {
     this.isContextLostValue = true;
 
     // Release all shaders and textures

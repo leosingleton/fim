@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { loseContextAsync, restoreContextAsync } from '../common/ContextLost';
-import { small } from '../common/Globals';
+import { blue, green, midpoint, small } from '../common/Globals';
+import { fillUniformShader } from '../common/Shaders';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { EngineFim, EngineImage, EngineShader } from '@leosingleton/fim/internals';
@@ -54,6 +55,57 @@ export function fimTestSuiteWebGLContextLost(
         expect(fim.isContextLost()).toBeTruthy();
         await restoreFimContextAsync(fim);
         expect(fim.isContextLost()).toBeFalsy();
+      });
+    });
+
+    it('Shaders automatically recover from context loss', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+        expect(image.hasImage()).toBeFalsy();
+
+        // Execute the shader to fill the destination texture with red
+        shader.setUniform('uColor', [1, 0, 0, 1]);
+        await image.executeAsync(shader);
+        expect(image.hasImage()).toBeTruthy();
+
+        // Simulate context loss and restore
+        await loseFimContextAsync(fim);
+        await restoreFimContextAsync(fim);
+        expect(image.hasImage()).toBeFalsy();
+
+        // Execute the shader to fill the destination texture with green
+        shader.setUniform('uColor', [0, 1, 0, 1]);
+        await image.executeAsync(shader);
+        expect(image.hasImage()).toBeTruthy();
+
+        // Ensure the texture is green
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(green);
+      });
+    });
+
+    it('fillColorOnContextLost works', async () => {
+      await usingAsync(factory(small), async fim => {
+        fim.defaultImageOptions.fillColorOnContextLost = blue;
+
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+        expect(image.hasImage()).toBeFalsy();
+
+        // Execute the shader to fill the destination texture with red
+        shader.setUniform('uColor', [1, 0, 0, 1]);
+        await image.executeAsync(shader);
+        expect(image.hasImage()).toBeTruthy();
+
+        // Simulate context loss and restore
+        await loseFimContextAsync(fim);
+        await restoreFimContextAsync(fim);
+
+        // Because fillColorOnContextLost was set, the image should now be blue
+        expect(image.hasImage()).toBeTruthy();
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(blue);
       });
     });
 

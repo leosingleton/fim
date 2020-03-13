@@ -179,19 +179,31 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
   /** Releases any resources used by `contentCanvas.imageContent` */
   private releaseContentCanvas(): void {
-    const canvas = this.contentCanvas;
+    const me = this;
+    const canvas = me.contentCanvas;
+
     if (canvas.imageContent) {
       canvas.imageContent.dispose();
       canvas.imageContent = undefined;
+      canvas.isCurrent = false;
+
+      // Recalculate hasImageValue
+      me.hasImageValue = me.contentFillColor.isCurrent || me.contentTexture.isCurrent;
     }
   }
 
   /** Releases any resources used by `contentTexture.imageContent` */
   private releaseContentTexture(): void {
-    const texture = this.contentTexture;
+    const me = this;
+    const texture = me.contentTexture;
+
     if (texture.imageContent) {
       texture.imageContent.dispose();
       texture.imageContent = undefined;
+      texture.isCurrent = false;
+
+      // Recalculate hasImageValue
+      me.hasImageValue = me.contentFillColor.isCurrent || me.contentCanvas.isCurrent;
     }
   }
 
@@ -205,23 +217,14 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     if (flags & FimReleaseResourcesFlags.WebGLTexture) {
       me.releaseContentTexture();
-    }
-  }
 
-  protected onContextLost(): void {
-    const me = this;
-
-    // WebGL textures must be recreated after context loss. Freeing the texture may also make hasImageValue false, if
-    // if this was our only copy of the image contents.
-    me.releaseContentTexture();
-    const hasImage = me.hasImageValue = me.contentFillColor.isCurrent || me.contentCanvas.isCurrent;
-
-    // Handle the image option to fill the image with a solid color if we lost the image contents
-    if (!hasImage) {
-      const imageOptions = me.getImageOptions();
-      if (imageOptions.fillColorOnContextLost) {
-        me.contentFillColor.imageContent = imageOptions.fillColorOnContextLost;
-        me.markCurrent(me.contentFillColor);
+      // Handle the image option to fill the image with a solid color if we lost the image contents
+      if (!me.hasImageValue) {
+        const imageOptions = me.getImageOptions();
+        if (imageOptions.fillColorOnContextLost) {
+          me.contentFillColor.imageContent = imageOptions.fillColorOnContextLost;
+          me.markCurrent(me.contentFillColor);
+        }
       }
     }
   }
