@@ -163,10 +163,14 @@ export class CoreShader extends CoreWebGLObject {
     gl.linkProgram(program);
     canvas.throwWebGLErrorsDebug();
 
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    // Check for link error. Also ensure context is not lost as shown in
+    // https://www.khronos.org/webgl/wiki/HandlingContextLost
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS) && !gl.isContextLost()) {
       const err = gl.getProgramInfoLog(program);
-      console.log(me.vertexShader.sourceCode);
-      console.log(me.fragmentShader.sourceCode);
+      if (me.parentCanvas.engineOptions.showTracing || me.parentCanvas.engineOptions.showWarnings) {
+        console.log(me.vertexShader.sourceCode);
+        console.log(me.fragmentShader.sourceCode);
+      }
       gl.deleteProgram(program);
       throw new FimError(FimErrorCode.WebGLLinkError, err);
     }
@@ -239,9 +243,13 @@ export class CoreShader extends CoreWebGLObject {
     gl.compileShader(shader);
     canvas.throwWebGLErrorsDebug();
 
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    // Check for compile error. Also ensure context is not lost as shown in
+    // https://www.khronos.org/webgl/wiki/HandlingContextLost
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
       const err = gl.getShaderInfoLog(shader);
-      console.log(code);
+      if (me.parentCanvas.engineOptions.showTracing || me.parentCanvas.engineOptions.showWarnings) {
+        console.log(code);
+      }
       gl.deleteShader(shader);
       throw new FimError(FimErrorCode.WebGLCompileError, err);
     }
