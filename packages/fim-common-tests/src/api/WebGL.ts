@@ -168,5 +168,19 @@ export function fimTestSuiteWebGL(
       });
     });
 
+    it('Throws on invalid constant name', () => {
+      using(factory(small), fim => {
+        const shader = fim.createGLShader(fillConstShader);
+        expect(() => shader.setConstant('cInvalid', 0.5)).toThrow();
+      });
+    });
+
+    it('Throws on invalid uniform name', () => {
+      using(factory(small), fim => {
+        const shader = fim.createGLShader(fillUniformShader);
+        expect(() => shader.setUniform('uInvalid', 0.5)).toThrow();
+      });
+    });
+
   });
 }
