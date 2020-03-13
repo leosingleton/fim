@@ -167,7 +167,7 @@ export class CoreShader extends CoreWebGLObject {
     // https://www.khronos.org/webgl/wiki/HandlingContextLost
     if (!gl.getProgramParameter(program, gl.LINK_STATUS) && !gl.isContextLost()) {
       const err = gl.getProgramInfoLog(program);
-      if (me.parentCanvas.engineOptions.showTracing || me.parentCanvas.engineOptions.showWarnings) {
+      if (canvas.engineOptions.showTracing || canvas.engineOptions.showWarnings) {
         console.log(me.vertexShader.sourceCode);
         console.log(me.fragmentShader.sourceCode);
       }
@@ -247,7 +247,7 @@ export class CoreShader extends CoreWebGLObject {
     // https://www.khronos.org/webgl/wiki/HandlingContextLost
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
       const err = gl.getShaderInfoLog(shader);
-      if (me.parentCanvas.engineOptions.showTracing || me.parentCanvas.engineOptions.showWarnings) {
+      if (canvas.engineOptions.showTracing || canvas.engineOptions.showWarnings) {
         console.log(code);
       }
       gl.deleteShader(shader);
