@@ -165,6 +165,9 @@ export class EngineShader extends EngineObject implements FimShader {
         me.shaders[lruCv].dispose();
         delete me.shaders[lruCv];
       }
+    } else {
+      // If the shader is already allocated, simply update its position in the LRU queue
+      me.constantValuesLru.enqueue(cv);
     }
 
     // Transform the uniform values from FimUniformValue to CoreValue. The types are the same except for textures.
