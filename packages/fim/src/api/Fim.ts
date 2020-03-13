@@ -45,6 +45,12 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
   readonly capabilities: FimCapabilities;
 
   /**
+   * Returns whether the WebGL context is lost. Attempting to perform any WebGL operations while the context is lost
+   * will throw an exception.
+   */
+  isContextLost(): boolean;
+
+  /**
    * Creates a new image
    * @param dimensions Image dimensions
    * @param options Optional overrides to the image options from the parent Fim object

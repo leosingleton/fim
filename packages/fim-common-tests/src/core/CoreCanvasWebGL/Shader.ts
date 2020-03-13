@@ -3,16 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { green, grey, midpoint, red, small } from '../../common/Globals';
+import { fillConstShader, fillUniformShader } from '../../common/Shaders';
 import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasWebGL, CoreShader } from '@leosingleton/fim/internals';
-import { GlslShader } from 'webpack-glsl-minify';
-
-/** Sample WebGL shader to fill with a solid shade of grey specified by a constant */
-const testFillConstShader = require('../../glsl/FillConst.glsl.js') as GlslShader;
-
-/** Sample WebGL shader to fill with a solid color specified by a uniform */
-const testFillUniformShader = require('../../glsl/FillUniform.glsl.js') as GlslShader;
 
 /** CoreCanvasWebGL test cases for shaders */
 export function coreCanvasWebGLTestSuiteShader(
@@ -23,7 +17,7 @@ export function coreCanvasWebGLTestSuiteShader(
 
     it('Creates and disposes', () => {
       using(factory(small), canvas => {
-        const shader = canvas.createCoreShader(testFillConstShader);
+        const shader = canvas.createCoreShader(fillConstShader);
         shader.dispose();
       });
     });
@@ -32,7 +26,7 @@ export function coreCanvasWebGLTestSuiteShader(
       let shader: CoreShader;
 
       using(factory(small), canvas => {
-        shader = canvas.createCoreShader(testFillConstShader);
+        shader = canvas.createCoreShader(fillConstShader);
       });
 
       // Since the parent canvas was disposed, dispose() on the child object will throw an exception
@@ -41,7 +35,7 @@ export function coreCanvasWebGLTestSuiteShader(
 
     it('Executes a simple fill shader', () => {
       using(factory(small), canvas => {
-        const shader = canvas.createCoreShader(testFillUniformShader);
+        const shader = canvas.createCoreShader(fillUniformShader);
 
         // Fill the output with the color red
         shader.setUniforms({
@@ -56,7 +50,7 @@ export function coreCanvasWebGLTestSuiteShader(
 
     it('Executes a simple fill shader with a constant, outputting to a texture', () => {
       using(factory(small), canvas => {
-        const shader = canvas.createCoreShader(testFillConstShader);
+        const shader = canvas.createCoreShader(fillConstShader);
         const texture = canvas.createCoreTexture();
 
         // Fill the texture with the color green
@@ -75,7 +69,7 @@ export function coreCanvasWebGLTestSuiteShader(
 
     it('Executes a simple fill shader with a uniform, outputting to a texture', () => {
       using(factory(small), canvas => {
-        const shader = canvas.createCoreShader(testFillUniformShader);
+        const shader = canvas.createCoreShader(fillUniformShader);
         const texture = canvas.createCoreTexture();
 
         // Fill the texture with the color green

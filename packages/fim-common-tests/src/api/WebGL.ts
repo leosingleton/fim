@@ -4,18 +4,10 @@
 
 import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
+import { copyShader, fillConstShader, fillUniformShader } from '../common/Shaders';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimColor, FimDimensions, FimTwoTriangles, FimTransform3D } from '@leosingleton/fim';
 import { TestImages } from '../common/TestImages';
-
-/** Sample WebGL shader to copy a texture to the output */
-const copyShader = require('../glsl/Copy.glsl.js');
-
-/** Sample WebGL shader to fill with a solid shade of grey specified by a constant */
-const fillConstShader = require('../glsl/FillConst.glsl.js');
-
-/** Sample WebGL shader to fill with a solid color specified by a constant */
-const fillUniformShader = require('../glsl/FillUniform.glsl.js');
 
 /** WebGL tests for Fim */
 export function fimTestSuiteWebGL(
