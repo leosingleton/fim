@@ -47,3 +47,6 @@ export const blue = FimColor.fromString('#00f');
 export const black = FimColor.fromString('#000');
 export const grey = FimColor.fromString('#888');
 export const white = FimColor.fromString('#fff');
+export const yellow = FimColor.fromString('#ff0');
+export const magenta = FimColor.fromString('#0ff');
+export const cyan = FimColor.fromString('#f0f');

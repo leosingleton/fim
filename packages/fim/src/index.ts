@@ -25,3 +25,4 @@ export { FimError, FimErrorCode } from './primitives/FimError';
 export { FimPoint } from './primitives/FimPoint';
 export { FimRect } from './primitives/FimRect';
 export { FimShaderAlphaBlend } from './shaders/FimShaderAlphaBlend';
+export { FimShaderDarker } from './shaders/FimShaderDarker';
