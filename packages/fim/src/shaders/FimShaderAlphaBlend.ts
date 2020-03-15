@@ -15,7 +15,7 @@ export class FimShaderAlphaBlend extends FimShaderWrapper {
   public constructor(fim: Fim) {
     const source = require('../../build/shaders/glsl/AlphaBlend.glsl.js');
     const shader = fim.createGLShader(source, undefined, 'AlphaBlend');
-    super(shader);
+    super(fim, shader);
   }
 
   /**

@@ -49,7 +49,7 @@ export abstract class EngineObject implements FimObject {
    * Called by a child object from its constructor to register its handle with its parent
    * @param child Child object
    */
-  private addChild(child: EngineObject): void {
+  protected addChild(child: FimObject): void {
     this.childObjects.push(child);
   }
 
@@ -57,12 +57,12 @@ export abstract class EngineObject implements FimObject {
    * Called by a child object from its dispose() method to deregister its handle with its parent
    * @param child Child object
    */
-  private removeChild(child: EngineObject): void {
+  protected removeChild(child: FimObject): void {
     this.childObjects = this.childObjects.filter(c => c !== child);
   }
 
   /** Array of references to child objects */
-  public childObjects: EngineObject[] = [];
+  public childObjects: FimObject[] = [];
 
   /** Parent object. Undefined for the root object. */
   public parentObject: EngineObject;

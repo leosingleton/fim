@@ -10,6 +10,7 @@ import { FimBase } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
+import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
@@ -167,6 +168,14 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   public registerContextRestoredHandler(handler: () => void): void {
     const glCanvas = this.getWebGLCanvas();
     glCanvas.registerContextRestoredHandler(handler);
+  }
+
+  public registerChildObject(child: FimObject): void {
+    this.addChild(child);
+  }
+
+  public unregisterChildObject(child: FimObject): void {
+    this.removeChild(child);
   }
 
   public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
