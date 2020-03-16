@@ -7,13 +7,13 @@ import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
 
 /** Built-in shader to perform an alpha blend between two images */
-export class FimShaderAlphaBlend extends FimOperationShader {
+export class FimOpAlphaBlend extends FimOperationShader {
   /**
    * Constructor
    * @param fim FIM instance
    */
   public constructor(fim: Fim) {
-    const source = require('../../build/shaders/glsl/AlphaBlend.glsl.js');
+    const source = require('../../build/ops/glsl/AlphaBlend.glsl.js');
     const shader = fim.createGLShader(source, undefined, 'AlphaBlend');
     super(fim, shader);
   }

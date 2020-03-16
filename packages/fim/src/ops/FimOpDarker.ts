@@ -7,13 +7,13 @@ import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
 
 /** Built-in shader to combine two textures and return the darker of the two */
-export class FimShaderDarker extends FimOperationShader {
+export class FimOpDarker extends FimOperationShader {
   /**
    * Constructor
    * @param fim FIM instance
    */
   public constructor(fim: Fim) {
-    const source = require('../../build/shaders/glsl/Darker.glsl.js');
+    const source = require('../../build/ops/glsl/Darker.glsl.js');
     const shader = fim.createGLShader(source, undefined, 'Darker');
     super(fim, shader);
   }
