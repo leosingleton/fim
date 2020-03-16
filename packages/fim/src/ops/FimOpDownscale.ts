@@ -74,15 +74,11 @@ export class FimOpDownscale extends FimOperationShader {
     const pixelCount = Math.ceil(xRatio / 2) * Math.ceil(yRatio / 2);
     if (pixelCount > maxPixelCount && (xRatio > 1 || yRatio > 1)) {
       // Slow path: Run the downscale shader is separate passes for the X-axis versus Y-axis
-      if (xRatio > yRatio) {
-        // Downscale X-axis first, then Y-axis
-        return me.executeMultiPassAsync(FimDimensions.fromWidthHeight(outputDimensions.w, inputDimensions.h),
-          inputImage, outputImage, destCoords);
-      } else {
-        // Downscale Y-axis first, then X-axis
-        return me.executeMultiPassAsync(FimDimensions.fromWidthHeight(inputDimensions.w, outputDimensions.h),
-          inputImage, outputImage, destCoords);
-      }
+      // Determine whether to downscale the X-axis or Y-axis first...
+      const option1 = FimDimensions.fromWidthHeight(outputDimensions.w, inputDimensions.h);
+      const option2 = FimDimensions.fromWidthHeight(inputDimensions.w, outputDimensions.h);
+      const fasterOption = option1.getArea() < option2.getArea() ? option1 : option2;
+      return me.executeMultiPassAsync(fasterOption, inputImage, outputImage, destCoords);
     }
 
     // Fast path: Execute a one-pass
