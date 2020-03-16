@@ -30,6 +30,8 @@ export function fimTestSuiteWebGL(
         expect(caps.glMaxRenderBufferSize).toBeGreaterThanOrEqual(1024);
         expect(caps.glMaxTextureImageUnits).toBeGreaterThanOrEqual(4);
         expect(caps.glMaxTextureSize).toBeGreaterThanOrEqual(1024);
+        expect(caps.glMaxFragmentUniformVectors).toBeGreaterThanOrEqual(64);
+        expect(caps.glMaxVertexUniformVectors).toBeGreaterThanOrEqual(64);
         expect(caps.glExtensions.length).toBeGreaterThan(0);
       });
     });

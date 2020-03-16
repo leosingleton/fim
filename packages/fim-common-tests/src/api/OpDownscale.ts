@@ -18,10 +18,10 @@ export function fimTestSuiteOpDownscale(
     it('Downscales at 16x', async () => testAndValidateDownscale(factory, 16));
     it('Downscales at 24x', async () => testAndValidateDownscale(factory, 24, 0.1));
     it('Downscales at 32x', async () => testAndValidateDownscale(factory, 32));
-//    it('Downscales at 48x', async () => testAndValidateDownscale(factory, 48, 0.2));
-//    it('Downscales at 64x', async () => testAndValidateDownscale(factory, 64));
-    //it('Downscales at 96x', async () => testAndValidateDownscale(factory, 96));
-//    it('Downscales at 128x', async () => testAndValidateDownscale(factory, 128));
+    it('Downscales at 48x', async () => testAndValidateDownscale(factory, 48, 0.2));
+    it('Downscales at 64x', async () => testAndValidateDownscale(factory, 64));
+    it('Downscales at 96x', async () => testAndValidateDownscale(factory, 96));
+    it('Downscales at 128x', async () => testAndValidateDownscale(factory, 128));
 
     xit('Performs a copy at 1x', async () => {
       await usingAsync(factory(medium), async fim => {

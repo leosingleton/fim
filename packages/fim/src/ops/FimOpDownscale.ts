@@ -4,9 +4,13 @@
 
 import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
+import { FimImageOptions } from '../api/FimImageOptions';
 import { FimOperationShader } from '../api/FimOperationShader';
-import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimTextureSampling } from '../api/FimTextureSampling';
+import { FimDimensions } from '../primitives/FimDimensions';
+import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Built-in operation to downscale a texture to a lower resolution */
 export class FimOpDownscale extends FimOperationShader {
@@ -33,47 +37,88 @@ export class FimOpDownscale extends FimOperationShader {
   private inputImage: FimImage;
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {
-    const me = this;
-
     // Ensure input image has been set
-    if (!me.inputImage) {
+    if (!this.inputImage) {
       FimError.throwOnInvalidParameter('inputImage');
     }
 
+    return this.executeInternalAsync(this.inputImage, outputImage, destCoords);
+  }
+
+  /**
+   * Internal implementation of `executeAsync`. Allows specifying a non-user-selected input image for recursion.
+   * @param inputImage Input image
+   * @param outputImage Output image
+   * @param destCoords Optional destination coordinates
+   */
+  private executeInternalAsync(inputImage: FimImage, outputImage: FimImage, destCoords?: FimRect): Promise<void> {
+    const me = this;
+
     // Calculate the input and output dimensions and downscale ratios
-    const inputDimensions = me.inputImage.imageDimensions;
+    const inputDimensions = inputImage.imageDimensions;
     const outputDimensions = destCoords ? destCoords.dim : outputImage.imageDimensions;
     const xRatio = inputDimensions.w / outputDimensions.w;
     const yRatio = inputDimensions.h / outputDimensions.h;
 
-    if (Math.ceil(xRatio) * Math.ceil(yRatio) < 64) {
-      // Fast path: Run the downscale shader in a single pass
-      return me.executeInternalAsync(me.inputImage, xRatio, yRatio, outputImage, destCoords);
-    } else {
-      // Slow path: Run the downscale shader is separate passes for the X-axis versus Y-axis. Although this is much
-      // faster computationally, as it is not O(n^2),
-      throw new FimError(FimErrorCode.NotImplemented);
+    // Determine whether to run a one-pass or two-pass implementation. One-pass is preferred when sampling a small
+    // number of pixels, as we avoid the overhead of creating a temporary texture and running two shaders. Technically,
+    // one-pass can handle up to glMaxFramentUniformVectors, but we limit it to 64 samples as a guesstimate of the
+    // optimal performance tradeoff even on GPUs that can support larger.
+    const pixelCount = Math.ceil(xRatio / 2) * Math.ceil(yRatio / 2);
+    const maxPixelCount = Math.min(me.parentObject.capabilities.glMaxFragmentUniformVectors, 64);
+    if (pixelCount > maxPixelCount && (xRatio > 1 || yRatio > 1)) {
+      // Slow path: Run the downscale shader is separate passes for the X-axis versus Y-axis
+      if (xRatio > yRatio) {
+        // Downscale X-axis first, then Y-axis
+        return me.executeMultiPassAsync(FimDimensions.fromWidthHeight(outputDimensions.w, inputDimensions.h),
+          inputImage, outputImage, destCoords);
+      } else {
+        // Downscale Y-axis first, then X-axis
+        return me.executeMultiPassAsync(FimDimensions.fromWidthHeight(inputDimensions.w, outputDimensions.h),
+          inputImage, outputImage, destCoords);
+      }
     }
-  }
 
-  private executeInternalAsync(inputImage: FimImage, xRatio: number, yRatio: number, outputImage: FimImage,
-      destCoords?: FimRect): Promise<void> {
+    // Fast path: Execute a one-pass
     // Calculate the pixels to sample
     const c = FimOpDownscale.calculateSamplePixels(xRatio, yRatio);
-    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputImage.imageDimensions.w,
-      inputImage.imageDimensions.h);
+    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputDimensions.w, inputDimensions.h);
 
     // Set the constants and uniforms for the shader
     this.shader.setConstants({
       PIXELS: c.pixelCount
     });
     this.shader.setUniforms({
-      uInput: inputImage,
+      uInput: me.inputImage,
       uPixels: pixelArray
     });
 
     // Execute the shader
     return super.executeAsync(outputImage, destCoords);
+  }
+
+  /**
+   * Helper function to break a downscale operation with too many samples into multiple separate shader passes. This
+   * function is recursive and may continue to recurse until each pass is small enough.
+   * @param nextDimensions Dimensions of the next pass
+   * @param inputImage Input image
+   * @param outputImage Destination image for the final output
+   * @param destCoords Optional destination coordinates of `outputImage`. If unspecified, the full output image is used.
+   */
+  private executeMultiPassAsync(nextDimensions: FimDimensions, inputImage: FimImage, outputImage: FimImage,
+      destCoords?: FimRect): Promise<void> {
+    const me = this;
+    const fim = me.parentObject;
+
+    // Create the temporary image
+    const options: FimImageOptions = {
+      allowOversized: true,
+      sampling: FimTextureSampling.Linear
+    };
+    return usingAsync(fim.createImage(nextDimensions, options, 'DownscaleTemp'), async temp => {
+      await me.executeInternalAsync(inputImage, temp);
+      await me.executeInternalAsync(temp, outputImage, destCoords);
+    });
   }
 
   /**

@@ -436,8 +436,12 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       glMaxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
       glMaxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
       glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
-      glMaxFragmentUniformVectors: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
-      glMaxVertexUniformVectors: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
+      // According the Khronos conformance tests, implementations are validated with 2 fewer uniforms than reported to
+      // account for special reserved values. Subtract these automatically. For details, see:
+      // https://github.com/KhronosGroup/WebGL/blob/master/sdk/tests/conformance/glsl/misc/
+      //   shader-with-too-many-uniforms.html
+      glMaxFragmentUniformVectors: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS) - 2,
+      glMaxVertexUniformVectors: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) - 2,
       glExtensions: gl.getSupportedExtensions().sort(),
       glTextureDepthsLinear: me.getSupportedColorDepths(FimTextureSampling.Linear),
       glTextureDepthsNearest: me.getSupportedColorDepths(FimTextureSampling.Nearest)
