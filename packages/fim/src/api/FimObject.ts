@@ -9,6 +9,12 @@ export interface FimObject {
   /** Handle including the full path from parent to child objects */
   readonly handle: string;
 
+  /** Array of references to child objects */
+  readonly childObjects: FimObject[];
+
+  /** Parent object. Undefined for the root object. */
+  readonly parentObject: FimObject;
+
   /**
    * Releases memory and/or GPU resources.
    *

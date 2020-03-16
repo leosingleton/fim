@@ -4,8 +4,8 @@
 
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
+import { FimOperation } from './FimOperation';
 import { FimShader } from './FimShader';
-import { FimShaderWrapper } from './FimShaderWrapper';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
@@ -90,13 +90,13 @@ export interface FimImage extends FimObject {
   copyFromAsync(srcImage: FimImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void>;
 
   /**
-   * Executes a WebGL fragment shader and renders the result to this image
-   * @param shader Fragment shader to execute
+   * Executes a WebGL fragment shader or FIM operation and renders the result to this image
+   * @param shaderOrOperation WebGL fragment shader or FIM operation to execute
    * @param destCoords If set, renders the output to the specified destination coordinates. By default, the destination
    *    is the full image. Note that the coordinates use the top-left as the origin, to be consistent with all other FIM
    *    API parameters, despite WebGL typically using bottom-left.
    */
-  executeAsync(shader: FimShader | FimShaderWrapper, destCoords?: FimRect): Promise<void>;
+  executeAsync(shaderOrOperation: FimShader | FimOperation, destCoords?: FimRect): Promise<void>;
 
   /**
    * Exports the image contents to a PNG file

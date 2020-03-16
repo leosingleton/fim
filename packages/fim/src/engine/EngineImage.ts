@@ -9,8 +9,8 @@ import { EngineShader } from './EngineShader';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
+import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
-import { FimShaderWrapper } from '../api/FimShaderWrapper';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreTexture } from '../core/CoreTexture';
@@ -327,23 +327,23 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
-  public async executeAsync(shader: EngineShader | FimShaderWrapper, destCoords?: FimRect): Promise<void> {
+  public async executeAsync(shaderOrOperation: EngineShader | FimOperation, destCoords?: FimRect): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
 
-    // Ensure shader is of EngineShader type
-    if (shader instanceof FimShaderWrapper) {
-      shader = shader.shader as EngineShader;
+    // Ensure shader belongs to the same EngineFim instance
+    if (me.parentObject !== shaderOrOperation.parentObject) {
+      throw new FimError(FimErrorCode.InvalidParameter, `${shaderOrOperation.handle} execute on wrong FIM`);
     }
 
-    // Ensure shader belongs to the same EngineFim instance
-    if (me.parentObject !== shader.parentObject) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${shader.handle} execute on wrong FIM`);
+    // Handle operations separately from shaders
+    if (shaderOrOperation instanceof FimOperation) {
+      return shaderOrOperation.executeAsync(me, destCoords);
     }
 
     me.invalidateContent();
     me.allocateContentTexture();
-    await shader.executeAsync(me.contentTexture.imageContent, destCoords);
+    await shaderOrOperation.executeAsync(me.contentTexture.imageContent, destCoords);
     me.markCurrent(me.contentTexture);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets

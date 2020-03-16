@@ -61,10 +61,7 @@ export abstract class EngineObject implements FimObject {
     this.childObjects = this.childObjects.filter(c => c !== child);
   }
 
-  /** Array of references to child objects */
   public childObjects: FimObject[] = [];
-
-  /** Parent object. Undefined for the root object. */
   public parentObject: EngineObject;
 
   public releaseResources(flags: FimReleaseResourcesFlags): void {

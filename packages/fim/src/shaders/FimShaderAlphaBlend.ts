@@ -4,10 +4,10 @@
 
 import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
-import { FimShaderWrapper } from '../api/FimShaderWrapper';
+import { FimOperationShader } from '../api/FimOperationShader';
 
 /** Built-in shader to perform an alpha blend between two images */
-export class FimShaderAlphaBlend extends FimShaderWrapper {
+export class FimShaderAlphaBlend extends FimOperationShader {
   /**
    * Constructor
    * @param fim FIM instance

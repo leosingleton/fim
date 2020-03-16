@@ -4,10 +4,10 @@
 
 import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
-import { FimShaderWrapper } from '../api/FimShaderWrapper';
+import { FimOperationShader } from '../api/FimOperationShader';
 
 /** Built-in shader to combine two textures and return the darker of the two */
-export class FimShaderDarker extends FimShaderWrapper {
+export class FimShaderDarker extends FimOperationShader {
   /**
    * Constructor
    * @param fim FIM instance
