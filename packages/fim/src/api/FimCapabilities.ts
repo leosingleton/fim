@@ -28,6 +28,8 @@ export interface FimWebGLCapabilities {
   readonly glMaxRenderBufferSize: number;
   readonly glMaxTextureImageUnits: number;
   readonly glMaxTextureSize: number;
+  readonly glMaxFragmentUniformVectors: number;
+  readonly glMaxVertexUniformVectors: number;
   readonly glExtensions: string[];
 
   /** Texture depths supported when using linear sampling */

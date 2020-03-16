@@ -53,6 +53,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       glMaxRenderBufferSize: 0,
       glMaxTextureImageUnits: 0,
       glMaxTextureSize: 0,
+      glMaxFragmentUniformVectors: 0,
+      glMaxVertexUniformVectors: 0,
       glExtensions: [],
       glTextureDepthsLinear: [],
       glTextureDepthsNearest: []

@@ -5,8 +5,8 @@
 import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
-import { FimError } from '../primitives/FimError';
 
 /** Built-in operation to downscale a texture to a lower resolution */
 export class FimOpDownscale extends FimOperationShader {
@@ -46,16 +46,29 @@ export class FimOpDownscale extends FimOperationShader {
     const xRatio = inputDimensions.w / outputDimensions.w;
     const yRatio = inputDimensions.h / outputDimensions.h;
 
+    if (Math.ceil(xRatio) * Math.ceil(yRatio) < 64) {
+      // Fast path: Run the downscale shader in a single pass
+      return me.executeInternalAsync(me.inputImage, xRatio, yRatio, outputImage, destCoords);
+    } else {
+      // Slow path: Run the downscale shader is separate passes for the X-axis versus Y-axis. Although this is much
+      // faster computationally, as it is not O(n^2),
+      throw new FimError(FimErrorCode.NotImplemented);
+    }
+  }
+
+  private executeInternalAsync(inputImage: FimImage, xRatio: number, yRatio: number, outputImage: FimImage,
+      destCoords?: FimRect): Promise<void> {
     // Calculate the pixels to sample
     const c = FimOpDownscale.calculateSamplePixels(xRatio, yRatio);
-    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputDimensions.w, inputDimensions.h);
+    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputImage.imageDimensions.w,
+      inputImage.imageDimensions.h);
 
     // Set the constants and uniforms for the shader
-    me.shader.setConstants({
+    this.shader.setConstants({
       PIXELS: c.pixelCount
     });
-    me.shader.setUniforms({
-      uInput: me.inputImage,
+    this.shader.setUniforms({
+      uInput: inputImage,
       uPixels: pixelArray
     });
 

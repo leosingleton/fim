@@ -436,6 +436,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       glMaxRenderBufferSize: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
       glMaxTextureImageUnits: gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS),
       glMaxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      glMaxFragmentUniformVectors: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
+      glMaxVertexUniformVectors: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
       glExtensions: gl.getSupportedExtensions().sort(),
       glTextureDepthsLinear: me.getSupportedColorDepths(FimTextureSampling.Linear),
       glTextureDepthsNearest: me.getSupportedColorDepths(FimTextureSampling.Nearest)
