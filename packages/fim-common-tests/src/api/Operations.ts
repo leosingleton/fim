@@ -4,14 +4,14 @@
 
 import { black, green, grey, magenta, midpoint, small, white, yellow } from '../common/Globals';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimShaderAlphaBlend, FimShaderDarker } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpAlphaBlend, FimOpDarker } from '@leosingleton/fim';
 
-/** WebGL built-in shader tests for Fim */
-export function fimTestSuiteShaders(
+/** Built-in operation tests for Fim */
+export function fimTestSuiteOperations(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim built-in shaders - ${description}`, () => {
+  describe(`Fim built-in operations - ${description}`, () => {
 
     it('AlphaBlend', async () => {
       await usingAsync(factory(small), async fim => {
@@ -21,11 +21,11 @@ export function fimTestSuiteShaders(
         const whiteImage = fim.createImage();
         await whiteImage.fillSolidAsync(white);
 
-        const shader = new FimShaderAlphaBlend(fim);
-        shader.setInputs(blackImage, whiteImage, 0.5);
+        const op = new FimOpAlphaBlend(fim);
+        op.setInputs(blackImage, whiteImage, 0.5);
 
         const outputImage = fim.createImage();
-        await outputImage.executeAsync(shader);
+        await outputImage.executeAsync(op);
         expect((await outputImage.getPixelAsync(midpoint(small))).distance(grey)).toBeLessThan(0.05);
       });
     });
@@ -38,11 +38,11 @@ export function fimTestSuiteShaders(
         const magentaImage = fim.createImage();
         await magentaImage.fillSolidAsync(magenta);
 
-        const shader = new FimShaderDarker(fim);
-        shader.setInputs(yellowImage, magentaImage);
+        const op = new FimOpDarker(fim);
+        op.setInputs(yellowImage, magentaImage);
 
         const outputImage = fim.createImage();
-        await outputImage.executeAsync(shader);
+        await outputImage.executeAsync(op);
         expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(green);
       });
     });
