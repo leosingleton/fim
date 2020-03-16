@@ -4,6 +4,7 @@
 
 import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
+import { fimTestSuiteOpDownscale } from './OpDownscale';
 import { fimTestSuiteOperations } from './Operations';
 import { fimTestSuitePngJpeg } from './PngJpeg';
 import { fimTestSuiteWebGL } from './WebGL';
@@ -25,4 +26,5 @@ export function fimTestSuite(
   fimTestSuiteWebGL(description, factory);
   fimTestSuiteWebGLContextLost(description, factory);
   fimTestSuiteOperations(description, factory);
+  fimTestSuiteOpDownscale(description, factory);
 }

@@ -6,7 +6,7 @@ import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
 
-/** Built-in shader to combine two textures and return the darker of the two */
+/** Built-in operation to combine two textures and return the darker of the two */
 export class FimOpDarker extends FimOperationShader {
   /**
    * Constructor

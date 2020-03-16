@@ -6,7 +6,7 @@ import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
 
-/** Built-in shader to perform an alpha blend between two images */
+/** Built-in operation to perform an alpha blend between two images */
 export class FimOpAlphaBlend extends FimOperationShader {
   /**
    * Constructor

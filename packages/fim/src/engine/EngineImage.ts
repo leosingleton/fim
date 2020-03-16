@@ -18,6 +18,7 @@ import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
 export abstract class EngineImage extends EngineObject implements FimImage {
@@ -32,7 +33,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       objectName?: string) {
     super(EngineObjectType.Image, objectName, fim);
     this.imageDimensions = dimensions;
-    this.imageOptions = options ?? {};
+    this.imageOptions = deepCopy(options) ?? {};
   }
 
   public readonly imageDimensions: FimDimensions;
