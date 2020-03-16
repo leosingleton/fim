@@ -60,12 +60,18 @@ export class FimOpDownscale extends FimOperationShader {
     const xRatio = inputDimensions.w / outputDimensions.w;
     const yRatio = inputDimensions.h / outputDimensions.h;
 
+    // Ensure we don't exceed the maximum number of pixels to sample in a single direction
+    const maxPixelCount = Math.min(me.parentObject.capabilities.glMaxFragmentUniformVectors, 64);
+    if (xRatio > maxPixelCount * 2 || yRatio > maxPixelCount * 2) {
+      // This operations supports a maximum downscale of 128x in a single direction. Some GPUs may be lower.
+      FimError.throwOnInvalidDimensions(outputDimensions, inputDimensions.rescale(0.5 / maxPixelCount));
+    }
+
     // Determine whether to run a one-pass or two-pass implementation. One-pass is preferred when sampling a small
     // number of pixels, as we avoid the overhead of creating a temporary texture and running two shaders. Technically,
     // one-pass can handle up to glMaxFramentUniformVectors, but we limit it to 64 samples as a guesstimate of the
     // optimal performance tradeoff even on GPUs that can support larger.
     const pixelCount = Math.ceil(xRatio / 2) * Math.ceil(yRatio / 2);
-    const maxPixelCount = Math.min(me.parentObject.capabilities.glMaxFragmentUniformVectors, 64);
     if (pixelCount > maxPixelCount && (xRatio > 1 || yRatio > 1)) {
       // Slow path: Run the downscale shader is separate passes for the X-axis versus Y-axis
       if (xRatio > yRatio) {
