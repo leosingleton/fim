@@ -12,16 +12,16 @@ export function fimTestSuiteOpDownscale(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  xdescribe(`FimOpDownscale - ${description}`, () => {
-    it('Downscales at 4x', () => testDownscale(factory, 4));
-    it('Downscales at 8x', () => testDownscale(factory, 8));
-    it('Downscales at 16x', () => testDownscale(factory, 16));
-    //it('Downscales at 24x', () => testDownscale(factory, 24));
-    it('Downscales at 32x', () => testDownscale(factory, 32));
-    //it('Downscales at 48x', () => testDownscale(factory, 48));
-    it('Downscales at 64x', () => testDownscale(factory, 64));
-    //it('Downscales at 96x', () => testDownscale(factory, 96));
-    it('Downscales at 128x', () => testDownscale(factory, 128));
+  describe(`FimOpDownscale - ${description}`, () => {
+    it('Downscales at 4x', async () => testDownscale(factory, 4));
+    it('Downscales at 8x', async () => testDownscale(factory, 8));
+    it('Downscales at 16x', async () => testDownscale(factory, 16));
+    //it('Downscales at 24x', async () => testDownscale(factory, 24));
+    it('Downscales at 32x', async () => testDownscale(factory, 32));
+    //it('Downscales at 48x', async () => testDownscale(factory, 48));
+//    it('Downscales at 64x', async () => testDownscale(factory, 64));
+    //it('Downscales at 96x', async () => testDownscale(factory, 96));
+//    it('Downscales at 128x', async () => testDownscale(factory, 128));
   });
 }
 

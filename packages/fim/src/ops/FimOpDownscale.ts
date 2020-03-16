@@ -48,6 +48,7 @@ export class FimOpDownscale extends FimOperationShader {
 
     // Calculate the pixels to sample
     const c = FimOpDownscale.calculateSamplePixels(xRatio, yRatio);
+    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputDimensions.w, inputDimensions.h);
 
     // Set the constants and uniforms for the shader
     me.shader.setConstants({
@@ -55,7 +56,7 @@ export class FimOpDownscale extends FimOperationShader {
     });
     me.shader.setUniforms({
       uInput: me.inputImage,
-      uPixels: c.pixels
+      uPixels: pixelArray
     });
 
     // Execute the shader
@@ -133,7 +134,7 @@ export class FimOpDownscale extends FimOperationShader {
 
   /**
    * Scales the X- and Y-offsets in the sample pixels array to 0 to 1 values to be used as uniforms.
-   * @param pixelCount Numnber of pixels in the pixels array (pixels.length / 3)
+   * @param pixelCount Number of pixels in the pixels array (pixels.length / 3)
    * @param pixels An array of 3 elements per pixel: X-offset, Y-offst, and weight. The offsets are in pixels.
    * @param width Width of the input image, in pixels
    * @param height Height of the input image, in pixels
