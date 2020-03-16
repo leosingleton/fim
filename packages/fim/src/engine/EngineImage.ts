@@ -356,6 +356,17 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // TODO: release resources based on optimization settings
   }
 
+  public async exportToPixelDataAsync(srcCoords?: FimRect): Promise<Uint8ClampedArray> {
+    const me = this;
+    me.ensureNotDisposed();
+    await me.populateContentCanvas();
+    const pixelData = await me.contentCanvas.imageContent.exportToPixelData(srcCoords);
+
+    // TODO: release resources based on optimization settings
+
+    return pixelData;
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
     const me = this;
     me.ensureNotDisposed();

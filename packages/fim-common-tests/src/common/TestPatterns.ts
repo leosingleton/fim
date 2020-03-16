@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { blue, green, red, white } from './Globals';
-import { FimColor, FimImage, FimPoint } from '@leosingleton/fim';
+import { FimColor, FimImage } from '@leosingleton/fim';
 
 /** Generates and validates test patterns for unit testing */
 export module TestPatterns {
@@ -30,6 +30,11 @@ export module TestPatterns {
     }
   }
 
+  /** Generator function for a test pattern that stresses copy operations. Pixels have a noise-like pattern. */
+  export function copyStress(x: number, y: number): FimColor {
+    return FimColor.fromRGBABytes(x % 256, (x + y) % 256, (x * y) % 256, 255);
+  }
+
   /**
    * Renders a test pattern to the destination image
    * @param destImage Destination image
@@ -40,12 +45,12 @@ export module TestPatterns {
     for (let y = 0; y < destImage.imageDimensions.h; y++) {
       const yOffset = y * destImage.imageDimensions.w * 4;
       for (let x = 0; x < destImage.imageDimensions.w; x++) {
-        const xOffset = x * 4;
+        const offset = (x * 4) + yOffset;
         const color = generator(x, y);
-        pixelData[yOffset + xOffset] = color.r;
-        pixelData[yOffset + xOffset + 1] = color.g;
-        pixelData[yOffset + xOffset + 2] = color.b;
-        pixelData[yOffset + xOffset + 3] = color.a;
+        pixelData[offset] = color.r;
+        pixelData[offset + 1] = color.g;
+        pixelData[offset + 2] = color.b;
+        pixelData[offset + 3] = color.a;
       }
     }
 
@@ -61,13 +66,17 @@ export module TestPatterns {
    */
   export async function validateAsync(srcImage: FimImage, generator: GeneratorFn, throwOnError = false):
       Promise<boolean> {
-    for (let x = 0; x < srcImage.imageDimensions.w; x++) {
-      for (let y = 0; y < srcImage.imageDimensions.h; y++) {
+    const pixelData = await srcImage.exportToPixelDataAsync();
+    for (let y = 0; y < srcImage.imageDimensions.h; y++) {
+      const yOffset = y * srcImage.imageDimensions.w * 4;
+      for (let x = 0; x < srcImage.imageDimensions.w; x++) {
+        const offset = (x * 4) + yOffset;
         const expected = generator(x, y);
-        const found = await srcImage.getPixelAsync(FimPoint.fromXY(x, y));
+        const found = FimColor.fromRGBABytes(pixelData[offset], pixelData[offset + 1], pixelData[offset + 2],
+          pixelData[offset + 3]);
         if (!found.equals(expected)) {
           if (throwOnError) {
-            throw Error(`(${x},${y}) expected: ${expected} found: ${found}`);
+            throw Error(`(${x},${y}) expected: ${expected.string} found: ${found.string}`);
           }
           return false;
         }

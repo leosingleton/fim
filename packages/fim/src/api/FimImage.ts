@@ -99,6 +99,13 @@ export interface FimImage extends FimObject {
   executeAsync(shaderOrOperation: FimShader | FimOperation, destCoords?: FimRect): Promise<void>;
 
   /**
+   * Exports the image contents to an array of RGBA pixels
+   * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
+   * @returns An array containing 4 bytes per pixel, in RGBA order
+   */
+  exportToPixelDataAsync(srcCoords?: FimRect): Promise<Uint8ClampedArray>;
+
+  /**
    * Exports the image contents to a PNG file
    * @returns Compressed PNG file as a Uint8Array
    */

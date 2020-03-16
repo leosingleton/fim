@@ -7,8 +7,10 @@ import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small
   topRight } from '../common/Globals';
 import { copyShader, fillConstShader, fillUniformShader } from '../common/Shaders';
 import { TestImages } from '../common/TestImages';
+import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimColor, FimDimensions, FimError, FimTwoTriangles, FimTransform3D } from '@leosingleton/fim';
+import { Fim, FimColor, FimDimensions, FimError, FimTextureSampling, FimTransform3D,
+  FimTwoTriangles} from '@leosingleton/fim';
 
 /** WebGL tests for Fim */
 export function fimTestSuiteWebGL(
@@ -122,6 +124,42 @@ export function fimTestSuiteWebGL(
           const expected = FimColor.fromRGBAFloats(color, color, color, 1);
           expect((await image.getPixelAsync(midpoint(small))).distance(expected)).toBeLessThan(0.05);
         }
+      });
+    });
+
+    it('Executes a copy shader (nearest sampling)', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Generate an input test pattern
+        const input = fim.createImage();
+        input.imageOptions.sampling = FimTextureSampling.Nearest;
+        await TestPatterns.renderAsync(input, TestPatterns.copyStress);
+
+        // Copy the input to an output image using a WebGL copy shader
+        const output = fim.createImage();
+        const shader = fim.createGLShader(copyShader);
+        shader.setUniform('uInput', input);
+        await output.executeAsync(shader);
+
+        // Validate the test pattern matches on the output
+        await TestPatterns.validateAsync(output, TestPatterns.copyStress, true);
+      });
+    });
+
+    it('Executes a copy shader (linear sampling)', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Generate an input test pattern
+        const input = fim.createImage();
+        input.imageOptions.sampling = FimTextureSampling.Linear;
+        await TestPatterns.renderAsync(input, TestPatterns.copyStress);
+
+        // Copy the input to an output image using a WebGL copy shader
+        const output = fim.createImage();
+        const shader = fim.createGLShader(copyShader);
+        shader.setUniform('uInput', input);
+        await output.executeAsync(shader);
+
+        // Validate the test pattern matches on the output
+        await TestPatterns.validateAsync(output, TestPatterns.copyStress, true);
       });
     });
 

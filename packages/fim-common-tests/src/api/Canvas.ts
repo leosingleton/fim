@@ -147,6 +147,21 @@ export function fimTestSuiteCanvas(
       });
     });
 
+    it('Exports to raw pixel data', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Create a solid red image
+        const image = fim.createImage();
+        await image.fillSolidAsync(red);
+
+        // Export to RGBA pixel data
+        const pixelData = await image.exportToPixelDataAsync();
+        expect(pixelData[0]).toEqual(255);  // R
+        expect(pixelData[1]).toEqual(0);    // G
+        expect(pixelData[2]).toEqual(0);    // B
+        expect(pixelData[3]).toEqual(255);  // A
+      });
+    });
+
     it('Supports debug mode, including tracing and warnings', async () => {
       await usingAsync(factory(small), async fim => {
         fim.engineOptions.debugMode = true;
