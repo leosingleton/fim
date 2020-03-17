@@ -111,22 +111,22 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.contentTexture.imageContent = glCanvas.createCoreTexture(me.imageDimensions, me.getImageOptions());
   }
 
-  /** Sets `isCurrent` to `false` on all of the content objects */
-  private invalidateContent(): void {
-    const me = this;
-    me.contentFillColor.isCurrent = false;
-    me.contentCanvas.isCurrent = false;
-    me.contentTexture.isCurrent = false;
-    this.hasImageValue = false;
-  }
-
   /**
    * Marks one of the image content values as current
    * @param ic The `ImageContent` object to mark as current
+   * @param invalidateOthers If `true`, all other `ImageContent` objects are marked as not current
    */
-  private markCurrent<T>(ic: ImageContent<T>): void {
+  private markCurrent<T>(ic: ImageContent<T>, invalidateOthers: boolean): void {
+    const me = this;
+
+    if (invalidateOthers) {
+      me.contentFillColor.isCurrent = false;
+      me.contentCanvas.isCurrent = false;
+      me.contentTexture.isCurrent = false;
+    }
+
     ic.isCurrent = true;
-    this.hasImageValue = true;
+    me.hasImageValue = true;
   }
 
   /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
@@ -151,7 +151,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       FimError.throwOnImageUninitialized(me.handle);
     }
 
-    me.markCurrent(me.contentCanvas);
+    me.markCurrent(me.contentCanvas, false);
   }
 
   /**
@@ -175,7 +175,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       FimError.throwOnImageUninitialized(me.handle);
     }
 
-    me.markCurrent(me.contentTexture);
+    me.markCurrent(me.contentTexture, false);
     return me.contentTexture.imageContent;
   }
 
@@ -225,7 +225,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
         const imageOptions = me.getImageOptions();
         if (imageOptions.fillColorOnContextLost) {
           me.contentFillColor.imageContent = imageOptions.fillColorOnContextLost;
-          me.markCurrent(me.contentFillColor);
+          me.markCurrent(me.contentFillColor, true);
         }
       }
     }
@@ -238,9 +238,8 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // Force color to be a FimColor
     color = (typeof(color) !== 'string') ? color : FimColor.fromString(color);
 
-    me.invalidateContent();
     me.contentFillColor.imageContent = color;
-    me.markCurrent(me.contentFillColor);
+    me.markCurrent(me.contentFillColor, true);
 
     // TODO: release resources based on optimization settings
   }
@@ -273,10 +272,9 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
     }
 
-    me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
-    me.markCurrent(me.contentCanvas);
+    me.markCurrent(me.contentCanvas, true);
 
     // TODO: release resources based on optimization settings
   }
@@ -285,10 +283,9 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     const me = this;
     me.ensureNotDisposed();
 
-    me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadFromPngAsync(pngFile, allowRescale);
-    me.markCurrent(me.contentCanvas);
+    me.markCurrent(me.contentCanvas, true);
 
     // TODO: release resources based on optimization settings
   }
@@ -297,10 +294,9 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     const me = this;
     me.ensureNotDisposed();
 
-    me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
-    me.markCurrent(me.contentCanvas);
+    me.markCurrent(me.contentCanvas, true);
 
     // TODO: release resources based on optimization settings
   }
@@ -320,10 +316,9 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
 
     await srcImage.populateContentCanvas();
-    me.invalidateContent();
     me.allocateContentCanvas();
     await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, srcCoords, destCoords);
-    me.markCurrent(me.contentCanvas);
+    me.markCurrent(me.contentCanvas, true);
 
     // TODO: release resources based on optimization settings
   }
@@ -342,10 +337,25 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       return shaderOrOperation.executeAsync(me, destCoords);
     }
 
-    me.invalidateContent();
-    me.allocateContentTexture();
-    await shaderOrOperation.executeAsync(me.contentTexture.imageContent, destCoords);
-    me.markCurrent(me.contentTexture);
+    if (shaderOrOperation.uniformsContainEngineImage(me)) {
+      // Special case: We are using this image both as an input and and output. Using a single texture as both input and
+      // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
+      const glCanvas = me.parentObject.getWebGLCanvas();
+      const outputTexture = glCanvas.createCoreTexture(me.imageDimensions, me.getImageOptions());
+      try {
+        await shaderOrOperation.executeAsync(outputTexture, destCoords);
+      } catch (err) {
+        outputTexture.dispose();
+        throw err;
+      }
+      me.releaseContentTexture();
+      me.contentTexture.imageContent = outputTexture;
+    } else {
+      // Normal case: we can write to the normal WebGL texture as it is not an input to the shader.
+      me.allocateContentTexture();
+      await shaderOrOperation.executeAsync(me.contentTexture.imageContent, destCoords);
+    }
+    me.markCurrent(me.contentTexture, true);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.

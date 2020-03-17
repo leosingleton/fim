@@ -197,4 +197,20 @@ export class EngineShader extends EngineObject implements FimShader {
     // Execute the shader
     shader.execute(outputTexture, destCoords);
   }
+
+  /**
+   * Searches all uniforms and returns whether any contain the specified `EngineImage` instance. Used by
+   * `EngineImage.executeAsync()` to detect the scenario where a single image is both an input and an output.
+   * @param image `EngineImage` instance to search for
+   */
+  public uniformsContainEngineImage(image: EngineImage): boolean {
+    for (const name in this.uniformValues) {
+      const value = this.uniformValues[name];
+      if (value === image) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }

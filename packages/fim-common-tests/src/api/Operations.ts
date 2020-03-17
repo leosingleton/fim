@@ -64,5 +64,21 @@ export function fimTestSuiteOperations(
       });
     });
 
+    it('Supports the same image as an input and output', async () => {
+      await usingAsync(factory(small), async fim => {
+        const redImage = fim.createImage();
+        await redImage.fillSolidAsync(red);
+
+        const greenImage = fim.createImage();
+        await greenImage.fillSolidAsync(green);
+
+        const op = new FimOpLighter(fim);
+        op.setInputs(redImage, greenImage);
+
+        await greenImage.executeAsync(op);
+        expect(await greenImage.getPixelAsync(midpoint(small))).toEqual(yellow);
+      });
+    });
+
   });
 }
