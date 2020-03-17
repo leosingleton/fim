@@ -72,7 +72,7 @@ export class FimOpDownscale extends FimOperationShader {
     // one-pass can handle up to glMaxFramentUniformVectors, but we limit it to 64 samples as a guesstimate of the
     // optimal performance tradeoff even on GPUs that can support larger.
     const pixelCount = Math.ceil(xRatio / 2) * Math.ceil(yRatio / 2);
-    if (pixelCount > maxPixelCount && (xRatio > 1 || yRatio > 1)) {
+    if (pixelCount > maxPixelCount) {
       // Slow path: Run the downscale shader is separate passes for the X-axis versus Y-axis
       // Determine whether to downscale the X-axis or Y-axis first...
       const option1 = FimDimensions.fromWidthHeight(outputDimensions.w, inputDimensions.h);
