@@ -128,11 +128,14 @@ export function fimTestSuiteCanvas(
       });
     });
 
-    it('copyFrom() doesn\'t allow copying itself', async () => {
+    it('copyFrom(self) is a no-op', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
         await image.fillSolidAsync(red);
-        (await expectErrorAsync(image.copyFromAsync(image))).toBeInstanceOf(FimError);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
+
+        await image.copyFromAsync(image);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 

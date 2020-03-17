@@ -305,9 +305,13 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     const me = this;
     me.ensureNotDisposed();
 
-    // copyFrom() does not support copying from itself
+    // copyFrom(self) is a no-op. It's not an error, but display a warning if debugging as it most likely wasn't the
+    // desired behavior.
     if (srcImage === this) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.handle} !copyFrom self`);
+      if (me.getEngineOptions().showWarnings) {
+        console.log(`${me.handle} copyFrom(self)`);
+      }
+      return;
     }
 
     // Ensure srcImage belongs to the same EngineFim instance
