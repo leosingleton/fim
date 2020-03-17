@@ -46,6 +46,38 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     return this.hasImageValue;
   }
 
+  public getEffectiveImageOptions(): FimImageOptions {
+    const me = this;
+
+    // Start by merging this object's imageOptions with those inherited from the parent
+    let options = me.getImageOptions();
+
+    // Override with any canvas options which don't take effect after canvas creation
+    const canvas = me.contentCanvas.imageContent;
+    if (canvas) {
+      options = mergeImageOptions(options, {
+        allowOversized: options.allowOversized && canvas.imageOptions.allowOversized,
+        downscale: canvas.imageOptions.downscale
+      });
+    }
+
+    // Override with any texture options which don't take effect after canvas creation
+    const texture = me.contentTexture.imageContent;
+    if (texture) {
+      options = mergeImageOptions(options, {
+        allowOversized: options.allowOversized && texture.imageOptions.allowOversized,
+        bpp: texture.imageOptions.bpp,
+        glDownscale: texture.imageOptions.glDownscale,
+        sampling: texture.imageOptions.sampling
+      });
+    }
+
+    // glDownscale is always effectively the min of the image downscale and WebGL downscale
+    options.glDownscale = Math.min(options.glDownscale, options.downscale);
+
+    return options;
+  }
+
   // Force parentObject to be a more specific type
   public parentObject: EngineFim<EngineImage, EngineShader>;
 

@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 /** Helper function to write async unit tests that expect to catch an error */
-export async function expectErrorAsync<T extends jasmine.Func>(func: Promise<void>):
+export async function expectErrorAsync<T extends jasmine.Func>(func: Promise<any>):
     Promise<jasmine.FunctionMatchers<T>> {
   return new Promise(resolve => {
     func.then(_value => {

@@ -7,6 +7,7 @@ import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { FimTextureSampling } from '../api/FimTextureSampling';
 
 /** Built-in operation to perform a matrix operation on an image with a 1D kernel using two passes */
 export class FimOpMatrix1D extends FimOperationShader {
@@ -61,10 +62,15 @@ export class FimOpMatrix1D extends FimOperationShader {
       throw new FimError(FimErrorCode.NotImplemented);
     }
 
-    /* // TODO: Check effective image options and ensure linear filtering is enabled
-    if (me.fast && (inputImage.xxx || outputImage.xxx)) {
-
-    }*/
+    // Check effective image options and ensure linear filtering is enabled
+    if (me.fast) {
+      if (inputImage.getEffectiveImageOptions().sampling !== FimTextureSampling.Linear) {
+        FimError.throwOnInvalidParameter(`${inputImage.handle} not linear`);
+      }
+      if (outputImage.getEffectiveImageOptions().sampling !== FimTextureSampling.Linear) {
+        FimError.throwOnInvalidParameter(`${outputImage.handle} not linear`);
+      }
+    }
 
     // Make the first pass in the X direction
     shader.setUniforms({

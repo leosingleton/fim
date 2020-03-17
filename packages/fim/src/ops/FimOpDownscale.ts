@@ -25,10 +25,10 @@ export class FimOpDownscale extends FimOperationShader {
   }
 
   public setInput(input: FimImage): void {
-    // TODO: Ensure the input image has linear filtering enabled
-    /*if ((texture.textureOptions.textureFlags & FimGLTextureFlags.LinearSampling) === 0) {
-      throw new FimGLError(FimGLErrorCode.AppError, 'NotLinear');
-    }*/
+    // Ensure the input image has linear filtering enabled
+    if (input.getEffectiveImageOptions().sampling !== FimTextureSampling.Linear) {
+      FimError.throwOnInvalidParameter(`${input.handle} not linear`);
+    }
 
     this.inputImage = input;
   }

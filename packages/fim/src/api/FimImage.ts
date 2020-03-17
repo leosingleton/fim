@@ -39,6 +39,13 @@ export interface FimImage extends FimObject {
   hasImage(): boolean;
 
   /**
+   * Computes and returns the current image options, taking into account the local `imageOptions` property, default
+   * options inherited from the parent FIM instance, and any existing resources which may have been allocated prior to
+   * changes to either.
+   */
+  getEffectiveImageOptions(): FimImageOptions;
+
+  /**
    * Fills the image with a solid color
    * @param color Fill color
    */

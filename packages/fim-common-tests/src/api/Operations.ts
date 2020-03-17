@@ -2,10 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, green, grey, magenta, midpoint, red, small, white, yellow, medium } from '../common/Globals';
+import { black, green, grey, magenta, midpoint, red, small, white, yellow } from '../common/Globals';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimColor, FimDimensions, FimImageOptions, FimOpAlphaBlend, FimOpDarker, FimOpGaussianBlur, FimOpLighter,
-  FimTextureSampling } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpAlphaBlend, FimOpDarker, FimOpLighter } from '@leosingleton/fim';
 
 /** Built-in operation tests for Fim */
 export function fimTestSuiteOperations(
@@ -81,27 +80,5 @@ export function fimTestSuiteOperations(
       });
     });
 
-    it('GaussianBlur', async () => testGaussianBlur(factory, false));
-    it('GaussianBlur (fast)', async () => testGaussianBlur(factory, true));
-
-  });
-}
-
-async function testGaussianBlur(factory: (maxImageDimensions: FimDimensions) => Fim, fast: boolean): Promise<void> {
-  await usingAsync(factory(medium), async fim => {
-    // Create a solid blue image of a specific shade
-    const blueShade = FimColor.fromString('#21f');
-    const options: FimImageOptions = { sampling: fast ? FimTextureSampling.Linear : FimTextureSampling.Nearest};
-    const blueImage = fim.createImage(medium, options);
-    await blueImage.fillSolidAsync(blueShade);
-
-    // Blur the image
-    const output = fim.createImage();
-    const blur = new FimOpGaussianBlur(fim, fast);
-    blur.setInputs(blueImage, 5);
-    await output.executeAsync(blur);
-
-    // Ensure the output is still the same shade of blue--blurring shouldn't change the color
-    expect(await output.getPixelAsync(midpoint(medium))).toEqual(blueShade);
   });
 }

@@ -4,6 +4,7 @@
 
 import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
+import { fimTestSuiteImage } from './Image';
 import { fimTestSuiteOpBrightnessContrast } from './OpBrightnessContrast';
 import { fimTestSuiteOpDownscale } from './OpDownscale';
 import { fimTestSuiteOperations } from './Operations';
@@ -22,6 +23,7 @@ export function fimTestSuite(
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   fimTestSuiteCreateDispose(description, factory);
+  fimTestSuiteImage(description, factory);
   fimTestSuiteCanvas(description, factory);
   fimTestSuitePngJpeg(description, factory);
   fimTestSuiteWebGL(description, factory);

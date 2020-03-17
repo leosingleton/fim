@@ -36,17 +36,24 @@ export function fimTestSuiteOpDownscale(
     it('Fails to downscale more than 128x', async () => {
       (await expectErrorAsync(testAndValidateDownscale(factory, 256))).toBeInstanceOf(FimError);
     });
+
+    it('Fails if input is non-linear', async () => {
+      await usingAsync(factory(small), async fim => {
+        (await expectErrorAsync(testDownscale(fim, 1, small, false))).toBeInstanceOf(FimError);
+      });
+    });
   });
 }
 
 async function testDownscale(
   fim: Fim,
   ratio: number,
-  inputDimensions: FimDimensions
+  inputDimensions: FimDimensions,
+  linear = true
 ): Promise<FimImage> {
   // Draw the test pattern
   const input = fim.createImage(inputDimensions);
-  input.imageOptions.sampling = FimTextureSampling.Linear;
+  input.imageOptions.sampling = linear ? FimTextureSampling.Linear : FimTextureSampling.Nearest;
   await TestPatterns.renderAsync(input, TestPatterns.downscaleStress);
 
   // Run the downscale program

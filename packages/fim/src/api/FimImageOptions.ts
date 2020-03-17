@@ -81,6 +81,7 @@ export const defaultImageOptions: FimImageOptions = {
   sampling: FimTextureSampling.Linear,
   backup: false,
   allowOversized: false,
+  fillColorOnContextLost: undefined,
   glReadOnly: false,
   downscale: 1,
   glDownscale: 1,
