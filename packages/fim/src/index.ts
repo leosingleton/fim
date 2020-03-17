@@ -22,6 +22,7 @@ export { FimOpAlphaBlend } from './ops/FimOpAlphaBlend';
 export { FimOpBrightnessContrast } from './ops/FimOpBrightnessContrast';
 export { FimOpDarker } from './ops/FimOpDarker';
 export { FimOpDownscale } from './ops/FimOpDownscale';
+export { FimOpLighter } from './ops/FimOpLighter';
 export { FimOpLinearTransform } from './ops/FimOpLinearTransform';
 export { FimBitsPerPixel } from './primitives/FimBitsPerPixel';
 export { FimColor } from './primitives/FimColor';

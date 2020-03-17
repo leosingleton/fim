@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, green, grey, magenta, midpoint, small, white, yellow } from '../common/Globals';
+import { black, green, grey, magenta, midpoint, red, small, white, yellow } from '../common/Globals';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpAlphaBlend, FimOpDarker } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpAlphaBlend, FimOpDarker, FimOpLighter } from '@leosingleton/fim';
 
 /** Built-in operation tests for Fim */
 export function fimTestSuiteOperations(
@@ -44,6 +44,23 @@ export function fimTestSuiteOperations(
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
         expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(green);
+      });
+    });
+
+    it('Lighter', async () => {
+      await usingAsync(factory(small), async fim => {
+        const redImage = fim.createImage();
+        await redImage.fillSolidAsync(red);
+
+        const greenImage = fim.createImage();
+        await greenImage.fillSolidAsync(green);
+
+        const op = new FimOpLighter(fim);
+        op.setInputs(redImage, greenImage);
+
+        const outputImage = fim.createImage();
+        await outputImage.executeAsync(op);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(yellow);
       });
     });
 
