@@ -88,6 +88,37 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   // Force parentObject to be a more specific type
   public parentObject: never;
 
+  /**
+   * Writes a trace message to the console. This function is a no-op if tracing is disabled in the engine options.
+   * @param object Object handle to log for the message
+   * @param message Message to log
+   */
+  public writeTrace(object: EngineObject, message: string): void {
+    this.writeMessageInternal(object, message, this.engineOptions.showTracing);
+  }
+
+  /**
+   * Writes a warning message to the console. This function is a no-op if warnings and tracing are disabled in the
+   * engine options.
+   * @param object Object handle to log for the message
+   * @param message Message to log
+   */
+  public writeWarning(object: EngineObject, message: string): void {
+    this.writeMessageInternal(object, message, this.engineOptions.showTracing || this.engineOptions.showWarnings);
+  }
+
+  /**
+   * Internal function to writes a message to the console
+   * @param object Object handle to log for the message
+   * @param message Message to log
+   * @param show Only writes if `show` is `true`. Otherwise this function is a no-op.
+   */
+  private writeMessageInternal(object: EngineObject, message: string, show: boolean): void {
+    if (show) {
+      console.log(`${object.handle}: ${message}`);
+    }
+  }
+
   /** Returns the WebGL canvas for running shaders. Creates the canvas on first use. */
   public getWebGLCanvas(): CoreCanvasWebGL {
     const me = this;
@@ -146,14 +177,18 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   }
 
   private onContextLost(): void {
-    this.isContextLostValue = true;
+    const me = this;
+    me.isContextLostValue = true;
+    me.writeWarning(me, 'WebGL context lost');
 
     // Release all shaders and textures
-    this.releaseResources(FimReleaseResourcesFlags.WebGLShader | FimReleaseResourcesFlags.WebGLTexture);
+    me.releaseResources(FimReleaseResourcesFlags.WebGLShader | FimReleaseResourcesFlags.WebGLTexture);
   }
 
   private onContextRestored(): void {
-    this.isContextLostValue = false;
+    const me = this;
+    me.isContextLostValue = false;
+    me.writeWarning(me, 'WebGL context restored');
   }
 
   private isContextLostValue = false;

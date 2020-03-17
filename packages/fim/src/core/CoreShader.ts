@@ -167,12 +167,9 @@ export class CoreShader extends CoreWebGLObject {
     // https://www.khronos.org/webgl/wiki/HandlingContextLost
     if (!gl.getProgramParameter(program, gl.LINK_STATUS) && !gl.isContextLost()) {
       const err = gl.getProgramInfoLog(program);
-      if (canvas.engineOptions.showTracing || canvas.engineOptions.showWarnings) {
-        console.log(me.vertexShader.sourceCode);
-        console.log(me.fragmentShader.sourceCode);
-      }
       gl.deleteProgram(program);
-      throw new FimError(FimErrorCode.WebGLLinkError, err);
+      throw new FimError(FimErrorCode.WebGLLinkError,
+        `${err}\n${me.vertexShader.sourceCode}\n${me.fragmentShader.sourceCode}`);
     }
 
     // Create two triangles that map to the full canvas
@@ -247,11 +244,8 @@ export class CoreShader extends CoreWebGLObject {
     // https://www.khronos.org/webgl/wiki/HandlingContextLost
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS) && !gl.isContextLost()) {
       const err = gl.getShaderInfoLog(shader);
-      if (canvas.engineOptions.showTracing || canvas.engineOptions.showWarnings) {
-        console.log(code);
-      }
       gl.deleteShader(shader);
-      throw new FimError(FimErrorCode.WebGLCompileError, err);
+      throw new FimError(FimErrorCode.WebGLCompileError, `${err}\n${code}`);
     }
 
     // Add the uniforms from the shader to the program's uniform list. Assign texture units for samplers.

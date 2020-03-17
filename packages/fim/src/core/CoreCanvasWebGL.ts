@@ -157,11 +157,6 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
       return;
     }
 
-    const engineOptions = me.engineOptions;
-    if (engineOptions.showTracing || engineOptions.showWarnings) {
-      console.log('WebGL context lost');
-    }
-
     me.isContextLost = true;
     me.hasImage = false;
 
@@ -192,11 +187,6 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     // even though we remove the listener at the very top of the dispose() function. Silently ignore it if this happens.
     if (me.isDisposed || me.isDisposing) {
       return;
-    }
-
-    const engineOptions = me.engineOptions;
-    if (engineOptions.showTracing || engineOptions.showWarnings) {
-      console.log('WebGL context restored');
     }
 
     me.isContextLost = false;

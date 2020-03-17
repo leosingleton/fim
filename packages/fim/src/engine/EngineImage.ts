@@ -309,7 +309,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // desired behavior.
     if (srcImage === this) {
       if (me.getEngineOptions().showWarnings) {
-        console.log(`${me.handle} copyFrom(self)`);
+        me.parentObject.writeWarning(me, 'copyFrom(self) may be an error');
       }
       return;
     }
