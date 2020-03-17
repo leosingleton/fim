@@ -29,7 +29,7 @@ export function fimTestSuiteOpBrightnessContrast(
     it('Increases Contrast', async () => {
       await usingAsync(factory(small), async fim => {
         const input = fim.createImage();
-        await input.fillSolidAsync(red);
+        await input.fillSolidAsync('#d33');
         const op = new FimOpBrightnessContrast(fim);
         op.setInputs(input, 0.0, 0.5);
 
