@@ -85,24 +85,26 @@ export abstract class EngineObject implements FimObject {
   protected abstract releaseOwnResources(flags: FimReleaseResourcesFlags): void;
 
   public dispose(): void {
-    this.ensureNotDisposed();
+    const me = this;
+    me.ensureNotDisposed();
 
     // Recursively dispose child objects first
-    for (const child of this.childObjects) {
+    while (me.childObjects.length > 0) {
+      const child = me.childObjects.pop();
       child.dispose();
     }
 
     // Release our own resources
-    this.releaseOwnResources(FimReleaseResourcesFlags.All);
+    me.releaseOwnResources(FimReleaseResourcesFlags.All);
 
     // Remove our parent's reference to ourselves
-    if (this.parentObject) {
-      this.parentObject.removeChild(this);
-      this.parentObject = undefined;
+    if (me.parentObject) {
+      me.parentObject.removeChild(me);
+      me.parentObject = undefined;
     }
 
     // Ensure no further methods are called on this object
-    this.isDisposed = true;
+    me.isDisposed = true;
   }
 
   /** Set by the dispose() method */

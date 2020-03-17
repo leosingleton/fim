@@ -4,6 +4,7 @@
 
 import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
+import { fimTestSuiteOpBrightnessContrast } from './OpBrightnessContrast';
 import { fimTestSuiteOpDownscale } from './OpDownscale';
 import { fimTestSuiteOperations } from './Operations';
 import { fimTestSuitePngJpeg } from './PngJpeg';
@@ -26,5 +27,6 @@ export function fimTestSuite(
   fimTestSuiteWebGL(description, factory);
   fimTestSuiteWebGLContextLost(description, factory);
   fimTestSuiteOperations(description, factory);
+  fimTestSuiteOpBrightnessContrast(description, factory);
   fimTestSuiteOpDownscale(description, factory);
 }
