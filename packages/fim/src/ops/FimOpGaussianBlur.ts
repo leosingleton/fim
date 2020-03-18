@@ -30,21 +30,14 @@ export class FimOpGaussianBlur extends FimOperation {
    * Sets the inputs to the Gaussian blur operation
    * @param input Input image
    * @param sigma Standard deviation
-   * @param kernelSize Number of elements in the Gaussian kernel. Defaults to ~6x the sigma.
+   * @param kernelSize Number of elements in the Gaussian kernel. Must be an odd number. Defaults to ~6x the sigma.
    */
   public setInputs(input: FimImage, sigma: number, kernelSize?: number): void {
     const matrix1D = this.matrix1D;
 
-    // General guidance is 3x the standard deviation in each direction, so 6x total
+    // General guidance is 3x the standard deviation in each direction, so 6x total. And make it odd.
     if (!kernelSize) {
-      kernelSize = sigma * 6;
-      if (matrix1D.fast) {
-        // Make even
-        kernelSize = Math.ceil(kernelSize / 2) * 2;
-      } else {
-        // Make odd
-        kernelSize = Math.floor(kernelSize / 2) * 2 + 1;
-      }
+      kernelSize = Math.floor((sigma * 6) / 2) * 2 + 1;
     }
 
     // Calculate and set the Gaussian kernel

@@ -15,21 +15,25 @@ export function fimTestSuiteOpGaussianBlur(
   describe(`FimOpGaussianBlur - ${description}`, () => {
 
     it('Performs blur', async () => {
-      await testGaussianBlur(factory, false, FimTextureSampling.Nearest, FimTextureSampling.Nearest);
+      await testGaussianBlur(factory, false, FimTextureSampling.Nearest, FimTextureSampling.Nearest, 5);
     });
 
     it('Performs blur fast', async () => {
-      await testGaussianBlur(factory, true, FimTextureSampling.Linear, FimTextureSampling.Linear);
+      await testGaussianBlur(factory, true, FimTextureSampling.Linear, FimTextureSampling.Linear, 5);
+    });
+
+    it('Performs blur with a large kernel', async () => {
+      await testGaussianBlur(factory, false, FimTextureSampling.Nearest, FimTextureSampling.Nearest, 5, 35);
     });
 
     it('Fast fails if input is non-linear', async () => {
-      await (await expectErrorAsync(testGaussianBlur(factory, true,
-        FimTextureSampling.Nearest, FimTextureSampling.Linear))).toBeInstanceOf(FimError);
+      (await expectErrorAsync(testGaussianBlur(factory, true,
+        FimTextureSampling.Nearest, FimTextureSampling.Linear, 5))).toBeInstanceOf(FimError);
     });
 
     it('Fast fails if output is non-linear', async () => {
-      await (await expectErrorAsync(testGaussianBlur(factory, true,
-        FimTextureSampling.Linear, FimTextureSampling.Nearest))).toBeInstanceOf(FimError);
+      (await expectErrorAsync(testGaussianBlur(factory, true,
+        FimTextureSampling.Linear, FimTextureSampling.Nearest, 5))).toBeInstanceOf(FimError);
     });
 
   });
@@ -39,7 +43,9 @@ async function testGaussianBlur(
   factory: (maxImageDimensions: FimDimensions) => Fim,
   fast: boolean,
   inputSampling: FimTextureSampling,
-  outputSampling: FimTextureSampling
+  outputSampling: FimTextureSampling,
+  sigma: number,
+  kernelSize?: number
 ): Promise<void> {
   await usingAsync(factory(medium), async fim => {
     // Create a solid blue image of a specific shade
@@ -50,7 +56,7 @@ async function testGaussianBlur(
     // Blur the image
     const output = fim.createImage(medium, { sampling: outputSampling });
     const blur = new FimOpGaussianBlur(fim, fast);
-    blur.setInputs(blueImage, 5);
+    blur.setInputs(blueImage, sigma, kernelSize);
     await output.executeAsync(blur);
 
     // Ensure the output is still the same shade of blue--blurring shouldn't change the color
