@@ -8,6 +8,7 @@ import { fimTestSuiteImage } from './Image';
 import { fimTestSuiteOpBrightnessContrast } from './OpBrightnessContrast';
 import { fimTestSuiteOpDownscale } from './OpDownscale';
 import { fimTestSuiteOperations } from './Operations';
+import { fimTestSuiteOpGaussianBlur } from './OpGaussianBlur';
 import { fimTestSuitePngJpeg } from './PngJpeg';
 import { fimTestSuiteWebGL } from './WebGL';
 import { fimTestSuiteWebGLContextLost } from './WebGLContextLost';
@@ -31,4 +32,5 @@ export function fimTestSuite(
   fimTestSuiteOperations(description, factory);
   fimTestSuiteOpBrightnessContrast(description, factory);
   fimTestSuiteOpDownscale(description, factory);
+  fimTestSuiteOpGaussianBlur(description, factory);
 }
