@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
+import { CoreTextureOptions } from './CoreOptions';
 import { CoreShader } from './CoreShader';
 import { CoreTexture } from './CoreTexture';
 import { CoreWebGLObject } from './CoreWebGLObject';
@@ -19,7 +20,6 @@ import { FimRect } from '../primitives/FimRect';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { UnhandledError } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
-import { CoreTextureOptions } from './CoreTextureOptions';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvasWebGL extends CoreCanvas {

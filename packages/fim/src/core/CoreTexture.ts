@@ -4,7 +4,7 @@
 
 import { CoreCanvas } from './CoreCanvas';
 import { CoreCanvasWebGL } from './CoreCanvasWebGL';
-import { CoreTextureOptions } from './CoreTextureOptions';
+import { CoreTextureOptions } from './CoreOptions';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
