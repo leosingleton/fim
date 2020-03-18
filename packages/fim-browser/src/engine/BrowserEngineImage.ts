@@ -21,7 +21,7 @@ export class BrowserEngineImage extends EngineImage {
 
     await loadFromFileAsync(pngFile, CoreMimeType.PNG, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
-      result = new BrowserEngineImage(fim, dimensions, options, imageName);
+      result = new BrowserEngineImage(fim, options, dimensions, imageName);
       await result.loadFromPngAsync(pngFile);
     });
 
@@ -41,7 +41,7 @@ export class BrowserEngineImage extends EngineImage {
 
         await loadFromFileAsync(jpegFile, CoreMimeType.JPEG, async img => {
           const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
-          result = new BrowserEngineImage(fim, dimensions, options, imageName);
+          result = new BrowserEngineImage(fim, options, dimensions, imageName);
           await result.loadFromPngAsync(jpegFile);
         });
 

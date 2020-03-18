@@ -4,14 +4,14 @@
 
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
 import { loadCanvasFromFileAsync } from './LoadFromFile';
-import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
+import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvas2D extends CoreCanvas2D {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions?: FimEngineOptions) {
+    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserCanvas2D.canvasPool.getCanvas();
@@ -41,9 +41,9 @@ export class CoreBrowserCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
-      imageOptions: FimImageOptions): CoreCanvas2D {
-    return new CoreBrowserCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions: FimEngineOptions): CoreCanvas2D {
+    return new CoreBrowserCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
   }
 
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {

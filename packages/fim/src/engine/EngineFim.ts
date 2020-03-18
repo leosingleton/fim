@@ -59,8 +59,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       glTextureDepthsLinear: [],
       glTextureDepthsNearest: []
     };
-    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromWidthHeight(10, 10),
-      `${this.handle}/DetectCapabilities`, {});
+    const tinyCanvas = this.createCoreCanvasWebGL({}, FimDimensions.fromWidthHeight(10, 10),
+      `${this.handle}/DetectCapabilities`);
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
       for (const prop in glCapabilities) {
@@ -150,7 +150,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
     const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
-    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.handle, {});
+    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL({}, glDimensions, me.handle);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
     // get recreated again on first use.
@@ -215,9 +215,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     this.removeChild(child);
   }
 
-  public createImage(dimensions?: FimDimensions, options?: FimImageOptions, imageName?: string): TEngineImage {
+  public createImage(options?: FimImageOptions, dimensions?: FimDimensions, imageName?: string): TEngineImage {
     this.ensureNotDisposed();
-    return this.createEngineImage(dimensions ?? this.maxImageDimensions, options ?? {}, imageName);
+    return this.createEngineImage(options ?? {}, dimensions ?? this.maxImageDimensions, imageName);
   }
 
   public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, imageName?: string):
@@ -233,7 +233,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
-  protected abstract createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
+  protected abstract createEngineImage(options: FimImageOptions, dimensions: FimDimensions, imageName?: string):
     TEngineImage;
 
   /** Derived classes must implement this method to create a TEngineImage from a PNG file */
@@ -249,9 +249,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     TEngineShader;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  public abstract createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D;
+  public abstract createCoreCanvas2D(options: FimImageOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D;
 
   /** Derived classes must implement this method to call the CoreCanvasWebGL constructor */
-  public abstract createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions):
+  public abstract createCoreCanvasWebGL(options: FimImageOptions, dimensions: FimDimensions, handle: string):
     CoreCanvasWebGL;
 }

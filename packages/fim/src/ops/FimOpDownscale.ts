@@ -6,10 +6,10 @@ import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions } from '../api/FimImageOptions';
 import { FimOperationShader } from '../api/FimOperationShader';
-import { FimTextureSampling } from '../api/FimTextureSampling';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Built-in operation to downscale a texture to a lower resolution */
@@ -117,7 +117,7 @@ export class FimOpDownscale extends FimOperationShader {
       allowOversized: true,
       sampling: FimTextureSampling.Linear
     };
-    return usingAsync(fim.createImage(nextDimensions, options, 'DownscaleTemp'), async temp => {
+    return usingAsync(fim.createImage(options, nextDimensions, 'DownscaleTemp'), async temp => {
       await me.executeInternalAsync(inputImage, temp);
       await me.executeInternalAsync(temp, outputImage, destCoords);
     });

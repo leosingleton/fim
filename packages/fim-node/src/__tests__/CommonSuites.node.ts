@@ -35,7 +35,7 @@ engineOptions.showTracing = showTracing;
 engineOptions.showWarnings = showWarnings;
 
 TestSuites.coreCanvas2D('CoreNodeCanvas2D',
-  (dimensions) => new CoreNodeCanvas2D(dimensions, 'UnitTest', engineOptions));
+  (canvasOptions, dimensions) => new CoreNodeCanvas2D(canvasOptions, dimensions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvasWebGL('CoreNodeCanvasWebGL',
-  (dimensions) => new CoreNodeCanvasWebGL(dimensions, 'UnitTest', engineOptions));
+  (canvasOptions, dimensions) => new CoreNodeCanvasWebGL(canvasOptions, dimensions, 'UnitTest', engineOptions));

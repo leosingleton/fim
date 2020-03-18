@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimTextureSampling } from './FimTextureSampling';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
+import { FimTextureSampling } from '../primitives/FimTextureSampling';
 
 /**
  * Options during FimImage creation. All values are optional. If undefined, the value is inherited from the FIM-level

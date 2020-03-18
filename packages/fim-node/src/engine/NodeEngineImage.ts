@@ -21,7 +21,7 @@ export class NodeEngineImage extends EngineImage {
 
     await loadFromFileAsync(pngFile, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
-      result = new NodeEngineImage(fim, dimensions, options, imageName);
+      result = new NodeEngineImage(fim, options, dimensions, imageName);
       await result.loadFromPngAsync(pngFile);
     });
 
@@ -41,7 +41,7 @@ export class NodeEngineImage extends EngineImage {
 
     await loadFromFileAsync(jpegFile, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
-      result = new NodeEngineImage(fim, dimensions, options, imageName);
+      result = new NodeEngineImage(fim, options, dimensions, imageName);
       await result.loadFromPngAsync(jpegFile);
     });
 

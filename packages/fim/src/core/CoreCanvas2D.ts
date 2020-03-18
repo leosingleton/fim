@@ -139,7 +139,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       });
     } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-      await usingAsync(me.createTemporaryCanvas2D(dimensions), async temp => {
+      await usingAsync(me.createTemporaryCanvas2D({ downscale: 1 }, dimensions), async temp => {
         await temp.loadPixelDataAsync(pixelData, dimensions);
         await me.copyFromAsync(temp);
       });

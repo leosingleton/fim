@@ -8,7 +8,7 @@ import { fimTestSuite } from './api';
 import { coreCanvas2DTestSuite } from './core/CoreCanvas2D';
 import { coreCanvasWebGLTestSuite } from './core/CoreCanvasWebGL';
 import { Fim, FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
 export { TestImages } from './common/TestImages';
 
@@ -33,7 +33,7 @@ export namespace TestSuites {
    */
   export function coreCanvas2D(
     description: string,
-    factory: (dimensions: FimDimensions) => CoreCanvas2D
+    factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
   ): void {
     coreCanvas2DTestSuite(description, factory);
   }
@@ -45,7 +45,7 @@ export namespace TestSuites {
    */
   export function coreCanvasWebGL(
     description: string,
-    factory: (dimensions: FimDimensions) => CoreCanvasWebGL
+    factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
   ): void {
     coreCanvasWebGLTestSuite(description, factory);
   }

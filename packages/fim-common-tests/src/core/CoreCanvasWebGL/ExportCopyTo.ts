@@ -2,22 +2,23 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { canvasOptions, textureOptions } from '../../common/CoreOptions';
 import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../../common/Globals';
+import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimRect } from '@leosingleton/fim';
-import { CoreCanvasWebGL } from '@leosingleton/fim/internals';
-import { TestImages } from '../../common/TestImages';
+import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
 /** CoreCanvasWebGL test cases for exporting and copying to other objects */
 export function coreCanvasWebGLTestSuiteExportCopyTo(
   description: string,
-  factory: (dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Export/CopyTo - ${description}`, () => {
 
     it('Exports to pixel data', () => {
-      using(factory(small), canvas => {
+      using(factory(canvasOptions, small), canvas => {
         canvas.fillSolid(red);
         const data = canvas.exportToPixelData();
 
@@ -30,7 +31,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Exports to pixel data without flipping image', async () => {
-      await usingAsync(factory(smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
         // Render the four squares test pattern onto a WebGL canvas
         await renderFourSquares(canvas);
 
@@ -49,7 +50,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Exports a region to pixel data', async () => {
-      await usingAsync(factory(smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
         // Render the four squares test pattern onto a WebGL canvas
         await renderFourSquares(canvas);
 
@@ -67,7 +68,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Copies to a CoreCanvas2D', async () => {
-      await usingAsync(factory(small), async canvas => {
+      await usingAsync(factory(canvasOptions, small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);
 
@@ -80,12 +81,12 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Copies to a CoreTexture', async () => {
-      await usingAsync(factory(small), async canvas => {
+      await usingAsync(factory(canvasOptions, small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(red);
 
         // Copy the WebGL canvas to a CoreTexture
-        const texture = canvas.createCoreTexture();
+        const texture = canvas.createCoreTexture(textureOptions);
         await texture.copyFromAsync(canvas);
 
         // Fill the WebGL canvas with green
@@ -104,7 +105,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
 /** Helper function to render the four squares test pattern onto a WebGL canvas */
 async function renderFourSquares(canvas: CoreCanvasWebGL): Promise<void> {
   // Load the four squares test pattern on to a texture
-  const texture = canvas.createCoreTexture();
+  const texture = canvas.createCoreTexture(textureOptions);
   await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
     await temp.loadFromPngAsync(TestImages.fourSquaresPng());
     await texture.copyFromAsync(temp);

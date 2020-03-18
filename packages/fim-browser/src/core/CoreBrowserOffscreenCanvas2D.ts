@@ -3,17 +3,17 @@
 // See LICENSE in the project root for license information.
 
 import { loadCanvasFromFileAsync } from './LoadFromFile';
-import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
+import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
 
 /** Wrapper around the browser's OffscreenCanvas */
 export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions?: FimEngineOptions) {
+    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
     this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
   }
 
@@ -35,9 +35,9 @@ export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
-      imageOptions: FimImageOptions): CoreCanvas2D {
-    return new CoreBrowserOffscreenCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions: FimEngineOptions): CoreCanvas2D {
+    return new CoreBrowserOffscreenCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
   }
 
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {

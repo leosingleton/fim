@@ -10,7 +10,7 @@ import { coreCanvasWebGLTestSuiteExportCopyTo } from './ExportCopyTo';
 import { coreCanvasWebGLTestSuiteShader } from './Shader';
 import { coreCanvasWebGLTestSuiteTexture } from './Texture';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
+import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
 
 /**
  * Executes a suite of common tests using the CoreCanvasWebGL objects created via factory methods
@@ -19,7 +19,7 @@ import { CoreCanvasWebGL } from '@leosingleton/fim/build/internal';
  */
 export function coreCanvasWebGLTestSuite(
   description: string,
-  factory: (dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
 ): void {
   describe(description, () => {
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);

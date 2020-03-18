@@ -4,17 +4,18 @@
 
 import { CoreBrowserOffscreenCanvas2D } from './CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserTexture } from './CoreBrowserTexture';
-import { FimColor, FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
+import { FimColor, FimDimensions, FimEngineOptions } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
+  RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
 
 /** Wrapper around the browser's OffscreenCanvas */
 export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions?: FimEngineOptions) {
+    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
     this.canvasElement = new OffscreenCanvas(canvasDimensions.w, canvasDimensions.h);
 
     this.finishInitialization();
@@ -38,14 +39,14 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement.getContext('webgl');
   }
 
-  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
-      imageOptions: FimImageOptions): CoreCanvas2D {
-    return new CoreBrowserOffscreenCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions: FimEngineOptions): CoreCanvas2D {
+    return new CoreBrowserOffscreenCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
   }
 
-  protected createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
-      options: FimImageOptions): CoreBrowserTexture {
-    return new CoreBrowserTexture(parent, handle, dimensions, options);
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,
+      handle: string): CoreBrowserTexture {
+    return new CoreBrowserTexture(parent, options, dimensions, handle);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

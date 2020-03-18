@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas2D } from './CoreCanvas2D';
+import { CoreCanvasOptions } from  './CoreCanvasOptions';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
-import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
@@ -16,17 +16,17 @@ import { deepCopy } from '@leosingleton/commonlibs';
 export abstract class CoreCanvas {
   /**
    * Derived classes must override this constructor to instantiate the canvasElement object
+   * @param canvasOptions Canvas options
    * @param dimensions Canvas dimensions
    * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
-   * @param imageOptions Image options
    */
-  protected constructor(dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
+  protected constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+      engineOptions?: FimEngineOptions) {
     this.canvasDimensions = dimensions.toFloor();
     this.imageHandle = handle;
+    this.canvasOptions = deepCopy(canvasOptions);
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
-    this.imageOptions = deepCopy(imageOptions ?? defaultImageOptions);
     this.hasImage = false;
   }
 
@@ -36,11 +36,11 @@ export abstract class CoreCanvas {
   /** Handle of the image that owns this canvas. Used only for debugging. */
   public readonly imageHandle: string;
 
+  /** Canvas options */
+  public readonly canvasOptions: CoreCanvasOptions;
+
   /** Options for the FIM execution engine */
   public readonly engineOptions: FimEngineOptions;
-
-  /** Image options */
-  public readonly imageOptions: FimImageOptions;
 
   /** Dispose the WebGL canvas and all related objects, such as shaders and textures */
   public dispose(): void {
@@ -80,18 +80,18 @@ export abstract class CoreCanvas {
   /**
    * Creates a temporary canvas using `CoreCanvas2D`
    * @param dimensions Optional canvas dimensions. If unspecified, defaults to the same dimensions as this canvas.
-   * @param imageOptions Optional image options. If unspecified, inherits the image options from this canvas.
+   * @param canvasOptions Optional canvas options. If unspecified, inherits the image options from this canvas.
    * @returns `CoreCanvas2D` instance of the same type as this canvas. The caller is reponsible for calling `dispose()`
    *    on the returned object.
    */
-  public createTemporaryCanvas2D(dimensions?: FimDimensions, imageOptions?: FimImageOptions): CoreCanvas2D {
-    return this.createCanvas2D(dimensions ?? this.canvasDimensions, `${this.imageHandle}/Temp`, this.engineOptions,
-      imageOptions ?? this.imageOptions);
+  public createTemporaryCanvas2D(canvasOptions?: CoreCanvasOptions, dimensions?: FimDimensions): CoreCanvas2D {
+    return this.createCanvas2D(canvasOptions ?? this.canvasOptions, dimensions ?? this.canvasDimensions,
+      `${this.imageHandle}/Temp`, this.engineOptions);
   }
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  protected abstract createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string,
-    engineOptions: FimEngineOptions, imageOptions: FimImageOptions): CoreCanvas2D;
+  protected abstract createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions,
+    imageHandle: string, engineOptions: FimEngineOptions): CoreCanvas2D;
 
   /**
    * Helper function to fill a canvas with a solid color

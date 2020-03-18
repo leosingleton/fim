@@ -5,14 +5,15 @@
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
 import { CoreBrowserTexture } from './CoreBrowserTexture';
 import { DisposableCanvas, DomCanvasPoolWebGL } from './DomCanvasPool';
-import { FimDimensions, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
+import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
+  RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions?: FimEngineOptions) {
+    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserCanvasWebGL.canvasPool.getCanvas();
@@ -44,14 +45,14 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement.getContext('webgl');
   }
 
-  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
-      imageOptions: FimImageOptions): CoreCanvas2D {
-    return new CoreBrowserCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions: FimEngineOptions): CoreCanvas2D {
+    return new CoreBrowserCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
   }
 
-  protected createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
-      options: FimImageOptions): CoreBrowserTexture {
-    return new CoreBrowserTexture(parent, handle, dimensions, options);
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,
+      handle: string): CoreBrowserTexture {
+    return new CoreBrowserTexture(parent, options, dimensions, handle);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

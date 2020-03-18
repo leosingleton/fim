@@ -13,7 +13,9 @@ import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
+import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
+import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
@@ -25,14 +27,14 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   /**
    * Constructor
    * @param fim Parent FIM object
-   * @param dimensions Image dimensions
    * @param options Optional image options to override the parent FIM's defaults
+   * @param dimensions Optional image dimensions. Defaults to `maxImageDimensions` of the parent FIM object.
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  public constructor(fim: EngineFim<EngineImage, EngineShader>, dimensions: FimDimensions, options?: FimImageOptions,
+  public constructor(fim: EngineFim<EngineImage, EngineShader>, options?: FimImageOptions, dimensions?: FimDimensions,
       objectName?: string) {
     super(EngineObjectType.Image, objectName, fim);
-    this.imageDimensions = dimensions;
+    this.imageDimensions = dimensions ?? fim.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
   }
 
@@ -52,12 +54,14 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     // Start by merging this object's imageOptions with those inherited from the parent
     let options = me.getImageOptions();
 
+    // glDownscale is effectively the min of the image downscale and WebGL downscale
+    options.glDownscale = Math.min(options.glDownscale, options.downscale);
+
     // Override with any canvas options which don't take effect after canvas creation
     const canvas = me.contentCanvas.imageContent;
     if (canvas) {
       options = mergeImageOptions(options, {
-        allowOversized: options.allowOversized && canvas.imageOptions.allowOversized,
-        downscale: canvas.imageOptions.downscale
+        downscale: canvas.canvasOptions.downscale
       });
     }
 
@@ -65,15 +69,11 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     const texture = me.contentTexture.imageContent;
     if (texture) {
       options = mergeImageOptions(options, {
-        allowOversized: options.allowOversized && texture.imageOptions.allowOversized,
-        bpp: texture.imageOptions.bpp,
-        glDownscale: texture.imageOptions.glDownscale,
-        sampling: texture.imageOptions.sampling
+        bpp: texture.textureOptions.bpp,
+        glDownscale: texture.textureOptions.downscale,
+        sampling: texture.textureOptions.sampling
       });
     }
-
-    // glDownscale is always effectively the min of the image downscale and WebGL downscale
-    options.glDownscale = Math.min(options.glDownscale, options.downscale);
 
     return options;
   }
@@ -87,8 +87,27 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   }
 
   /** Calculates and returns the current image options for this image */
-  public getImageOptions(): FimImageOptions {
+  private getImageOptions(): FimImageOptions {
     return mergeImageOptions(this.parentObject.defaultImageOptions, this.imageOptions);
+  }
+
+  /** Calculates and returns the `CoreCanvasOptions` for creating a new canvas */
+  public getCanvasOptions(): CoreCanvasOptions {
+    const options = this.getImageOptions();
+    return {
+      downscale: options.downscale
+    };
+  }
+
+  /** Calculates and returns the `CoreTextureOptions` for creating a new texture */
+  public getTextureOptions(): CoreTextureOptions {
+    const options = this.getImageOptions();
+    return {
+      bpp: options.bpp,
+      downscale: options.downscale,
+      isReadOnly: options.glReadOnly,
+      sampling: options.sampling
+    };
   }
 
   //
@@ -126,7 +145,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
 
     // TODO: calculate downscaled dimensions
-    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageDimensions, me.handle, me.imageOptions);
+    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions, me.imageDimensions, me.handle);
   }
 
   /** Ensures `contentTexture.imageContent` points to a valid WebGL texture */
@@ -140,7 +159,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     // TODO: calculate downscaled dimensions
     const glCanvas = me.parentObject.getWebGLCanvas();
-    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.imageDimensions, me.getImageOptions());
+    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(), me.imageDimensions);
   }
 
   /**
@@ -377,7 +396,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
       const glCanvas = me.parentObject.getWebGLCanvas();
-      const outputTexture = glCanvas.createCoreTexture(me.imageDimensions, me.getImageOptions());
+      const outputTexture = glCanvas.createCoreTexture(me.getTextureOptions(), me.imageDimensions);
       try {
         await shaderOrOperation.executeAsync(outputTexture, destCoords);
       } catch (err) {

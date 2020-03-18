@@ -6,7 +6,7 @@ import { coreCanvas2DTestSuiteCanvas } from './Canvas';
 import { coreCanvas2DTestSuiteCreateDispose } from './CreateDispose';
 import { coreCanvas2DTestSuitePngJpeg } from './PngJpeg';
 import { FimDimensions } from '@leosingleton/fim';
-import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
+import { CoreCanvas2D, CoreCanvasOptions } from '@leosingleton/fim/build/internal';
 
 /**
  * Executes a suite of common tests using the CoreCanvas2D objects created via factory methods
@@ -15,7 +15,7 @@ import { CoreCanvas2D } from '@leosingleton/fim/build/internal';
  */
 export function coreCanvas2DTestSuite(
   description: string,
-  factory: (dimensions: FimDimensions) => CoreCanvas2D
+  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
 ): void {
   describe(description, () => {
     coreCanvas2DTestSuiteCreateDispose(description, factory);

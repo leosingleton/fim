@@ -50,11 +50,11 @@ async function testGaussianBlur(
   await usingAsync(factory(medium), async fim => {
     // Create a solid blue image of a specific shade
     const blueShade = FimColor.fromString('#21f');
-    const blueImage = fim.createImage(medium, { sampling: inputSampling });
+    const blueImage = fim.createImage({ sampling: inputSampling });
     await blueImage.fillSolidAsync(blueShade);
 
     // Blur the image
-    const output = fim.createImage(medium, { sampling: outputSampling });
+    const output = fim.createImage({ sampling: outputSampling });
     const blur = new FimOpGaussianBlur(fim, fast);
     blur.setInputs(blueImage, sigma, kernelSize);
     await output.executeAsync(blur);

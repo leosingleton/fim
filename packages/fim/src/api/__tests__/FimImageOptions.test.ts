@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimImageOptions, defaultImageOptions, mergeImageOptions } from '../FimImageOptions';
-import { FimTextureSampling } from '../FimTextureSampling';
 import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
+import { FimTextureSampling } from '../../primitives/FimTextureSampling';
 
 describe('FimImageOptions', () => {
 

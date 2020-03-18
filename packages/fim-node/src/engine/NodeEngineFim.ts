@@ -6,13 +6,13 @@ import { NodeEngineImage } from './NodeEngineImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
-  protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
+  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, imageName?: string):
       NodeEngineImage {
-    return new NodeEngineImage(this, dimensions, options, imageName);
+    return new NodeEngineImage(this, options, dimensions, imageName);
   }
 
   protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
@@ -29,11 +29,11 @@ export class NodeEngineFim extends EngineFim<NodeEngineImage, EngineShader> {
     return new EngineShader(this, fragmentShader, vertexShader, shaderName);
   }
 
-  public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
-    return new CoreNodeCanvas2D(dimensions, handle, this.engineOptions, options);
+  public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
+    return new CoreNodeCanvas2D(options, dimensions, handle, this.engineOptions);
   }
 
-  public createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvasWebGL {
-    return new CoreNodeCanvasWebGL(dimensions, handle, this.engineOptions, options);
+  public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
+    return new CoreNodeCanvasWebGL(options, dimensions, handle, this.engineOptions);
   }
 }

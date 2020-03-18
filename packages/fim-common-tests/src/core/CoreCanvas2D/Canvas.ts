@@ -2,21 +2,22 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { canvasOptions } from '../../common/CoreOptions';
 import { blue, green, midpoint, red, small, smallFourSquares } from '../../common/Globals';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimRect } from '@leosingleton/fim';
-import { CoreCanvas2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions,  } from '@leosingleton/fim/internals';
 
 /** CoreCanvas2D test cases around canvases */
 export function coreCanvas2DTestSuiteCanvas(
   description: string,
-  factory: (dimensions: FimDimensions) => CoreCanvas2D
+  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
 ): void {
   describe(`CoreCanvas2D Canvas - ${description}`, () => {
 
     it('Gets and sets pixels', async () => {
-      await usingAsync(factory(small), async canvas => {
+      await usingAsync(factory(canvasOptions, small), async canvas => {
         const pixelData = TestImages.solidPixelData(small, red);
         await canvas.loadPixelDataAsync(pixelData);
         expect(canvas.getPixel(midpoint(small))).toEqual(red);
@@ -24,17 +25,17 @@ export function coreCanvas2DTestSuiteCanvas(
     });
 
     it('Fills with solid colors', () => {
-      using(factory(small), canvas => {
+      using(factory(canvasOptions, small), canvas => {
         canvas.fillSolid(green);
         expect(canvas.getPixel(midpoint(small))).toEqual(green);
       });
     });
 
     it('Copies from one canvas to another', async () => {
-      await usingAsync(factory(small), async canvas1 => {
+      await usingAsync(factory(canvasOptions, small), async canvas1 => {
         canvas1.fillSolid(blue);
 
-        await usingAsync(factory(small), async canvas2 => {
+        await usingAsync(factory(canvasOptions, small), async canvas2 => {
           await canvas2.copyFromAsync(canvas1);
           expect(canvas2.getPixel(midpoint(small))).toEqual(blue);
         });
@@ -42,7 +43,7 @@ export function coreCanvas2DTestSuiteCanvas(
     });
 
     it('Exports to pixel data', () => {
-      using(factory(small), canvas => {
+      using(factory(canvasOptions, small), canvas => {
         canvas.fillSolid(red);
         const data = canvas.exportToPixelData();
 
@@ -55,7 +56,7 @@ export function coreCanvas2DTestSuiteCanvas(
     });
 
     it('Exports a region to pixel data', async () => {
-      await usingAsync(factory(smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
         // Load the four squares test pattern
         await canvas.loadFromPngAsync(TestImages.fourSquaresPng());
 

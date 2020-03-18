@@ -8,13 +8,13 @@ import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFim, EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader> {
-  protected createEngineImage(dimensions: FimDimensions, options: FimImageOptions, imageName?: string):
+  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, imageName?: string):
       BrowserEngineImage {
-    return new BrowserEngineImage(this, dimensions, options, imageName);
+    return new BrowserEngineImage(this, options, dimensions, imageName);
   }
 
   protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
@@ -31,19 +31,19 @@ export class BrowserEngineFim extends EngineFim<BrowserEngineImage, EngineShader
     return new EngineShader(this, fragmentShader, vertexShader, shaderName);
   }
 
-  public createCoreCanvas2D(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvas2D {
+  public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
     if (!this.engineOptions.disableOffscreenCanvas) {
-      return new CoreBrowserOffscreenCanvas2D(dimensions, handle, this.engineOptions, options);
+      return new CoreBrowserOffscreenCanvas2D(options, dimensions, handle, this.engineOptions);
     } else {
-      return new CoreBrowserCanvas2D(dimensions, handle, this.engineOptions, options);
+      return new CoreBrowserCanvas2D(options, dimensions, handle, this.engineOptions);
     }
   }
 
-  public createCoreCanvasWebGL(dimensions: FimDimensions, handle: string, options: FimImageOptions): CoreCanvasWebGL {
+  public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
     if (!this.engineOptions.disableOffscreenCanvas) {
-      return new CoreBrowserOffscreenCanvasWebGL(dimensions, handle, this.engineOptions, options);
+      return new CoreBrowserOffscreenCanvasWebGL(options, dimensions, handle, this.engineOptions);
     } else {
-      return new CoreBrowserCanvasWebGL(dimensions, handle, this.engineOptions, options);
+      return new CoreBrowserCanvasWebGL(options, dimensions, handle, this.engineOptions);
     }
   }
 }

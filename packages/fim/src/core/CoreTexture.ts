@@ -4,14 +4,14 @@
 
 import { CoreCanvas } from './CoreCanvas';
 import { CoreCanvasWebGL } from './CoreCanvasWebGL';
+import { CoreTextureOptions } from './CoreTextureOptions';
 import { CoreWebGLObject } from './CoreWebGLObject';
-import { FimImageOptions } from '../api/FimImageOptions';
-import { FimTextureSampling } from '../api/FimTextureSampling';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
@@ -19,14 +19,14 @@ export abstract class CoreTexture extends CoreWebGLObject {
   /**
    * Constructor
    * @param parent The parent WebGL canvas
-   * @param handle Texture handle, for debugging
+   * @param options Texture options
    * @param dimensions Texture dimensions
-   * @param options Texture options. Must be fully computed with default values populated.
+   * @param handle Texture handle, for debugging
    */
-  public constructor(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions, options: FimImageOptions) {
+  public constructor(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions, handle: string) {
     super(parent, handle);
+    this.textureOptions = deepCopy(options);
     this.textureDimensions = dimensions.toFloor();
-    this.imageOptions = deepCopy(options);
 
     // Ensure the dimensions do not exceed WebGL's maximum texture size
     const caps = parent.detectCapabilities();
@@ -36,7 +36,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
     }
 
     // Ensure the dimensions do not exceed WebGL's max output buffer size
-    if (!options.glReadOnly) {
+    if (!options.isReadOnly) {
       const maxRenderBufferSize = FimDimensions.fromSquareDimension(caps.glMaxRenderBufferSize);
       if (dimensions.w > maxRenderBufferSize.w || dimensions.h > maxRenderBufferSize.h) {
         FimError.throwOnInvalidDimensions(maxRenderBufferSize, dimensions);
@@ -52,7 +52,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
 
     // glReadOnly textures are limited to 8 BPP, as FIM doesn't have any input formats that support higher to load the
     // texture contents from.
-    if (options.glReadOnly && bpp > FimBitsPerPixel.BPP8) {
+    if (options.isReadOnly && bpp > FimBitsPerPixel.BPP8) {
       FimError.throwOnInvalidParameter(`BPP${bpp} (RO)`);
     }
 
@@ -76,7 +76,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
       parent.throwWebGLErrorsDebug();
 
       // If the texture is not readonly, create a framebuffer to back this texture
-      if (!options.glReadOnly) {
+      if (!options.isReadOnly) {
         // Allocate the texture
         const format = gl.RGBA;
         const depth = parent.getTextureDepthConstant(bpp);
@@ -122,11 +122,11 @@ export abstract class CoreTexture extends CoreWebGLObject {
     }
   }
 
+  /** Texture options */
+  public readonly textureOptions: CoreTextureOptions;
+
   /** Texture dimensions */
   public readonly textureDimensions: FimDimensions;
-
-  /** Image options */
-  public readonly imageOptions: FimImageOptions;
 
   /** Throws an exception if the rectangle extends outside of the texture */
   public validateRect(rect: FimRect): void {
@@ -222,7 +222,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
     const maxDimension = me.parentCanvas.detectCapabilities().glMaxTextureSize;
     if (srcCanvas.canvasDimensions.w > maxDimension || srcCanvas.canvasDimensions.h > maxDimension) {
       // Slow path: first copy the source canvas to a smaller canvas
-      await usingAsync(srcCanvas.createTemporaryCanvas2D(me.textureDimensions), async temp => {
+      await usingAsync(srcCanvas.createTemporaryCanvas2D({ downscale: 1 }, me.textureDimensions), async temp => {
         await temp.copyFromAsync(srcCanvas);
         await me.copyFromAsync(temp);
       });
@@ -247,7 +247,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
   public getFramebuffer(): WebGLFramebuffer {
     const me = this;
     me.ensureNotDisposed();
-    if (me.imageOptions.glReadOnly) {
+    if (me.textureOptions.isReadOnly) {
       // Cannot write to an input only texture
       FimError.throwOnImageReadonly(me.handle);
     }

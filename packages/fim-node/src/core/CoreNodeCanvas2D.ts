@@ -3,17 +3,18 @@
 // See LICENSE in the project root for license information.
 
 import { loadCanvasFromFileAsync } from './LoadFromFile';
-import { FimDimensions, FimEngineOptions, FimImageOptions, FimRect } from '@leosingleton/fim';
-import { CoreCanvas, CoreCanvas2D, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
+import { FimDimensions, FimEngineOptions, FimRect } from '@leosingleton/fim';
+import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, CoreMimeType,
+  RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
 import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions?: FimEngineOptions) {
+    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
 
     // Create the canvas using node-canvas
     this.canvasElement = createCanvas(canvasDimensions.w, canvasDimensions.h);
@@ -35,9 +36,9 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
-      imageOptions: FimImageOptions): CoreCanvas2D {
-    return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions: FimEngineOptions): CoreCanvas2D {
+    return new CoreNodeCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
   }
 
   public async copyFromAsync(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
@@ -62,7 +63,7 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
         await me.loadPixelDataAsync(data, srcCoords.dim);
       } else {
         // Slow case: The destination is not the entire canvas. Use a temporary canvas to load the pixel data.
-        await usingAsync(me.createTemporaryCanvas2D(srcCoords.dim), async temp => {
+        await usingAsync(me.createTemporaryCanvas2D(undefined, srcCoords.dim), async temp => {
           await temp.loadPixelDataAsync(data);
           await super.copyFromAsync(temp, undefined, destCoords);
         });

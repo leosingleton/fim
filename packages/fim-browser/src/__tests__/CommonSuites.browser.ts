@@ -54,13 +54,15 @@ engineOptions.showTracing = showTracing;
 engineOptions.showWarnings = showWarnings;
 
 TestSuites.coreCanvas2D('CoreBrowserCanvas2D',
-  (dimensions) => new CoreBrowserCanvas2D(dimensions, 'UnitTest', engineOptions));
+  (canvasOptions, dimensions) => new CoreBrowserCanvas2D(canvasOptions, dimensions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvasWebGL('CoreBrowserCanvasWebGL',
-  (dimensions) => new CoreBrowserCanvasWebGL(dimensions, 'UnitTest', engineOptions));
+  (canvasOptions, dimensions) => new CoreBrowserCanvasWebGL(canvasOptions, dimensions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvas2D('CoreBrowserOffscreenCanvas2D',
-  (dimensions) => new CoreBrowserOffscreenCanvas2D(dimensions, 'UnitTest', engineOptions));
+  (canvasOptions, dimensions) => new CoreBrowserOffscreenCanvas2D(canvasOptions, dimensions, 'UnitTest',
+    engineOptions));
 
 TestSuites.coreCanvasWebGL('CoreBrowserOffscreenCanvasWebGL',
-  (dimensions) => new CoreBrowserOffscreenCanvasWebGL(dimensions, 'UnitTest', engineOptions));
+  (canvasOptions, dimensions) => new CoreBrowserOffscreenCanvasWebGL(canvasOptions, dimensions, 'UnitTest',
+    engineOptions));

@@ -8,8 +8,7 @@ import { CoreTexture } from './CoreTexture';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';
-import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
-import { FimTextureSampling } from '../api/FimTextureSampling';
+import { FimImageOptions } from '../api/FimImageOptions';
 import { FimTransform2D } from '../math/FimTransform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
@@ -17,8 +16,10 @@ import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
+import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { UnhandledError } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
+import { CoreTextureOptions } from './CoreTextureOptions';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvasWebGL extends CoreCanvas {
@@ -457,28 +458,21 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /**
    * Calls the CoreTexture constructor
+   * @param options Texture options
    * @param dimensions Optional texture dimensions. Defaults to the size of this canvas.
-   * @param options Optional image options. Values that are unspecified are inherited from this canvas's image options.
    * @param handle Optional texture handle, for debugging
    */
-  public createCoreTexture(dimensions?: FimDimensions, options?: FimImageOptions, handle?: string): CoreTexture {
+  public createCoreTexture(options: CoreTextureOptions, dimensions?: FimDimensions, handle?: string): CoreTexture {
     const me = this;
     me.ensureNotDisposed();
 
-    // If options are not specified, limit the BPP to match the WebGL capabilities
-    if (!options) {
-      options = { bpp: me.getDefaultColorDepth() };
-    } else if (!options.bpp) {
-      options.bpp = me.getDefaultColorDepth();
-    }
-
-    return me.createCoreTextureInternal(me, handle ?? `${me.imageHandle}/Texture`, dimensions ?? me.canvasDimensions,
-      mergeImageOptions(me.imageOptions, options));
+    return me.createCoreTextureInternal(me, options, dimensions ?? me.canvasDimensions,
+      handle ?? `${me.imageHandle}/Texture`);
   }
 
   /** Derived classes must implement this method to call the `CoreCanvas2D` constructor */
-  protected abstract createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
-    options: FimImageOptions): CoreTexture;
+  protected abstract createCoreTextureInternal(parent: CoreCanvasWebGL, options: FimImageOptions,
+    dimensions: FimDimensions, handle: string): CoreTexture;
 
   public fillSolid(color: FimColor | string): void {
     const me = this;

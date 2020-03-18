@@ -4,15 +4,16 @@
 
 import { CoreNodeCanvas2D } from './CoreNodeCanvas2D';
 import { CoreNodeTexture } from './CoreNodeTexture';
-import { FimDimensions, FimError, FimErrorCode, FimEngineOptions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasWebGL, RenderingContextWebGL } from '@leosingleton/fim/internals';
+import { FimDimensions, FimError, FimErrorCode, FimEngineOptions } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
+  RenderingContextWebGL } from '@leosingleton/fim/internals';
 import createContext from 'gl';
 
 /** Wrapper around the headless-gl WebGL library */
 export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasDimensions: FimDimensions, imageHandle: string, engineOptions?: FimEngineOptions,
-      imageOptions?: FimImageOptions) {
-    super(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions?: FimEngineOptions) {
+    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
 
     // Create the canvas using headless-gl
     this.glContext = createContext(canvasDimensions.w, canvasDimensions.h);
@@ -39,14 +40,14 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
     return this.glContext;
   }
 
-  protected createCanvas2D(canvasDimensions: FimDimensions, imageHandle: string, engineOptions: FimEngineOptions,
-      imageOptions: FimImageOptions): CoreCanvas2D {
-    return new CoreNodeCanvas2D(canvasDimensions, imageHandle, engineOptions, imageOptions);
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+      engineOptions: FimEngineOptions): CoreCanvas2D {
+    return new CoreNodeCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
   }
 
-  protected createCoreTextureInternal(parent: CoreCanvasWebGL, handle: string, dimensions: FimDimensions,
-      options: FimImageOptions): CoreNodeTexture {
-    return new CoreNodeTexture(parent, handle, dimensions, options);
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,
+      handle: string): CoreNodeTexture {
+    return new CoreNodeTexture(parent, options, dimensions, handle);
   }
 
   protected addCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {
