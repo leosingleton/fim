@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas2D } from './CoreCanvas2D';
-import { CoreCanvasOptions } from  './CoreOptions';
+import { CoreCanvasOptions } from  './CoreCanvasOptions';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';

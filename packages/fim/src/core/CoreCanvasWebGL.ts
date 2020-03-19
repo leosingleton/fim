@@ -3,9 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
-import { CoreTextureOptions } from './CoreOptions';
 import { CoreShader } from './CoreShader';
 import { CoreTexture } from './CoreTexture';
+import { CoreTextureOptions } from './CoreTextureOptions';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { RenderingContextWebGL } from './types/RenderingContextWebGL';
 import { FimWebGLCapabilities } from '../api/FimCapabilities';

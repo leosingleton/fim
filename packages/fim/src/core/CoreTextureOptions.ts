@@ -5,22 +5,8 @@
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
 
-/** Base interface for `CoreCanvasOptions` and `CoreTextureOptions` */
-export interface CoreOptions {
-  /**
-   * A scaling value ranging from [1.0, 0.0) which causes the underlying canvas to be smaller than the reported
-   * canvas size. A value of 1.0 indicates no downscaling. Downscaling can improve performance and reduce memory
-   * consumption.
-   */
-  readonly downscale: number;
-}
-
-/** Options for `CoreCanvas` and its derived classes */
-export interface CoreCanvasOptions extends CoreOptions {
-}
-
 /** Options for `CoreTexture` */
-export interface CoreTextureOptions extends CoreOptions {
+export interface CoreTextureOptions {
   /** Bits per pixel */
   readonly bpp: FimBitsPerPixel;
 

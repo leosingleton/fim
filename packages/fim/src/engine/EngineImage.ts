@@ -13,8 +13,9 @@ import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
-import { CoreCanvasOptions, CoreTextureOptions } from '../core/CoreOptions';
+import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
+import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
@@ -57,19 +58,16 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     options.glDownscale = Math.min(options.glDownscale, options.downscale);
 
     // Override with any canvas options which don't take effect after canvas creation
-    const canvas = me.contentCanvas.imageContent;
+    /*const canvas = me.contentCanvas.imageContent;
     if (canvas) {
-      options = mergeImageOptions(options, {
-        downscale: canvas.canvasOptions.downscale
-      });
-    }
+      options = mergeImageOptions(options, {});
+    }*/
 
     // Override with any texture options which don't take effect after canvas creation
     const texture = me.contentTexture.imageContent;
     if (texture) {
       options = mergeImageOptions(options, {
         bpp: texture.textureOptions.bpp,
-        glDownscale: texture.textureOptions.downscale,
         sampling: texture.textureOptions.sampling
       });
     }
@@ -92,10 +90,8 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
   /** Calculates and returns the `CoreCanvasOptions` for creating a new canvas */
   public getCanvasOptions(): CoreCanvasOptions {
-    const options = this.getImageOptions();
-    return {
-      downscale: options.downscale
-    };
+    //const options = this.getImageOptions();
+    return {};
   }
 
   /** Calculates and returns the `CoreTextureOptions` for creating a new texture */
@@ -103,7 +99,6 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     const options = this.getImageOptions();
     return {
       bpp: options.bpp,
-      downscale: options.downscale,
       isReadOnly: options.glReadOnly,
       sampling: options.sampling
     };

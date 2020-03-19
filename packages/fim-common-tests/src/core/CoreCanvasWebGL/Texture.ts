@@ -41,7 +41,6 @@ export function coreCanvasWebGLTestSuiteTexture(
       using(factory(canvasOptions, small), canvas => {
         const texture = canvas.createCoreTexture({
           bpp: FimBitsPerPixel.BPP8, // isReadOnly only supports 8 bits per pixel
-          downscale: 1,
           isReadOnly: true,
           sampling: FimTextureSampling.Nearest
         });
@@ -90,39 +89,36 @@ export function coreCanvasWebGLTestSuiteTexture(
         temp.fillSolid(grey);
 
         for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
-          for (const downscale of [0.5, 0.8, 1.0]) {
-            for (const isReadOnly of [false, true]) {
-              for (const sampling of [FimTextureSampling.Linear, FimTextureSampling.Nearest]) {
-                // Ensure the desired combination is valid
-                if (sampling === FimTextureSampling.Linear && caps.glTextureDepthsLinear.indexOf(bpp) === -1) {
-                  continue;
-                }
-                if (sampling === FimTextureSampling.Nearest && caps.glTextureDepthsNearest.indexOf(bpp) === -1) {
-                  continue;
-                }
-                if (isReadOnly && bpp > FimBitsPerPixel.BPP8) {
-                  continue; // glReadOnly only supports 8 BPP
-                }
-
-                // Create a texture with the requested image options
-                const texture = canvas.createCoreTexture({
-                  bpp,
-                  downscale,
-                  isReadOnly,
-                  sampling
-                }, medium);
-
-                // Copy the 2D grey canvas to the texture
-                await texture.copyFromAsync(temp);
-
-                // Clear the WebGL canvas
-                canvas.fillSolid(black);
-                expect(canvas.getPixel(midpoint(small))).toEqual(black);
-
-                // Render the texture to the WebGL canvas
-                canvas.copyFrom(texture);
-                expect(canvas.getPixel(midpoint(small))).toEqual(grey);
+          for (const isReadOnly of [false, true]) {
+            for (const sampling of [FimTextureSampling.Linear, FimTextureSampling.Nearest]) {
+              // Ensure the desired combination is valid
+              if (sampling === FimTextureSampling.Linear && caps.glTextureDepthsLinear.indexOf(bpp) === -1) {
+                continue;
               }
+              if (sampling === FimTextureSampling.Nearest && caps.glTextureDepthsNearest.indexOf(bpp) === -1) {
+                continue;
+              }
+              if (isReadOnly && bpp > FimBitsPerPixel.BPP8) {
+                continue; // glReadOnly only supports 8 BPP
+              }
+
+              // Create a texture with the requested image options
+              const texture = canvas.createCoreTexture({
+                bpp,
+                isReadOnly,
+                sampling
+              }, medium);
+
+              // Copy the 2D grey canvas to the texture
+              await texture.copyFromAsync(temp);
+
+              // Clear the WebGL canvas
+              canvas.fillSolid(black);
+              expect(canvas.getPixel(midpoint(small))).toEqual(black);
+
+              // Render the texture to the WebGL canvas
+              canvas.copyFrom(texture);
+              expect(canvas.getPixel(midpoint(small))).toEqual(grey);
             }
           }
         }
@@ -135,7 +131,6 @@ export function coreCanvasWebGLTestSuiteTexture(
         const dim = FimDimensions.fromWidthHeight(caps.glMaxTextureSize + 1, 10);
         expect(() => canvas.createCoreTexture({
           bpp: FimBitsPerPixel.BPP8,
-          downscale: 1,
           isReadOnly: true,
           sampling: FimTextureSampling.Nearest
         }, dim)).toThrow();

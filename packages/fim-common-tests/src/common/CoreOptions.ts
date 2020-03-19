@@ -5,14 +5,12 @@
 import { FimBitsPerPixel, FimTextureSampling } from '@leosingleton/fim';
 import { CoreCanvasOptions, CoreTextureOptions } from '@leosingleton/fim/internals';
 
-export const canvasOptions: CoreCanvasOptions = {
-  downscale: 1
-};
+/** Default canvas options for unit tests */
+export const canvasOptions: CoreCanvasOptions = {};
 
 /** Default texture options for unit tests */
 export const textureOptions: CoreTextureOptions = {
   bpp: FimBitsPerPixel.BPP8,
-  downscale: 1,
   isReadOnly: false,
   sampling: FimTextureSampling.Nearest
 };
