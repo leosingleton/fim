@@ -104,7 +104,8 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
    * @param message Message to log
    */
   public writeWarning(object: EngineObject, message: string): void {
-    this.writeMessageInternal(object, message, this.engineOptions.showTracing || this.engineOptions.showWarnings);
+    this.writeMessageInternal(object, `<WARNING> ${message}`, this.engineOptions.showTracing ||
+      this.engineOptions.showWarnings);
   }
 
   /**

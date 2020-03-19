@@ -130,6 +130,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   /** Ensures `contentCanvas.imageContent` points to a valid 2D canvas */
   private allocateContentCanvas(): void {
     const me = this;
+    const handle = `${me.handle}/ContentCanvas`;
 
     // If a canvas is already allocated, this function is a no-op
     if (me.contentCanvas.imageContent) {
@@ -137,15 +138,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Calculate the downscaled dimensions and create a 2D canvas
-    const dsf = me.calculateDimensionsAndScaleFactor(false);
+    const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
-    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions, dsf.scaledDimensions,
-      `${me.handle}/ContentCanvas`);
+    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions, dsf.scaledDimensions, handle);
   }
 
   /** Ensures `contentTexture.imageContent` points to a valid WebGL texture */
   private allocateContentTexture(): void {
     const me = this;
+    const handle = `${me.handle}/ContentTexture`;
 
     // If a texture is already allocated, this function is a no-op
     if (me.contentTexture.imageContent) {
@@ -153,18 +154,18 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Calculate the downscaled dimensions and create a WebGL texture
-    const dsf = me.calculateDimensionsAndScaleFactor(true);
+    const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
     const glCanvas = me.parentObject.getWebGLCanvas();
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
-    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(), dsf.scaledDimensions,
-      `${me.handle}/ContentTexture`);
+    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(), dsf.scaledDimensions, handle);
   }
 
   /**
    * Calculates the dimensions and scale factor (`1 / downscale`) for a 2D canvas or WebGL texture
+   * @param handle Handle of the object being created (for logging purposes)
    * @param isTexture True for WebGL textures; false for 2D canvases
    */
-  private calculateDimensionsAndScaleFactor(isTexture: boolean):
+  private calculateDimensionsAndScaleFactor(handle: string, isTexture: boolean):
       { scaleFactor: number, scaledDimensions: FimDimensions } {
     const me = this;
     const options = me.getImageOptions();
@@ -177,9 +178,6 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       downscale.push(options.glDownscale);
     }
 
-    // Store the downscale requested by the caller
-    const requestedDownscale = Math.min(...downscale);
-
     // Check whether the image dimensions are larger than supported by WebGL
     const maxGLSize = options.glReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
     const maxGLDimensions = me.dim.downscaleToMaxDimension(maxGLSize);
@@ -189,15 +187,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     if (!options.allowOversized && (me.dim.w > parent.maxImageDimensions.w || me.dim.h > parent.maxImageDimensions.h)) {
       downscale.push(parent.maxImageDimensions.w / me.dim.w);
       downscale.push(parent.maxImageDimensions.h / me.dim.h);
+
+      // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
+      // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
+      // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
+      parent.writeWarning(me, `Auto-downscale ${handle}: ${me.dim} > max (${parent.maxImageDimensions})`);
     }
 
-    // Calculate the minimum downscale value
+    // Calculate the scale factor and new dimensions
     const minDownscale = Math.min(...downscale);
-    if (minDownscale < requestedDownscale) {
-      parent.writeWarning(me, `Auto-downscale from ${requestedDownscale} to ${minDownscale}`);
-    }
-
-    // Return the scale factor and new dimensions
     const scaleFactor = 1 / minDownscale;
     const scaledDimensions = me.dim.rescale(scaleFactor).toFloor();
     return { scaleFactor, scaledDimensions };
