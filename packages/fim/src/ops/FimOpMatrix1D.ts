@@ -76,7 +76,7 @@ export class FimOpMatrix1D extends FimOperationShader {
     // Make the first pass in the X direction
     shader.setUniforms({
       uInput: inputImage,
-      uInputSize: [inputImage.imageDimensions.w, inputImage.imageDimensions.h],
+      uInputSize: [inputImage.dim.w, inputImage.dim.h],
       uIsX: 1,
       uIsY: 0
     });
@@ -85,7 +85,7 @@ export class FimOpMatrix1D extends FimOperationShader {
     // Make the second pass in the Y direction
     shader.setUniforms({
       uInput: outputImage,
-      uInputSize: [outputImage.imageDimensions.w, outputImage.imageDimensions.h],
+      uInputSize: [outputImage.dim.w, outputImage.dim.h],
       uIsX: 0,
       uIsY: 1
     });

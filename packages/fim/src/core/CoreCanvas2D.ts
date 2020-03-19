@@ -73,7 +73,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
 
     using(me.createDrawingContext(), ctx => {
       ctx.fillStyle = colorString;
-      ctx.fillRect(0, 0, me.canvasDimensions.w, me.canvasDimensions.h);
+      ctx.fillRect(0, 0, me.dim.w, me.dim.h);
     });
 
     me.hasImage = true;
@@ -108,8 +108,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions
-    dimensions = dimensions ?? me.canvasDimensions;
-    const sameDimensions = dimensions.equals(me.canvasDimensions);
+    dimensions = dimensions ?? me.dim;
+    const sameDimensions = dimensions.equals(me.dim);
     const expectedLength = dimensions.getArea() * 4;
     if (pixelData.length !== expectedLength) {
       FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
@@ -127,10 +127,9 @@ export abstract class CoreCanvas2D extends CoreCanvas {
         const imageData = new ImageData(pixelData, dimensions.w, dimensions.h);
         const imageBitmap = disposable.addNonDisposable(await createImageBitmap(imageData), ib => ib.close());
 
-        ctx.drawImage(imageBitmap, 0, 0, dimensions.w, dimensions.h, 0, 0, me.canvasDimensions.w,
-          me.canvasDimensions.h);
+        ctx.drawImage(imageBitmap, 0, 0, dimensions.w, dimensions.h, 0, 0, me.dim.w, me.dim.h);
       });
-    } else if (dimensions.equals(me.canvasDimensions)) {
+    } else if (dimensions.equals(me.dim)) {
       // This implementation is slightly slower than the drawImage() one above, but has better browser compatibility
       using(me.createDrawingContext(), ctx => {
         const imgData = ctx.createImageData(dimensions.w, dimensions.h);
@@ -163,18 +162,17 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     // Validate the dimensions
     const imageDimensions = FimDimensions.fromWidthHeight(image.width, image.height);
     let sameDimensions = true;
-    if (!imageDimensions.equals(me.canvasDimensions)) {
+    if (!imageDimensions.equals(me.dim)) {
       if (allowRescale) {
         sameDimensions = false;
       } else {
-        FimError.throwOnInvalidDimensions(me.canvasDimensions, imageDimensions);
+        FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
       }
     }
 
     // Enable image smoothing if we are rescaling the image
     using(me.createDrawingContext(!sameDimensions), ctx => {
-      ctx.drawImage(image as CanvasImageSource, 0, 0, imageDimensions.w, imageDimensions.h, 0, 0, me.canvasDimensions.w,
-        me.canvasDimensions.h);
+      ctx.drawImage(image as CanvasImageSource, 0, 0, imageDimensions.w, imageDimensions.h, 0, 0, me.dim.w, me.dim.h);
     });
 
     me.hasImage = true;
@@ -210,14 +208,14 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     srcCanvas.ensureNotDisposedAndHasImage();
 
     // Default parameters
-    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
-    destCoords = (destCoords ?? FimRect.fromDimensions(me.canvasDimensions)).toFloor();
+    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.dim)).toFloor();
+    destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
 
     srcCanvas.validateRect(srcCoords);
     me.validateRect(destCoords);
 
     // copy is slightly faster than source-over
-    const op = (destCoords.dim.equals(me.canvasDimensions)) ? 'copy' : 'source-over';
+    const op = (destCoords.dim.equals(me.dim)) ? 'copy' : 'source-over';
 
     // Enable image smoothing if we are rescaling the image
     const imageSmoothingEnabled = !srcCoords.sameDimensions(destCoords);
@@ -238,7 +236,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.ensureNotDisposedAndHasImage();
 
     // Default parameter
-    srcCoords = srcCoords ?? FimRect.fromDimensions(me.canvasDimensions);
+    srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     me.validateRect(srcCoords);
 
     let result: Uint8ClampedArray;

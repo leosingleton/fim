@@ -8,6 +8,7 @@ import { CoreTextureOptions } from './CoreTextureOptions';
 import { CoreWebGLObject } from './CoreWebGLObject';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
+import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
@@ -15,7 +16,7 @@ import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around WebGL textures */
-export abstract class CoreTexture extends CoreWebGLObject {
+export abstract class CoreTexture extends CoreWebGLObject implements FimDimensional {
   /**
    * Constructor
    * @param parent The parent WebGL canvas
@@ -26,7 +27,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
   public constructor(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions, handle: string) {
     super(parent, handle);
     this.textureOptions = deepCopy(options);
-    this.textureDimensions = dimensions.toFloor();
+    this.dim = dimensions.toFloor();
 
     // Ensure the dimensions do not exceed WebGL's maximum texture size
     const caps = parent.detectCapabilities();
@@ -126,11 +127,11 @@ export abstract class CoreTexture extends CoreWebGLObject {
   public readonly textureOptions: CoreTextureOptions;
 
   /** Texture dimensions */
-  public readonly textureDimensions: FimDimensions;
+  public readonly dim: FimDimensions;
 
   /** Throws an exception if the rectangle extends outside of the texture */
   public validateRect(rect: FimRect): void {
-    const outer = FimRect.fromDimensions(this.textureDimensions);
+    const outer = FimRect.fromDimensions(this.dim);
     if (!outer.containsRect(rect)) {
       FimError.throwOnInvalidParameter(rect);
     }
@@ -168,7 +169,7 @@ export abstract class CoreTexture extends CoreWebGLObject {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, destinationFramebuffer);
     parent.throwWebGLErrorsDebug();
-    gl.viewport(0, 0, me.textureDimensions.w, me.textureDimensions.h);
+    gl.viewport(0, 0, me.dim.w, me.dim.h);
     parent.throwWebGLErrorsDebug();
     gl.disable(gl.SCISSOR_TEST);
     parent.throwWebGLErrorsDebug();
@@ -191,16 +192,15 @@ export abstract class CoreTexture extends CoreWebGLObject {
     const gl = parent.getContext();
 
     // Validate the array size matches the expected dimensions
-    const dimensions = me.textureDimensions;
-    const expectedLength = dimensions.getArea() * 4;
+    const expectedLength = me.dim.getArea() * 4;
     if (pixelData.length !== expectedLength) {
-      FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
+      FimError.throwOnInvalidDimensions(me.dim, pixelData.length);
     }
 
     me.bind(0);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     parent.throwWebGLErrorsDebug();
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, dimensions.w, dimensions.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, me.dim.w, me.dim.h, 0, gl.RGBA, gl.UNSIGNED_BYTE,
       new Uint8Array(pixelData));
     parent.throwWebGLErrorsDebug();
     me.unbind(0);
@@ -220,9 +220,9 @@ export abstract class CoreTexture extends CoreWebGLObject {
     // is greater than the maximum texture size, it returns an InvalidValue error. To avoid this, we'll explicitly
     // downscale larger images for WebGL.
     const maxDimension = me.parentCanvas.detectCapabilities().glMaxTextureSize;
-    if (srcCanvas.canvasDimensions.w > maxDimension || srcCanvas.canvasDimensions.h > maxDimension) {
+    if (srcCanvas.dim.w > maxDimension || srcCanvas.dim.h > maxDimension) {
       // Slow path: first copy the source canvas to a smaller canvas
-      await usingAsync(srcCanvas.createTemporaryCanvas2D({ downscale: 1 }, me.textureDimensions), async temp => {
+      await usingAsync(srcCanvas.createTemporaryCanvas2D({ downscale: 1 }, me.dim), async temp => {
         await temp.copyFromAsync(srcCanvas);
         await me.copyFromAsync(temp);
       });

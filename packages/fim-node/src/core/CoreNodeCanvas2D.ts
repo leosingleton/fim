@@ -51,14 +51,14 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
       srcCanvas.ensureNotDisposedAndHasImage();
 
       // Default parameters
-      srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.canvasDimensions)).toFloor();
-      destCoords = (destCoords ?? FimRect.fromDimensions(me.canvasDimensions)).toFloor();
+      srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.dim)).toFloor();
+      destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
 
       srcCanvas.validateRect(srcCoords);
       me.validateRect(destCoords);
 
       const data = srcCanvas.exportToPixelData(srcCoords);
-      if (destCoords.equals(FimRect.fromDimensions(me.canvasDimensions))) {
+      if (destCoords.equals(FimRect.fromDimensions(me.dim))) {
         // Fast case: The destination is the entire canvas
         await me.loadPixelDataAsync(data, srcCoords.dim);
       } else {

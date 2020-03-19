@@ -99,7 +99,7 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
 
-        expect(image.imageDimensions).toEqual(smallFourSquares);
+        expect(image.dim).toEqual(smallFourSquares);
         expect(await image.getPixelAsync(topLeft())).toEqual(red);
         expect(await image.getPixelAsync(topRight())).toEqual(green);
         expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
@@ -112,7 +112,7 @@ export function fimTestSuitePngJpeg(
         const jpeg = TestImages.fourSquaresJpeg();
         const image = await fim.createImageFromJpegAsync(jpeg);
 
-        expect(image.imageDimensions).toEqual(smallFourSquares);
+        expect(image.dim).toEqual(smallFourSquares);
         expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
         expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
         expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);

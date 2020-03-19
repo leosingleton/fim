@@ -17,13 +17,14 @@ import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { FimColor } from '../primitives/FimColor';
+import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
-export abstract class EngineImage extends EngineObject implements FimImage {
+export abstract class EngineImage extends EngineObject implements FimDimensional, FimImage {
   /**
    * Constructor
    * @param fim Parent FIM object
@@ -34,11 +35,11 @@ export abstract class EngineImage extends EngineObject implements FimImage {
   public constructor(fim: EngineFim<EngineImage, EngineShader>, options?: FimImageOptions, dimensions?: FimDimensions,
       objectName?: string) {
     super(EngineObjectType.Image, objectName, fim);
-    this.imageDimensions = dimensions ?? fim.maxImageDimensions;
+    this.dim = dimensions ?? fim.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
   }
 
-  public readonly imageDimensions: FimDimensions;
+  public readonly dim: FimDimensions;
   public readonly imageOptions: FimImageOptions;
 
   /** Boolean value returned by `hasImage()` */
@@ -139,7 +140,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     }
 
     // TODO: calculate downscaled dimensions
-    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions, me.imageDimensions, me.handle);
+    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions, me.dim, me.handle);
   }
 
   /** Ensures `contentTexture.imageContent` points to a valid WebGL texture */
@@ -153,7 +154,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
 
     // TODO: calculate downscaled dimensions
     const glCanvas = me.parentObject.getWebGLCanvas();
-    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(), me.imageDimensions);
+    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(), me.dim);
   }
 
   /**
@@ -311,7 +312,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
     me.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions
-    dimensions = dimensions ?? me.imageDimensions;
+    dimensions = dimensions ?? me.dim;
     const expectedLength = dimensions.getArea() * 4;
     if (pixelData.length !== expectedLength) {
       FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
@@ -390,7 +391,7 @@ export abstract class EngineImage extends EngineObject implements FimImage {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
       const glCanvas = me.parentObject.getWebGLCanvas();
-      const outputTexture = glCanvas.createCoreTexture(me.getTextureOptions(), me.imageDimensions);
+      const outputTexture = glCanvas.createCoreTexture(me.getTextureOptions(), me.dim);
       try {
         await shaderOrOperation.executeAsync(outputTexture, destCoords);
       } catch (err) {

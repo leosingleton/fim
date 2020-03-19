@@ -319,8 +319,7 @@ export class CoreShader extends CoreWebGLObject {
     }
 
     try {
-      const outputRect = FimRect.fromDimensions(outputTexture ? outputTexture.textureDimensions :
-        canvas.canvasDimensions);
+      const outputRect = FimRect.fromDimensions((outputTexture ?? canvas).dim);
       const destinationFramebuffer = outputTexture ? outputTexture.getFramebuffer() : null;
 
       // Set the framebuffer

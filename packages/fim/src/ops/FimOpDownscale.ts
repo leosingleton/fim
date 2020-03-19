@@ -55,8 +55,8 @@ export class FimOpDownscale extends FimOperationShader {
     const me = this;
 
     // Calculate the input and output dimensions and downscale ratios
-    const inputDimensions = inputImage.imageDimensions;
-    const outputDimensions = destCoords ? destCoords.dim : outputImage.imageDimensions;
+    const inputDimensions = inputImage.dim;
+    const outputDimensions = (destCoords ?? outputImage).dim;
     const xRatio = inputDimensions.w / outputDimensions.w;
     const yRatio = inputDimensions.h / outputDimensions.h;
 

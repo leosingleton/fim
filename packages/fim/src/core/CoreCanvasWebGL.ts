@@ -466,8 +466,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
     me.ensureNotDisposed();
 
-    return me.createCoreTextureInternal(me, options, dimensions ?? me.canvasDimensions,
-      handle ?? `${me.imageHandle}/Texture`);
+    return me.createCoreTextureInternal(me, options, dimensions ?? me.dim, handle ?? `${me.imageHandle}/Texture`);
   }
 
   /** Derived classes must implement this method to call the `CoreCanvas2D` constructor */
@@ -484,7 +483,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const gl = me.getContext();
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     me.throwWebGLErrorsDebug();
-    gl.viewport(0, 0, this.canvasDimensions.w, this.canvasDimensions.h);
+    gl.viewport(0, 0, me.dim.w, me.dim.h);
     me.throwWebGLErrorsDebug();
     gl.disable(gl.SCISSOR_TEST);
     me.throwWebGLErrorsDebug();
@@ -504,7 +503,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const pixel = new Uint8Array(4);
 
     // Flip Y, as the coordinates for readPixels start in the lower-left corner
-    point = FimPoint.fromXY(point.x, this.canvasDimensions.h - point.y - 1).toFloor();
+    point = FimPoint.fromXY(point.x, this.dim.h - point.y - 1).toFloor();
     this.validateCoordinates(point);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -520,12 +519,12 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.ensureNotDisposedAndHasImage();
 
     // Default parameter
-    srcCoords = srcCoords ?? FimRect.fromDimensions(me.canvasDimensions);
+    srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     me.validateRect(srcCoords);
 
     // Flip Y, as the coordinates for readPixels start in the lower-left corner
-    srcCoords = FimRect.fromXYWidthHeight(srcCoords.xLeft, me.canvasDimensions.h - srcCoords.yBottom,
-      srcCoords.dim.w, srcCoords.dim.h);
+    srcCoords = FimRect.fromXYWidthHeight(srcCoords.xLeft, me.dim.h - srcCoords.yBottom, srcCoords.dim.w,
+      srcCoords.dim.h);
 
     const gl = me.getContext();
     const data = new Uint8Array(srcCoords.getArea() * 4);
@@ -561,14 +560,14 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     srcTexture.ensureNotDisposedAndHasImage();
 
     // Default parameters
-    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcTexture.textureDimensions)).toFloor();
-    destCoords = (destCoords ?? FimRect.fromDimensions(me.canvasDimensions)).toFloor();
+    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcTexture.dim)).toFloor();
+    destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
 
     srcTexture.validateRect(srcCoords);
     me.validateRect(destCoords);
 
     // Calculate the transformation matrix to achieve the requested srcCoords
-    const matrix = FimTransform2D.fromSrcCoords(srcCoords, srcTexture.textureDimensions);
+    const matrix = FimTransform2D.fromSrcCoords(srcCoords, srcTexture.dim);
 
     const copyShader = me.getCopyShader();
     copyShader.setUniforms({

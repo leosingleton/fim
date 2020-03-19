@@ -41,10 +41,10 @@ export module TestPatterns {
    * @param generator Test pattern generator function
    */
   export function renderAsync(destImage: FimImage, generator: GeneratorFn): Promise<void> {
-    const pixelData = new Uint8ClampedArray(destImage.imageDimensions.getArea() * 4);
-    for (let y = 0; y < destImage.imageDimensions.h; y++) {
-      const yOffset = y * destImage.imageDimensions.w * 4;
-      for (let x = 0; x < destImage.imageDimensions.w; x++) {
+    const pixelData = new Uint8ClampedArray(destImage.dim.getArea() * 4);
+    for (let y = 0; y < destImage.dim.h; y++) {
+      const yOffset = y * destImage.dim.w * 4;
+      for (let x = 0; x < destImage.dim.w; x++) {
         const offset = (x * 4) + yOffset;
         const color = generator(x, y);
         pixelData[offset] = color.r;
@@ -67,9 +67,9 @@ export module TestPatterns {
   export async function validateAsync(srcImage: FimImage, generator: GeneratorFn, throwOnError = false):
       Promise<boolean> {
     const pixelData = await srcImage.exportToPixelDataAsync();
-    for (let y = 0; y < srcImage.imageDimensions.h; y++) {
-      const yOffset = y * srcImage.imageDimensions.w * 4;
-      for (let x = 0; x < srcImage.imageDimensions.w; x++) {
+    for (let y = 0; y < srcImage.dim.h; y++) {
+      const yOffset = y * srcImage.dim.w * 4;
+      for (let x = 0; x < srcImage.dim.w; x++) {
         const offset = (x * 4) + yOffset;
         const expected = generator(x, y);
         const found = FimColor.fromRGBABytes(pixelData[offset], pixelData[offset + 1], pixelData[offset + 2],

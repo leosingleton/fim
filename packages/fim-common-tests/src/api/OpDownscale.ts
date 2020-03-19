@@ -74,7 +74,7 @@ async function testAndValidateDownscale(
   await usingAsync(factory(medium), async fim => {
     // Run the downscale operation and sample a pixel in the center. It should be 50% grey.
     const output = await testDownscale(fim, ratio, inputDimensions);
-    const color = await output.getPixelAsync(output.imageDimensions.getCenter());
+    const color = await output.getPixelAsync(output.dim.getCenter());
     expect(color.distance(grey)).toBeLessThan(maxError);
   });
 }

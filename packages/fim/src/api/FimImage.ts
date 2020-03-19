@@ -14,7 +14,7 @@ import { FimRect } from '../primitives/FimRect';
 /** Represents an image and its data within the FIM library */
 export interface FimImage extends FimObject {
   /** Image dimensions */
-  readonly imageDimensions: FimDimensions;
+  readonly dim: FimDimensions;
 
   /**
    * Image options

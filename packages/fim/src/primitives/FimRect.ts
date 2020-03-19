@@ -3,10 +3,11 @@
 // See LICENSE in the project root for license information.
 
 import { FimPoint } from './FimPoint';
+import { FimDimensional } from './FimDimensional';
 import { FimDimensions } from './FimDimensions';
 
 /** Simple class for holding the coordinates of a rectangle */
-export class FimRect {
+export class FimRect implements FimDimensional {
   /** X-coordinate of the left side */
   public readonly xLeft: number;
 

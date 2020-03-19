@@ -6,6 +6,7 @@ import { CoreCanvas2D } from './CoreCanvas2D';
 import { CoreCanvasOptions } from  './CoreCanvasOptions';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimColor } from '../primitives/FimColor';
+import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
@@ -13,7 +14,7 @@ import { FimRect } from '../primitives/FimRect';
 import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
-export abstract class CoreCanvas {
+export abstract class CoreCanvas implements FimDimensional {
   /**
    * Derived classes must override this constructor to instantiate the canvasElement object
    * @param canvasOptions Canvas options
@@ -23,7 +24,7 @@ export abstract class CoreCanvas {
    */
   protected constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    this.canvasDimensions = dimensions.toFloor();
+    this.dim = dimensions.toFloor();
     this.imageHandle = handle;
     this.canvasOptions = deepCopy(canvasOptions);
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
@@ -31,7 +32,7 @@ export abstract class CoreCanvas {
   }
 
   /** Canvas dimensions */
-  public readonly canvasDimensions: FimDimensions;
+  public readonly dim: FimDimensions;
 
   /** Handle of the image that owns this canvas. Used only for debugging. */
   public readonly imageHandle: string;
@@ -85,8 +86,8 @@ export abstract class CoreCanvas {
    *    on the returned object.
    */
   public createTemporaryCanvas2D(canvasOptions?: CoreCanvasOptions, dimensions?: FimDimensions): CoreCanvas2D {
-    return this.createCanvas2D(canvasOptions ?? this.canvasOptions, dimensions ?? this.canvasDimensions,
-      `${this.imageHandle}/Temp`, this.engineOptions);
+    return this.createCanvas2D(canvasOptions ?? this.canvasOptions, dimensions ?? this.dim, `${this.imageHandle}/Temp`,
+      this.engineOptions);
   }
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
@@ -115,7 +116,7 @@ export abstract class CoreCanvas {
 
   /** Throws an exception if the coordinates are outside of the canvas */
   public validateCoordinates(point: FimPoint): void {
-    const rect = FimRect.fromDimensions(this.canvasDimensions);
+    const rect = FimRect.fromDimensions(this.dim);
     if (!rect.containsPoint(point)) {
       FimError.throwOnInvalidParameter(point);
     }
@@ -123,7 +124,7 @@ export abstract class CoreCanvas {
 
   /** Throws an exception if the rectangle extends outside of the canvas */
   public validateRect(rect: FimRect): void {
-    const outer = FimRect.fromDimensions(this.canvasDimensions);
+    const outer = FimRect.fromDimensions(this.dim);
     if (!outer.containsRect(rect)) {
       FimError.throwOnInvalidParameter(rect);
     }
