@@ -2,10 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimGeometry } from './FimGeometry';
 import { FimPoint } from './FimPoint';
+import { FimRect } from './FimRect';
 
 /** Simple class for holding a set of dimensions */
-export class FimDimensions {
+export class FimDimensions extends FimGeometry {
   /** Width */
   public readonly w: number;
 
@@ -13,13 +15,44 @@ export class FimDimensions {
   public readonly h: number;
 
   private constructor(width: number, height: number) {
+    super();
     this.w = width;
     this.h = height;
   }
 
-  /** Compares two FimDimensions objects */
-  public equals(d: FimDimensions): boolean {
-    return (this.w === d.w) && (this.h === d.h);
+  public equals(object: FimGeometry): boolean {
+    if (object instanceof FimDimensions) {
+      return (this.w === object.w) && (this.h === object.h);
+    } else if (object instanceof FimRect) {
+      return FimRect.fromDimensions(this).equals(object);
+    } else {
+      return false;
+    }
+  }
+
+  public containsDimensions(dimensions: FimDimensions): boolean {
+    return (dimensions.w <= this.w && dimensions.h <= this.h);
+  }
+
+  public containsPoint(point: FimPoint): boolean {
+    return (point.x >= 0 && point.y >= 0 && point.x <= (this.w - 1) && point.y <= (this.h - 1));
+  }
+
+  public containsRect(rect: FimRect): boolean {
+    const me = this;
+    return (rect.xLeft >= 0 && rect.yTop >= 0 && rect.xRight <= me.w && rect.yBottom <= me.h);
+  }
+
+  public containedBy(dimensions: FimDimensions): boolean {
+    return dimensions.containsDimensions(this);
+  }
+
+  public toFloor(): FimDimensions {
+    return new FimDimensions(Math.floor(this.w), Math.floor(this.h));
+  }
+
+  public toString(): string {
+    return `${this.w}x${this.h}`;
   }
 
   /** Returns the area of the rectangle, in pixels */
@@ -45,10 +78,6 @@ export class FimDimensions {
    */
   public downscaleToMaxDimension(maxDimension: number): FimDimensions {
     return FimDimensions.downscaleToMaxDimension(this.w, this.h, maxDimension);
-  }
-
-  public toFloor(): FimDimensions {
-    return new FimDimensions(Math.floor(this.w), Math.floor(this.h));
   }
 
   public static fromWidthHeight(width: number, height: number): FimDimensions {

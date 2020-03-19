@@ -54,8 +54,8 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
       srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.dim)).toFloor();
       destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
 
-      srcCanvas.validateRect(srcCoords);
-      me.validateRect(destCoords);
+      srcCoords.validateIn(srcCanvas);
+      destCoords.validateIn(me);
 
       const data = srcCanvas.exportToPixelData(srcCoords);
       if (destCoords.equals(FimRect.fromDimensions(me.dim))) {

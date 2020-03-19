@@ -399,7 +399,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
         return gl.FLOAT;
     }
 
-    FimError.throwOnUnreachableCode(bpp);
+    FimError.throwOnUnreachableCodeValue(bpp);
   }
 
   /**
@@ -503,8 +503,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const pixel = new Uint8Array(4);
 
     // Flip Y, as the coordinates for readPixels start in the lower-left corner
-    point = FimPoint.fromXY(point.x, this.dim.h - point.y - 1).toFloor();
-    this.validateCoordinates(point);
+    point = FimPoint.fromXY(point.x, me.dim.h - point.y - 1).toFloor();
+    point.validateIn(me);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     me.throwWebGLErrorsDebug();
@@ -520,7 +520,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     // Default parameter
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
-    me.validateRect(srcCoords);
+    srcCoords.validateIn(me);
 
     // Flip Y, as the coordinates for readPixels start in the lower-left corner
     srcCoords = FimRect.fromXYWidthHeight(srcCoords.xLeft, me.dim.h - srcCoords.yBottom, srcCoords.dim.w,
@@ -563,8 +563,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     srcCoords = (srcCoords ?? FimRect.fromDimensions(srcTexture.dim)).toFloor();
     destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
 
-    srcTexture.validateRect(srcCoords);
-    me.validateRect(destCoords);
+    srcCoords.validateIn(srcTexture);
+    destCoords.validateIn(me);
 
     // Calculate the transformation matrix to achieve the requested srcCoords
     const matrix = FimTransform2D.fromSrcCoords(srcCoords, srcTexture.dim);

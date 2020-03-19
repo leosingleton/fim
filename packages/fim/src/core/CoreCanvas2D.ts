@@ -85,7 +85,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     point = point.toFloor();
 
     me.ensureNotDisposedAndHasImage();
-    me.validateCoordinates(point);
+    point.validateIn(me);
 
     using(me.createDrawingContext(), ctx => {
       const imgData = ctx.getImageData(point.x, point.y, 1, 1);
@@ -211,8 +211,8 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     srcCoords = (srcCoords ?? FimRect.fromDimensions(srcCanvas.dim)).toFloor();
     destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
 
-    srcCanvas.validateRect(srcCoords);
-    me.validateRect(destCoords);
+    srcCoords.validateIn(srcCanvas);
+    destCoords.validateIn(me);
 
     // copy is slightly faster than source-over
     const op = (destCoords.dim.equals(me.dim)) ? 'copy' : 'source-over';
@@ -237,7 +237,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
 
     // Default parameter
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
-    me.validateRect(srcCoords);
+    srcCoords.validateIn(me);
 
     let result: Uint8ClampedArray;
     using(me.createDrawingContext(), ctx => {

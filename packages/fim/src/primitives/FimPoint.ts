@@ -2,14 +2,46 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimDimensions } from './FimDimensions';
+import { FimError } from './FimError';
+import { FimGeometry } from './FimGeometry';
+import { FimRect } from './FimRect';
+
 /** Simple class for holding a pair of coordinates */
-export class FimPoint {
+export class FimPoint extends FimGeometry {
   public readonly x: number;
   public readonly y: number;
 
   private constructor(x: number, y: number) {
+    super();
     this.x = x;
     this.y = y;
+  }
+
+  public equals(object: FimGeometry): boolean {
+    if (object instanceof FimPoint) {
+      return (object.x === this.x && object.y === this.y);
+    } else {
+      return false;
+    }
+  }
+
+  public containsDimensions(_dimensions: FimDimensions): never {
+    // A point cannot contain dimensions
+    FimError.throwOnUnreachableCode();
+  }
+
+  public containsPoint(point: FimPoint): boolean {
+    return this.equals(point);
+  }
+
+  public containsRect(_rect: FimRect): never {
+    // A point cannot contain a rectangle
+    FimError.throwOnUnreachableCode();
+  }
+
+  public containedBy(object: FimGeometry): boolean {
+    return object.containsPoint(this);
   }
 
   public toFloor(): FimPoint {

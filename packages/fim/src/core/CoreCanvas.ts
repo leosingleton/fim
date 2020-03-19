@@ -113,20 +113,4 @@ export abstract class CoreCanvas implements FimDimensional {
    * @returns An array containing 4 bytes per pixel, in RGBA order
    */
   public abstract exportToPixelData(srcCoords?: FimRect): Uint8ClampedArray;
-
-  /** Throws an exception if the coordinates are outside of the canvas */
-  public validateCoordinates(point: FimPoint): void {
-    const rect = FimRect.fromDimensions(this.dim);
-    if (!rect.containsPoint(point)) {
-      FimError.throwOnInvalidParameter(point);
-    }
-  }
-
-  /** Throws an exception if the rectangle extends outside of the canvas */
-  public validateRect(rect: FimRect): void {
-    const outer = FimRect.fromDimensions(this.dim);
-    if (!outer.containsRect(rect)) {
-      FimError.throwOnInvalidParameter(rect);
-    }
-  }
 }

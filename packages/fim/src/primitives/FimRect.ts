@@ -2,12 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimPoint } from './FimPoint';
 import { FimDimensional } from './FimDimensional';
 import { FimDimensions } from './FimDimensions';
+import { FimGeometry } from './FimGeometry';
+import { FimPoint } from './FimPoint';
 
 /** Simple class for holding the coordinates of a rectangle */
-export class FimRect implements FimDimensional {
+export class FimRect extends FimGeometry implements FimDimensional {
   /** X-coordinate of the left side */
   public readonly xLeft: number;
 
@@ -24,6 +25,8 @@ export class FimRect implements FimDimensional {
   public readonly dim: FimDimensions;
 
   private constructor(xLeft: number, yTop: number, xRight: number, yBottom: number, w: number, h: number) {
+    super();
+
     if (w >= 0) {
       this.xLeft = xLeft;
       this.xRight = xRight;
@@ -45,10 +48,43 @@ export class FimRect implements FimDimensional {
     this.dim = FimDimensions.fromWidthHeight(w, h);
   }
 
-  /** Compares two FimRect objects */
-  public equals(rect: FimRect): boolean {
-    return (this.xRight === rect.xRight) && (this.yBottom === rect.yBottom) &&
-      (this.xLeft === rect.xLeft) && (this.yTop === rect.yTop);
+  public equals(object: FimGeometry): boolean {
+    const me = this;
+
+    if (object instanceof FimRect) {
+      return (me.xRight === object.xRight) && (me.yBottom === object.yBottom) && (me.xLeft === object.xLeft) &&
+        (me.yTop === object.yTop);
+    } else if (object instanceof FimDimensions) {
+      return me.equals(FimRect.fromDimensions(object));
+    } else {
+      return false;
+    }
+  }
+
+  public containsDimensions(dimensions: FimDimensions): boolean {
+    return this.containsRect(FimRect.fromDimensions(dimensions));
+  }
+
+  public containsPoint(point: FimPoint): boolean {
+    const me = this;
+    return (point.x >= me.xLeft && point.y >= me.yTop && point.x < me.xRight && point.y < me.yBottom);
+  }
+
+  public containsRect(rect: FimRect): boolean {
+    const me = this;
+    return (rect.xLeft >= me.xLeft && rect.yTop >= me.yTop && rect.xRight <= me.xRight && rect.yBottom <= me.yBottom);
+  }
+
+  public containedBy(object: FimGeometry): boolean {
+    return object.containsRect(this);
+  }
+
+  public toFloor(): FimRect {
+    return FimRect.fromPoints(this.getTopLeft().toFloor(), this.getBottomRight().toFloor());
+  }
+
+  public toString(): string {
+    return `${this.getTopLeft()}-${this.getBottomRight()}`;
   }
 
   /** Returns whether two FimRect objects are the same width and height */
@@ -66,24 +102,14 @@ export class FimRect implements FimDimensional {
     return FimPoint.fromXY(this.xRight, this.yBottom);
   }
 
-  /** Calculates whether this rectangle includes the specified point */
-  public containsPoint(point: FimPoint): boolean {
-    return (point.x >= this.xLeft && point.y >= this.yTop && point.x < this.xRight && point.y < this.yBottom);
-  }
-
-  /** Calculates whether this rectangle includes the specified rectangle */
-  public containsRect(inner: FimRect): boolean {
-    return (inner.xLeft >= this.xLeft && inner.yTop >= this.yTop && inner.xRight <= this.xRight &&
-      inner.yBottom <= this.yBottom);
-  }
-
   /** Returns a FimRect whose top-left coordinate is less than its bottom-right */
   public toUpright(): FimRect {
+    const me = this;
     return FimRect.fromCoordinates(
-      Math.min(this.xLeft, this.xRight),
-      Math.min(this.yTop, this.yBottom),
-      Math.max(this.xLeft, this.xRight),
-      Math.max(this.yTop, this.yBottom)
+      Math.min(me.xLeft, me.xRight),
+      Math.min(me.yTop, me.yBottom),
+      Math.max(me.xLeft, me.xRight),
+      Math.max(me.yTop, me.yBottom)
     );
   }
 
@@ -94,7 +120,8 @@ export class FimRect implements FimDimensional {
 
   /** Returns the point at the center of the rectangle */
   public getCenter(): FimPoint {
-    return FimPoint.fromXY((this.xLeft + this.xRight) / 2, (this.yTop + this.yBottom) / 2);
+    const me = this;
+    return FimPoint.fromXY((me.xLeft + me.xRight) / 2, (me.yTop + me.yBottom) / 2);
   }
 
   /**
@@ -103,18 +130,11 @@ export class FimRect implements FimDimensional {
    * @returns A rectangle with the same aspect ratio as this, but whose coordinates fit inside of maxRect
    */
   public fit(maxRect: FimRect): FimRect {
-    const scale = Math.min(maxRect.dim.w / this.dim.w, maxRect.dim.h / this.dim.h);
-    const width = Math.floor(this.dim.w * scale);
-    const height = Math.floor(this.dim.h * scale);
+    const me = this;
+    const scale = Math.min(maxRect.dim.w / me.dim.w, maxRect.dim.h / me.dim.h);
+    const width = Math.floor(me.dim.w * scale);
+    const height = Math.floor(me.dim.h * scale);
     return FimRect.fromXYWidthHeight(maxRect.xLeft, maxRect.yTop, width, height);
-  }
-
-  public toFloor(): FimRect {
-    return FimRect.fromPoints(this.getTopLeft().toFloor(), this.getBottomRight().toFloor());
-  }
-
-  public toString(): string {
-    return `${this.getTopLeft()}-${this.getBottomRight()}`;
   }
 
   public static fromDimensions(d: FimDimensions): FimRect {

@@ -11,7 +11,6 @@ import { FimColor } from '../primitives/FimColor';
 import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
-import { FimRect } from '../primitives/FimRect';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
 
@@ -128,14 +127,6 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
 
   /** Texture dimensions */
   public readonly dim: FimDimensions;
-
-  /** Throws an exception if the rectangle extends outside of the texture */
-  public validateRect(rect: FimRect): void {
-    const outer = FimRect.fromDimensions(this.dim);
-    if (!outer.containsRect(rect)) {
-      FimError.throwOnInvalidParameter(rect);
-    }
-  }
 
   public bind(textureUnit: number): void {
     this.bindInternal(textureUnit, this.texture);

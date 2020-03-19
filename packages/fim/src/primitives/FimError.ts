@@ -87,9 +87,16 @@ export class FimError extends Error {
 
   /**
    * Throws an UnreachableCode error
+   */
+  public static throwOnUnreachableCode(): never {
+    throw new FimError(FimErrorCode.UnreachableCode);
+  }
+
+  /**
+   * Throws an UnreachableCode error
    * @param value Value which was unexpected
    */
-  public static throwOnUnreachableCode(value: never): never {
+  public static throwOnUnreachableCodeValue(value: never): never {
     throw new FimError(FimErrorCode.UnreachableCode, value);
   }
 
