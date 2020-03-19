@@ -51,6 +51,10 @@ export class FimDimensions extends FimGeometry {
     return new FimDimensions(Math.floor(this.w), Math.floor(this.h));
   }
 
+  public rescale(ratio: number): FimDimensions {
+    return new FimDimensions(this.w * ratio, this.h * ratio);
+  }
+
   public toString(): string {
     return `${this.w}x${this.h}`;
   }
@@ -63,11 +67,6 @@ export class FimDimensions extends FimGeometry {
   /** Returns the point at the center of the rectangle */
   public getCenter(): FimPoint {
     return FimPoint.fromXY(this.w / 2, this.h / 2);
-  }
-
-  /** Scales a rectangle by a multiplier */
-  public rescale(ratio: number): FimDimensions {
-    return new FimDimensions(this.w * ratio, this.h * ratio);
   }
 
   /**

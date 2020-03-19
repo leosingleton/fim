@@ -38,6 +38,9 @@ export abstract class FimGeometry {
   /** Returns a new object where all coordinates are a round integer, calculated with the `Math.floor()` function */
   public abstract toFloor(): FimGeometry;
 
+  /** Returns a new object where all coordinates are scaled by a multiplier */
+  public abstract rescale(ratio: number): FimGeometry;
+
   /** FIM geometry objects must implement a custom `toString()` method which describes the coordinates of the shape */
   public abstract toString(): string;
 }

@@ -48,6 +48,10 @@ export class FimPoint extends FimGeometry {
     return new FimPoint(Math.floor(this.x), Math.floor(this.y));
   }
 
+  public rescale(ratio: number): FimPoint {
+    return new FimPoint(this.x * ratio, this.y * ratio);
+  }
+
   public toString(): string {
     return `(${this.x},${this.y})`;
   }

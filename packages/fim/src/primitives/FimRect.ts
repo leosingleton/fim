@@ -83,6 +83,11 @@ export class FimRect extends FimGeometry implements FimDimensional {
     return FimRect.fromPoints(this.getTopLeft().toFloor(), this.getBottomRight().toFloor());
   }
 
+  public rescale(ratio: number): FimRect {
+    return FimRect.fromPointWidthHeight(this.getTopLeft().rescale(ratio), this.dim.w * ratio,
+      this.dim.h * ratio);
+  }
+
   public toString(): string {
     return `${this.getTopLeft()}-${this.getBottomRight()}`;
   }
