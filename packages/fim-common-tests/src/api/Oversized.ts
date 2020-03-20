@@ -17,7 +17,10 @@ export function fimTestSuiteOversized(
       using(factory(small), fim => {
         const image = fim.createImage({}, medium);
         const eff = image.getEffectiveImageOptions();
+
+        // Y-axis to get downscaled from 640 to 50 pixels
         expect(eff.downscale).toEqual(50 / 640);
+        expect(eff.glDownscale).toEqual(50 / 640);
       });
     });
 
