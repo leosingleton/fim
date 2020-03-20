@@ -24,7 +24,7 @@ export function fimTestSuiteOpDownscale(
     it('Downscales at 96x', async () => testAndValidateDownscale(factory, 96));
     it('Downscales at 128x', async () => testAndValidateDownscale(factory, 128));
     it('Downscales at 128x (wide)', async () => testAndValidateDownscale(factory, 128,
-      FimDimensions.fromWidthHeight(512, 256)));
+      FimDimensions.fromWidthHeight(480, 240)));
 
     it('Performs a copy at 1x', async () => {
       await usingAsync(factory(small), async fim => {
