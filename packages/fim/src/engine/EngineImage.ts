@@ -180,8 +180,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // Check whether the image dimensions are larger than supported by WebGL
     const maxGLSize = options.glReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
-    const maxGLDimensions = me.dim.downscaleToMaxDimension(maxGLSize);
-    downscale.push(me.dim.w / maxGLDimensions.w);
+    const maxDim = Math.max(me.dim.w, me.dim.h);
+    downscale.push(maxGLSize / maxDim);
+
+    // Check whether the image dimensions are larger than enabled by the engine options
+    const engineOptions = me.getEngineOptions();
+    const maxOptionsSize = options.glReadOnly ? engineOptions.maxGLTextureSize : engineOptions.maxGLRenderBufferSize;
+    downscale.push(maxOptionsSize / maxDim);
 
     // Check whether the image dimensions are larger than the parent FIM instance
     if (!options.allowOversized && (me.dim.w > parent.maxImageDimensions.w || me.dim.h > parent.maxImageDimensions.h)) {
