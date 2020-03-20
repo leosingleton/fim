@@ -49,7 +49,7 @@ export class CoreArrayBuffer {
   /** Throws an exception if the object is disposed */
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
-      FimError.throwOnObjectDisposed(`ArrayBuffer of ${this.glCanvas.imageHandle}`);
+      FimError.throwOnObjectDisposed(`ArrayBuffer of ${this.glCanvas.handle}`);
     }
   }
 

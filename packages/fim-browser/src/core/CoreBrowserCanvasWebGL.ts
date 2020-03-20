@@ -11,16 +11,16 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+  public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, canvasDimensions, imageHandle, engineOptions);
+    super(canvasOptions, dimensions, handle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserCanvasWebGL.canvasPool.getCanvas();
-    canvas.width = canvasDimensions.w;
-    canvas.height = canvasDimensions.h;
+    canvas.width = dimensions.w;
+    canvas.height = dimensions.h;
     canvas.style.display = 'none';
-    canvas.id = imageHandle;
+    canvas.id = handle;
     document.body.appendChild(canvas);
     this.canvasElement = canvas;
 
@@ -45,9 +45,9 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement.getContext('webgl');
   }
 
-  protected createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions, imageHandle: string,
+  protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreBrowserCanvas2D(canvasOptions, canvasDimensions, imageHandle, engineOptions);
+    return new CoreBrowserCanvas2D(canvasOptions, dimensions, handle, engineOptions);
   }
 
   protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,

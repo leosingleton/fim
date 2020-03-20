@@ -17,7 +17,7 @@ export function loseContextAsync(canvas: CoreCanvasWebGL): Promise<void> {
   const extension = gl.getExtension('WEBGL_lose_context');
   if (extension) {
     canvas.throwWebGLErrors();
-    loseContextExtensions[canvas.imageHandle] = extension;
+    loseContextExtensions[canvas.handle] = extension;
 
     // Simulate a context loss
     extension.loseContext();
@@ -39,7 +39,7 @@ export function restoreContextAsync(canvas: CoreCanvasWebGL): Promise<void> {
   canvas.registerContextRestoredHandler(() => contextRestoredEvent.setEvent());
 
   // Simulate the context being restored
-  const extension = loseContextExtensions[canvas.imageHandle];
+  const extension = loseContextExtensions[canvas.handle];
   if (extension) {
     extension.restoreContext();
   } else {

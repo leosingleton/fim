@@ -25,7 +25,7 @@ export abstract class CoreCanvas implements FimDimensional {
   protected constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
     this.dim = dimensions.toFloor();
-    this.imageHandle = handle;
+    this.handle = handle;
     this.canvasOptions = deepCopy(canvasOptions);
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
     this.hasImage = false;
@@ -35,7 +35,7 @@ export abstract class CoreCanvas implements FimDimensional {
   public readonly dim: FimDimensions;
 
   /** Handle of the image that owns this canvas. Used only for debugging. */
-  public readonly imageHandle: string;
+  public readonly handle: string;
 
   /** Canvas options */
   public readonly canvasOptions: CoreCanvasOptions;
@@ -57,7 +57,7 @@ export abstract class CoreCanvas implements FimDimensional {
   /** Throws an exception if the object is disposed */
   public ensureNotDisposed(): void {
     if (this.isDisposed) {
-      FimError.throwOnObjectDisposed(this.imageHandle);
+      FimError.throwOnObjectDisposed(this.handle);
     }
   }
 
@@ -74,7 +74,7 @@ export abstract class CoreCanvas implements FimDimensional {
   public ensureNotDisposedAndHasImage(): void {
     this.ensureNotDisposed();
     if (!this.hasImage) {
-      throw new FimError(FimErrorCode.ImageUninitialized, this.imageHandle);
+      throw new FimError(FimErrorCode.ImageUninitialized, this.handle);
     }
   }
 
@@ -86,13 +86,13 @@ export abstract class CoreCanvas implements FimDimensional {
    *    on the returned object.
    */
   public createTemporaryCanvas2D(canvasOptions?: CoreCanvasOptions, dimensions?: FimDimensions): CoreCanvas2D {
-    return this.createCanvas2D(canvasOptions ?? this.canvasOptions, dimensions ?? this.dim, `${this.imageHandle}/Temp`,
+    return this.createCanvas2D(canvasOptions ?? this.canvasOptions, dimensions ?? this.dim, `${this.handle}/Temp`,
       this.engineOptions);
   }
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  protected abstract createCanvas2D(canvasOptions: CoreCanvasOptions, canvasDimensions: FimDimensions,
-    imageHandle: string, engineOptions: FimEngineOptions): CoreCanvas2D;
+  protected abstract createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+    engineOptions: FimEngineOptions): CoreCanvas2D;
 
   /**
    * Helper function to fill a canvas with a solid color

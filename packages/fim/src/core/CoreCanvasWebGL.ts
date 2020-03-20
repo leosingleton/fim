@@ -61,12 +61,12 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     if (!me.renderingContext) {
       me.renderingContext = me.createContext();
       if (!me.renderingContext) {
-        throw new FimError(FimErrorCode.NoWebGL, `${me.imageHandle}: ${me.contextFailMessage}`);
+        throw new FimError(FimErrorCode.NoWebGL, `${me.handle}: ${me.contextFailMessage}`);
       }
     }
 
     if (throwOnContextLost && me.isContextLost) {
-      throw new FimError(FimErrorCode.WebGLContextLost, me.imageHandle);
+      throw new FimError(FimErrorCode.WebGLContextLost, me.handle);
     }
 
     return me.renderingContext;
@@ -318,7 +318,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    */
   public throwOnNotChild(child: CoreWebGLObject): void {
     if (child.parentCanvas !== this) {
-      FimError.throwOnInvalidParameter(`${child.handle} is not child of ${this.imageHandle}`);
+      FimError.throwOnInvalidParameter(`${child.handle} is not child of ${this.handle}`);
     }
   }
 
@@ -453,7 +453,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
     me.ensureNotDisposed();
 
-    return new CoreShader(me, handle ?? `${me.imageHandle}/Shader`, fragmentShader, vertexShader);
+    return new CoreShader(me, handle ?? `${me.handle}/Shader`, fragmentShader, vertexShader);
   }
 
   /**
@@ -466,7 +466,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
     me.ensureNotDisposed();
 
-    return me.createCoreTextureInternal(me, options, dimensions ?? me.dim, handle ?? `${me.imageHandle}/Texture`);
+    return me.createCoreTextureInternal(me, options, dimensions ?? me.dim, handle ?? `${me.handle}/Texture`);
   }
 
   /** Derived classes must implement this method to call the `CoreCanvas2D` constructor */
@@ -589,7 +589,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     if (!me.shaderCopy) {
       const shader = require('../../build/core/glsl/copy.glsl.js');
-      me.shaderCopy = me.createCoreShader(shader, undefined,`${me.imageHandle}/CopyShader`);
+      me.shaderCopy = me.createCoreShader(shader, undefined,`${me.handle}/CopyShader`);
     }
 
     return me.shaderCopy;
@@ -607,7 +607,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     if (!me.shaderFill) {
       const shader = require('../../build/core/glsl/fill.glsl.js');
-      me.shaderFill = me.createCoreShader(shader, undefined, `${me.imageHandle}/FillShader`);
+      me.shaderFill = me.createCoreShader(shader, undefined, `${me.handle}/FillShader`);
     }
 
     return me.shaderFill;
