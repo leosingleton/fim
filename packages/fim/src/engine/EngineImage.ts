@@ -51,30 +51,43 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
   public getEffectiveImageOptions(): FimImageOptions {
     const me = this;
+    const handle = `${me.handle}/EffOptions`;
 
     // Start by merging this object's imageOptions with those inherited from the parent
     let options = me.getImageOptions();
 
-    // glDownscale is effectively the min of the image downscale and WebGL downscale
-    options.glDownscale = Math.min(options.glDownscale, options.downscale);
-
-    // Override with any canvas options which don't take effect after canvas creation
+    let canvasScaleFactor: number;
     const canvas = me.contentCanvas.imageContent;
     if (canvas) {
-      options = mergeImageOptions(options, {
-        downscale: 1 / me.contentCanvas.scaleFactor
-      });
+      // Override with any canvas options that may have been set prior to canvas creation
+      canvasScaleFactor = me.contentCanvas.scaleFactor;
+    } else {
+      // Calculate any options which would get applied on the next canvas creation
+      const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
+      canvasScaleFactor = dsf.scaleFactor;
     }
+    options = mergeImageOptions(options, {
+      downscale: 1 / canvasScaleFactor
+    });
 
-    // Override with any texture options which don't take effect after texture creation
+    let textureScaleFactor: number;
+    let textureOptions: CoreTextureOptions;
     const texture = me.contentTexture.imageContent;
     if (texture) {
-      options = mergeImageOptions(options, {
-        bpp: texture.textureOptions.bpp,
-        glDownscale: 1 / me.contentTexture.scaleFactor,
-        sampling: texture.textureOptions.sampling
-      });
+      // Override with any texture options that may have been set prior to texture creation
+      textureScaleFactor = me.contentTexture.scaleFactor;
+      textureOptions = texture.textureOptions;
+    } else {
+      // Calculate any options which would get applied on the next texture creation
+      const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
+      textureScaleFactor = dsf.scaleFactor;
+      textureOptions = me.getTextureOptions();
     }
+    options = mergeImageOptions(options, {
+      bpp: textureOptions.bpp,
+      glDownscale: 1 / textureScaleFactor,
+      sampling: textureOptions.sampling
+    });
 
     return options;
   }
