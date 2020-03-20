@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, medium, red, small, smallFourSquares, topLeft,
+import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
@@ -125,6 +125,43 @@ export function fimTestSuiteOversized(
         expect((await image2.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
         expect((await image2.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
         expect((await image2.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+      });
+    });
+
+    it('Copies with crop and rescale', async () => {
+      // This is copy-and-paste code from the unit test in Canvas.ts, except this time we run it with the parent FIM
+      // instance set to small, so all images get transparently downscaled.
+      await usingAsync(factory(small), async fim => {
+        const png = TestImages.fourSquaresPng();
+        const image1 = await fim.createImageFromPngAsync(png);
+        const image2 = fim.createImage({}, medium);
+
+        // Scale image1 (128x128) to medium size (480x640)
+        await image2.copyFromAsync(image1);
+        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(red);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(black);
+
+        // Copy image1 (128x128) to the top-left corner without rescaling (128x128 destination)
+        await image2.copyFromAsync(image1, undefined, FimRect.fromDimensions(smallFourSquares));
+        expect(await image2.getPixelAsync(topLeft())).toEqual(red);
+        expect(await image2.getPixelAsync(topRight())).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight())).toEqual(black);
+
+        // The top-left corner (128x128) was overwritten by the previous copy. The rest of the 480x640 image should
+        // remain however.
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(black);
+
+        // Copy part of the top-right corner (32x32) of image1 to the entire image2 (480x640)
+        await image2.copyFromAsync(image1, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
+        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(green);
       });
     });
 
