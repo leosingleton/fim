@@ -7,6 +7,7 @@ import { FimEngineOptions } from './FimEngineOptions';
 import { FimImage } from './FimImage';
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
+import { FimResourceUsage } from './FimResourceUsage';
 import { FimShader } from './FimShader';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { GlslShader } from 'webpack-glsl-minify';
@@ -76,6 +77,9 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * @param child Child object to stop receiving notifications
    */
   unregisterChildObject(child: FimObject): void;
+
+  /** Returns metrics on the current resource usage of this FIM instance */
+  getResourceUsage(): FimResourceUsage;
 
   /**
    * Creates a new image

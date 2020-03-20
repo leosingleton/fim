@@ -1,0 +1,38 @@
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
+
+import { smallFourSquares } from '../common/Globals';
+import { TestImages } from '../common/TestImages';
+import { usingAsync } from '@leosingleton/commonlibs';
+import { Fim, FimDimensions, FimResource } from '@leosingleton/fim';
+
+/** FIM test cases around resource tracking */
+export function fimTestSuiteResourceTracker(
+  description: string,
+  factory: (maxImageDimensions: FimDimensions) => Fim
+): void {
+  describe(`FIM Resource Tracker - ${description}`, () => {
+
+    it('Tracks canvas resources', async () => {
+      const fim = factory(smallFourSquares);
+      await usingAsync(fim, async fim => {
+        const image = fim.createImage();
+        const png = TestImages.fourSquaresPng();
+        await image.loadFromPngAsync(png);
+
+        const ru = fim.getResourceUsage();
+        expect(ru[FimResource.Totals].instances).toEqual(1);
+        expect(ru[FimResource.Totals].nonGLMemory).toEqual(smallFourSquares.getArea() * 4);
+        expect(ru[FimResource.Totals].glMemory).toEqual(0);
+      });
+
+      // All resources are freed by dispose()
+      const ru = fim.getResourceUsage();
+      expect(ru[FimResource.Totals].instances).toEqual(0);
+      expect(ru[FimResource.Totals].nonGLMemory).toEqual(0);
+      expect(ru[FimResource.Totals].glMemory).toEqual(0);
+    });
+
+  });
+}

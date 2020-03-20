@@ -14,7 +14,7 @@ export function fimTestSuiteOversized(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim Oversized - ${description}`, () => {
+  describe(`FIM Oversized - ${description}`, () => {
 
     it('Downscales images larger than parent FIM', () => {
       using(factory(small), fim => {

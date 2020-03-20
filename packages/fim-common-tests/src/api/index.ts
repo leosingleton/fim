@@ -11,6 +11,7 @@ import { fimTestSuiteOperations } from './Operations';
 import { fimTestSuiteOpGaussianBlur } from './OpGaussianBlur';
 import { fimTestSuiteOversized } from './Oversized';
 import { fimTestSuitePngJpeg } from './PngJpeg';
+import { fimTestSuiteResourceTracker } from './ResourceTracker';
 import { fimTestSuiteWebGL } from './WebGL';
 import { fimTestSuiteWebGLContextLost } from './WebGLContextLost';
 import { Fim, FimDimensions } from '@leosingleton/fim';
@@ -35,4 +36,5 @@ export function fimTestSuite(
   fimTestSuiteOpDownscale(description, factory);
   fimTestSuiteOpGaussianBlur(description, factory);
   fimTestSuiteOversized(description, factory);
+  fimTestSuiteResourceTracker(description, factory);
 }

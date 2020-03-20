@@ -21,7 +21,7 @@ import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
-import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
 export abstract class EngineImage extends EngineObject implements FimDimensional, FimImage {
@@ -152,8 +152,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // Calculate the downscaled dimensions and create a 2D canvas
     const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
+    const canvas = me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions,
+      dsf.scaledDimensions, handle);
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
-    me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions, dsf.scaledDimensions, handle);
+
+    // Record the canvas creation
+    me.parentObject.resources.recordCreate(me, canvas);
   }
 
   /** Ensures `contentTexture.imageContent` points to a valid WebGL texture */
@@ -169,8 +173,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Calculate the downscaled dimensions and create a WebGL texture
     const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
     const glCanvas = me.parentObject.getWebGLCanvas();
+    const texture = me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(),
+      dsf.scaledDimensions, handle);
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
-    me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(), dsf.scaledDimensions, handle);
+
+    // Record the texture creation
+    me.parentObject.resources.recordCreate(me, texture);
   }
 
   /**
@@ -293,6 +301,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const canvas = me.contentCanvas;
 
     if (canvas.imageContent) {
+      // Record the canvas disposal
+      me.parentObject.resources.recordDispose(me, canvas.imageContent);
+
       canvas.imageContent.dispose();
       canvas.imageContent = undefined;
       canvas.isCurrent = false;
@@ -308,6 +319,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const texture = me.contentTexture;
 
     if (texture.imageContent) {
+      // Record the texture disposal
+      me.parentObject.resources.recordDispose(me, texture.imageContent);
+
       texture.imageContent.dispose();
       texture.imageContent = undefined;
       texture.isCurrent = false;
@@ -475,8 +489,10 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       const glCanvas = me.parentObject.getWebGLCanvas();
       const outputTexture = glCanvas.createCoreTexture(me.getTextureOptions(), me.contentTexture.imageContent.dim);
       try {
+        me.parentObject.resources.recordCreate(me, outputTexture);
         await shaderOrOperation.executeAsync(outputTexture, scaledDestCoords);
       } catch (err) {
+        me.parentObject.resources.recordDispose(me, outputTexture);
         outputTexture.dispose();
         throw err;
       }
@@ -579,12 +595,17 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    await usingAsync(me.parentObject.createCoreCanvas2D({}, srcCoords.dim, `${me.handle}/RescaleHelper`),
-        async temp => {
+    const temp = me.parentObject.createCoreCanvas2D({}, srcCoords.dim, `${me.handle}/RescaleHelper`);
+    try {
+      me.parentObject.resources.recordCreate(me, temp);
+
       const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.scaleFactor);
       await temp.copyFromAsync(me.contentCanvas.imageContent, scaledSrcCoords);
       result = await exportLambda(temp);
-    });
+    } finally {
+      me.parentObject.resources.recordDispose(me, temp);
+      temp.dispose();
+    }
 
     return result;
   }

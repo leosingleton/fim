@@ -38,7 +38,7 @@ export function fimTestSuiteWebGLContextLost(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim WebGL Context Lost - ${description}`, () => {
+  describe(`FIM WebGL Context Lost - ${description}`, () => {
 
     it('Simulate a context loss', async () => {
       await usingAsync(factory(small), async fim => {

@@ -13,7 +13,7 @@ export function fimTestSuitePngJpeg(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim PNG/JPEG - ${description}`, () => {
+  describe(`FIM PNG/JPEG - ${description}`, () => {
 
     it('Imports from PNG', async () => {
       await usingAsync(factory(smallFourSquares), async fim => {

@@ -17,7 +17,7 @@ export function fimTestSuiteWebGL(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim WebGL - ${description}`, () => {
+  describe(`FIM WebGL - ${description}`, () => {
 
     it('Detects WebGL capabilities', () => {
       using(factory(small), fim => {

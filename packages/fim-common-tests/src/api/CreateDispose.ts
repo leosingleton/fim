@@ -12,7 +12,7 @@ export function fimTestSuiteCreateDispose(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim Create/Dispose - ${description}`, () => {
+  describe(`FIM Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
       const fim = factory(small);

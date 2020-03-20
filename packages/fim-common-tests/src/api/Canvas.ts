@@ -7,14 +7,14 @@ import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, sma
   topRight } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimRect, FimError } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimRect, FimError, FimOpGaussianBlur } from '@leosingleton/fim';
 
 /** FIM test cases around canvas manipulation */
 export function fimTestSuiteCanvas(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim Canvas - ${description}`, () => {
+  describe(`FIM Canvas - ${description}`, () => {
 
     it('Supports fillSolid() and getPixel()', async () => {
       await usingAsync(factory(small), async fim => {
@@ -168,8 +168,18 @@ export function fimTestSuiteCanvas(
         fim.engineOptions.showTracing = true;
         fim.engineOptions.showWarnings = true;
 
-        const image = fim.createImage();
+        // Create an image larger than the parent FIM instance to generate a warning
+        const image = fim.createImage({}, medium);
         await image.fillSolidAsync(red);
+
+        // Load a PNG image to generate some tracing
+        const png = TestImages.fourSquaresPng();
+        await image.loadFromPngAsync(png);
+
+        // Run a WebGL operation to allocate WebGL traces, too
+        const blur = new FimOpGaussianBlur(fim);
+        blur.setInputs(image, 5);
+        await image.executeAsync(blur);
 
         image.releaseAllResources();
         fim.releaseAllResources();

@@ -12,7 +12,7 @@ export function fimTestSuiteImage(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`Fim Image - ${description}`, () => {
+  describe(`FIM Image - ${description}`, () => {
 
     it('Computes effective image options', () => {
       using(factory(small), fim => {

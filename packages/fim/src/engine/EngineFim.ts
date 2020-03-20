@@ -6,12 +6,14 @@ import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
+import { ResourceTracker } from './ResourceTracker';
 import { FimBase } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
+import { FimResourceUsage } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -29,6 +31,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   public constructor(maxImageDimensions: FimDimensions, objectName?: string) {
     super(EngineObjectType.Fim, objectName);
     this.maxImageDimensions = maxImageDimensions;
+    this.resources = new ResourceTracker(this);
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
@@ -87,6 +90,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
 
   // Force parentObject to be a more specific type
   public parentObject: never;
+
+  /** Resource tracking within `EngineFim` is contained in a separate object with 1:1 mapping for code readability */
+  public readonly resources: ResourceTracker;
 
   /**
    * Writes a trace message to the console. This function is a no-op if tracing is disabled in the engine options.
@@ -158,6 +164,9 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     glCanvas.registerContextLostHandler(() => this.onContextLost());
     glCanvas.registerContextRestoredHandler(() => this.onContextRestored());
 
+    // Record the WebGL canvas creation
+    me.resources.recordCreate(me, glCanvas);
+
     return glCanvas;
   }
 
@@ -171,9 +180,12 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
-    if (((flags & FimReleaseResourcesFlags.WebGL) === FimReleaseResourcesFlags.WebGL) && this.glCanvas) {
-      this.glCanvas.dispose();
-      this.glCanvas = undefined;
+    const me = this;
+
+    if (((flags & FimReleaseResourcesFlags.WebGL) === FimReleaseResourcesFlags.WebGL) && me.glCanvas) {
+      me.resources.recordDispose(me, me.glCanvas);
+      me.glCanvas.dispose();
+      me.glCanvas = undefined;
     }
   }
 
@@ -214,6 +226,10 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
 
   public unregisterChildObject(child: FimObject): void {
     this.removeChild(child);
+  }
+
+  public getResourceUsage(): FimResourceUsage {
+    return this.resources.usage;
   }
 
   public createImage(options?: FimImageOptions, dimensions?: FimDimensions, imageName?: string): TEngineImage {

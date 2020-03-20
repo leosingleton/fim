@@ -12,8 +12,8 @@ import { defaultEngineOptions } from '@leosingleton/fim/internals';
 import { TestSuites } from '@leosingleton/fim-common-tests';
 
 // Enable these two for more detailed info in the console when running unit tests
-const showTracing = true;
-const showWarnings = true;
+const showTracing = false;
+const showWarnings = false;
 
 TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', (maxImageDimensions) => {
   const fim = FimBrowserFactory.create(maxImageDimensions);

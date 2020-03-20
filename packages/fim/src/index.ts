@@ -12,6 +12,7 @@ export { FimImage } from './api/FimImage';
 export { FimImageOptions } from './api/FimImageOptions';
 export { FimObject } from './api/FimObject';
 export { FimReleaseResourcesFlags } from './api/FimReleaseResourcesFlags';
+export { FimResource, FimResourceMetrics, FimResourceUsage } from './api/FimResourceUsage';
 export { FimShader } from './api/FimShader';
 export { FimGaussianKernel } from './math/FimGaussianKernel';
 export { FimTransform2D } from './math/FimTransform2D';

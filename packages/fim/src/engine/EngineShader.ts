@@ -36,11 +36,14 @@ export class EngineShader extends EngineObject implements FimShader {
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
+    const me = this;
+
     if (flags & FimReleaseResourcesFlags.WebGLShader) {
-      for (const hash in this.shaders) {
-        this.shaders[hash].dispose();
+      for (const hash in me.shaders) {
+        me.parentObject.resources.recordDispose(me, me.shaders[hash]);
+        me.shaders[hash].dispose();
       }
-      this.shaders = {};
+      me.shaders = {};
     }
   }
 
@@ -155,6 +158,9 @@ export class EngineShader extends EngineObject implements FimShader {
       shader.setConstants(me.constantValues);
       shader.compileProgram();
 
+      // Record the shader creation
+      me.parentObject.resources.recordCreate(me, shader);
+
       // Cache the shader for future calls
       me.shaders[cv] = shader;
 
@@ -162,6 +168,9 @@ export class EngineShader extends EngineObject implements FimShader {
       me.constantValuesLru.enqueue(cv);
       if (me.constantValuesLru.getCount() > me.parentObject.engineOptions.shaderInstanceLimit) {
         const lruCv = me.constantValuesLru.dequeue();
+
+        // Dispose the shader
+        me.parentObject.resources.recordDispose(me, me.shaders[lruCv]);
         me.shaders[lruCv].dispose();
         delete me.shaders[lruCv];
       }
