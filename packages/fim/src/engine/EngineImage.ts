@@ -11,7 +11,6 @@ import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
 import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
-import { FimError, FimErrorCode } from '../primitives/FimError';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
@@ -19,6 +18,7 @@ import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
@@ -606,6 +606,7 @@ interface ImageContent<T> {
   scaleFactor: number;
 }
 
+/** Returns an instance of `ImageContent<T>` with default values */
 function defaultImageContent<T>(): ImageContent<T> {
   return {
     isCurrent: false,
