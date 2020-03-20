@@ -2,7 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { small, medium } from '../common/Globals';
+import { black, blue, bottomLeft, bottomRight, green, medium, red, small, smallFourSquares, topLeft,
+  topRight } from '../common/Globals';
+import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimRect } from '@leosingleton/fim';
@@ -50,7 +52,7 @@ export function fimTestSuiteOversized(
       });
     });
 
-    it('Import and export accept original dimensions', async () => {
+    it('Import and export pixel data accepts original dimensions', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage({}, medium);
 
@@ -65,6 +67,64 @@ export function fimTestSuiteOversized(
         const dim = FimRect.fromXYWidthHeight(10, 10, 240, 240);
         const pixelData2 = await image.exportToPixelDataAsync(dim);
         expect(pixelData2.length).toEqual(dim.getArea() * 4);
+      });
+    });
+
+    it('Import and export PNG accepts original dimensions', async () => {
+      await usingAsync(factory(small), async fim => {
+        // 128x128 PNG is larger than the 100x50 small FIM instance
+        const png = TestImages.fourSquaresPng();
+        const image = await fim.createImageFromPngAsync(png);
+
+        // Y-axis to get downscaled from 128 to 50 pixels
+        const eff = image.getEffectiveImageOptions();
+        expect(eff.downscale).toEqual(50 / 128);
+
+        // Four squares test pattern is present
+        expect(await image.getPixelAsync(topLeft())).toEqual(red);
+        expect(await image.getPixelAsync(topRight())).toEqual(green);
+        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+
+        // Exports back to 128x128
+        const png2 = await image.exportToPngAsync();
+        const image2 = await fim.createImageFromPngAsync(png2);
+        expect(image2.dim).toEqual(smallFourSquares);
+
+        // Four squares test pattern is present
+        expect(await image2.getPixelAsync(topLeft())).toEqual(red);
+        expect(await image2.getPixelAsync(topRight())).toEqual(green);
+        expect(await image2.getPixelAsync(bottomLeft())).toEqual(blue);
+        expect(await image2.getPixelAsync(bottomRight())).toEqual(black);
+      });
+    });
+
+    it('Import and export JPEG accepts original dimensions', async () => {
+      await usingAsync(factory(small), async fim => {
+        // 128x128 JPEG is larger than the 100x50 small FIM instance
+        const jpeg = TestImages.fourSquaresJpeg();
+        const image = await fim.createImageFromJpegAsync(jpeg);
+
+        // Y-axis to get downscaled from 128 to 50 pixels
+        const eff = image.getEffectiveImageOptions();
+        expect(eff.downscale).toEqual(50 / 128);
+
+        // Four squares test pattern is present
+        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
+        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+
+        // Exports back to 128x128
+        const jpeg2 = await image.exportToJpegAsync();
+        const image2 = await fim.createImageFromJpegAsync(jpeg2);
+        expect(image2.dim).toEqual(smallFourSquares);
+
+        // Four squares test pattern is present
+        expect((await image2.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
+        expect((await image2.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
+        expect((await image2.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
+        expect((await image2.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
       });
     });
 
