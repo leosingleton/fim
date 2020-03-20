@@ -579,10 +579,11 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    await usingAsync(me.parentObject.createCoreCanvas2D({}, srcCoords.dim, `${me.handle}/Temp`), async temp => {
+    await usingAsync(me.parentObject.createCoreCanvas2D({}, srcCoords.dim, `${me.handle}/RescaleHelper`),
+        async temp => {
       const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.scaleFactor);
       await temp.copyFromAsync(me.contentCanvas.imageContent, scaledSrcCoords);
-      await exportLambda(temp);
+      result = await exportLambda(temp);
     });
 
     return result;
