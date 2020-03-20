@@ -12,7 +12,7 @@ import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimColor, FimDimensions, FimError, FimTextureSampling, FimTransform3D,
   FimTwoTriangles} from '@leosingleton/fim';
 
-/** WebGL tests for Fim */
+/** WebGL tests for FIM */
 export function fimTestSuiteWebGL(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim

@@ -9,7 +9,7 @@ import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimRect, FimError } from '@leosingleton/fim';
 
-/** Fim test cases around canvas manipulation */
+/** FIM test cases around canvas manipulation */
 export function fimTestSuiteCanvas(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim

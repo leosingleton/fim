@@ -33,7 +33,7 @@ function restoreFimContextAsync(fim: Fim): Promise<void> {
   return restoreContextAsync(canvas);
 }
 
-/** WebGL Context Lost tests for Fim */
+/** WebGL Context Lost tests for FIM */
 export function fimTestSuiteWebGLContextLost(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim

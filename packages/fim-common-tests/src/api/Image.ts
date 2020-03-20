@@ -7,7 +7,7 @@ import { using } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { defaultImageOptions } from '@leosingleton/fim/internals';
 
-/** Image tests for Fim */
+/** Image tests for FIM */
 export function fimTestSuiteImage(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim

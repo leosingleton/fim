@@ -9,7 +9,7 @@ import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimRect } from '@leosingleton/fim';
 
-/** Oversized for Fim */
+/** FIM test cases around transparent downscaling of oversized images */
 export function fimTestSuiteOversized(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim

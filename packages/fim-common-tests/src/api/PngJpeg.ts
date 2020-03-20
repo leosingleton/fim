@@ -8,7 +8,7 @@ import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
-/** Fim test cases around PNG and JPEG encoding/decoding */
+/** FIM test cases around PNG and JPEG encoding/decoding */
 export function fimTestSuitePngJpeg(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim

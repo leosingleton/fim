@@ -7,7 +7,7 @@ import { fillConstShader, fillUniformShader } from '../common/Shaders';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
 
-/** Create/dispose tests for Fim */
+/** Create/dispose tests for FIM */
 export function fimTestSuiteCreateDispose(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
