@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimDimensions } from '../FimDimensions';
 import { FimPoint } from '../FimPoint';
 import { FimRect } from '../FimRect';
 
@@ -32,7 +33,7 @@ describe('FimRect', () => {
     validate1234(FimRect.fromPoints(FimPoint.fromXY(100, 200), FimPoint.fromXY(400, 600)));
   });
 
-  it('equals', () => {
+  it('equals()', () => {
     const rect1 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
     const rect2 = FimRect.fromXYWidthHeight(100, 200, 300, 400);
     const rect3 = FimRect.fromXYWidthHeight(100, 200, 400, 300);
@@ -40,6 +41,19 @@ describe('FimRect', () => {
     expect(rect2.equals(rect1)).toBeTruthy();
     expect(rect1.equals(rect3)).toBeFalsy();
     expect(rect3.equals(rect2)).toBeFalsy();
+  });
+
+  it('!equals(Points)', () => {
+    // Rectangles never equal Points
+    const p = FimPoint.fromXY(640, 480);
+    const r = FimRect.fromWidthHeight(640, 480);
+    expect(r.equals(p)).toBeFalsy();
+  });
+
+  it('equals(Dimensions)', () => {
+    const d = FimDimensions.fromWidthHeight(640, 480);
+    const r = FimRect.fromDimensions(d);
+    expect(r.equals(d)).toBeTruthy();
   });
 
   it('Compares sameDimensions', () => {

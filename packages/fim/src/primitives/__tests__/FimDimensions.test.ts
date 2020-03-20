@@ -3,10 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { FimDimensions } from '../FimDimensions';
+import { FimPoint } from '../FimPoint';
+import { FimRect } from '../FimRect';
 
 describe('FimDimensions', () => {
 
-  it('equals', () => {
+  it('equals()', () => {
     const dim1 = FimDimensions.fromWidthHeight(300, 400);
     const dim2 = FimDimensions.fromWidthHeight(300, 400);
     const dim3 = FimDimensions.fromWidthHeight(400, 300);
@@ -14,6 +16,19 @@ describe('FimDimensions', () => {
     expect(dim2.equals(dim1)).toBeTruthy();
     expect(dim1.equals(dim3)).toBeFalsy();
     expect(dim3.equals(dim2)).toBeFalsy();
+  });
+
+  it('!equals(Points)', () => {
+    // Dimensions never equal Points
+    const p = FimPoint.fromXY(640, 480);
+    const d = FimDimensions.fromWidthHeight(640, 480);
+    expect(d.equals(p)).toBeFalsy();
+  });
+
+  it('equals(Rectangle)', () => {
+    const d = FimDimensions.fromWidthHeight(640, 480);
+    const r = FimRect.fromDimensions(d);
+    expect(d.equals(r)).toBeTruthy();
   });
 
   it('Calculates area', () => {
