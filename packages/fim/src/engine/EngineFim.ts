@@ -151,7 +151,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
     const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
-    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL({}, glDimensions, me.handle);
+    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL({}, glDimensions, `${me.handle}/WebGLCanvas`);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
     // get recreated again on first use.
