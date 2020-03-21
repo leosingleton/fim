@@ -6,7 +6,7 @@ import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
-import { ResourceTracker } from './ResourceTracker';
+import { ResourceTracker } from './optimizer/ResourceTracker';
 import { FimBase } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
@@ -21,8 +21,11 @@ import { FimError, FimErrorCode } from '../primitives/FimError';
 import { deepCopy } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
-/** Client implementation of the Fim interface */
-export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader extends EngineShader>
+/** Shorthand for `EngineFimBase` with the non-platform-specfic implementations of `TEngineImage` and `TEngineShader` */
+export type EngineFim = EngineFimBase<EngineImage, EngineShader>;
+
+/** Client implementation of the `Fim` interface */
+export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineShader extends EngineShader>
     extends EngineObject implements FimBase<TEngineImage, TEngineShader> {
   /**
    * Constructor

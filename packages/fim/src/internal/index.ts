@@ -21,6 +21,6 @@ export { CoreTextureOptions } from '../core/CoreTextureOptions';
 export { ImageSource } from '../core/types/ImageSource';
 export { RenderingContext2D } from '../core/types/RenderingContext2D';
 export { RenderingContextWebGL } from '../core/types/RenderingContextWebGL';
-export { EngineFim } from '../engine/EngineFim';
+export { EngineFim, EngineFimBase } from '../engine/EngineFim';
 export { EngineImage } from '../engine/EngineImage';
 export { EngineShader } from '../engine/EngineShader';

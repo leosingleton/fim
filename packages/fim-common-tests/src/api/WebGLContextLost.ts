@@ -7,7 +7,7 @@ import { blue, green, midpoint, small } from '../common/Globals';
 import { fillUniformShader } from '../common/Shaders';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
-import { EngineFim, EngineImage, EngineShader } from '@leosingleton/fim/internals';
+import { EngineFim } from '@leosingleton/fim/internals';
 
 /**
  * Forces a WebGL context loss for test purposes
@@ -15,7 +15,7 @@ import { EngineFim, EngineImage, EngineShader } from '@leosingleton/fim/internal
  */
 function loseFimContextAsync(fim: Fim): Promise<void> {
   // Typecast to an internal engine object to get access to the CoreCanvasWebGL instance
-  const engine = fim as EngineFim<EngineImage, EngineShader>;
+  const engine = fim as EngineFim;
   const canvas = engine.getWebGLCanvas();
 
   return loseContextAsync(canvas);
@@ -27,7 +27,7 @@ function loseFimContextAsync(fim: Fim): Promise<void> {
  */
 function restoreFimContextAsync(fim: Fim): Promise<void> {
   // Typecast to an internal engine object to get access to the CoreCanvasWebGL instance
-  const engine = fim as EngineFim<EngineImage, EngineShader>;
+  const engine = fim as EngineFim;
   const canvas = engine.getWebGLCanvas();
 
   return restoreContextAsync(canvas);

@@ -2,21 +2,19 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { EngineFim } from './EngineFim';
-import { EngineImage } from './EngineImage';
-import { EngineObject } from './EngineObject';
-import { EngineShader } from './EngineShader';
-import { FimResourceMetrics, FimResourceUsage } from '../api/FimResourceUsage';
-import { CoreCanvas } from '../core/CoreCanvas';
-import { CoreCanvas2D } from '../core/CoreCanvas2D';
-import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
-import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
-import { CoreShader } from '../core/CoreShader';
-import { CoreTexture } from '../core/CoreTexture';
-import { CoreTextureOptions } from '../core/CoreTextureOptions';
-import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
-import { FimDimensions } from '../primitives/FimDimensions';
-import { FimError } from '../primitives/FimError';
+import { EngineFim } from '../EngineFim';
+import { EngineObject } from '../EngineObject';
+import { FimResourceMetrics, FimResourceUsage } from '../../api/FimResourceUsage';
+import { CoreCanvas } from '../../core/CoreCanvas';
+import { CoreCanvas2D } from '../../core/CoreCanvas2D';
+import { CoreCanvasOptions } from '../../core/CoreCanvasOptions';
+import { CoreCanvasWebGL } from '../../core/CoreCanvasWebGL';
+import { CoreShader } from '../../core/CoreShader';
+import { CoreTexture } from '../../core/CoreTexture';
+import { CoreTextureOptions } from '../../core/CoreTextureOptions';
+import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
+import { FimDimensions } from '../../primitives/FimDimensions';
+import { FimError } from '../../primitives/FimError';
 
 /** Class which belongs to each `EngineFim` instance dedicated to tracking resource utilization */
 export class ResourceTracker {
@@ -24,12 +22,12 @@ export class ResourceTracker {
    * Constructor
    * @param fim Parent FIM engine
    */
-  public constructor(fim: EngineFim<EngineImage, EngineShader>) {
+  public constructor(fim: EngineFim) {
     this.fim = fim;
   }
 
   /** Parent FIM engine */
-  private readonly fim: EngineFim<EngineImage, EngineShader>;
+  private readonly fim: EngineFim;
 
   /** Total metrics on the current resource usage of this FIM instance */
   public readonly totals = defaultResourceMetrics();

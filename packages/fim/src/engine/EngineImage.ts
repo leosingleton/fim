@@ -32,8 +32,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * @param dimensions Optional image dimensions. Defaults to `maxImageDimensions` of the parent FIM object.
    * @param objectName An optional name specified when creating the object to help with debugging
    */
-  public constructor(fim: EngineFim<EngineImage, EngineShader>, options?: FimImageOptions, dimensions?: FimDimensions,
-      objectName?: string) {
+  public constructor(fim: EngineFim, options?: FimImageOptions, dimensions?: FimDimensions, objectName?: string) {
     super(EngineObjectType.Image, objectName, fim);
     this.dim = dimensions ?? fim.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
@@ -93,7 +92,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   }
 
   // Force parentObject to be a more specific type
-  public parentObject: EngineFim<EngineImage, EngineShader>;
+  public parentObject: EngineFim;
 
   /** Calculates and returns the current FIM engine options */
   public getEngineOptions(): FimEngineOptions {
