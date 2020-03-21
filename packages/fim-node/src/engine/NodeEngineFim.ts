@@ -6,7 +6,8 @@ import { NodeEngineImage } from './NodeEngineImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
+  EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> {

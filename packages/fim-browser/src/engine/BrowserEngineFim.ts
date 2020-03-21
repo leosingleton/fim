@@ -8,7 +8,8 @@ import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
+  EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> {
