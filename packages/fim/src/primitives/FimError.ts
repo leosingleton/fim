@@ -85,6 +85,11 @@ export class FimError extends Error {
     return new FimError(FimErrorCode.NonFimError, message, [error]);
   }
 
+  /** Throws a FimError with the details containing an objcet serialized to JSON */
+  public static throwObject(code: FimErrorCode, object: any): never {
+    throw new FimError(code, JSON.stringify(object));
+  }
+
   /**
    * Throws an UnreachableCode error
    */
@@ -168,6 +173,9 @@ export const enum FimErrorCode {
 
   /** FIM2003: Code path expected to be unreachable was hit */
   UnreachableCode = 2003,
+
+  /** FIM2004: Thrown on dispose() if the object has detected a resource leak in the FIM library itself */
+  ResourceLeak = 2004,
 
 
   //

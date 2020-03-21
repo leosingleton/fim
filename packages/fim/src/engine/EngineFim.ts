@@ -17,6 +17,7 @@ import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 import { deepCopy } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
@@ -186,6 +187,15 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       me.resources.recordDispose(me, me.glCanvas);
       me.glCanvas.dispose();
       me.glCanvas = undefined;
+    }
+
+    if ((flags & FimReleaseResourcesFlags.All) === FimReleaseResourcesFlags.All) {
+      // Check the resource tracker. All totals should be zero, otherwise it indicates a resource leak in the FIM
+      // library itself.
+      if (me.resources.totals.instances > 0 || me.resources.totals.nonGLMemory > 0 ||
+          me.resources.totals.glMemory > 0) {
+        FimError.throwObject(FimErrorCode.ResourceLeak, JSON.stringify(me.resources.metrics));
+      }
     }
   }
 
