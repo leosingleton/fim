@@ -4,26 +4,17 @@
 
 /** Object to return the current state of resource usage in an instance of the FIM library */
 export interface FimResourceUsage {
-  /** Index values are defined as string in the `FimResource` enum */
-  readonly [resource: string]: FimResourceMetrics;
-}
-
-/** Resource categories measured by the FIM library */
-export const enum FimResource {
   /** 2D canvas resources, including `OffscreenCanvas` objects */
-  Canvas2D = 'c2d',
+  canvas2D: FimResourceMetrics;
 
   /** WebGL canvas resources, including `OffscreenCanvas` objects */
-  CanvasWebGL = 'cgl',
+  canvasWebGL: FimResourceMetrics;
 
   /** WebGL shaders */
-  GLShader = 'shd',
+  glShader: FimResourceMetrics;
 
   /** WebGL textures */
-  GLTexture = 'txt',
-
-  /** Totals of all resource categories */
-  Totals = 'tot'
+  glTexture: FimResourceMetrics;
 }
 
 /** Metrics tracked on each resource category in the FIM library */

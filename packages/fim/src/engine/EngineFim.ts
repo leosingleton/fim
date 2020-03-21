@@ -13,7 +13,7 @@ import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions'
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
-import { FimResourceUsage } from '../api/FimResourceUsage';
+import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -228,8 +228,12 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
     this.removeChild(child);
   }
 
-  public getResourceUsage(): FimResourceUsage {
-    return this.resources.usage;
+  public getResourceMetrics(): FimResourceMetrics {
+    return this.resources.totals;
+  }
+
+  public getResourceMetricsDetailed(): FimResourceUsage {
+    return this.resources.metrics;
   }
 
   public createImage(options?: FimImageOptions, dimensions?: FimDimensions, imageName?: string): TEngineImage {

@@ -7,7 +7,7 @@ import { FimEngineOptions } from './FimEngineOptions';
 import { FimImage } from './FimImage';
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
-import { FimResourceUsage } from './FimResourceUsage';
+import { FimResourceMetrics, FimResourceUsage } from './FimResourceUsage';
 import { FimShader } from './FimShader';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { GlslShader } from 'webpack-glsl-minify';
@@ -79,7 +79,10 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
   unregisterChildObject(child: FimObject): void;
 
   /** Returns metrics on the current resource usage of this FIM instance */
-  getResourceUsage(): FimResourceUsage;
+  getResourceMetrics(): FimResourceMetrics;
+
+  /** Returns metrics on the current resource usage of this FIM instance, broken down by resource type */
+  getResourceMetricsDetailed(): FimResourceUsage;
 
   /**
    * Creates a new image

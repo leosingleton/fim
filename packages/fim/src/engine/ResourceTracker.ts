@@ -6,7 +6,7 @@ import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineShader } from './EngineShader';
-import { FimResource, FimResourceMetrics, FimResourceUsage } from '../api/FimResourceUsage';
+import { FimResourceMetrics, FimResourceUsage } from '../api/FimResourceUsage';
 import { CoreCanvas } from '../core/CoreCanvas';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
@@ -31,8 +31,11 @@ export class ResourceTracker {
   /** Parent FIM engine */
   private readonly fim: EngineFim<EngineImage, EngineShader>;
 
-  /** Resource usage counters */
-  public readonly usage = defaultResourceUsage();
+  /** Total metrics on the current resource usage of this FIM instance */
+  public readonly totals = defaultResourceMetrics();
+
+  /** Metrics on the current resource usage of this FIM instance, broken down by resource type */
+  public readonly metrics = defaultResourceUsage();
 
   /**
    * Tracks the creation of a core object
@@ -62,35 +65,56 @@ export class ResourceTracker {
   private recordInternal(operation: string, multiplier: number, engineObject: EngineObject, coreObject: CoreObject):
       void {
     const me = this;
-    const props = ResourceTracker.getCoreObjectProperties(coreObject);
 
-    if (props.memoryConsumed) {
-      props.memoryConsumed *= multiplier;
+    // Extract the properties and type of the core object
+    let isWebGL = true;
+    let metrics: ResourceMetrics;
+    let options: CoreCanvasOptions | CoreTextureOptions;
+    let dimensions: FimDimensions;
+    let bpp: FimBitsPerPixel;
+    let memory = 0;
+    if (coreObject instanceof CoreCanvas) {
+      isWebGL = (coreObject instanceof CoreCanvasWebGL);
+      metrics = isWebGL ? me.metrics.canvasWebGL : me.metrics.canvas2D;
+      options = coreObject.canvasOptions;
+      dimensions = coreObject.dim;
+      bpp = FimBitsPerPixel.BPP8;
+      memory = dimensions.getArea() * 4 * multiplier;
+    } else if (coreObject instanceof CoreShader) {
+      metrics = me.metrics.glShader;
+    } else if (coreObject instanceof CoreTexture) {
+      metrics = me.metrics.glTexture;
+      options = coreObject.textureOptions;
+      dimensions = coreObject.dim;
+      bpp = (options as CoreTextureOptions).bpp;
+      memory = dimensions.getArea() * bpp * 0.5 * multiplier;
+    } else {
+      FimError.throwOnUnreachableCodeValue(coreObject);
     }
 
     // Update usage counters
-    me.usage[props.resourceType].instances += multiplier;
-    me.usage[FimResource.Totals].instances += multiplier;
-    if (props.isWebGL) {
-      me.usage[props.resourceType].glMemory += props.memoryConsumed;
-      me.usage[FimResource.Totals].glMemory += props.memoryConsumed;
+    metrics.instances += multiplier;
+    me.totals.instances += multiplier;
+    if (isWebGL) {
+      metrics.glMemory += memory;
+      me.totals.glMemory += memory;
     } else {
-      me.usage[props.resourceType].nonGLMemory += props.memoryConsumed;
-      me.usage[FimResource.Totals].nonGLMemory += props.memoryConsumed;
+      metrics.nonGLMemory += memory;
+      me.totals.nonGLMemory += memory;
     }
 
     // Write the tracing message
     if (me.fim.engineOptions.showTracing) {
       const className = ResourceTracker.getClassName(coreObject);
-      let message = `${operation} ${className} (${props.resourceType}) ${coreObject.handle}`;
+      let message = `${operation} ${className} ${coreObject.handle}`;
 
-      if (props.dim && props.bpp) {
-        const mb = (props.memoryConsumed / (1024 * 1024)).toFixed(2);
-        message += ` ${props.dim}x${props.bpp} (${mb} MB)`;
+      if (dimensions && bpp) {
+        const mb = (memory / (1024 * 1024)).toFixed(2);
+        message += ` ${dimensions}x${bpp} (${mb} MB)`;
       }
 
-      if (props.objectOptions) {
-        message += ` ${JSON.stringify(props.objectOptions)}`;
+      if (options) {
+        message += ` ${JSON.stringify(options)}`;
       }
 
       me.fim.writeTrace(engineObject, message);
@@ -105,77 +129,27 @@ export class ResourceTracker {
   private static getClassName(object: any): string {
     return object.constructor.name;
   }
-
-  /** Helper function to extract properties from a `CoreObject` instance */
-  private static getCoreObjectProperties(object: CoreObject): CoreObjectProperties {
-    if (object instanceof CoreCanvas) {
-      const isWebGL = (object instanceof CoreCanvasWebGL);
-      return {
-        resourceType: isWebGL ? FimResource.CanvasWebGL : FimResource.Canvas2D,
-        isWebGL,
-        dim: object.dim,
-        bpp: FimBitsPerPixel.BPP8,
-        memoryConsumed: object.dim.getArea() * 4,
-        objectOptions: object.canvasOptions
-      };
-    } else if (object instanceof CoreShader) {
-      return {
-        resourceType: FimResource.GLShader,
-        isWebGL: true
-      };
-    } else if (object instanceof CoreTexture) {
-      return {
-        resourceType: FimResource.GLTexture,
-        isWebGL: true,
-        dim: object.dim,
-        bpp: object.textureOptions.bpp,
-        memoryConsumed: object.dim.getArea() * object.textureOptions.bpp * 0.5,
-        objectOptions: object.textureOptions
-      };
-    } else {
-      FimError.throwOnUnreachableCodeValue(object);
-    }
-  }
 }
 
 /** Shorthand for the four core object types we track */
 type CoreObject = CoreCanvas2D | CoreCanvasWebGL | CoreShader | CoreTexture;
 
-/** Properties returned by `ResourceTracker.getCoreObjectProperties()` */
-interface CoreObjectProperties {
-  /** Type of the resource (`FimResource` enum) */
-  resourceType: FimResource,
-
-  /** Whether the resource is a WebGL resource */
-  isWebGL: boolean;
-
-  /** Dimensions of the resource, used to estimate memory usage. May be undefined for shaders. */
-  dim?: FimDimensions,
-
-  /** Color depth of the resource, used to estimate memory usage. May be undefined for shaders. */
-  bpp?: FimBitsPerPixel,
-
-  /** Estimated memory consumption, in MB */
-  memoryConsumed?: number,
-
-  /** Object-specific creation options, optionally provided for logging */
-  objectOptions?: CoreCanvasOptions | CoreTextureOptions;
-}
-
 /** Non-readonly version of `FimResourceUsage` */
 interface ResourceUsage extends FimResourceUsage {
-  [resource: string]: ResourceMetrics;
+  canvas2D: ResourceMetrics;
+  canvasWebGL: ResourceMetrics;
+  glShader: ResourceMetrics;
+  glTexture: ResourceMetrics;
 }
 
 /** Returns an instance of `ResourceUsage` initialized to default values */
 function defaultResourceUsage(): ResourceUsage {
-  const usage: ResourceUsage = {};
-  usage[FimResource.Canvas2D] = defaultResourceMetrics();
-  usage[FimResource.CanvasWebGL] = defaultResourceMetrics();
-  usage[FimResource.GLShader] = defaultResourceMetrics();
-  usage[FimResource.GLTexture] = defaultResourceMetrics();
-  usage[FimResource.Totals] = defaultResourceMetrics();
-  return usage;
+  return {
+    canvas2D: defaultResourceMetrics(),
+    canvasWebGL: defaultResourceMetrics(),
+    glShader: defaultResourceMetrics(),
+    glTexture: defaultResourceMetrics()
+  };
 }
 
 /** Non-readonly version of `FimResourceMetrics` */
