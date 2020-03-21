@@ -194,7 +194,7 @@ export abstract class EngineFim<TEngineImage extends EngineImage, TEngineShader 
       // library itself.
       if (me.resources.totals.instances > 0 || me.resources.totals.nonGLMemory > 0 ||
           me.resources.totals.glMemory > 0) {
-        FimError.throwObject(FimErrorCode.ResourceLeak, JSON.stringify(me.resources.metrics));
+        FimError.throwObject(FimErrorCode.ResourceLeak, me.resources.metrics);
       }
     }
   }
