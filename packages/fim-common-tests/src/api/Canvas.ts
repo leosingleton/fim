@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { expectErrorAsync } from '../common/Async';
-import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
+import { black, blue, bottomLeft, bottomRight, green, large, medium, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
@@ -183,6 +183,23 @@ export function fimTestSuiteCanvas(
 
         image.releaseAllResources();
         fim.releaseAllResources();
+      });
+    });
+
+    it('Enforces memory limits', async () => {
+      await usingAsync(factory(large), async fim => {
+        // 128 * 128 * 4 is just enough memory for the four squares test PNG
+        fim.engineOptions.maxCanvasMemory = 128 * 128 * 4 + 10;
+
+        // Load the four squares test pattern onto an image backed by a CoreCanvas2D
+        const png = TestImages.fourSquaresPng();
+        const smallImage = await fim.createImageFromPngAsync(png);
+        await smallImage.loadFromPngAsync(png);
+
+        // Allocate a large canvas and copy the test pattern to it. This will throw an OutOfMemory FimError as it
+        // exceeds the limit set in engineOptions.
+        const largeImage = fim.createImage();
+        (await expectErrorAsync(largeImage.copyFromAsync(smallImage))).toBeInstanceOf(FimError);
       });
     });
 
