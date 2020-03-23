@@ -6,6 +6,7 @@ import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
+import { ImageType } from './optimizer/ImageType';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
@@ -36,6 +37,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     super(EngineObjectType.Image, objectName, fim);
     this.dim = dimensions ?? fim.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
+
+    this.parentObject.optimizer.recordImageCreate(this);
+  }
+
+  public dispose(): void {
+    this.parentObject.optimizer.recordImageDispose(this);
+    super.dispose();
   }
 
   public readonly dim: FimDimensions;
@@ -247,6 +255,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
   private async populateContentCanvas(): Promise<void> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
 
     if (me.contentCanvas.isCurrent) {
       // If a canvas is already current, this function is a no-op
@@ -254,6 +263,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Copy the fill color to the canvas to make it current
       me.allocateContentCanvas();
       me.contentCanvas.imageContent.fillSolid(me.contentFillColor.imageContent);
+
+      optimizer.recordImageWrite(me, ImageType.Canvas);
     } else if (me.contentTexture.isCurrent) {
       // Copy texture to the WebGL canvas
       me.allocateContentCanvas();
@@ -262,11 +273,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
       // Copy the WebGL canvas to a 2D canvas
       await me.contentCanvas.imageContent.copyFromAsync(glCanvas);
+
+      optimizer.recordImageRead(me, ImageType.Texture);
+      optimizer.recordImageWrite(me, ImageType.Canvas);
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
 
     me.markCurrent(me.contentCanvas, false);
+    optimizer.recordImageRead(me, ImageType.Canvas);
   }
 
   /**
@@ -275,6 +290,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    */
   public async populateContentTexture(): Promise<CoreTexture> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
 
     if (me.contentTexture.isCurrent) {
       // If a texture is already current, this function is a no-op
@@ -282,15 +298,21 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Fill texture with solid color
       me.allocateContentTexture();
       me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
+
+      optimizer.recordImageWrite(me, ImageType.Texture);
     } else if (me.contentCanvas.isCurrent) {
       // Copy canvas to texture
       me.allocateContentTexture();
       await me.contentTexture.imageContent.copyFromAsync(me.contentCanvas.imageContent);
+
+      optimizer.recordImageRead(me, ImageType.Canvas);
+      optimizer.recordImageWrite(me, ImageType.Texture);
     } else {
       FimError.throwOnImageUninitialized(me.handle);
     }
 
     me.markCurrent(me.contentTexture, false);
+    optimizer.recordImageRead(me, ImageType.Texture);
     return me.contentTexture.imageContent;
   }
 
@@ -362,11 +384,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.contentFillColor.imageContent = color;
     me.markCurrent(me.contentFillColor, true);
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    me.parentObject.optimizer.releaseResources();
   }
 
   public async getPixelAsync(point: FimPoint): Promise<FimColor> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     // Optimization: if the image is a solid fill color, just return that color
@@ -378,13 +402,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const scaledPoint = point.rescale(me.contentCanvas.scaleFactor);
     const color = me.contentCanvas.imageContent.getPixel(scaledPoint);
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.releaseResources();
 
     return color;
   }
 
   public async loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions
@@ -398,11 +424,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
     me.markCurrent(me.contentCanvas, true);
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.releaseResources();
   }
 
   public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     me.allocateContentCanvas();
@@ -413,11 +442,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await me.contentCanvas.imageContent.loadFromPngAsync(pngFile, allowRescale);
     me.markCurrent(me.contentCanvas, true);
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.releaseResources();
   }
 
   public async loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     me.allocateContentCanvas();
@@ -428,11 +460,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
     me.markCurrent(me.contentCanvas, true);
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.releaseResources();
   }
 
   public async copyFromAsync(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     // copyFrom() does not support copying from itself
@@ -459,11 +494,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       scaledDestCoords);
     me.markCurrent(me.contentCanvas, true);
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.releaseResources();
   }
 
   public async executeAsync(shaderOrOperation: EngineShader | FimOperation, destCoords?: FimRect): Promise<void> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     // Ensure shader belongs to the same EngineFim instance
@@ -501,19 +539,24 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Normal case: we can write to the normal WebGL texture as it is not an input to the shader.
       await shaderOrOperation.executeAsync(me.contentTexture.imageContent, scaledDestCoords);
     }
+
     me.markCurrent(me.contentTexture, true);
+    optimizer.recordImageWrite(me, ImageType.Texture);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.
     if (me.getImageOptions().backup) {
       await me.populateContentCanvas();
+      optimizer.recordImageWrite(me, ImageType.Canvas);
     }
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.releaseResources();
   }
 
   public async exportToPixelDataAsync(srcCoords?: FimRect): Promise<Uint8ClampedArray> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     // Handle defaults and validate coordinates
@@ -531,13 +574,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
         async scaledCanvas => scaledCanvas.exportToPixelData());
     }
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.releaseResources();
 
     return pixelData;
   }
 
   public async exportToPngAsync(): Promise<Uint8Array> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     await me.populateContentCanvas();
@@ -551,13 +596,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
         async scaledCanvas => scaledCanvas.exportToPngAsync());
     }
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.releaseResources();
 
     return png;
   }
 
   public async exportToJpegAsync(quality = 0.95): Promise<Uint8Array> {
     const me = this;
+    const optimizer = me.parentObject.optimizer;
     me.ensureNotDisposed();
 
     await me.populateContentCanvas();
@@ -571,7 +618,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
         async scaledCanvas => scaledCanvas.exportToJpegAsync(quality));
     }
 
-    // TODO: release resources based on optimization settings
+    // Let the optimizer release unneeded resources
+    optimizer.releaseResources();
 
     return jpeg;
   }

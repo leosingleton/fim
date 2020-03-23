@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { getClassName, memoryToString } from './Logging';
 import { EngineFim } from '../EngineFim';
 import { EngineObject } from '../EngineObject';
 import { FimResourceMetrics, FimResourceUsage } from '../../api/FimResourceUsage';
@@ -103,12 +104,11 @@ export class ResourceTracker {
 
     // Write the tracing message
     if (me.fim.engineOptions.showTracing) {
-      const className = ResourceTracker.getClassName(coreObject);
+      const className = getClassName(coreObject);
       let message = `${operation} ${className} ${coreObject.handle}`;
 
       if (dimensions && bpp) {
-        const mb = (memory / (1024 * 1024)).toFixed(2);
-        message += ` ${dimensions}x${bpp} (${mb} MB)`;
+        message += ` ${dimensions}x${bpp} (${memoryToString(memory)})`;
       }
 
       if (options) {
@@ -117,15 +117,6 @@ export class ResourceTracker {
 
       me.fim.writeTrace(engineObject, message);
     }
-  }
-
-  /**
-   * Returns the class name of an object as a string
-   * @param object Any object
-   * @return String containing the class name
-   */
-  private static getClassName(object: any): string {
-    return object.constructor.name;
   }
 }
 

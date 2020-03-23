@@ -32,6 +32,13 @@ export class EngineShader extends EngineObject implements FimShader {
     super(EngineObjectType.Shader, shaderName, fim);
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;
+
+    this.parentObject.optimizer.recordShaderCreate(this);
+  }
+
+  public dispose(): void {
+    this.parentObject.optimizer.recordShaderDispose(this);
+    super.dispose();
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {

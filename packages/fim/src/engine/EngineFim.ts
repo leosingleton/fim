@@ -6,6 +6,8 @@ import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
+import { OptimizerBase } from './optimizer/OptimizerBase';
+import { OptimizerNull } from './optimizer/OptimizerNull';
 import { ResourceTracker } from './optimizer/ResourceTracker';
 import { FimBase } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
@@ -36,6 +38,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     super(EngineObjectType.Fim, objectName);
     this.maxImageDimensions = maxImageDimensions;
     this.resources = new ResourceTracker(this);
+    this.optimizer = new OptimizerNull(this);
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
@@ -97,6 +100,9 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   /** Resource tracking within `EngineFim` is contained in a separate object with 1:1 mapping for code readability */
   public readonly resources: ResourceTracker;
+
+  /** Memory optimization within `EngineFim` is contained in a separate object with 1:1 mapping for code readability */
+  public readonly optimizer: OptimizerBase;
 
   /**
    * Writes a trace message to the console. This function is a no-op if tracing is disabled in the engine options.
