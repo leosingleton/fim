@@ -98,8 +98,8 @@ export class ResourceTracker {
       metrics.glMemory += memory;
       me.totals.glMemory += memory;
     } else {
-      metrics.nonGLMemory += memory;
-      me.totals.nonGLMemory += memory;
+      metrics.canvasMemory += memory;
+      me.totals.canvasMemory += memory;
     }
 
     // Write the tracing message
@@ -144,7 +144,7 @@ function defaultResourceUsage(): ResourceUsage {
 /** Non-readonly version of `FimResourceMetrics` */
 interface ResourceMetrics extends FimResourceMetrics {
   instances: number;
-  nonGLMemory: number;
+  canvasMemory: number;
   glMemory: number;
 }
 
@@ -152,7 +152,7 @@ interface ResourceMetrics extends FimResourceMetrics {
 function defaultResourceMetrics(): ResourceMetrics {
   return {
     instances: 0,
-    nonGLMemory: 0,
+    canvasMemory: 0,
     glMemory: 0
   };
 }

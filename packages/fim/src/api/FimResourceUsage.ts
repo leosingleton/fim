@@ -22,8 +22,8 @@ export interface FimResourceMetrics {
   /** Number of objects in this resource category */
   readonly instances: number;
 
-  /** Memory consumed by objects in this resource category, excluding WebGL memory, in bytes */
-  readonly nonGLMemory: number;
+  /** Canvas memory consumed by objects in this resource category, in bytes */
+  readonly canvasMemory: number;
 
   /** WebGL memory consumed by objects in this resource category, in bytes */
   readonly glMemory: number;

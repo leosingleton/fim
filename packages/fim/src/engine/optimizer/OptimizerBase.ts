@@ -102,14 +102,13 @@ export abstract class OptimizerBase {
   }
 
   /**
-   * Called before the engine allocates canvas (non-WebGL) memory, so the optimizer can ensure adequate memory is
-   * available.
+   * Called before the engine allocates canvas memory, so the optimizer can ensure adequate memory is available.
    * @param memory Amount of memory to allocate, in bytes
    * @throws `FimError(FimErrorCode.OutOfMemory)` if the memory allocation will cause FIM to exceed the limit set in
    *    `engineOptions.maxCanvasMemory`
    */
-  public reserveNonGLMemory(memory: number): void {
-    this.reserveMemoryInternal('Canvas', FimErrorCode.OutOfMemory, this.fim.resources.totals.nonGLMemory, memory,
+  public reserveCanvasMemory(memory: number): void {
+    this.reserveMemoryInternal('Canvas', FimErrorCode.OutOfMemory, this.fim.resources.totals.canvasMemory, memory,
       this.fim.engineOptions.maxCanvasMemory);
   }
 

@@ -201,7 +201,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     if ((flags & FimReleaseResourcesFlags.All) === FimReleaseResourcesFlags.All) {
       // Check the resource tracker. All totals should be zero, otherwise it indicates a resource leak in the FIM
       // library itself.
-      if (me.resources.totals.instances > 0 || me.resources.totals.nonGLMemory > 0 ||
+      if (me.resources.totals.instances > 0 || me.resources.totals.canvasMemory > 0 ||
           me.resources.totals.glMemory > 0) {
         FimError.throwObject(FimErrorCode.ResourceLeak, me.resources.metrics);
       }
