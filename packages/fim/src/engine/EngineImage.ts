@@ -159,7 +159,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // Calculate the downscaled dimensions and create a 2D canvas
     const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
-    const canvas = me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.imageOptions,
+    const canvas = me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.getCanvasOptions(),
       dsf.scaledDimensions, handle);
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
 
@@ -643,7 +643,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    const temp = me.parentObject.createCoreCanvas2D({}, srcCoords.dim, `${me.handle}/RescaleHelper`);
+    const temp = me.parentObject.createCoreCanvas2D(me.getCanvasOptions(), srcCoords.dim, `${me.handle}/RescaleHelper`);
     try {
       me.parentObject.resources.recordCreate(me, temp);
 

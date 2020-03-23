@@ -17,6 +17,7 @@ import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
+import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
@@ -167,7 +168,8 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
     const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
-    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL({}, glDimensions, `${me.handle}/WebGLCanvas`);
+    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(me.getGLCanvasOptions(), glDimensions,
+      `${me.handle}/WebGLCanvas`);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
     // get recreated again on first use.
@@ -178,6 +180,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     me.resources.recordCreate(me, glCanvas);
 
     return glCanvas;
+  }
+
+  /** Calculates and returns the `CoreCanvasOptions` for creating a new WebGL canvas */
+  public getGLCanvasOptions(): CoreCanvasOptions {
+    //const options = mergeImageOptions(defaultEngineOptions, this.getImageOptions());
+    return {};
   }
 
   /** The WebGL canvas created by getWebGLCanvas() */
@@ -289,9 +297,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     TEngineShader;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  public abstract createCoreCanvas2D(options: FimImageOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D;
+  public abstract createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):
+    CoreCanvas2D;
 
   /** Derived classes must implement this method to call the CoreCanvasWebGL constructor */
-  public abstract createCoreCanvasWebGL(options: FimImageOptions, dimensions: FimDimensions, handle: string):
+  public abstract createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):
     CoreCanvasWebGL;
 }
