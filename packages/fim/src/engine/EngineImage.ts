@@ -541,6 +541,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     me.markCurrent(me.contentTexture, true);
+    optimizer.recordShaderUsage(shaderOrOperation);
     optimizer.recordImageWrite(me, ImageType.Texture);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
