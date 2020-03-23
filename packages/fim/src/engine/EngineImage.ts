@@ -159,8 +159,10 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // Calculate the downscaled dimensions and create a 2D canvas
     const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
-    const canvas = me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(me.getCanvasOptions(),
-      dsf.scaledDimensions, handle);
+    const options = me.getCanvasOptions();
+    me.parentObject.optimizer.reserveCanvasMemory(dsf.scaledDimensions.getArea() * 4);
+    const canvas = me.contentCanvas.imageContent = me.parentObject.createCoreCanvas2D(options, dsf.scaledDimensions,
+      handle);
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
 
     // Record the canvas creation
@@ -180,8 +182,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Calculate the downscaled dimensions and create a WebGL texture
     const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
     const glCanvas = me.parentObject.getWebGLCanvas();
-    const texture = me.contentTexture.imageContent = glCanvas.createCoreTexture(me.getTextureOptions(),
-      dsf.scaledDimensions, handle);
+    const options = me.getTextureOptions();
+    me.parentObject.optimizer.reserveGLMemory(dsf.scaledDimensions.getArea() * options.bpp * 0.5);
+    const texture = me.contentTexture.imageContent = glCanvas.createCoreTexture(options, dsf.scaledDimensions, handle);
     me.contentCanvas.scaleFactor = dsf.scaleFactor;
 
     // Record the texture creation
