@@ -15,6 +15,6 @@ uniform vec3 uB;
 void main()
 {
   vec3 color = texture2D(uInput, vCoord).rgb;
-  vec3 newColor = color * uM + uB;
-  gl_FragColor = vec4(newColor, 1);
+  vec3 newColor = clamp(color * uM + uB, 0.0, 1.0);
+  gl_FragColor = vec4(newColor, 1.0);
 }
