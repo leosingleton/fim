@@ -4,7 +4,7 @@
 
 import { black, blue, green, grey, magenta, midpoint, red, small, white, yellow } from '../common/Globals';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpLighter,
+import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpInvert, FimOpLighter,
   FimOpSubtract } from '@leosingleton/fim';
 
 /** Built-in operation tests for Fim */
@@ -62,6 +62,20 @@ export function fimTestSuiteOperations(
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
         expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(red);
+      });
+    });
+
+    it('Invert', async () => {
+      await usingAsync(factory(small), async fim => {
+        const blueImage = fim.createImage();
+        await blueImage.fillSolidAsync(blue);
+
+        const op = new FimOpInvert(fim);
+        op.setInput(blueImage);
+
+        const outputImage = fim.createImage();
+        await outputImage.executeAsync(op);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(yellow);
       });
     });
 

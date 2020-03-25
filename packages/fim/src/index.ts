@@ -24,6 +24,7 @@ export { FimOpBrightnessContrast } from './ops/FimOpBrightnessContrast';
 export { FimOpDarker } from './ops/FimOpDarker';
 export { FimOpDownscale } from './ops/FimOpDownscale';
 export { FimOpGaussianBlur } from './ops/FimOpGaussianBlur';
+export { FimOpInvert } from './ops/FimOpInvert';
 export { FimOpLighter } from './ops/FimOpLighter';
 export { FimOpLinearTransform1 } from './ops/FimOpLinearTransform1';
 export { FimOpLinearTransform2 } from './ops/FimOpLinearTransform2';
