@@ -2,9 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, green, grey, magenta, midpoint, red, small, white, yellow } from '../common/Globals';
+import { black, blue, green, grey, magenta, midpoint, red, small, white, yellow } from '../common/Globals';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpAlphaBlend, FimOpDarker, FimOpLighter } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpLighter,
+  FimOpSubtract } from '@leosingleton/fim';
 
 /** Built-in operation tests for Fim */
 export function fimTestSuiteOperations(
@@ -12,6 +13,23 @@ export function fimTestSuiteOperations(
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
   describe(`Fim built-in operations - ${description}`, () => {
+
+    it('Add', async () => {
+      await usingAsync(factory(small), async fim => {
+        const redImage = fim.createImage();
+        await redImage.fillSolidAsync(red);
+
+        const greenImage = fim.createImage();
+        await greenImage.fillSolidAsync(green);
+
+        const op = new FimOpAdd(fim);
+        op.setInputs(redImage, greenImage);
+
+        const outputImage = fim.createImage();
+        await outputImage.executeAsync(op);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(yellow);
+      });
+    });
 
     it('AlphaBlend', async () => {
       await usingAsync(factory(small), async fim => {
@@ -43,7 +61,7 @@ export function fimTestSuiteOperations(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(green);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 
@@ -61,6 +79,23 @@ export function fimTestSuiteOperations(
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
         expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(yellow);
+      });
+    });
+
+    it('Subtract', async () => {
+      await usingAsync(factory(small), async fim => {
+        const magentaImage = fim.createImage();
+        await magentaImage.fillSolidAsync(magenta);
+
+        const blueImage = fim.createImage();
+        await blueImage.fillSolidAsync(blue);
+
+        const op = new FimOpSubtract(fim);
+        op.setInputs(magentaImage, blueImage);
+
+        const outputImage = fim.createImage();
+        await outputImage.executeAsync(op);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 

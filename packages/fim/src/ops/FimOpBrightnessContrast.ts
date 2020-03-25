@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimOpLinearTransform } from './FimOpLinearTransform';
+import { FimOpLinearTransform1 } from './FimOpLinearTransform1';
 import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimOperation } from '../api/FimOperation';
@@ -16,12 +16,12 @@ export class FimOpBrightnessContrast extends FimOperation {
    */
   public constructor(fim: Fim) {
     super(fim, 'BrightnessContrast');
-    this.linearTransform = new FimOpLinearTransform(fim);
-    this.registerChildObject(this.linearTransform);
+    this.linearTransform1 = new FimOpLinearTransform1(fim);
+    this.registerChildObject(this.linearTransform1);
   }
 
   /** Internally, brightness/contrast adjustments are implemented with the linear transformation operation */
-  private readonly linearTransform: FimOpLinearTransform;
+  private readonly linearTransform1: FimOpLinearTransform1;
 
   /**
    * Sets the inputs to perform brightness and contrast adjustion
@@ -38,10 +38,10 @@ export class FimOpBrightnessContrast extends FimOperation {
     // Thus m and b in y = mx + b are below:
     const m = (contrast < 0.0) ? (contrast + 1.0) : (1.0 / (1.0 - contrast));
     const b = 0.5 - (0.5 * m) + brightness;
-    this.linearTransform.setInputs(input, m, b);
+    this.linearTransform1.setInputs(input, m, b);
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {
-    return this.linearTransform.executeAsync(outputImage, destCoords);
+    return this.linearTransform1.executeAsync(outputImage, destCoords);
   }
 }

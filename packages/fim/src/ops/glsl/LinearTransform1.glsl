@@ -9,8 +9,9 @@ precision mediump float;
 varying vec2 vCoord;
 uniform sampler2D uInput;
 uniform float uM;
-uniform float uB;
+uniform vec3 uB;
 
+// Performs a linear transformation with 1 input
 void main()
 {
   vec3 color = texture2D(uInput, vCoord).rgb;

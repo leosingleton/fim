@@ -6,15 +6,15 @@ import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimOperationShader } from '../api/FimOperationShader';
 
-/** Built-in operation to apply a y = mx + b transformation */
-export class FimOpLinearTransform extends FimOperationShader {
+/** Built-in operation to apply a linear transformation with one input (y = mx + b) */
+export class FimOpLinearTransform1 extends FimOperationShader {
   /**
    * Constructor
    * @param fim FIM instance
    */
   public constructor(fim: Fim) {
-    const source = require('../../build/ops/glsl/LinearTransform.glsl.js');
-    const shader = fim.createGLShader(source, undefined, 'LinearTransform');
+    const source = require('../../build/ops/glsl/LinearTransform1.glsl.js');
+    const shader = fim.createGLShader(source, undefined, 'LinearTransform1');
     super(fim, shader);
   }
 
@@ -28,7 +28,7 @@ export class FimOpLinearTransform extends FimOperationShader {
     this.shader.setUniforms({
       uInput: input,
       uM: m,
-      uB: b
+      uB: [b, b, b]
     });
   }
 }
