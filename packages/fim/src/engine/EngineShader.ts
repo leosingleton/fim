@@ -6,7 +6,6 @@ import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
-import { LruQueue } from './types/LruQueue';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
 import { FimValue } from '../api/FimValue';
@@ -17,6 +16,7 @@ import { FimTransform2D } from '../math/FimTransform2D';
 import { FimTransform3D } from '../math/FimTransform3D';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { LruQueue } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Internal implementation of the FimShader interface */
