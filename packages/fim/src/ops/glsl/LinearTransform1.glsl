@@ -1,0 +1,20 @@
+// FIM - Fast Image Manipulation Library for Javascript
+// Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
+// See LICENSE in the project root for license information.
+
+#version 100
+
+precision mediump float;
+
+varying vec2 vCoord;
+uniform sampler2D uInput;
+uniform float uM;
+uniform vec3 uB;
+
+// Performs a linear transformation with 1 input
+void main()
+{
+  vec3 color = texture2D(uInput, vCoord).rgb;
+  vec3 newColor = clamp(color * uM + uB, 0.0, 1.0);
+  gl_FragColor = vec4(newColor, 1.0);
+}

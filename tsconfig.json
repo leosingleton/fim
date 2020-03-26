@@ -4,10 +4,10 @@
     "module": "commonjs",
     "lib": ["es2017", "dom"],
     "declaration": true,
-    "outDir": "./build/dist",
     "noImplicitAny": true,
-    "sourceMap": true
+    "noImplicitReturns": true,
+    "sourceMap": true,
+    "esModuleInterop": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "samples", "**/__tests__/*"]
+  "exclude": ["**/__tests__/*", "**/build/*"]
 }

@@ -3,10 +3,8 @@
 
   // Include all files that aren't part of the normal TypeScript build to keep eslint happy...
   "include": [
-    "samples/**/*.js",
-    "samples/**/*.ts",
     "**/__tests__/**/*.ts",
     "*.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": []
 }

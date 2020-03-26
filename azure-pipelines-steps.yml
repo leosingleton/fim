@@ -1,0 +1,60 @@
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '10.x'
+    displayName: 'Install Node.js 10'
+
+  - script: |
+      sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6
+    displayName: 'Install mesa and xvfb'
+
+  - script: |
+      npm install
+    displayName: 'Install NPM Packages'
+
+  - script: |
+      npm run bootstrap
+    displayName: 'Bootstrap NPM Packages'
+
+  - script: |
+      npm run lint
+    displayName: 'Lint'
+
+  - script: |
+      npm run build
+    displayName: 'Compile Output'
+
+  - script: |
+      npm run test:node:xvfb
+    displayName: 'Execute Jest unit tests for Node support'
+    continueOnError: true
+
+  - script: |
+      npm run test:browser
+    displayName: 'Execute Karma unit tests for browser support'
+    continueOnError: true
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'build/results-*.xml'
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: 'build/cobertura-coverage.xml'
+      reportDirectory: 'build/'
+
+#  - script: |
+#      npm run samples
+#    displayName: 'Compile Sample Apps'
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      contents: |
+        **/**
+        !**/node_modules/**
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
