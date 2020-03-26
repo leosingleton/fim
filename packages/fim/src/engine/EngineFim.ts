@@ -13,7 +13,6 @@ import { FimBase } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
-import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
@@ -246,14 +245,6 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   public registerContextRestoredHandler(handler: () => void): void {
     const glCanvas = this.getWebGLCanvas();
     glCanvas.registerContextRestoredHandler(handler);
-  }
-
-  public registerChildObject(child: FimObject): void {
-    this.addChild(child);
-  }
-
-  public unregisterChildObject(child: FimObject): void {
-    this.removeChild(child);
   }
 
   public getResourceMetrics(): FimResourceMetrics {

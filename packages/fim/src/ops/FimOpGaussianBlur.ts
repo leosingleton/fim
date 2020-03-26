@@ -20,7 +20,7 @@ export class FimOpGaussianBlur extends FimOperation {
   public constructor(fim: Fim, fast = false) {
     super(fim, 'GaussianBlur');
     this.matrix1D = new FimOpMatrix1D(fim, fast);
-    this.registerChildObject(this.matrix1D);
+    this.addChild(this.matrix1D);
   }
 
   /** Internally, this operation is implemented with the Matrix1D shader */

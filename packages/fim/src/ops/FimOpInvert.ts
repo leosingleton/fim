@@ -17,7 +17,7 @@ export class FimOpInvert extends FimOperation {
   public constructor(fim: Fim) {
     super(fim, 'Invert');
     this.linearTransform1 = new FimOpLinearTransform1(fim);
-    this.registerChildObject(this.linearTransform1);
+    this.addChild(this.linearTransform1);
   }
 
   /** Internally, invert is implemented with the linear transformation operation */

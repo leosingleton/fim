@@ -62,21 +62,6 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    */
   registerContextRestoredHandler(handler: () => void): void;
 
-  /**
-   * Callers may create custom objects derived from `FimObject` to interact with the FIM library. Calling this method to
-   * register a child object causes the parent FIM instance to forward any `releaseResources()`,
-   * `releaseAllResources()`, and `dispose()` calls.
-   * @param child Child object to receive notifications
-   */
-  registerChildObject(child: FimObject): void;
-
-  /**
-   * Stops sending calls to a child object previously registered with `registerChildObject()`. Child objects should call
-   * this method if they are disposed prior to the disposal of the parent FIM instance.
-   * @param child Child object to stop receiving notifications
-   */
-  unregisterChildObject(child: FimObject): void;
-
   /** Returns metrics on the current resource usage of this FIM instance */
   getResourceMetrics(): FimResourceMetrics;
 

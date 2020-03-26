@@ -20,7 +20,7 @@ export class FimOpUnsharpMask extends FimOperation {
   public constructor(fim: Fim, fast = false) {
     super(fim, 'UnsharpMask');
     this.matrix1D = new FimOpMatrix1D(fim, fast);
-    this.registerChildObject(this.matrix1D);
+    this.addChild(this.matrix1D);
   }
 
   private readonly matrix1D: FimOpMatrix1D;

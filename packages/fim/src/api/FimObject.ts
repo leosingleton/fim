@@ -6,14 +6,35 @@ import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 
 /** Common properties for all objects in the FIM API */
 export interface FimObject {
+  /** Unique string describing the type of the object */
+  readonly objectType: string;
+
   /** Handle including the full path from parent to child objects */
   readonly handle: string;
 
   /** Array of references to child objects */
   readonly childObjects: FimObject[];
 
-  /** Parent object. Undefined for the root object. */
-  readonly parentObject: FimObject;
+  /** Parent object. `undefined` for the root object. */
+  readonly parentObject?: FimObject;
+
+  /** Root object. Points to `this` for the root object. */
+  readonly rootObject: FimObject;
+
+  /**
+   * Callers may create custom objects derived from `FimObject` to interact with the FIM library. Calling this method to
+   * register a child object causes the parent FIM instance to forward any `releaseResources()`,
+   * `releaseAllResources()`, and `dispose()` calls.
+   * @param child Child object to receive notifications
+   */
+  addChild(child: FimObject): void;
+
+  /**
+   * Stops sending calls to a child object previously registered with `registerChildObject()`. Child objects should call
+   * this method if they are disposed prior to the disposal of the parent FIM instance.
+   * @param child Child object to stop receiving notifications
+   */
+  removeChild(child: FimObject): void;
 
   /**
    * Releases memory and/or GPU resources.

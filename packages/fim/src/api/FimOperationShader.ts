@@ -22,7 +22,7 @@ export abstract class FimOperationShader extends FimOperation {
   protected constructor(fim: Fim, shader: FimShader, objectName?: string) {
     super(fim, objectName);
     this.shader = shader;
-    this.registerChildObject(shader);
+    this.addChild(shader);
   }
 
   /** The underlying `FimShader` object */

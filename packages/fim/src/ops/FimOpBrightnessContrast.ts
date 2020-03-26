@@ -17,7 +17,7 @@ export class FimOpBrightnessContrast extends FimOperation {
   public constructor(fim: Fim) {
     super(fim, 'BrightnessContrast');
     this.linearTransform1 = new FimOpLinearTransform1(fim);
-    this.registerChildObject(this.linearTransform1);
+    this.addChild(this.linearTransform1);
   }
 
   /** Internally, brightness/contrast adjustments are implemented with the linear transformation operation */

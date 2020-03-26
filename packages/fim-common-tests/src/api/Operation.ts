@@ -23,7 +23,7 @@ class MockOpFillRedChild extends FimOperation {
     super(fim, 'MockFillRedChild');
 
     this.opFillRed = new MockOpFillRed(fim);
-    this.registerChildObject(this.opFillRed);
+    this.addChild(this.opFillRed);
   }
 
   private readonly opFillRed: MockOpFillRed;
@@ -39,7 +39,7 @@ class MockOpFillRedGrandchild extends FimOperation {
     super(fim, 'MockFillRedGrandchild');
 
     this.opFillRedChild = new MockOpFillRedChild(fim);
-    this.registerChildObject(this.opFillRedChild);
+    this.addChild(this.opFillRedChild);
   }
 
   private readonly opFillRedChild: MockOpFillRedChild;
@@ -74,8 +74,7 @@ export function fimTestSuiteOperation(
       });
     });
 
-    // BUGBUG: dispose() is currently broken with grandchild operations. Need to investigate this test case.
-    xit('Executes a grandchild operation built on a child operation', async () => {
+    it('Executes a grandchild operation built on a child operation', async () => {
       await usingAsync(factory(small), async fim => {
         const fillOp = new MockOpFillRedGrandchild(fim);
         const image = fim.createImage();
