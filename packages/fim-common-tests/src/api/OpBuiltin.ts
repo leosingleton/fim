@@ -4,11 +4,11 @@
 
 import { black, blue, green, grey, magenta, midpoint, red, small, white, yellow } from '../common/Globals';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpInvert, FimOpLighter,
-  FimOpSubtract } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpInvert, FimOpLighter, FimOpSubtract,
+  FimOpUnsharpMask } from '@leosingleton/fim';
 
 /** Built-in operation tests for Fim */
-export function fimTestSuiteOperations(
+export function fimTestSuiteOpBuiltin(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
@@ -76,6 +76,20 @@ export function fimTestSuiteOperations(
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
         expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(yellow);
+      });
+    });
+
+    it('UnsharpMask', async () => {
+      await usingAsync(factory(small), async fim => {
+        const redImage = fim.createImage();
+        await redImage.fillSolidAsync(red);
+
+        const op = new FimOpUnsharpMask(fim);
+        op.setInputs(redImage, 0.25, 5);
+
+        const outputImage = fim.createImage();
+        await outputImage.executeAsync(op);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(red);
       });
     });
 
