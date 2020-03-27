@@ -15,21 +15,22 @@ import { GlslShader } from 'webpack-glsl-minify';
 export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> {
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       BrowserEngineImage {
-    return new BrowserEngineImage(this, options, dimensions, name);
+    return new BrowserEngineImage(parent, options, dimensions, name);
   }
 
   protected createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
       name?: string): Promise<BrowserEngineImage> {
-    return BrowserEngineImage.createFromPngAsync(this, pngFile, options, name);
+    return BrowserEngineImage.createFromPngAsync(parent, pngFile, options, name);
   }
 
   protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
       name?: string): Promise<BrowserEngineImage> {
-    return BrowserEngineImage.createFromJpegAsync(this, jpegFile, options, name);
+    return BrowserEngineImage.createFromJpegAsync(parent, jpegFile, options, name);
   }
 
-  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string): EngineShader {
-    return new EngineShader(this, fragmentShader, vertexShader, name);
+  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
+      EngineShader {
+    return new EngineShader(parent ?? this, fragmentShader, vertexShader, name);
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {

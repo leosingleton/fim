@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { EngineFim } from './EngineFim';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
@@ -10,6 +9,7 @@ import { ImageType } from './optimizer/ImageType';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
+import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
@@ -28,14 +28,14 @@ import { deepCopy } from '@leosingleton/commonlibs';
 export abstract class EngineImage extends EngineObject implements FimDimensional, FimImage {
   /**
    * Constructor
-   * @param fim Parent FIM object
+   * @param parent Parent object
    * @param options Optional image options to override the parent FIM's defaults
    * @param dimensions Optional image dimensions. Defaults to `maxImageDimensions` of the parent FIM object.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(fim: EngineFim, options?: FimImageOptions, dimensions?: FimDimensions, name?: string) {
-    super(EngineObjectType.Image, name, fim);
-    this.dim = dimensions ?? fim.maxImageDimensions;
+  public constructor(parent: FimObject, options?: FimImageOptions, dimensions?: FimDimensions, name?: string) {
+    super(EngineObjectType.Image, name, parent);
+    this.dim = dimensions ?? this.rootObject.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
 
     this.rootObject.optimizer.recordImageCreate(this);

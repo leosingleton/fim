@@ -4,6 +4,7 @@
 
 import { EngineFim } from './EngineFim';
 import { EngineObjectType } from './EngineObjectType';
+import { FimObject } from '../api/FimObject';
 import { FimObjectImpl } from '../api/FimObjectImpl';
 
 /** Base class for all objects in the FIM API */
@@ -14,7 +15,7 @@ export abstract class EngineObject extends FimObjectImpl {
    * @param name An optional name specified when creating the object to help with debugging
    * @param parent Parent object. May be undefined if this object is the root.
    */
-  public constructor(type: EngineObjectType, name?: string, parent?: EngineObject) {
+  public constructor(type: EngineObjectType, name?: string, parent?: FimObject) {
     super(type, name, parent);
   }
 

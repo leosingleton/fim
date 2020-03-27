@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
+import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
 import { FimValue } from '../api/FimValue';
@@ -23,13 +23,13 @@ import { GlslShader } from 'webpack-glsl-minify';
 export class EngineShader extends EngineObject implements FimShader {
   /**
    * Constructor
-   * @param fim Parent FIM engine instance
+   * @param parent Parent object
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
    * @param name Optional shader name, for debugging
    */
-  public constructor(fim: EngineFim, fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string) {
-    super(EngineObjectType.Shader, name, fim);
+  public constructor(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string) {
+    super(EngineObjectType.Shader, name, parent);
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;
 
