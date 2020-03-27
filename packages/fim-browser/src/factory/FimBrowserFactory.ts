@@ -10,9 +10,9 @@ export namespace FimBrowserFactory {
   /**
    * Creates an instance of the FimBrowser interface
    * @param maxImageDimensions Maximum dimensions of any image
-   * @param objectName An optional name specified when creating the object to help with debugging
+   * @param name An optional name specified when creating the object to help with debugging
    */
-  export function create(maxImageDimensions: FimDimensions, objectName?: string): FimBrowser {
-    return new BrowserEngineFim(maxImageDimensions, objectName);
+  export function create(maxImageDimensions: FimDimensions, name?: string): FimBrowser {
+    return new BrowserEngineFim(maxImageDimensions, name);
   }
 }

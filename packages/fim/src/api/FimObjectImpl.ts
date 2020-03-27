@@ -11,17 +11,17 @@ import { FimError, FimErrorCode } from '../primitives/FimError';
 export abstract class FimObjectImpl implements FimObject {
   /**
    * Constructor
-   * @param objectType Unique string describing the type of the object
-   * @param objectName An optional name specified when creating the object to help with debugging
+   * @param type Unique string describing the type of the object
+   * @param name An optional name specified when creating the object to help with debugging
    * @param parent Parent object. May be `undefined` if this object is the root.
    */
-  protected constructor(objectType: string, objectName?: string, parent?: FimObject) {
-    this.objectType = objectType;
+  protected constructor(type: string, name?: string, parent?: FimObject) {
+    this.objectType = type;
 
     // Build the object handle
-    let handle = `${objectType}.${FimObjectImpl.globalHandleCount++}`;
-    if (objectName) {
-      handle += `.${objectName}`;
+    let handle = `${type}.${FimObjectImpl.globalHandleCount++}`;
+    if (name) {
+      handle += `.${name}`;
     }
     if (parent) {
       handle = `${parent.handle}/${handle}`;

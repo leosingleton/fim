@@ -11,23 +11,23 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> {
-  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, imageName?: string):
+  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, name?: string):
       NodeEngineImage {
-    return new NodeEngineImage(this, options, dimensions, imageName);
+    return new NodeEngineImage(this, options, dimensions, name);
   }
 
-  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
+  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, name?: string):
       Promise<NodeEngineImage> {
-    return NodeEngineImage.createFromPngAsync(this, pngFile, options, imageName);
+    return NodeEngineImage.createFromPngAsync(this, pngFile, options, name);
   }
 
-  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
+  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, name?: string):
       Promise<NodeEngineImage> {
-    return NodeEngineImage.createFromJpegAsync(this, jpegFile, options, imageName);
+    return NodeEngineImage.createFromJpegAsync(this, jpegFile, options, name);
   }
 
-  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string): EngineShader {
-    return new EngineShader(this, fragmentShader, vertexShader, shaderName);
+  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string): EngineShader {
+    return new EngineShader(this, fragmentShader, vertexShader, name);
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {

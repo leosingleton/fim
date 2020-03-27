@@ -26,10 +26,10 @@ export class EngineShader extends EngineObject implements FimShader {
    * @param fim Parent FIM engine instance
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
-   * @param shaderName Optional shader name, for debugging
+   * @param name Optional shader name, for debugging
    */
-  public constructor(fim: EngineFim, fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string) {
-    super(EngineObjectType.Shader, shaderName, fim);
+  public constructor(fim: EngineFim, fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string) {
+    super(EngineObjectType.Shader, name, fim);
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;
 

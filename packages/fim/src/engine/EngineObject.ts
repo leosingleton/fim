@@ -10,12 +10,12 @@ import { FimObjectImpl } from '../api/FimObjectImpl';
 export abstract class EngineObject extends FimObjectImpl {
   /**
    * Constructor
-   * @param objectType Type of the object
-   * @param objectName An optional name specified when creating the object to help with debugging
+   * @param type Type of the object
+   * @param name An optional name specified when creating the object to help with debugging
    * @param parent Parent object. May be undefined if this object is the root.
    */
-  public constructor(objectType: EngineObjectType, objectName?: string, parent?: EngineObject) {
-    super(objectType, objectName, parent);
+  public constructor(type: EngineObjectType, name?: string, parent?: EngineObject) {
+    super(type, name, parent);
   }
 
   // Specify more specific types for FimObject properties

@@ -17,10 +17,10 @@ export abstract class FimOperationShader extends FimOperation {
    * Constructor
    * @param parent Parent object
    * @param shader `FimShader` instance created by the derived class's constructor
-   * @param objectName Optional object name to help for debugging
+   * @param name Optional object name to help for debugging
    */
-  protected constructor(parent: FimObject, shader: FimShader, objectName?: string) {
-    super(parent, objectName);
+  protected constructor(parent: FimObject, shader: FimShader, name?: string) {
+    super(parent, name);
 
     shader.reparent(this);
     this.shader = shader;

@@ -7,8 +7,8 @@ import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
 /** Mock implementation of `FimObjectImpl`-derived class for unit testing */
 class MyObject extends FimObjectImpl {
-  public constructor(objectName?: string, parent?: MyObject) {
-    super('MyObject', objectName, parent);
+  public constructor(name?: string, parent?: MyObject) {
+    super('MyObject', name, parent);
   }
 
   /** String representing resources. Removed by `dispose()` or `releaseResources()` */

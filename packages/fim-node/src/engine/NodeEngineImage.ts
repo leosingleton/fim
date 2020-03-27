@@ -13,15 +13,15 @@ export class NodeEngineImage extends EngineImage {
    * @param fim Parent FIM object
    * @param pngFile PNG file, as a Uint8Array
    * @param options Overrides to the image options from the parent Fim object
-   * @param imageName Optional name specified when creating the object to help with debugging
+   * @param name Optional name specified when creating the object to help with debugging
    */
   public static async createFromPngAsync(fim: NodeEngineFim, pngFile: Uint8Array, options: FimImageOptions,
-      imageName?: string): Promise<NodeEngineImage> {
+      name?: string): Promise<NodeEngineImage> {
     let result: NodeEngineImage;
 
     await loadFromFileAsync(pngFile, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
-      result = new NodeEngineImage(fim, options, dimensions, imageName);
+      result = new NodeEngineImage(fim, options, dimensions, name);
       await result.loadFromPngAsync(pngFile);
     });
 
@@ -33,15 +33,15 @@ export class NodeEngineImage extends EngineImage {
    * @param fim Parent FIM object
    * @param jpegFile JPEG file, as a Uint8Array
    * @param options Overrides to the image options from the parent Fim object
-   * @param imageName Optional name specified when creating the object to help with debugging
+   * @param name Optional name specified when creating the object to help with debugging
    */
   public static async createFromJpegAsync(fim: NodeEngineFim, jpegFile: Uint8Array, options: FimImageOptions,
-      imageName?: string): Promise<NodeEngineImage> {
+      name?: string): Promise<NodeEngineImage> {
     let result: NodeEngineImage;
 
     await loadFromFileAsync(jpegFile, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
-      result = new NodeEngineImage(fim, options, dimensions, imageName);
+      result = new NodeEngineImage(fim, options, dimensions, name);
       await result.loadFromPngAsync(jpegFile);
     });
 

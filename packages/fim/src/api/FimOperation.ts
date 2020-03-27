@@ -18,10 +18,10 @@ export abstract class FimOperation extends FimObjectImpl {
   /**
    * Constructor
    * @param parent Parent object
-   * @param objectName Optional object name to help for debugging
+   * @param name Optional object name to help for debugging
    */
-  protected constructor(parent: FimObject, objectName?: string) {
-    super('Op', objectName, parent);
+  protected constructor(parent: FimObject, name?: string) {
+    super('Op', name, parent);
   }
 
   // Specify a more specific type for rootObject
