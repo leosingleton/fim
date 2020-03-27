@@ -7,24 +7,24 @@ import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
 import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
-import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
+import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> {
-  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, name?: string):
+  protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(this, options, dimensions, name);
   }
 
-  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, name?: string):
-      Promise<BrowserEngineImage> {
+  protected createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+      name?: string): Promise<BrowserEngineImage> {
     return BrowserEngineImage.createFromPngAsync(this, pngFile, options, name);
   }
 
-  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, name?: string):
-      Promise<BrowserEngineImage> {
+  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+      name?: string): Promise<BrowserEngineImage> {
     return BrowserEngineImage.createFromJpegAsync(this, jpegFile, options, name);
   }
 

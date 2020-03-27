@@ -5,24 +5,24 @@
 import { NodeEngineImage } from './NodeEngineImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
-import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
+import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> {
-  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, name?: string):
+  protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       NodeEngineImage {
     return new NodeEngineImage(this, options, dimensions, name);
   }
 
-  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, name?: string):
-      Promise<NodeEngineImage> {
+  protected createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+      name?: string): Promise<NodeEngineImage> {
     return NodeEngineImage.createFromPngAsync(this, pngFile, options, name);
   }
 
-  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, name?: string):
-      Promise<NodeEngineImage> {
+  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+      name?: string): Promise<NodeEngineImage> {
     return NodeEngineImage.createFromJpegAsync(this, jpegFile, options, name);
   }
 

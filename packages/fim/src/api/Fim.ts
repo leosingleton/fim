@@ -73,30 +73,36 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * @param options Optional overrides to the image options from the parent Fim object
    * @param dimensions Optional image dimensions. If unspecified, defaults to the dimensions of the FIM instance.
    * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImage(options?: FimImageOptions, dimensions?: FimDimensions, name?: string): TImage;
+  createImage(options?: FimImageOptions, dimensions?: FimDimensions, name?: string, parent?: FimObject): TImage;
 
   /**
    * Creates a new image from a PNG file
    * @param pngFile PNG file, as a Uint8Array
    * @param options Optional overrides to the image options from the parent Fim object
    * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string): Promise<TImage>;
+  createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
+    Promise<TImage>;
 
   /**
    * Creates a new image from a JPEG file
    * @param jpegFile JPEG file, as a Uint8Array
    * @param options Optional overrides to the image options from the parent Fim object
    * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, name?: string): Promise<TImage>;
+  createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
+    Promise<TImage>;
 
   /**
    * Creates a WebGL fragment shader for performing processing on an image
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
    * @param name Optional shader name, for debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string): TShader;
+  createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject): TShader;
 }
