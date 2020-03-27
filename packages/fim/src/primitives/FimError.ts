@@ -228,6 +228,12 @@ export const enum FimErrorCode {
   /** FIM4301: Attempted to write from an image marked readonly */
   ImageReadonly = 4301,
 
+  /**
+   * FIM4400: Attempt to call `FimObject.reparent()` failed. See the documentation on `FimObject.reparent()` for the
+   *    specific conditions under which reparenting is allowed.
+   */
+  ReparentFailed = 4400,
+
 
   //
   // 5000-series errors are used for resource exhaustion

@@ -26,10 +26,16 @@ export abstract class EngineObject extends FimObjectImpl {
 
   /** Throws an exception if the object is disposed or does not have a WebGL context */
   protected ensureNotDisposedAndHasContext(): void {
-    // Check not only ourselves but also parent objects, recursively
     this.ensureNotDisposed();
-    if (this.parentObject) {
-      this.parentObject.ensureNotDisposedAndHasContext();
+
+    // Check not only ourselves but also parent objects, recursively. Note that some objects in the tree may not be
+    // EngineObjects and not have this method.
+    let current = this.parentObject;
+    while (current) {
+      if (current instanceof EngineObject) {
+        current.ensureNotDisposedAndHasContext();
+      }
+      current = current.parentObject;
     }
   }
 }

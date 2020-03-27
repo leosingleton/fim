@@ -60,7 +60,7 @@ describe('FimObjectImpl', () => {
     expect(parent.childObjects.indexOf(child)).toEqual(-1);
   });
 
-  xit('Recursively disposes grandchildren', () => {
+  it('Recursively disposes grandchildren', () => {
     const parent = new MyObject('Parent');
     const child = new MyObject('Child', parent);
     const grandchild = new MyObject('Grandchild', child);
@@ -72,7 +72,7 @@ describe('FimObjectImpl', () => {
     expect(grandchild.resources).toBeUndefined();
   });
 
-  xit('Recursively disposes grandchildren 2', () => {
+  it('Recursively disposes grandchildren 2', () => {
     const parent = new MyObject('Parent');
     const child = new MyObject('Child', parent);
     const grandchild = new MyObject('Grandchild', child);

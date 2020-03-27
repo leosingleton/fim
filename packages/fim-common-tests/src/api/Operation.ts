@@ -3,13 +3,13 @@
 // See LICENSE in the project root for license information.
 
 import { midpoint, red, small } from '../common/Globals';
-import { Fim, FimDimensions, FimImage, FimOperation, FimRect } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimImage, FimObject, FimOperation, FimRect } from '@leosingleton/fim';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Mock operation for unit tests that performs a solid red fill. This is pretty useless, but good to test with. */
 class MockOpFillRed extends FimOperation {
-  public constructor(fim: Fim) {
-    super(fim, 'MockFillRed');
+  public constructor(parent: FimObject) {
+    super(parent, 'MockFillRed');
   }
 
   public async executeAsync(outputImage: FimImage, _destCoords?: FimRect): Promise<void> {
@@ -19,11 +19,9 @@ class MockOpFillRed extends FimOperation {
 
 /** Mock operation for unit tests which builds on top of `MockOpParent` */
 class MockOpFillRedChild extends FimOperation {
-  public constructor(fim: Fim) {
-    super(fim, 'MockFillRedChild');
-
-    this.opFillRed = new MockOpFillRed(fim);
-    this.addChild(this.opFillRed);
+  public constructor(parent: FimObject) {
+    super(parent, 'MockFillRedChild');
+    this.opFillRed = new MockOpFillRed(this);
   }
 
   private readonly opFillRed: MockOpFillRed;
@@ -35,11 +33,9 @@ class MockOpFillRedChild extends FimOperation {
 
 /** Mock operation for unit tests which builds on top of `MockOpChild` */
 class MockOpFillRedGrandchild extends FimOperation {
-  public constructor(fim: Fim) {
-    super(fim, 'MockFillRedGrandchild');
-
-    this.opFillRedChild = new MockOpFillRedChild(fim);
-    this.addChild(this.opFillRedChild);
+  public constructor(parent: FimObject) {
+    super(parent, 'MockFillRedGrandchild');
+    this.opFillRedChild = new MockOpFillRedChild(this);
   }
 
   private readonly opFillRedChild: MockOpFillRedChild;

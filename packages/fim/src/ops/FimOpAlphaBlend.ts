@@ -16,8 +16,7 @@ export class FimOpAlphaBlend extends FimOperation {
    */
   public constructor(parent: FimObject) {
     super(parent, 'AlphaBlend');
-    this.linearTransform2 = new FimOpLinearTransform2(parent);
-    this.addChild(this.linearTransform2);
+    this.linearTransform2 = new FimOpLinearTransform2(this);
   }
 
   /** Internally, alpha blend is implemented with the linear transformation operation */

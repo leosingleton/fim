@@ -17,7 +17,6 @@ export class FimOpAdd extends FimOperation {
   public constructor(parent: FimObject) {
     super(parent, 'Add');
     this.linearTransform2 = new FimOpLinearTransform2(this);
-    this.addChild(this.linearTransform2);
   }
 
   /** Internally, add is implemented with the linear transformation operation */

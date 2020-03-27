@@ -21,8 +21,9 @@ export abstract class FimOperationShader extends FimOperation {
    */
   protected constructor(parent: FimObject, shader: FimShader, objectName?: string) {
     super(parent, objectName);
+
+    shader.reparent(this);
     this.shader = shader;
-    this.addChild(shader);
   }
 
   /** The underlying `FimShader` object */

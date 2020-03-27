@@ -507,7 +507,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.ensureNotDisposed();
 
     // Ensure shader belongs to the same EngineFim instance
-    if (me.parentObject !== shaderOrOperation.parentObject) {
+    if (me.rootObject !== shaderOrOperation.rootObject) {
       throw new FimError(FimErrorCode.InvalidParameter, `${shaderOrOperation.handle} execute on wrong FIM`);
     }
 

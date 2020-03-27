@@ -5,7 +5,7 @@
 import { Fim } from './Fim';
 import { FimObject } from './FimObject';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
-import { FimError } from '../primitives/FimError';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 
 /** Base class for FIM objects. Implements the parent-child tree structure defined in the `FimObject` interface. */
 export abstract class FimObjectImpl implements FimObject {
@@ -28,23 +28,44 @@ export abstract class FimObjectImpl implements FimObject {
     }
     this.handle = handle;
 
-    this.parentObject = parent;
     this.rootObject = parent ? parent.rootObject : this as any as Fim;
-
-    // If we are not root, add a reference to ourselves from our parent object
-    if (parent) {
-      parent.addChild(this);
-    }
+    this.reparent(parent);
   }
 
   /** Global counter used to assign a unique handle to objects in FIM */
   private static globalHandleCount = 0;
 
+  public reparent(parent?: FimObject): void {
+    const me = this;
+    me.ensureNotDisposed();
+
+    if (parent) {
+      // When adopting children, the old and new parent must share the same root object.
+      if (parent && parent.rootObject !== me.rootObject) {
+        throw new FimError(FimErrorCode.ReparentFailed,
+          `${me.parentObject.handle} (${me.rootObject.handle}) => ${parent.handle} (${parent.rootObject.handle})`);
+      }
+
+      // Add the relationship to the new parent object
+      parent.addChild(me);
+    }
+
+    // Remove the relationship to the old parent object
+    if (me.parentObject) {
+      me.parentObject.removeChild(me);
+      me.parentObject = undefined;
+    }
+
+    me.parentObject = parent;
+  }
+
   public addChild(child: FimObject): void {
+    this.ensureNotDisposed();
     this.childObjects.push(child);
   }
 
   public removeChild(child: FimObject): void {
+    this.ensureNotDisposed();
     this.childObjects = this.childObjects.filter(c => c !== child);
   }
 
@@ -78,14 +99,10 @@ export abstract class FimObjectImpl implements FimObject {
     const me = this;
     me.ensureNotDisposed();
 
-    // Recursively dispose child objects first. Note that dispose() may have been triggered from the parent FIM
-    // instance, in which case we have to be careful not to call child.dispose() twice--once from the parent FIM
-    // instance and once here. Hence, we check to see whether the child is still referenced by the root FIM instance
-    // and only call it if so. If it is not referenced, that means it was disposed prior to this operation.
-    for (const child of me.childObjects) {
-      if (FimObjectImpl.isReferencedBy(me.rootObject, child, me)) {
-        child.dispose();
-      }
+    // Recursively dispose child objects first
+    while (me.childObjects.length > 0) {
+      const child = me.childObjects.pop();
+      child.dispose();
     }
 
     // Release our own resources
@@ -112,25 +129,5 @@ export abstract class FimObjectImpl implements FimObject {
     if (this.isDisposed) {
       FimError.throwOnObjectDisposed(this.handle);
     }
-  }
-
-  /**
-   * Searches the parent-child relationships recursively to determine whether the `child` object has a reference from
-   * `parent`. Used in `dispose()` to prevent double-dispose.
-   * @param parent Parent FIM object to search child relationships of
-   * @param child Child FIM object to search for
-   * @param ignore Optional FIM object to ignore in the recursive search
-   */
-  private static isReferencedBy(parent: FimObject, child: FimObject, ignore?: FimObject): boolean {
-    for (const c of parent.childObjects) {
-      if (c === ignore) {
-        continue;
-      }
-      if (c === child || FimObjectImpl.isReferencedBy(c, child)) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }

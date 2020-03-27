@@ -16,8 +16,7 @@ export class FimOpSubtract extends FimOperation {
    */
   public constructor(parent: FimObject) {
     super(parent, 'Subtract');
-    this.linearTransform2 = new FimOpLinearTransform2(parent);
-    this.addChild(this.linearTransform2);
+    this.linearTransform2 = new FimOpLinearTransform2(this);
   }
 
   /** Internally, subtract is implemented with the linear transformation operation */
