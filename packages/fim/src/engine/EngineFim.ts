@@ -274,6 +274,11 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     return this.createEngineImageFromJpegAsync(jpegFile, parent ?? this, options ?? {}, name);
   }
 
+  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
+      TEngineShader {
+    return this.createEngineGLShader(parent ?? this, fragmentShader, vertexShader, name);
+  }
+
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions,
     name?: string): TEngineImage;
@@ -287,8 +292,8 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     name?: string): Promise<TEngineImage>;
 
   /** Derived classes must implement this method to call the TEngineShader constructor */
-  public abstract createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string,
-    parent?: FimObject): TEngineShader;
+  protected abstract createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
+    name?: string): TEngineShader;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
   public abstract createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):

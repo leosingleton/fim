@@ -26,9 +26,9 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
     return NodeEngineImage.createFromJpegAsync(parent, jpegFile, options, name);
   }
 
-  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
-      EngineShader {
-    return new EngineShader(parent ?? this, fragmentShader, vertexShader, name);
+  protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
+      name?: string): EngineShader {
+    return new EngineShader(parent, fragmentShader, vertexShader, name);
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
