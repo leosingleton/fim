@@ -2,20 +2,19 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
+import { FimObject } from '../api/FimObject';
 import { FimOperationShader } from '../api/FimOperationShader';
 
 /** Built-in operation to apply a linear transformation with one input (y = mx + b) */
 export class FimOpLinearTransform1 extends FimOperationShader {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    */
-  public constructor(fim: Fim) {
+  public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/LinearTransform1.glsl.js');
-    const shader = fim.createGLShader(source, undefined, 'LinearTransform1');
-    super(fim, shader);
+    super(parent, source, undefined, 'LinearTransform1');
   }
 
   /**

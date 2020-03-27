@@ -18,7 +18,7 @@ import { GlslShader } from 'webpack-glsl-minify';
  */
 export type Fim = FimBase<FimImage, FimShader>;
 
-/** Templated version of the Fim interface which supports specific implementations of image and shader classes */
+/** Templated version of the `Fim` interface which supports specific implementations of image and shader classes */
 export interface FimBase<TImage extends FimImage, TShader extends FimShader> extends FimObject {
   /** Maximum dimensions of any image */
   readonly maxImageDimensions: FimDimensions;
@@ -62,21 +62,6 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    */
   registerContextRestoredHandler(handler: () => void): void;
 
-  /**
-   * Callers may create custom objects derived from `FimObject` to interact with the FIM library. Calling this method to
-   * register a child object causes the parent FIM instance to forward any `releaseResources()`,
-   * `releaseAllResources()`, and `dispose()` calls.
-   * @param child Child object to receive notifications
-   */
-  registerChildObject(child: FimObject): void;
-
-  /**
-   * Stops sending calls to a child object previously registered with `registerChildObject()`. Child objects should call
-   * this method if they are disposed prior to the disposal of the parent FIM instance.
-   * @param child Child object to stop receiving notifications
-   */
-  unregisterChildObject(child: FimObject): void;
-
   /** Returns metrics on the current resource usage of this FIM instance */
   getResourceMetrics(): FimResourceMetrics;
 
@@ -87,31 +72,37 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * Creates a new image
    * @param options Optional overrides to the image options from the parent Fim object
    * @param dimensions Optional image dimensions. If unspecified, defaults to the dimensions of the FIM instance.
-   * @param imageName Optional name specified when creating the object to help with debugging
+   * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImage(options?: FimImageOptions, dimensions?: FimDimensions, imageName?: string): TImage;
+  createImage(options?: FimImageOptions, dimensions?: FimDimensions, name?: string, parent?: FimObject): TImage;
 
   /**
    * Creates a new image from a PNG file
    * @param pngFile PNG file, as a Uint8Array
    * @param options Optional overrides to the image options from the parent Fim object
-   * @param imageName Optional name specified when creating the object to help with debugging
+   * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, imageName?: string): Promise<TImage>;
+  createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
+    Promise<TImage>;
 
   /**
    * Creates a new image from a JPEG file
    * @param jpegFile JPEG file, as a Uint8Array
    * @param options Optional overrides to the image options from the parent Fim object
-   * @param imageName Optional name specified when creating the object to help with debugging
+   * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, imageName?: string): Promise<TImage>;
+  createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
+    Promise<TImage>;
 
   /**
    * Creates a WebGL fragment shader for performing processing on an image
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
-   * @param shaderName Optional shader name, for debugging
+   * @param name Optional shader name, for debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string): TShader;
+  createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject): TShader;
 }

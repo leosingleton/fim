@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimOpLinearTransform2 } from './FimOpLinearTransform2';
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
+import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimRect } from '../primitives/FimRect';
 
@@ -12,12 +12,11 @@ import { FimRect } from '../primitives/FimRect';
 export class FimOpSubtract extends FimOperation {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    */
-  public constructor(fim: Fim) {
-    super(fim, 'Subtract');
-    this.linearTransform2 = new FimOpLinearTransform2(fim);
-    this.registerChildObject(this.linearTransform2);
+  public constructor(parent: FimObject) {
+    super(parent, 'Subtract');
+    this.linearTransform2 = new FimOpLinearTransform2(this);
   }
 
   /** Internally, subtract is implemented with the linear transformation operation */

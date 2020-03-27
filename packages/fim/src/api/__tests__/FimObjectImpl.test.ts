@@ -2,26 +2,24 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { EngineObject } from '../EngineObject';
-import { EngineObjectType } from '../EngineObjectType';
+import { FimObjectImpl } from '../FimObjectImpl';
 import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
-class MyObject extends EngineObject {
-  public constructor(objectName?: string, parent?: MyObject) {
-    super(EngineObjectType.Fim, objectName, parent);
+/** Mock implementation of `FimObjectImpl`-derived class for unit testing */
+class MyObject extends FimObjectImpl {
+  public constructor(name?: string, parent?: MyObject) {
+    super('MyObject', name, parent);
   }
 
+  /** String representing resources. Removed by `dispose()` or `releaseResources()` */
   public resources = 'Expensive Stuff';
 
   protected releaseOwnResources(_flags: FimReleaseResourcesFlags): void {
     delete this.resources;
   }
-
-  protected onContextLost(): void {
-  }
 }
 
-describe('EngineObject', () => {
+describe('FimObjectImpl', () => {
 
   it('Releases resources', () => {
     const o = new MyObject('Handle');
@@ -60,6 +58,33 @@ describe('EngineObject', () => {
 
     // Child is no longer referenced from parent
     expect(parent.childObjects.indexOf(child)).toEqual(-1);
+  });
+
+  it('Recursively disposes grandchildren', () => {
+    const parent = new MyObject('Parent');
+    const child = new MyObject('Child', parent);
+    const grandchild = new MyObject('Grandchild', child);
+
+    // Dispose
+    parent.dispose();
+    expect(parent.resources).toBeUndefined();
+    expect(child.resources).toBeUndefined();
+    expect(grandchild.resources).toBeUndefined();
+  });
+
+  it('Recursively disposes grandchildren 2', () => {
+    const parent = new MyObject('Parent');
+    const child = new MyObject('Child', parent);
+    const grandchild = new MyObject('Grandchild', child);
+
+    // Dispose child and grandchild
+    child.dispose();
+    expect(child.resources).toBeUndefined();
+    expect(grandchild.resources).toBeUndefined();
+
+    // Dispose parent
+    parent.dispose();
+    expect(parent.resources).toBeUndefined();
   });
 
 });

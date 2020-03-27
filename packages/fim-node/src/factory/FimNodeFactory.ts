@@ -10,9 +10,9 @@ export namespace FimNodeFactory {
   /**
    * Creates an instance of the FimNode interface
    * @param maxImageDimensions Maximum dimensions of any image
-   * @param objectName An optional name specified when creating the object to help with debugging
+   * @param name An optional name specified when creating the object to help with debugging
    */
-  export function create(maxImageDimensions: FimDimensions, objectName?: string): FimNode {
-    return new NodeEngineFim(maxImageDimensions, objectName);
+  export function create(maxImageDimensions: FimDimensions, name?: string): FimNode {
+    return new NodeEngineFim(maxImageDimensions, name);
   }
 }

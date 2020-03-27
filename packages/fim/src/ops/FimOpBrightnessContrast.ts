@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimOpLinearTransform1 } from './FimOpLinearTransform1';
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
+import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimRect } from '../primitives/FimRect';
 
@@ -12,12 +12,11 @@ import { FimRect } from '../primitives/FimRect';
 export class FimOpBrightnessContrast extends FimOperation {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    */
-  public constructor(fim: Fim) {
-    super(fim, 'BrightnessContrast');
-    this.linearTransform1 = new FimOpLinearTransform1(fim);
-    this.registerChildObject(this.linearTransform1);
+  public constructor(parent: FimObject) {
+    super(parent, 'BrightnessContrast');
+    this.linearTransform1 = new FimOpLinearTransform1(this);
   }
 
   /** Internally, brightness/contrast adjustments are implemented with the linear transformation operation */

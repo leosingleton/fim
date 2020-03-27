@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions } from '../api/FimImageOptions';
+import { FimObject } from '../api/FimObject';
 import { FimOperationShader } from '../api/FimOperationShader';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
@@ -16,12 +16,11 @@ import { usingAsync } from '@leosingleton/commonlibs';
 export class FimOpDownscale extends FimOperationShader {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    */
-  public constructor(fim: Fim) {
+  public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Downscale.glsl.js');
-    const shader = fim.createGLShader(source, undefined, 'Downscale');
-    super(fim, shader);
+    super(parent, source, undefined, 'Downscale');
   }
 
   public setInput(input: FimImage): void {
@@ -61,7 +60,7 @@ export class FimOpDownscale extends FimOperationShader {
     const yRatio = inputDimensions.h / outputDimensions.h;
 
     // Ensure we don't exceed the maximum number of pixels to sample in a single direction
-    const maxPixelCount = Math.min(me.parentObject.capabilities.glMaxFragmentUniformVectors, 64);
+    const maxPixelCount = Math.min(me.rootObject.capabilities.glMaxFragmentUniformVectors, 64);
     if (xRatio > maxPixelCount * 2 || yRatio > maxPixelCount * 2) {
       // This operations supports a maximum downscale of 128x in a single direction. Some GPUs may be lower.
       FimError.throwOnInvalidDimensions(outputDimensions, inputDimensions.rescale(0.5 / maxPixelCount));
@@ -110,14 +109,13 @@ export class FimOpDownscale extends FimOperationShader {
   private executeMultiPassAsync(nextDimensions: FimDimensions, inputImage: FimImage, outputImage: FimImage,
       destCoords?: FimRect): Promise<void> {
     const me = this;
-    const fim = me.parentObject;
 
     // Create the temporary image
     const options: FimImageOptions = {
       allowOversized: true,
       sampling: FimTextureSampling.Linear
     };
-    return usingAsync(fim.createImage(options, nextDimensions, 'DownscaleTemp'), async temp => {
+    return usingAsync(me.rootObject.createImage(options, nextDimensions, 'DownscaleTemp'), async temp => {
       await me.executeInternalAsync(inputImage, temp);
       await me.executeInternalAsync(temp, outputImage, destCoords);
     });

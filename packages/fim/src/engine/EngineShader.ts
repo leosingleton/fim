@@ -2,10 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { EngineFim } from './EngineFim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
+import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
 import { FimValue } from '../api/FimValue';
@@ -23,21 +23,21 @@ import { GlslShader } from 'webpack-glsl-minify';
 export class EngineShader extends EngineObject implements FimShader {
   /**
    * Constructor
-   * @param fim Parent FIM engine instance
+   * @param parent Parent object
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
-   * @param shaderName Optional shader name, for debugging
+   * @param name Optional shader name, for debugging
    */
-  public constructor(fim: EngineFim, fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string) {
-    super(EngineObjectType.Shader, shaderName, fim);
+  public constructor(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string) {
+    super(EngineObjectType.Shader, name, parent);
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;
 
-    this.parentObject.optimizer.recordShaderCreate(this);
+    this.rootObject.optimizer.recordShaderCreate(this);
   }
 
   public dispose(): void {
-    this.parentObject.optimizer.recordShaderDispose(this);
+    this.rootObject.optimizer.recordShaderDispose(this);
     super.dispose();
   }
 
@@ -46,15 +46,12 @@ export class EngineShader extends EngineObject implements FimShader {
 
     if (flags & FimReleaseResourcesFlags.WebGLShader) {
       for (const hash in me.shaders) {
-        me.parentObject.resources.recordDispose(me, me.shaders[hash]);
+        me.rootObject.resources.recordDispose(me, me.shaders[hash]);
         me.shaders[hash].dispose();
       }
       me.shaders = {};
     }
   }
-
-  // Force parentObject to be a more specific type
-  public parentObject: EngineFim;
 
   /**
    * The underlying shader instances. This is a hash table, indexed by `JSON.stringify(this.constantValues)`, as the
@@ -152,6 +149,7 @@ export class EngineShader extends EngineObject implements FimShader {
    */
   public async executeAsync(outputTexture?: CoreTexture, destCoords?: FimRect): Promise<void> {
     const me = this;
+    const root = me.rootObject;
     me.ensureNotDisposedAndHasContext();
 
     // Allocate the shader, or reuse an existing instance if it is already compiled
@@ -160,23 +158,23 @@ export class EngineShader extends EngineObject implements FimShader {
     if (!shader) {
       // Create a new shader, set the constants, and compile it. We explicitly compile the program to catch any compiler
       // errors here before caching, rather than letting CoreShader automatically compile on first use.
-      shader = new CoreShader(me.parentObject.getWebGLCanvas(), me.handle, me.fragmentShader, me.vertexShader);
+      shader = new CoreShader(root.getWebGLCanvas(), me.handle, me.fragmentShader, me.vertexShader);
       shader.setConstants(me.constantValues);
       shader.compileProgram();
 
       // Record the shader creation
-      me.parentObject.resources.recordCreate(me, shader);
+      root.resources.recordCreate(me, shader);
 
       // Cache the shader for future calls
       me.shaders[cv] = shader;
 
       // Limit the number of cached shaders. If needed, free the LRU.
       me.constantValuesLru.enqueue(cv);
-      if (me.constantValuesLru.getCount() > me.parentObject.engineOptions.shaderInstanceLimit) {
+      if (me.constantValuesLru.getCount() > root.engineOptions.shaderInstanceLimit) {
         const lruCv = me.constantValuesLru.dequeue();
 
         // Dispose the shader
-        me.parentObject.resources.recordDispose(me, me.shaders[lruCv]);
+        root.resources.recordDispose(me, me.shaders[lruCv]);
         me.shaders[lruCv].dispose();
         delete me.shaders[lruCv];
       }

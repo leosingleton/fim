@@ -33,10 +33,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   /**
    * Constructor
    * @param maxImageDimensions Maximum dimensions of any image
-   * @param objectName An optional name specified when creating the object to help with debugging
+   * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(maxImageDimensions: FimDimensions, objectName?: string) {
-    super(EngineObjectType.Fim, objectName);
+  public constructor(maxImageDimensions: FimDimensions, name?: string) {
+    super(EngineObjectType.Fim, name);
     this.maxImageDimensions = maxImageDimensions;
     this.resources = new ResourceTracker(this);
     this.optimizer = new OptimizerNull(this);
@@ -248,14 +248,6 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     glCanvas.registerContextRestoredHandler(handler);
   }
 
-  public registerChildObject(child: FimObject): void {
-    this.addChild(child);
-  }
-
-  public unregisterChildObject(child: FimObject): void {
-    this.removeChild(child);
-  }
-
   public getResourceMetrics(): FimResourceMetrics {
     return this.resources.totals;
   }
@@ -264,38 +256,45 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     return this.resources.metrics;
   }
 
-  public createImage(options?: FimImageOptions, dimensions?: FimDimensions, imageName?: string): TEngineImage {
+  public createImage(options?: FimImageOptions, dimensions?: FimDimensions, name?: string, parent?: FimObject):
+      TEngineImage {
     this.ensureNotDisposed();
-    return this.createEngineImage(options ?? {}, dimensions ?? this.maxImageDimensions, imageName);
+    return this.createEngineImage(parent ?? this, options ?? {}, dimensions ?? this.maxImageDimensions, name);
   }
 
-  public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, imageName?: string):
+  public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
       Promise<TEngineImage> {
     this.ensureNotDisposed();
-    return this.createEngineImageFromPngAsync(pngFile, options ?? {}, imageName);
+    return this.createEngineImageFromPngAsync(pngFile, parent ?? this, options ?? {}, name);
   }
 
-  public createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, imageName?: string):
+  public createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
       Promise<TEngineImage> {
     this.ensureNotDisposed();
-    return this.createEngineImageFromJpegAsync(jpegFile, options ?? {}, imageName);
+    return this.createEngineImageFromJpegAsync(jpegFile, parent ?? this, options ?? {}, name);
+  }
+
+  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
+      TEngineShader {
+    this.ensureNotDisposed();
+    return this.createEngineGLShader(parent ?? this, fragmentShader, vertexShader, name);
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
-  protected abstract createEngineImage(options: FimImageOptions, dimensions: FimDimensions, imageName?: string):
-    TEngineImage;
+  protected abstract createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions,
+    name?: string): TEngineImage;
 
   /** Derived classes must implement this method to create a TEngineImage from a PNG file */
-  protected abstract createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
-    Promise<TEngineImage>;
+  protected abstract createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+    name?: string): Promise<TEngineImage>;
 
   /** Derived classes must implement this method to create a TEngineImage from a JPEG file */
-  protected abstract createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
-    Promise<TEngineImage>;
+  protected abstract createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+    name?: string): Promise<TEngineImage>;
 
   /** Derived classes must implement this method to call the TEngineShader constructor */
-  public abstract createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string):
-    TEngineShader;
+  protected abstract createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
+    name?: string): TEngineShader;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
   public abstract createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):

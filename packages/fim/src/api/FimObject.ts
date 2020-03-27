@@ -2,18 +2,25 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { Fim } from './Fim';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 
-/** Common properties for all objects in the FIM API */
+/** Templated version of the `FimObject` interface which supports specific implementations of root and child classes */
 export interface FimObject {
+  /** Unique string describing the type of the object */
+  readonly objectType: string;
+
   /** Handle including the full path from parent to child objects */
   readonly handle: string;
 
   /** Array of references to child objects */
   readonly childObjects: FimObject[];
 
-  /** Parent object. Undefined for the root object. */
-  readonly parentObject: FimObject;
+  /** Parent object. `undefined` for the root object. */
+  readonly parentObject?: FimObject;
+
+  /** Root object. Points to `this` for the root object. */
+  readonly rootObject: Fim;
 
   /**
    * Releases memory and/or GPU resources.

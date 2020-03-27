@@ -7,29 +7,30 @@ import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
 import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
-import { FimDimensions, FimImageOptions } from '@leosingleton/fim';
+import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> {
-  protected createEngineImage(options: FimImageOptions, dimensions: FimDimensions, imageName?: string):
+  protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       BrowserEngineImage {
-    return new BrowserEngineImage(this, options, dimensions, imageName);
+    return new BrowserEngineImage(parent, options, dimensions, name);
   }
 
-  protected createEngineImageFromPngAsync(pngFile: Uint8Array, options: FimImageOptions, imageName?: string):
-      Promise<BrowserEngineImage> {
-    return BrowserEngineImage.createFromPngAsync(this, pngFile, options, imageName);
+  protected createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+      name?: string): Promise<BrowserEngineImage> {
+    return BrowserEngineImage.createFromPngAsync(parent, pngFile, options, name);
   }
 
-  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, options: FimImageOptions, imageName?: string):
-      Promise<BrowserEngineImage> {
-    return BrowserEngineImage.createFromJpegAsync(this, jpegFile, options, imageName);
+  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
+      name?: string): Promise<BrowserEngineImage> {
+    return BrowserEngineImage.createFromJpegAsync(parent, jpegFile, options, name);
   }
 
-  public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, shaderName?: string): EngineShader {
-    return new EngineShader(this, fragmentShader, vertexShader, shaderName);
+  protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
+      name?: string): EngineShader {
+    return new EngineShader(parent, fragmentShader, vertexShader, name);
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
