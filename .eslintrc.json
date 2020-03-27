@@ -11,7 +11,7 @@
   "overrides": [
     {
       "files": "*",
-      "excludedFiles": ["./packages/**/*"],
+      "excludedFiles": ["./packages/*/src/**/*"],
       "env": {
         "node": true
       }
