@@ -32,19 +32,35 @@ export abstract class FimObjectImpl implements FimObject {
     this.rootObject = parent ? parent.rootObject : this as any as Fim;
     this.parentObject = parent;
     if (parent) {
-      parent.addChild(this);
+      if (parent instanceof FimObjectImpl) {
+        parent.addChild(this);
+      } else {
+        // All FimObject implementations are currently derived from FimObjectImpl. If this does not hold true in the
+        // future, we'll need to redesign parent/child mappings.
+        FimError.throwOnUnreachableCode();
+      }
     }
   }
 
   /** Global counter used to assign a unique handle to objects in FIM */
   private static globalHandleCount = 0;
 
-  public addChild(child: FimObject): void {
+  /**
+   * Registers a child object, which causes this object to forward any `releaseResources()`, `releaseAllResources()`,
+   * and `dispose()` calls.
+   * @param child Child object to receive notifications
+   */
+  private addChild(child: FimObject): void {
     this.ensureNotDisposed();
     this.childObjects.push(child);
   }
 
-  public removeChild(child: FimObject): void {
+  /**
+   * Stops sending calls to a child object previously registered with `addChild()`. Child objects call this
+   * object on disposal in case they are disposed prior to the disposal of their parent object.
+   * @param child Child object to stop receiving notifications
+   */
+  private removeChild(child: FimObject): void {
     this.ensureNotDisposed();
     this.childObjects = this.childObjects.filter(c => c !== child);
   }
@@ -90,7 +106,13 @@ export abstract class FimObjectImpl implements FimObject {
 
     // Remove our parent's reference to ourselves
     if (me.parentObject) {
-      me.parentObject.removeChild(me);
+      if (me.parentObject instanceof FimObjectImpl) {
+        me.parentObject.removeChild(me);
+      } else {
+        // All FimObject implementations are currently derived from FimObjectImpl. If this does not hold true in the
+        // future, we'll need to redesign parent/child mappings.
+        FimError.throwOnUnreachableCode();
+      }
       me.parentObject = undefined;
     }
 
