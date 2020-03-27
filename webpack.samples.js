@@ -3,7 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config = {
   mode: 'development',
-  entry: './src/index.ts',
+  entry: './packages/fim-samples/src/index.ts',
   devtool: 'source-map',
   module: {
     rules: [
@@ -19,7 +19,8 @@ const config = {
     ]
   },
   resolve: {
-    extensions: [ '.glsl', '.ts' ]
+    extensions: [ '.glsl', '.js', '.ts' ],
+    symlinks: false
   },
   plugins: [
     new CopyWebpackPlugin([
@@ -31,7 +32,7 @@ const config = {
     ])
   ],
   output: {
-    path: path.resolve(__dirname, '../../build/samples'),
+    path: path.resolve(__dirname, './build/samples'),
     filename: 'samples.js',
     library: 'Samples'
   }

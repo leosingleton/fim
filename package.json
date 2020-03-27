@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/jasmine": "latest",
+    "@types/jquery": "latest",
     "@types/webpack": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
@@ -45,7 +46,7 @@
     "bootstrap": "npx lerna bootstrap",
     "build": "npm run build:packages && npm run build:samples",
     "build:packages": "node ./scripts/build.js",
-    "build:samples": "cd ./packages/fim-samples && npx webpack",
+    "build:samples": "npx webpack --config=webpack.samples.js",
     "clean": "rm -rf ./build ./packages/*/build",
     "lint": "npx eslint . --ext js,ts",
     "test": "npm run build:packages && npm run test:node && npm run test:browser",

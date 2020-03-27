@@ -1,18 +1,16 @@
 <!doctype html>
 <html>
   <head>
-    <title>2D Image transformation using WebGL</title>
+    <title>FIM Capabilities</title>
     <script src="samples.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
   <body>
+    <div>
+      <h1>Detecting FIM Capabilities</h1>
+    </div>
+    <div id="gpu" style="white-space: pre;"></div>
     <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
-    <canvas id="output"></canvas>
-    <script>
-      window.onload = function() {
-        Samples.transform2D('output');
-      }
-    </script>
   </body>
 </html>
