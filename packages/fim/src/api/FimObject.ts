@@ -5,12 +5,8 @@
 import { Fim } from './Fim';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 
-/** Common properties and methods for all objects in the FIM API */
-export type FimObject = FimObjectBase<Fim, FimObject>;
-
 /** Templated version of the `FimObject` interface which supports specific implementations of root and child classes */
-export interface FimObjectBase<TRoot extends FimObjectBase<TRoot, TChild>,
-    TChild extends FimObjectBase<TRoot, TChild>> {
+export interface FimObject {
   /** Unique string describing the type of the object */
   readonly objectType: string;
 
@@ -18,13 +14,13 @@ export interface FimObjectBase<TRoot extends FimObjectBase<TRoot, TChild>,
   readonly handle: string;
 
   /** Array of references to child objects */
-  readonly childObjects: TChild[];
+  readonly childObjects: FimObject[];
 
   /** Parent object. `undefined` for the root object. */
-  readonly parentObject?: TChild;
+  readonly parentObject?: FimObject;
 
   /** Root object. Points to `this` for the root object. */
-  readonly rootObject: TRoot;
+  readonly rootObject: Fim;
 
   /**
    * Callers may create custom objects derived from `FimObject` to interact with the FIM library. Calling this method to
@@ -32,14 +28,14 @@ export interface FimObjectBase<TRoot extends FimObjectBase<TRoot, TChild>,
    * `releaseAllResources()`, and `dispose()` calls.
    * @param child Child object to receive notifications
    */
-  addChild(child: TChild): void;
+  addChild(child: FimObject): void;
 
   /**
    * Stops sending calls to a child object previously registered with `registerChildObject()`. Child objects should call
    * this method if they are disposed prior to the disposal of the parent FIM instance.
    * @param child Child object to stop receiving notifications
    */
-  removeChild(child: TChild): void;
+  removeChild(child: FimObject): void;
 
   /**
    * Releases memory and/or GPU resources.
