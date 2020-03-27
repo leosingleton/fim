@@ -14,8 +14,7 @@ export class FimOpLighter extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Lighter.glsl.js');
-    const shader = parent.rootObject.createGLShader(source, undefined, 'Lighter');
-    super(parent, shader);
+    super(parent, source, undefined, 'Lighter');
   }
 
   /**

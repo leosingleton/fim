@@ -7,6 +7,7 @@ import { FimObject } from './FimObject';
 import { FimOperation } from './FimOperation';
 import { FimShader } from './FimShader';
 import { FimRect } from '../primitives/FimRect';
+import { GlslShader } from 'webpack-glsl-minify';
 
 /**
  * Base class for building FIM operations out of a single WebGL shader. Derived classes may include the shader's source
@@ -16,14 +17,13 @@ export abstract class FimOperationShader extends FimOperation {
   /**
    * Constructor
    * @param parent Parent object
-   * @param shader `FimShader` instance created by the derived class's constructor
-   * @param name Optional object name to help for debugging
+   * @param fragmentShader Fragment shader, created using webpack-glsl-minify
+   * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
+   * @param name Optional shader name, for debugging
    */
-  protected constructor(parent: FimObject, shader: FimShader, name?: string) {
+  protected constructor(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string) {
     super(parent, name);
-
-    shader.reparent(this);
-    this.shader = shader;
+    this.shader = this.rootObject.createGLShader(fragmentShader, vertexShader, name, this);
   }
 
   /** The underlying `FimShader` object */

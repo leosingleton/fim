@@ -14,8 +14,7 @@ export class FimOpLinearTransform1 extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/LinearTransform1.glsl.js');
-    const shader = parent.rootObject.createGLShader(source, undefined, 'LinearTransform1');
-    super(parent, shader);
+    super(parent, source, undefined, 'LinearTransform1');
   }
 
   /**

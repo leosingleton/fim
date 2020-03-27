@@ -276,6 +276,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
       TEngineShader {
+    this.ensureNotDisposed();
     return this.createEngineGLShader(parent ?? this, fragmentShader, vertexShader, name);
   }
 

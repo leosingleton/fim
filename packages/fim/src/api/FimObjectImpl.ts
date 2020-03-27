@@ -5,7 +5,7 @@
 import { Fim } from './Fim';
 import { FimObject } from './FimObject';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
-import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimError } from '../primitives/FimError';
 
 /** Base class for FIM objects. Implements the parent-child tree structure defined in the `FimObject` interface. */
 export abstract class FimObjectImpl implements FimObject {
@@ -28,36 +28,16 @@ export abstract class FimObjectImpl implements FimObject {
     }
     this.handle = handle;
 
+    // Establish parent/child/root mappings
     this.rootObject = parent ? parent.rootObject : this as any as Fim;
-    this.reparent(parent);
+    this.parentObject = parent;
+    if (parent) {
+      parent.addChild(this);
+    }
   }
 
   /** Global counter used to assign a unique handle to objects in FIM */
   private static globalHandleCount = 0;
-
-  public reparent(parent?: FimObject): void {
-    const me = this;
-    me.ensureNotDisposed();
-
-    if (parent) {
-      // When adopting children, the old and new parent must share the same root object.
-      if (parent && parent.rootObject !== me.rootObject) {
-        throw new FimError(FimErrorCode.ReparentFailed,
-          `${me.parentObject.handle} (${me.rootObject.handle}) => ${parent.handle} (${parent.rootObject.handle})`);
-      }
-
-      // Add the relationship to the new parent object
-      parent.addChild(me);
-    }
-
-    // Remove the relationship to the old parent object
-    if (me.parentObject) {
-      me.parentObject.removeChild(me);
-      me.parentObject = undefined;
-    }
-
-    me.parentObject = parent;
-  }
 
   public addChild(child: FimObject): void {
     this.ensureNotDisposed();

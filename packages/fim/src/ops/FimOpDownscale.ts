@@ -20,8 +20,7 @@ export class FimOpDownscale extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Downscale.glsl.js');
-    const shader = parent.rootObject.createGLShader(source, undefined, 'Downscale');
-    super(parent, shader);
+    super(parent, source, undefined, 'Downscale');
   }
 
   public setInput(input: FimImage): void {
