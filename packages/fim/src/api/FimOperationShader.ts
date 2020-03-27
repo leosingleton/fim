@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from './Fim';
 import { FimImage } from './FimImage';
+import { FimObject } from './FimObject';
 import { FimOperation } from './FimOperation';
 import { FimShader } from './FimShader';
 import { FimRect } from '../primitives/FimRect';
@@ -15,12 +15,12 @@ import { FimRect } from '../primitives/FimRect';
 export abstract class FimOperationShader extends FimOperation {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    * @param shader `FimShader` instance created by the derived class's constructor
    * @param objectName Optional object name to help for debugging
    */
-  protected constructor(fim: Fim, shader: FimShader, objectName?: string) {
-    super(fim, objectName);
+  protected constructor(parent: FimObject, shader: FimShader, objectName?: string) {
+    super(parent, objectName);
     this.shader = shader;
     this.addChild(shader);
   }

@@ -2,20 +2,20 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
+import { FimObject } from '../api/FimObject';
 import { FimOperationShader } from '../api/FimOperationShader';
 
 /** Built-in operation to combine two textures and return the lighter of the two */
 export class FimOpLighter extends FimOperationShader {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    */
-  public constructor(fim: Fim) {
+  public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Lighter.glsl.js');
-    const shader = fim.createGLShader(source, undefined, 'Lighter');
-    super(fim, shader);
+    const shader = parent.rootObject.createGLShader(source, undefined, 'Lighter');
+    super(parent, shader);
   }
 
   /**

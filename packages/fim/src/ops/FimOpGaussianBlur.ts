@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimOpMatrix1D } from './FimOpMatrix1D';
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
+import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimGaussianKernel } from '../math/FimGaussianKernel';
 import { FimRect } from '../primitives/FimRect';
@@ -13,13 +13,13 @@ import { FimRect } from '../primitives/FimRect';
 export class FimOpGaussianBlur extends FimOperation {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    * @param fast If set, uses a faster implemenation which is based on sampling every other pixel. Requires that all
    *    inputs and outputs use linear filtering.
    */
-  public constructor(fim: Fim, fast = false) {
-    super(fim, 'GaussianBlur');
-    this.matrix1D = new FimOpMatrix1D(fim, fast);
+  public constructor(parent: FimObject, fast = false) {
+    super(parent, 'GaussianBlur');
+    this.matrix1D = new FimOpMatrix1D(parent, fast);
     this.addChild(this.matrix1D);
   }
 

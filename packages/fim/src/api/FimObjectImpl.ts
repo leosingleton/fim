@@ -2,12 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimObject } from '../api/FimObject';
-import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
+import { Fim } from './Fim';
+import { FimObject } from './FimObject';
+import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 import { FimError } from '../primitives/FimError';
 
 /** Base class for FIM objects. Implements the parent-child tree structure defined in the `FimObject` interface. */
-export abstract class FimObjectBase implements FimObject {
+export abstract class FimObjectImpl implements FimObject {
   /**
    * Constructor
    * @param objectType Unique string describing the type of the object
@@ -18,7 +19,7 @@ export abstract class FimObjectBase implements FimObject {
     this.objectType = objectType;
 
     // Build the object handle
-    let handle = `${objectType}.${FimObjectBase.globalHandleCount++}`;
+    let handle = `${objectType}.${FimObjectImpl.globalHandleCount++}`;
     if (objectName) {
       handle += `.${objectName}`;
     }
@@ -28,7 +29,7 @@ export abstract class FimObjectBase implements FimObject {
     this.handle = handle;
 
     this.parentObject = parent;
-    this.rootObject = parent ? parent.rootObject : this;
+    this.rootObject = parent ? parent.rootObject : this as any as Fim;
 
     // If we are not root, add a reference to ourselves from our parent object
     if (parent) {
@@ -51,7 +52,7 @@ export abstract class FimObjectBase implements FimObject {
   public readonly handle: string;
   public childObjects: FimObject[] = [];
   public parentObject: FimObject;
-  public rootObject: FimObject;
+  public rootObject: Fim;
 
   public releaseResources(flags: FimReleaseResourcesFlags): void {
     // Recursively release resources of child objects first
@@ -82,7 +83,7 @@ export abstract class FimObjectBase implements FimObject {
     // instance and once here. Hence, we check to see whether the child is still referenced by the root FIM instance
     // and only call it if so. If it is not referenced, that means it was disposed prior to this operation.
     for (const child of me.childObjects) {
-      if (FimObjectBase.isReferencedBy(me.rootObject, child, me)) {
+      if (FimObjectImpl.isReferencedBy(me.rootObject, child, me)) {
         child.dispose();
       }
     }
@@ -125,7 +126,7 @@ export abstract class FimObjectBase implements FimObject {
       if (c === ignore) {
         continue;
       }
-      if (c === child || FimObjectBase.isReferencedBy(c, child)) {
+      if (c === child || FimObjectImpl.isReferencedBy(c, child)) {
         return true;
       }
     }

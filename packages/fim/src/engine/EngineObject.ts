@@ -4,10 +4,10 @@
 
 import { EngineFim } from './EngineFim';
 import { EngineObjectType } from './EngineObjectType';
-import { FimObjectBase } from '../api/FimObjectBase';
+import { FimObjectImpl } from '../api/FimObjectImpl';
 
 /** Base class for all objects in the FIM API */
-export abstract class EngineObject extends FimObjectBase {
+export abstract class EngineObject extends FimObjectImpl {
   /**
    * Constructor
    * @param objectType Type of the object

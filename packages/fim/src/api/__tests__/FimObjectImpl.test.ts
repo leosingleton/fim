@@ -2,11 +2,11 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimObjectBase } from '../FimObjectBase';
+import { FimObjectImpl } from '../FimObjectImpl';
 import { FimReleaseResourcesFlags } from '../../api/FimReleaseResourcesFlags';
 
-/** Mock implementation of `FimObjectBase`-derived class for unit testing */
-class MyObject extends FimObjectBase {
+/** Mock implementation of `FimObjectImpl`-derived class for unit testing */
+class MyObject extends FimObjectImpl {
   public constructor(objectName?: string, parent?: MyObject) {
     super('MyObject', objectName, parent);
   }
@@ -19,7 +19,7 @@ class MyObject extends FimObjectBase {
   }
 }
 
-describe('FimObjectBase', () => {
+describe('FimObjectImpl', () => {
 
   it('Releases resources', () => {
     const o = new MyObject('Handle');

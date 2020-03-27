@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { Fim } from '../api/Fim';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions } from '../api/FimImageOptions';
+import { FimObject } from '../api/FimObject';
 import { FimOperationShader } from '../api/FimOperationShader';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
@@ -16,12 +16,12 @@ import { usingAsync } from '@leosingleton/commonlibs';
 export class FimOpDownscale extends FimOperationShader {
   /**
    * Constructor
-   * @param fim FIM instance
+   * @param parent Parent object
    */
-  public constructor(fim: Fim) {
+  public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Downscale.glsl.js');
-    const shader = fim.createGLShader(source, undefined, 'Downscale');
-    super(fim, shader);
+    const shader = parent.rootObject.createGLShader(source, undefined, 'Downscale');
+    super(parent, shader);
   }
 
   public setInput(input: FimImage): void {

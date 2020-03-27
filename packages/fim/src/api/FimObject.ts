@@ -2,10 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { Fim } from './Fim';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 
-/** Common properties for all objects in the FIM API */
-export interface FimObject {
+/** Common properties and methods for all objects in the FIM API */
+export type FimObject = FimObjectBase<Fim, FimObject>;
+
+/** Templated version of the `FimObject` interface which supports specific implementations of root and child classes */
+export interface FimObjectBase<TRoot extends FimObjectBase<TRoot, TChild>,
+    TChild extends FimObjectBase<TRoot, TChild>> {
   /** Unique string describing the type of the object */
   readonly objectType: string;
 
@@ -13,13 +18,13 @@ export interface FimObject {
   readonly handle: string;
 
   /** Array of references to child objects */
-  readonly childObjects: FimObject[];
+  readonly childObjects: TChild[];
 
   /** Parent object. `undefined` for the root object. */
-  readonly parentObject?: FimObject;
+  readonly parentObject?: TChild;
 
   /** Root object. Points to `this` for the root object. */
-  readonly rootObject: FimObject;
+  readonly rootObject: TRoot;
 
   /**
    * Callers may create custom objects derived from `FimObject` to interact with the FIM library. Calling this method to
@@ -27,14 +32,14 @@ export interface FimObject {
    * `releaseAllResources()`, and `dispose()` calls.
    * @param child Child object to receive notifications
    */
-  addChild(child: FimObject): void;
+  addChild(child: TChild): void;
 
   /**
    * Stops sending calls to a child object previously registered with `registerChildObject()`. Child objects should call
    * this method if they are disposed prior to the disposal of the parent FIM instance.
    * @param child Child object to stop receiving notifications
    */
-  removeChild(child: FimObject): void;
+  removeChild(child: TChild): void;
 
   /**
    * Releases memory and/or GPU resources.

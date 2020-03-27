@@ -5,7 +5,7 @@
 import { Fim } from './Fim';
 import { FimImage } from './FimImage';
 import { FimObject } from './FimObject';
-import { FimObjectBase } from './FimObjectBase';
+import { FimObjectImpl } from './FimObjectImpl';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
 import { FimRect } from '../primitives/FimRect';
 
@@ -14,7 +14,7 @@ import { FimRect } from '../primitives/FimRect';
  * managing the setting of constants, uniforms, and vertices, and also invoking shaders in the correct order while
  * managing any temporary images.
  */
-export abstract class FimOperation extends FimObjectBase {
+export abstract class FimOperation extends FimObjectImpl {
   /**
    * Constructor
    * @param parent Parent object
