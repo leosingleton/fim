@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
@@ -25,16 +26,19 @@ const config = {
   plugins: [
     new CopyWebpackPlugin([
       {
-        context: './static/',
+        context: './samples/',
         from: '**/*',
         to: './'
       }
-    ])
+    ]),
+    new webpack.ProvidePlugin({
+      $: 'jquery'
+    })
   ],
   output: {
     path: path.resolve(__dirname, './build/samples'),
     filename: 'samples.js',
-    library: 'Samples'
+    libraryTarget: 'window'
   }
 };
 

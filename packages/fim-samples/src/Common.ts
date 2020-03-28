@@ -3,14 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { DocumentReady, UnhandledError, parseQueryString } from '@leosingleton/commonlibs';
-import { FimImage, FimDimensions } from '@leosingleton/fim';
-import { FimBrowserFactory, FimBrowser } from '@leosingleton/fim-browser';
-import $ from 'jquery';
+import { FimImage, Fim } from '@leosingleton/fim';
 
 const qs = parseQueryString();
-
-/** Global instance of FIM */
-export let fim: FimBrowser;
 
 /** Loads a test image and returns the JPEG as a byte array */
 export async function loadTestImageToArray(): Promise<Uint8Array> {
@@ -22,7 +17,7 @@ export async function loadTestImageToArray(): Promise<Uint8Array> {
 }
 
 /** Loads a test image onto a FimCanvas */
-export async function loadTestImage(): Promise<FimImage> {
+export async function loadTestImage(fim: Fim): Promise<FimImage> {
   const jpeg = await loadTestImageToArray();
   return fim.createImageFromJpegAsync(jpeg);
 }
@@ -35,17 +30,6 @@ export async function waitForAnimationFrame(): Promise<void> {
     });
   });
 }
-
-$(() => {
-  // Initialize the global FIM instance
-  fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
-
-  // Write GPU details to the screen if there is a <div id="gpu">
-  const gpuDiv = $('#gpu');
-  if (gpuDiv) {
-    gpuDiv.text(JSON.stringify(fim.capabilities, null, 4));
-  }
-});
 
 // Unhandled Exception Handling
 UnhandledError.registerHandler(async (ue: UnhandledError) => {
