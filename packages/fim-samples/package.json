@@ -16,7 +16,8 @@
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
     "@leosingleton/fim": "^2.0.0-alpha",
-    "@leosingleton/fim-browser": "^2.0.0-alpha"
+    "@leosingleton/fim-browser": "^2.0.0-alpha",
+    "jquery": "latest"
   },
   "main": "build/index.js",
   "types": "build/index.d.ts"
