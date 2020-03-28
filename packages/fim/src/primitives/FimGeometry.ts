@@ -29,9 +29,12 @@ export abstract class FimGeometry {
    * Throws an invalid parameter exception if this set of dimensions is not contained within the dimensions of the
    * `object` parameter
    */
-  public validateIn(object: FimDimensional): void {
-    if (!this.containedBy(object.dim)) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${this} !in ${object.dim}`);
+  public validateIn(object: FimDimensional | FimDimensions): void {
+    if (!(object instanceof FimDimensions)) {
+      object = object.dim;
+    }
+    if (!this.containedBy(object)) {
+      throw new FimError(FimErrorCode.InvalidParameter, `${this} !in ${object}`);
     }
   }
 
