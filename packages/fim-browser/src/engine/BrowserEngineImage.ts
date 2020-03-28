@@ -2,11 +2,19 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { FimBrowserImage } from '../api/FimBrowserImage';
+import { CoreBrowser2D } from '../core/CoreBrowser2D';
 import { loadFromFileAsync } from '../core/LoadFromFile';
-import { FimImageOptions, FimDimensions, FimObject } from '@leosingleton/fim';
-import { CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
+import { FimImageOptions, FimDimensions, FimObject, FimRect } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
 
-export class BrowserEngineImage extends EngineImage {
+export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
+  public exportToCanvasAsync(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+    return this.exportToCanvasHelperAsync(async (srcImage: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => {
+      (srcImage as CoreBrowser2D).exportToCanvas(canvas, srcCoords, destCoords);
+    }, srcCoords, destCoords);
+  }
+
   /**
    * Creates a new BrowserEngineImage from a PNG file
    * @param parent Parent object

@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreBrowser2D } from './CoreBrowser2D';
 import { loadCanvasFromFileAsync } from './LoadFromFile';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
@@ -10,7 +11,7 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 // @nomangle OffscreenCanvas convertToBlob
 
 /** Wrapper around the browser's OffscreenCanvas */
-export class CoreBrowserOffscreenCanvas2D extends CoreCanvas2D {
+export class CoreBrowserOffscreenCanvas2D extends CoreBrowser2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
     super(canvasOptions, dimensions, handle, engineOptions);

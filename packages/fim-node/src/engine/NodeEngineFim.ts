@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { NodeEngineImage } from './NodeEngineImage';
+import { FimNode } from '../api/FimNode';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
@@ -10,7 +11,7 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
-export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> {
+export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> implements FimNode {
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       NodeEngineImage {
     return new NodeEngineImage(parent, options, dimensions, name);

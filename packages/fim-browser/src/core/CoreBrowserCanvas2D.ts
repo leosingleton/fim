@@ -2,13 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreBrowser2D } from './CoreBrowser2D';
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
 import { loadCanvasFromFileAsync } from './LoadFromFile';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
-export class CoreBrowserCanvas2D extends CoreCanvas2D {
+export class CoreBrowserCanvas2D extends CoreBrowser2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
     super(canvasOptions, dimensions, handle, engineOptions);

@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { BrowserEngineImage } from './BrowserEngineImage';
+import { FimBrowser } from '../api/FimBrowser';
 import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
 import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
@@ -12,7 +13,7 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
-export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> {
+export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> implements FimBrowser {
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(parent, options, dimensions, name);

@@ -583,6 +583,34 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     return pixelData;
   }
 
+  /**
+   * Helper function to implement a platform-specific `exportToCanvasAsync()` function which copies this image's
+   * contents to a canvas
+   * @param exportLambda Lambda function to export the contents of `srcCanvas` to the output canvas, based on the
+   *    populated and scaled `srcCoords` and `destCoords` parameters
+   * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
+   * @param destCoords Destination coordinates to render to. If unspecified, the output is stretched to fit the entire
+   *    canvas.
+   */
+  protected async exportToCanvasHelperAsync(
+      exportLambda: (srcCanvas: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => Promise<void>,
+      srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+    const me = this;
+    const optimizer = me.rootObject.optimizer;
+    me.ensureNotDisposed();
+
+    // Handle defaults and validate coordinates
+    srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
+    srcCoords.validateIn(me);
+
+    await me.populateContentCanvas();
+    const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.scaleFactor);
+    await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords, destCoords);
+
+    // Let the optimizer release unneeded resources
+    optimizer.releaseResources();
+  }
+
   public async exportToPngAsync(): Promise<Uint8Array> {
     const me = this;
     const optimizer = me.rootObject.optimizer;
