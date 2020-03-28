@@ -75,8 +75,8 @@ describe('FimDimensions', () => {
     const d = FimDimensions.fromWidthHeight(640, 480);
     const d1 = FimDimensions.fromWidthHeight(640, 480);
     const d2 = FimDimensions.fromWidthHeight(480, 640);
-    d1.validateIn(d);
-    expect(() => d2.validateIn(d)).toThrow();
+    d1.validateInDimensions(d);
+    expect(() => d2.validateInDimensions(d)).toThrow();
   });
 
 });

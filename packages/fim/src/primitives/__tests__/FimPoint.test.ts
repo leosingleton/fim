@@ -44,9 +44,9 @@ describe('FimPoint', () => {
     const p1 = FimPoint.fromXY(639, 479);
     const p2 = FimPoint.fromXY(480, 640);
     const p3 = FimPoint.fromXY(20, -10);
-    p1.validateIn(d);
-    expect(() => p2.validateIn(d)).toThrow();
-    expect(() => p3.validateIn(d)).toThrow();
+    p1.validateInDimensions(d);
+    expect(() => p2.validateInDimensions(d)).toThrow();
+    expect(() => p3.validateInDimensions(d)).toThrow();
   });
 
 });
