@@ -9,10 +9,11 @@ import { FimDimensions } from '@leosingleton/fim';
 export namespace FimBrowserFactory {
   /**
    * Creates an instance of the FimBrowser interface
-   * @param maxImageDimensions Maximum dimensions of any image
+   * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
+   *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  export function create(maxImageDimensions: FimDimensions, name?: string): FimBrowser {
+  export function create(maxImageDimensions?: FimDimensions, name?: string): FimBrowser {
     return new BrowserEngineFim(maxImageDimensions, name);
   }
 }

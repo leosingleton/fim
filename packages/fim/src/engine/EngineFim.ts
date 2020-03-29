@@ -32,12 +32,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     extends EngineObject implements FimBase<TEngineImage, TEngineShader> {
   /**
    * Constructor
-   * @param maxImageDimensions Maximum dimensions of any image
+   * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
+   *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(maxImageDimensions: FimDimensions, name?: string) {
+  public constructor(maxImageDimensions?: FimDimensions, name?: string) {
     super(EngineObjectType.Fim, name);
-    this.maxImageDimensions = maxImageDimensions;
     this.resources = new ResourceTracker(this);
     this.optimizer = new OptimizerNull(this);
 
@@ -89,6 +89,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     engineOptions.disableImageBitmap = !capabilities.supportsImageBitmap;
     engineOptions.maxGLRenderBufferSize = capabilities.glMaxRenderBufferSize;
     engineOptions.maxGLTextureSize = capabilities.glMaxTextureSize;
+
+    // Set the maximum image dimensions to the specified value. If unspecified, default to the WebGL capabilities.
+    const maxDimension = Math.min(capabilities.glMaxRenderBufferSize, capabilities.glMaxTextureSize);
+    this.maxImageDimensions = maxImageDimensions ?? FimDimensions.fromSquareDimension(maxDimension);
   }
 
   public readonly maxImageDimensions: FimDimensions;
