@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
+    "tslib": "latest",
     "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",

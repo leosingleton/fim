@@ -19,6 +19,7 @@
     "@leosingleton/fim": "^2.0.0-alpha",
     "canvas": "latest",
     "gl": "latest",
+    "tslib": "latest",
     "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",
