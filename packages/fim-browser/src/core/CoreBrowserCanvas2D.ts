@@ -5,8 +5,8 @@
 import { FimRect } from '@leosingleton/fim';
 import { CoreCanvas2D } from '@leosingleton/fim/internals';
 
-/** Wrapper around the HTML DOM canvas */
-export abstract class CoreBrowser2D extends CoreCanvas2D {
+/** Wrapper around `CoreCanvas2D` to add browser-specific methods */
+export abstract class CoreBrowserCanvas2D extends CoreCanvas2D {
   /**
    * Exports the canvas contents to another canvas
    * @param canvas Destination canvas
