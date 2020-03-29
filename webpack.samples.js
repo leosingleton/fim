@@ -42,7 +42,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, './build/samples'),
     filename: 'samples.js',
-    libraryTarget: 'window'
+    libraryTarget: 'umd'
   }
 };
 

@@ -38,6 +38,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'build'),
-    filename: 'browser-tests.js'
+    filename: 'browser-tests.js',
+    libraryTarget: 'umd'
   }
 };
