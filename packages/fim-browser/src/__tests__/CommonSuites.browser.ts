@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { FimBrowserFactory } from '../factory/FimBrowserFactory';
-import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
-import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
+import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
+import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -53,11 +53,11 @@ engineOptions.debugMode = true;
 engineOptions.showTracing = showTracing;
 engineOptions.showWarnings = showWarnings;
 
-TestSuites.coreCanvas2D('CoreBrowserCanvas2D',
-  (canvasOptions, dimensions) => new CoreBrowserCanvas2D(canvasOptions, dimensions, 'UnitTest', engineOptions));
+TestSuites.coreCanvas2D('CoreBrowserDomCanvas2D',
+  (canvasOptions, dimensions) => new CoreBrowserDomCanvas2D(canvasOptions, dimensions, 'UnitTest', engineOptions));
 
-TestSuites.coreCanvasWebGL('CoreBrowserCanvasWebGL',
-  (canvasOptions, dimensions) => new CoreBrowserCanvasWebGL(canvasOptions, dimensions, 'UnitTest', engineOptions));
+TestSuites.coreCanvasWebGL('CoreBrowserDomCanvasWebGL',
+  (canvasOptions, dimensions) => new CoreBrowserDomCanvasWebGL(canvasOptions, dimensions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvas2D('CoreBrowserOffscreenCanvas2D',
   (canvasOptions, dimensions) => new CoreBrowserOffscreenCanvas2D(canvasOptions, dimensions, 'UnitTest',
