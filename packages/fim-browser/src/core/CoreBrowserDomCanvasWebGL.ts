@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
+import { CoreBrowserDomCanvas2D } from './CoreBrowserDomCanvas2D';
 import { CoreBrowserTexture } from './CoreBrowserTexture';
 import { DisposableCanvas, DomCanvasPoolWebGL } from './DomCanvasPool';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
@@ -10,13 +10,13 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
   RenderingContextWebGL } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
-export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
+export class CoreBrowserDomCanvasWebGL extends CoreCanvasWebGL {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
     super(canvasOptions, dimensions, handle, engineOptions);
 
     // Create a hidden canvas
-    const canvas = CoreBrowserCanvasWebGL.canvasPool.getCanvas();
+    const canvas = CoreBrowserDomCanvasWebGL.canvasPool.getCanvas();
     canvas.width = dimensions.w;
     canvas.height = dimensions.h;
     canvas.style.display = 'none';
@@ -47,7 +47,7 @@ export class CoreBrowserCanvasWebGL extends CoreCanvasWebGL {
 
   protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreBrowserCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreBrowserDomCanvas2D(canvasOptions, dimensions, handle, engineOptions);
   }
 
   protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,

@@ -9,13 +9,13 @@ import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
-export class CoreBrowserCanvas2D extends CoreBrowser2D {
+export class CoreBrowserDomCanvas2D extends CoreBrowser2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
     super(canvasOptions, dimensions, handle, engineOptions);
 
     // Create a hidden canvas
-    const canvas = CoreBrowserCanvas2D.canvasPool.getCanvas();
+    const canvas = CoreBrowserDomCanvas2D.canvasPool.getCanvas();
     canvas.width = dimensions.w;
     canvas.height = dimensions.h;
     canvas.style.display = 'none';
@@ -44,7 +44,7 @@ export class CoreBrowserCanvas2D extends CoreBrowser2D {
 
   protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreBrowserCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreBrowserDomCanvas2D(canvasOptions, dimensions, handle, engineOptions);
   }
 
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {

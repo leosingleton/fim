@@ -4,8 +4,8 @@
 
 import { BrowserEngineImage } from './BrowserEngineImage';
 import { FimBrowser } from '../api/FimBrowser';
-import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
-import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
+import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
+import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
@@ -38,7 +38,7 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvas2D(options, dimensions, handle, this.engineOptions);
     } else {
-      return new CoreBrowserCanvas2D(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvas2D(options, dimensions, handle, this.engineOptions);
     }
   }
 
@@ -46,7 +46,7 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvasWebGL(options, dimensions, handle, this.engineOptions);
     } else {
-      return new CoreBrowserCanvasWebGL(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvasWebGL(options, dimensions, handle, this.engineOptions);
     }
   }
 }
