@@ -8,10 +8,8 @@ export async function unsharpMaskSample(): Promise<void> {
 
   // Load the sample image
   const url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
-  const fetchResponse = await fetch(url, { method: 'GET' });
-  const jpeg = await fetchResponse.arrayBuffer();
   const options: FimImageOptions = { bpp: FimBitsPerPixel.BPP8, glReadOnly: true };
-  const inputImage = await fim.createImageFromJpegAsync(new Uint8Array(jpeg), options, 'inputImage');
+  const inputImage = await fim.createImageFromJpegFileAsync(url, options);
 
   // Create the unsharp mask operation
   const usmOperation = new FimOpUnsharpMask(fim, true);

@@ -21,7 +21,8 @@ export abstract class FimObjectImpl implements FimObject {
     // Build the object handle
     let handle = `${type}.${FimObjectImpl.globalHandleCount++}`;
     if (name) {
-      handle += `.${name}`;
+      // Replace all . and / with underscores
+      handle += `.${name.replace(/[./]/g, '_')}`;
     }
     if (parent) {
       handle = `${parent.handle}/${handle}`;

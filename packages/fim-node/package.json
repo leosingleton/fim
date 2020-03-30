@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "@leosingleton/fim-common-tests": "^2.0.0-alpha",
-    "@types/gl": "latest"
+    "@types/gl": "latest",
+    "@types/node": "latest"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",

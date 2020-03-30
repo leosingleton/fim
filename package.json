@@ -13,6 +13,7 @@
   "devDependencies": {
     "@types/jasmine": "latest",
     "@types/jquery": "latest",
+    "@types/node": "latest",
     "@types/webpack": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
