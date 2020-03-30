@@ -6,11 +6,42 @@ import { FimBrowserFactory } from '../factory/FimBrowserFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimColor, FimDimensions, FimRect } from '@leosingleton/fim';
 
+/** Tiny dimensions for unit test */
+const tiny = FimDimensions.fromWidthHeight(100, 100);
+
 /** Small dimensions for unit test */
 const small = FimDimensions.fromWidthHeight(200, 200);
 
 const red = FimColor.fromString('#f00');
 const blue = FimColor.fromString('#00f');
+
+/**
+ * Helper function to create a canvas
+ * @param dimensions Canvas dimensions
+ * @param color Canvas fill color
+ */
+function createCanvasAndFill(dimensions: FimDimensions, color: FimColor): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = dimensions.w;
+  canvas.height = dimensions.h;
+  canvas.style.display = 'none';
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  ctx.beginPath();
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = color.string;
+  ctx.fill();
+
+  return canvas;
+}
+
+/** Disposes a canvas created by `createCanvasAndFill()` */
+function disposeCanvas(canvas: HTMLCanvasElement): void {
+  document.body.removeChild(canvas);
+  canvas.width = 0;
+  canvas.height = 0;
+}
 
 /**
  * Reads the color of a pixel from a canvas
@@ -32,21 +63,9 @@ describe('Exports to Canvas', () => {
       const image = fim.createImage();
       await image.fillSolidAsync(blue);
 
-      // Create an HTML canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
-      canvas.style.display = 'none';
-      document.body.appendChild(canvas);
-
+      // Create an HTML canvas and fill with red
+      const canvas = createCanvasAndFill(tiny, red);
       try {
-        // Fill the canvas with red
-        const ctx = canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = red.string;
-        ctx.fill();
-
         // Copy the FIM image to the top-left corner of the canvas
         await image.exportToCanvasAsync(canvas, undefined, FimRect.fromXYWidthHeight(0, 0, 50, 50));
 
@@ -57,10 +76,7 @@ describe('Exports to Canvas', () => {
         expect(getPixel(context, 75, 25)).toEqual(red);
         expect(getPixel(context, 75, 75)).toEqual(red);
       } finally {
-        // Release the HTML canvas
-        document.body.removeChild(canvas);
-        canvas.width = 0;
-        canvas.height = 0;
+        disposeCanvas(canvas);
       }
     });
   });
