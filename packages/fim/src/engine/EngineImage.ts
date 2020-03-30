@@ -603,7 +603,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords.validateIn(me);
 
     await me.populateContentCanvas();
-    const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.downscale);
+    const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.downscale).toFloor();
     await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords, destCoords);
 
     // Let the optimizer release unneeded resources
