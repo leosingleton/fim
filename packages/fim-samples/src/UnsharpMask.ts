@@ -1,5 +1,5 @@
 import { Stopwatch, UnhandledError } from '@leosingleton/commonlibs';
-import { FimOpUnsharpMask, FimDimensions } from '@leosingleton/fim';
+import { FimBitsPerPixel, FimDimensions, FimImageOptions, FimOpUnsharpMask } from '@leosingleton/fim';
 import { FimBrowserFactory } from '@leosingleton/fim-browser';
 
 export async function unsharpMaskSample(): Promise<void> {
@@ -10,14 +10,14 @@ export async function unsharpMaskSample(): Promise<void> {
   const url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';
   const fetchResponse = await fetch(url, { method: 'GET' });
   const jpeg = await fetchResponse.arrayBuffer();
-  console.log(jpeg.byteLength);
-  const inputImage = await fim.createImageFromJpegAsync(new Uint8Array(jpeg));
+  const options: FimImageOptions = { bpp: FimBitsPerPixel.BPP8, glReadOnly: true };
+  const inputImage = await fim.createImageFromJpegAsync(new Uint8Array(jpeg), options, 'inputImage');
 
   // Create the unsharp mask operation
   const usmOperation = new FimOpUnsharpMask(fim, true);
 
   // Create the output image
-  const outputImage = fim.createImage({}, inputImage.dim);
+  const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
 
   // Get and scale the output canvas
   const canvas = $('#output').get(0) as HTMLCanvasElement;
@@ -35,6 +35,7 @@ export async function unsharpMaskSample(): Promise<void> {
       if (amount > 0.5) {
         amount = 1 - amount;
       }
+      console.log(amount);
 
       // Apply the unsharp mask operation
       usmOperation.setInputs(inputImage, amount, 1);
