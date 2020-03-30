@@ -4,10 +4,11 @@
 
 import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
+import { expectedPixelDataLength, getPixelFromPixelData } from '../common/PixelData';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimRect } from '@leosingleton/fim';
+import { Fim, FimBitsPerPixel, FimDimensions, FimOpUnsharpMask, FimRect, FimOpInvert } from '@leosingleton/fim';
 
 /** FIM test cases around transparent downscaling of oversized images */
 export function fimTestSuiteOversized(
@@ -120,11 +121,11 @@ export function fimTestSuiteOversized(
         const image2 = await fim.createImageFromJpegAsync(jpeg2);
         expect(image2.dim).toEqual(smallFourSquares);
 
-        // Four squares test pattern is present
-        expect((await image2.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-        expect((await image2.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-        expect((await image2.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-        expect((await image2.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+        // Four squares test pattern is present (note the distance tolerance is higher due to JPEG lossiness)
+        expect((await image2.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.004);
+        expect((await image2.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.004);
+        expect((await image2.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.004);
+        expect((await image2.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.004);
       });
     });
 
@@ -162,6 +163,60 @@ export function fimTestSuiteOversized(
         expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
         expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(green);
         expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(green);
+      });
+    });
+
+    it('Calculates correct ratios for CoreCanvas2D', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Load a 128x128 PNG with a FIM instance of 100x50
+        const png = TestImages.fourSquaresPng();
+        const image = await fim.createImageFromPngAsync(png);
+
+        // The CoreCanvas2D backing image should have been downscaled to 50x50
+        expect((image as any).contentCanvas.isCurrent).toBeTruthy();
+        expect((image as any).contentCanvas.downscale).toEqual(50 / 128);
+        expect((image as any).contentCanvas.imageContent.dim).toEqual(FimDimensions.fromSquareDimension(50));
+      });
+    });
+
+    it('Calculates correct ratio for CoreTexture', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Load a 128x128 PNG with a FIM instance of 100x50
+        const png = TestImages.fourSquaresPng();
+        const image = await fim.createImageFromPngAsync(png);
+
+        // Run an invert operation to use a CoreTexture
+        const opInvert = new FimOpInvert(fim);
+        opInvert.setInput(image);
+        await image.executeAsync(opInvert);
+
+        // The CoreTexture backing image should have been downscaled to 50x50
+        expect((image as any).contentTexture.isCurrent).toBeTruthy();
+        expect((image as any).contentTexture.downscale).toEqual(50 / 128);
+        expect((image as any).contentTexture.imageContent.dim).toEqual(FimDimensions.fromSquareDimension(50));
+      });
+    });
+
+    it('Handles WebGL with downscale', async () => {
+      await usingAsync(factory(small), async fim => {
+        // Create FIM resources
+        const png = TestImages.fourSquaresPng();
+        const inputImage = await fim.createImageFromPngAsync(png, { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
+        const outputImage = fim.createImage({}, smallFourSquares);
+        const opUnsharpMask = new FimOpUnsharpMask(fim, true);
+
+        // Run the WebGL operation
+        opUnsharpMask.setInputs(inputImage, 0.5, 2);
+        await outputImage.executeAsync(opUnsharpMask);
+
+        // Export the result to pixel array
+        const output = await outputImage.exportToPixelDataAsync();
+        const dim = outputImage.dim;
+        expect(output.length).toEqual(expectedPixelDataLength(dim));
+        expect(getPixelFromPixelData(output, dim, topLeft(dim))).toEqual(red);
+        expect(getPixelFromPixelData(output, dim, topRight(dim))).toEqual(green);
+        expect(getPixelFromPixelData(output, dim, bottomLeft(dim))).toEqual(blue);
+        expect(getPixelFromPixelData(output, dim, bottomRight(dim))).toEqual(black);
       });
     });
 
