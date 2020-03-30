@@ -1,10 +1,10 @@
 import { Stopwatch, UnhandledError } from '@leosingleton/commonlibs';
-import { FimOpUnsharpMask } from '@leosingleton/fim';
+import { FimOpUnsharpMask, FimDimensions } from '@leosingleton/fim';
 import { FimBrowserFactory } from '@leosingleton/fim-browser';
 
 export async function unsharpMaskSample(): Promise<void> {
   // Initialize the global FIM instance
-  const fim = FimBrowserFactory.create();
+  const fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
 
   // Load the sample image
   const url = 'https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg';

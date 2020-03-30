@@ -24,8 +24,7 @@ const config = {
     ]
   },
   resolve: {
-    extensions: [ '.glsl', '.js', '.ts' ],
-    symlinks: false
+    extensions: [ '.glsl', '.js', '.ts' ]
   },
   plugins: [
     new CopyWebpackPlugin([
