@@ -228,6 +228,9 @@ export const enum FimErrorCode {
   /** FIM4301: Attempted to write from an image marked readonly */
   ImageReadonly = 4301,
 
+  /** FIM4400: A call to the `fetch()` API failed */
+  FetchError = 4400,
+
 
   //
   // 5000-series errors are used for resource exhaustion

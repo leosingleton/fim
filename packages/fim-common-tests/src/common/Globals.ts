@@ -50,3 +50,6 @@ export const white = FimColor.fromString('#fff');
 export const yellow = FimColor.fromString('#ff0');
 export const magenta = FimColor.fromString('#f0f');
 export const cyan = FimColor.fromString('#0ff');
+
+/** URL to the sample-images folder */
+export const sampleImagesUrl = 'https://www.leosingleton.com/sample-images/';
