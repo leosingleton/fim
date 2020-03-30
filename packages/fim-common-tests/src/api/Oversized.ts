@@ -8,7 +8,7 @@ import { expectedPixelDataLength, getPixelFromPixelData } from '../common/PixelD
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimBitsPerPixel, FimDimensions, FimOpUnsharpMask, FimRect, FimOpInvert } from '@leosingleton/fim';
+import { Fim, FimBitsPerPixel, FimDimensions, FimOpInvert, FimOpUnsharpMask, FimRect } from '@leosingleton/fim';
 
 /** FIM test cases around transparent downscaling of oversized images */
 export function fimTestSuiteOversized(
