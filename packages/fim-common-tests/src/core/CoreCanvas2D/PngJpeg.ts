@@ -3,9 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions } from '../../common/CoreOptions';
-import { bottomLeft, bottomRight, medium, smallFourSquares, topLeft, topRight } from '../../common/Globals';
+import { bottomLeft, bottomRight, topLeft, topRight } from '../../common/Globals';
 import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
+import { TestSizes } from '../../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions } from '@leosingleton/fim/internals';
@@ -18,7 +19,7 @@ export function coreCanvas2DTestSuitePngJpeg(
   describe(`CoreCanvas2D PNG/JPEG - ${description}`, () => {
 
     it('Imports from PNG', async () => {
-      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallFourSquares), async canvas => {
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png);
 
@@ -30,7 +31,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from JPEG', async () => {
-      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallFourSquares), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
         await canvas.loadFromJpegAsync(jpeg);
 
@@ -42,26 +43,26 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from PNG with rescale', async () => {
-      await usingAsync(factory(canvasOptions, medium), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.medium), async canvas => {
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png, true);
 
-        expect(canvas.getPixel(topLeft(medium))).toEqual(TestColors.red);
-        expect(canvas.getPixel(topRight(medium))).toEqual(TestColors.green);
-        expect(canvas.getPixel(bottomLeft(medium))).toEqual(TestColors.blue);
-        expect(canvas.getPixel(bottomRight(medium))).toEqual(TestColors.black);
+        expect(canvas.getPixel(topLeft(TestSizes.medium))).toEqual(TestColors.red);
+        expect(canvas.getPixel(topRight(TestSizes.medium))).toEqual(TestColors.green);
+        expect(canvas.getPixel(bottomLeft(TestSizes.medium))).toEqual(TestColors.blue);
+        expect(canvas.getPixel(bottomRight(TestSizes.medium))).toEqual(TestColors.black);
       });
     });
 
     it('Imports from JPEG with rescale', async () => {
-      await usingAsync(factory(canvasOptions, medium), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.medium), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
         await canvas.loadFromJpegAsync(jpeg, true);
 
-        expect(canvas.getPixel(topLeft(medium)).distance(TestColors.red)).toBeLessThan(0.002);
-        expect(canvas.getPixel(topRight(medium)).distance(TestColors.green)).toBeLessThan(0.002);
-        expect(canvas.getPixel(bottomLeft(medium)).distance(TestColors.blue)).toBeLessThan(0.002);
-        expect(canvas.getPixel(bottomRight(medium)).distance(TestColors.black)).toBeLessThan(0.002);
+        expect(canvas.getPixel(topLeft(TestSizes.medium)).distance(TestColors.red)).toBeLessThan(0.002);
+        expect(canvas.getPixel(topRight(TestSizes.medium)).distance(TestColors.green)).toBeLessThan(0.002);
+        expect(canvas.getPixel(bottomLeft(TestSizes.medium)).distance(TestColors.blue)).toBeLessThan(0.002);
+        expect(canvas.getPixel(bottomRight(TestSizes.medium)).distance(TestColors.black)).toBeLessThan(0.002);
       });
     });
 

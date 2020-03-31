@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { small } from '../common/Globals';
+import { TestSizes } from '../common/TestSizes';
 import { using } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { defaultImageOptions } from '@leosingleton/fim/internals';
@@ -15,7 +15,7 @@ export function fimTestSuiteImage(
   describe(`FIM Image - ${description}`, () => {
 
     it('Computes effective image options', () => {
-      using(factory(small), fim => {
+      using(factory(TestSizes.small), fim => {
         const image = fim.createImage();
         const options = image.getEffectiveImageOptions();
         expect(options.allowOversized).toEqual(defaultImageOptions.allowOversized);

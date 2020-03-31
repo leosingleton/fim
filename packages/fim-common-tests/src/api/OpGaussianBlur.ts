@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { expectErrorAsync } from '../common/Async';
-import { midpoint, medium } from '../common/Globals';
+import { midpoint } from '../common/Globals';
+import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimColor, FimDimensions, FimError, FimOpGaussianBlur, FimTextureSampling } from '@leosingleton/fim';
 
@@ -47,7 +48,7 @@ async function testGaussianBlur(
   sigma: number,
   kernelSize?: number
 ): Promise<void> {
-  await usingAsync(factory(medium), async fim => {
+  await usingAsync(factory(TestSizes.medium), async fim => {
     // Create a solid blue image of a specific shade
     const blueShade = FimColor.fromString('#21f');
     const blueImage = fim.createImage({ sampling: inputSampling });
@@ -60,6 +61,6 @@ async function testGaussianBlur(
     await output.executeAsync(blur);
 
     // Ensure the output is still the same shade of blue--blurring shouldn't change the color
-    expect(await output.getPixelAsync(midpoint(medium))).toEqual(blueShade);
+    expect(await output.getPixelAsync(midpoint(TestSizes.medium))).toEqual(blueShade);
   });
 }

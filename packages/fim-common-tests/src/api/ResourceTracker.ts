@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { smallFourSquares } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
+import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
@@ -15,7 +15,7 @@ export function fimTestSuiteResourceTracker(
   describe(`FIM Resource Tracker - ${description}`, () => {
 
     it('Tracks canvas resources', async () => {
-      const fim = factory(smallFourSquares);
+      const fim = factory(TestSizes.smallFourSquares);
       await usingAsync(fim, async fim => {
         const image = fim.createImage();
         const png = TestImages.fourSquaresPng();
@@ -24,13 +24,13 @@ export function fimTestSuiteResourceTracker(
         // Check summary metrics
         const rm = fim.getResourceMetrics();
         expect(rm.instances).toEqual(1);
-        expect(rm.canvasMemory).toEqual(smallFourSquares.getArea() * 4);
+        expect(rm.canvasMemory).toEqual(TestSizes.smallFourSquares.getArea() * 4);
         expect(rm.glMemory).toEqual(0);
 
         // Check detailed metrics
         const rmd = fim.getResourceMetricsDetailed();
         expect(rmd.canvas2D.instances).toEqual(1);
-        expect(rmd.canvas2D.canvasMemory).toEqual(smallFourSquares.getArea() * 4);
+        expect(rmd.canvas2D.canvasMemory).toEqual(TestSizes.smallFourSquares.getArea() * 4);
         expect(rmd.canvas2D.glMemory).toEqual(0);
       });
 

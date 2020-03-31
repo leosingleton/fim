@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimColor  } from '@leosingleton/fim';
+import { FimColor } from '@leosingleton/fim';
 
 /** Color values for unit tests */
 export namespace TestColors {

@@ -4,13 +4,13 @@
 
 import { FimNodeFactory } from '../factory/FimNodeFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { TestImages, smallFourSquares } from '@leosingleton/fim-common-tests';
+import { TestImages, TestSizes } from '@leosingleton/fim-common-tests';
 import { resolve } from 'path';
 
 describe('Loads from PNG and JPEG files', () => {
 
   it('createImageFromPngFileAsync()', async () => {
-    await usingAsync(FimNodeFactory.create(smallFourSquares), async fim => {
+    await usingAsync(FimNodeFactory.create(TestSizes.smallFourSquares), async fim => {
       // Load the four squares test pattern by URL
       const image = await fim.createImageFromPngFileAsync(resolve(__dirname, 'sample-images/four-squares.png'));
 
@@ -20,7 +20,7 @@ describe('Loads from PNG and JPEG files', () => {
   });
 
   it('createImageFromJpegFileAsync()', async () => {
-    await usingAsync(FimNodeFactory.create(smallFourSquares), async fim => {
+    await usingAsync(FimNodeFactory.create(TestSizes.smallFourSquares), async fim => {
       // Load the four squares test pattern by URL
       const image = await fim.createImageFromJpegFileAsync(resolve(__dirname, 'sample-images/four-squares.jpg'));
 

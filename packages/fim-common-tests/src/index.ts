@@ -19,6 +19,7 @@ export * from './common/Shaders';
 export * from './common/TestColors';
 export * from './common/TestImages';
 export * from './common/TestPatterns';
+export * from './common/TestSizes';
 
 /** Reusable test suites */
 export namespace TestSuites {

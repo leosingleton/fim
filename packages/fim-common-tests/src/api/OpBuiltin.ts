@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { midpoint, small } from '../common/Globals';
+import { midpoint } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
+import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpInvert, FimOpLighter, FimOpSubtract,
   FimOpUnsharpMask } from '@leosingleton/fim';
@@ -16,7 +17,7 @@ export function fimTestSuiteOpBuiltin(
   describe(`Fim built-in operations - ${description}`, () => {
 
     it('Add', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const redImage = fim.createImage();
         await redImage.fillSolidAsync(TestColors.red);
 
@@ -28,12 +29,12 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.yellow);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.yellow);
       });
     });
 
     it('AlphaBlend', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const blackImage = fim.createImage();
         await blackImage.fillSolidAsync(TestColors.black);
 
@@ -45,12 +46,13 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect((await outputImage.getPixelAsync(midpoint(small))).distance(TestColors.grey)).toBeLessThan(0.05);
+        const pixel = await outputImage.getPixelAsync(midpoint(TestSizes.small));
+        expect(pixel.distance(TestColors.grey)).toBeLessThan(0.05);
       });
     });
 
     it('Darker', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const yellowImage = fim.createImage();
         await yellowImage.fillSolidAsync(TestColors.yellow);
 
@@ -62,12 +64,12 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
       });
     });
 
     it('Invert', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const blueImage = fim.createImage();
         await blueImage.fillSolidAsync(TestColors.blue);
 
@@ -76,12 +78,12 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.yellow);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.yellow);
       });
     });
 
     it('UnsharpMask', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const redImage = fim.createImage();
         await redImage.fillSolidAsync(TestColors.red);
 
@@ -90,12 +92,12 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
       });
     });
 
     it('Lighter', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const redImage = fim.createImage();
         await redImage.fillSolidAsync(TestColors.red);
 
@@ -107,12 +109,12 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.yellow);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.yellow);
       });
     });
 
     it('Subtract', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const magentaImage = fim.createImage();
         await magentaImage.fillSolidAsync(TestColors.magenta);
 
@@ -124,12 +126,12 @@ export function fimTestSuiteOpBuiltin(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
       });
     });
 
     it('Supports the same image as an input and output', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const redImage = fim.createImage();
         await redImage.fillSolidAsync(TestColors.red);
 
@@ -140,7 +142,7 @@ export function fimTestSuiteOpBuiltin(
         op.setInputs(redImage, greenImage);
 
         await greenImage.executeAsync(op);
-        expect(await greenImage.getPixelAsync(midpoint(small))).toEqual(TestColors.yellow);
+        expect(await greenImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.yellow);
       });
     });
 

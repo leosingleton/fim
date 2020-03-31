@@ -4,12 +4,12 @@
 
 import { FimBrowserFactory } from '../factory/FimBrowserFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { TestImages, sampleImagesUrl, smallFourSquares } from '@leosingleton/fim-common-tests';
+import { TestImages, TestSizes, sampleImagesUrl } from '@leosingleton/fim-common-tests';
 
 describe('Loads from PNG and JPEG URLs', () => {
 
   it('createImageFromPngFileAsync()', async () => {
-    await usingAsync(FimBrowserFactory.create(smallFourSquares), async fim => {
+    await usingAsync(FimBrowserFactory.create(TestSizes.smallFourSquares), async fim => {
       // Load the four squares test pattern by URL
       const image = await fim.createImageFromPngFileAsync(`${sampleImagesUrl}/four-squares.png`);
 
@@ -19,7 +19,7 @@ describe('Loads from PNG and JPEG URLs', () => {
   });
 
   it('createImageFromJpegFileAsync()', async () => {
-    await usingAsync(FimBrowserFactory.create(smallFourSquares), async fim => {
+    await usingAsync(FimBrowserFactory.create(TestSizes.smallFourSquares), async fim => {
       // Load the four squares test pattern by URL
       const image = await fim.createImageFromJpegFileAsync(`${sampleImagesUrl}/four-squares.jpg`);
 

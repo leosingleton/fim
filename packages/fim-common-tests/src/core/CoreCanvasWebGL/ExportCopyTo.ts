@@ -3,9 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { bottomLeft, bottomRight, midpoint, small, smallFourSquares, topLeft, topRight } from '../../common/Globals';
+import { bottomLeft, bottomRight, midpoint, topLeft, topRight } from '../../common/Globals';
 import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
+import { TestSizes } from '../../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimRect } from '@leosingleton/fim';
 import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals';
@@ -18,11 +19,11 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
   describe(`CoreCanvasWebGL Export/CopyTo - ${description}`, () => {
 
     it('Exports to pixel data', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         canvas.fillSolid(TestColors.red);
         const data = canvas.exportToPixelData();
 
-        expect(data.length).toEqual(small.getArea() * 4);
+        expect(data.length).toEqual(TestSizes.small.getArea() * 4);
         expect(data[0]).toEqual(255); // R
         expect(data[1]).toEqual(0);   // G
         expect(data[2]).toEqual(0);   // B
@@ -31,7 +32,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Exports to pixel data without flipping image', async () => {
-      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallFourSquares), async canvas => {
         // Render the four squares test pattern onto a WebGL canvas
         await renderFourSquares(canvas);
 
@@ -50,13 +51,13 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Exports a region to pixel data', async () => {
-      await usingAsync(factory(canvasOptions, smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallFourSquares), async canvas => {
         // Render the four squares test pattern onto a WebGL canvas
         await renderFourSquares(canvas);
 
         // Export only the bottom-left corner (blue)
-        const srcCoords = FimRect.fromXYWidthHeight(0, smallFourSquares.h / 2, smallFourSquares.w / 2,
-          smallFourSquares.h / 2);
+        const srcCoords = FimRect.fromXYWidthHeight(0, TestSizes.smallFourSquares.h / 2,
+          TestSizes.smallFourSquares.w / 2, TestSizes.smallFourSquares.h / 2);
         const data = canvas.exportToPixelData(srcCoords);
 
         expect(data.length).toEqual(srcCoords.getArea() * 4);
@@ -68,20 +69,20 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     });
 
     it('Copies to a CoreCanvas2D', async () => {
-      await usingAsync(factory(canvasOptions, small), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(TestColors.red);
 
         // Copy the WebGL canvas to a CoreCanvas2D
         await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
           await temp.copyFromAsync(canvas);
-          expect(temp.getPixel(midpoint(small))).toEqual(TestColors.red);
+          expect(temp.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.red);
         });
       });
     });
 
     it('Copies to a CoreTexture', async () => {
-      await usingAsync(factory(canvasOptions, small), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.small), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(TestColors.red);
 
@@ -91,11 +92,11 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
 
         // Fill the WebGL canvas with green
         canvas.fillSolid(TestColors.green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.green);
 
         // Render the CoreTexture to the WebGL canvas and ensure it is red
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.red);
       });
     });
 

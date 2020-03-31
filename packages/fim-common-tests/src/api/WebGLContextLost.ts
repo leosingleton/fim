@@ -3,9 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { loseContextAsync, restoreContextAsync } from '../common/ContextLost';
-import { midpoint, small } from '../common/Globals';
+import { midpoint } from '../common/Globals';
 import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
+import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { EngineFim } from '@leosingleton/fim/internals';
@@ -42,7 +43,7 @@ export function fimTestSuiteWebGLContextLost(
   describe(`FIM WebGL Context Lost - ${description}`, () => {
 
     it('Simulate a context loss', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         expect(fim.isContextLost()).toBeFalsy();
         await loseFimContextAsync(fim);
         expect(fim.isContextLost()).toBeTruthy();
@@ -50,7 +51,7 @@ export function fimTestSuiteWebGLContextLost(
     });
 
     it('Simulate a context loss and restore', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         expect(fim.isContextLost()).toBeFalsy();
         await loseFimContextAsync(fim);
         expect(fim.isContextLost()).toBeTruthy();
@@ -60,7 +61,7 @@ export function fimTestSuiteWebGLContextLost(
     });
 
     it('Allows handlers to be registered', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         let isLost = 0, isRestored = 0;
 
         fim.registerContextLostHandler(() => {
@@ -87,7 +88,7 @@ export function fimTestSuiteWebGLContextLost(
     });
 
     it('Shaders automatically recover from context loss', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
         const image = fim.createImage();
@@ -109,12 +110,12 @@ export function fimTestSuiteWebGLContextLost(
         expect(image.hasImage()).toBeTruthy();
 
         // Ensure the texture is green
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.green);
+        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.green);
       });
     });
 
     it('fillColorOnContextLost works', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         fim.defaultImageOptions.fillColorOnContextLost = TestColors.blue;
 
         // Create a WebGL shader and destination image
@@ -133,7 +134,7 @@ export function fimTestSuiteWebGLContextLost(
 
         // Because fillColorOnContextLost was set, the image should now be blue
         expect(image.hasImage()).toBeTruthy();
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.blue);
+        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.blue);
       });
     });
 
