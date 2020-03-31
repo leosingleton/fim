@@ -6,12 +6,15 @@ import { FimBrowserFactory } from '../factory/FimBrowserFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { TestImages, TestSizes, sampleImagesUrl } from '@leosingleton/fim-common-tests';
 
+const samplePng = `${sampleImagesUrl}/four-squares.png`;
+const sampleJpeg = `${sampleImagesUrl}/four-squares.jpg`;
+
 describe('Loads from PNG and JPEG URLs', () => {
 
   it('createImageFromPngFileAsync()', async () => {
     await usingAsync(FimBrowserFactory.create(TestSizes.smallFourSquares), async fim => {
       // Load the four squares test pattern by URL
-      const image = await fim.createImageFromPngFileAsync(`${sampleImagesUrl}/four-squares.png`);
+      const image = await fim.createImageFromPngFileAsync(samplePng);
 
       // Validate the test pattern
       await TestImages.expectFourSquaresPngAsync(image);
@@ -21,7 +24,29 @@ describe('Loads from PNG and JPEG URLs', () => {
   it('createImageFromJpegFileAsync()', async () => {
     await usingAsync(FimBrowserFactory.create(TestSizes.smallFourSquares), async fim => {
       // Load the four squares test pattern by URL
-      const image = await fim.createImageFromJpegFileAsync(`${sampleImagesUrl}/four-squares.jpg`);
+      const image = await fim.createImageFromJpegFileAsync(sampleJpeg);
+
+      // Validate the test pattern
+      await TestImages.expectFourSquaresJpegAsync(image);
+    });
+  });
+
+  it('loadFromPngFileAsync()', async () => {
+    await usingAsync(FimBrowserFactory.create(TestSizes.smallFourSquares), async fim => {
+      // Load the four squares test pattern by URL
+      const image = fim.createImage();
+      await image.loadFromPngFileAsync(samplePng);
+
+      // Validate the test pattern
+      await TestImages.expectFourSquaresPngAsync(image);
+    });
+  });
+
+  it('loadFromJpegFileAsync()', async () => {
+    await usingAsync(FimBrowserFactory.create(TestSizes.smallFourSquares), async fim => {
+      // Load the four squares test pattern by URL
+      const image = fim.createImage();
+      await image.loadFromJpegFileAsync(sampleJpeg);
 
       // Validate the test pattern
       await TestImages.expectFourSquaresJpegAsync(image);
