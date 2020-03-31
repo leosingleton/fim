@@ -34,7 +34,7 @@ export class FimOpGaussianBlur extends FimOperation {
   public setInputs(input: FimImage, sigma: number, kernelSize?: number): void {
     // General guidance is 3x the standard deviation in each direction, so 6x total. And make it odd.
     if (!kernelSize) {
-      kernelSize = Math.floor((sigma * 6) / 2) * 2 + 1;
+      kernelSize = Math.max(Math.floor((sigma * 6) / 2) * 2 + 1, 3);
     }
 
     // Calculate and set the Gaussian kernel
