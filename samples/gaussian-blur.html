@@ -19,7 +19,7 @@ $(async () => {
 
   // Load the sample image
   const url = 'https://www.leosingleton.com/sample-images/carmel.jpg';
-  const inputImage = await fim.createImageFromJpegFileAsync(url, { bpp: 8, glReadOnly: true });
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { backup: true, bpp: 8, glReadOnly: true });
 
   // Create the Gaussian Blur operation
   const opBlur = new FimOpGaussianBlur(fim, true);
@@ -42,7 +42,7 @@ $(async () => {
 
       measureFrameStart();
 
-      // Apply the brightness and contrast operation
+      // Apply the Gaussian Blur operation
       opBlur.setInputs(inputImage, sigma);
       await outputImage.executeAsync(opBlur);
 

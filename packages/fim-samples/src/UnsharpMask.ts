@@ -1,6 +1,6 @@
 import { getAnimationValue, measureFrameStart, measureFrameStop, renderDetails } from './Common';
 import { UnhandledError } from '@leosingleton/commonlibs';
-import { FimBitsPerPixel, FimDimensions, FimImageOptions, FimOpUnsharpMask } from '@leosingleton/fim';
+import { FimDimensions, FimOpUnsharpMask } from '@leosingleton/fim';
 import { FimBrowserFactory } from '@leosingleton/fim-browser';
 
 export async function unsharpMaskSample(): Promise<void> {
@@ -9,8 +9,7 @@ export async function unsharpMaskSample(): Promise<void> {
 
   // Load the sample image
   const url = 'https://www.leosingleton.com/sample-images/point-lobos.jpg';
-  const options: FimImageOptions = { bpp: FimBitsPerPixel.BPP8, glReadOnly: true };
-  const inputImage = await fim.createImageFromJpegFileAsync(url, options);
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { backup: true, bpp: 8, glReadOnly: true });
 
   // Create the unsharp mask operation
   const usmOperation = new FimOpUnsharpMask(fim, true);
