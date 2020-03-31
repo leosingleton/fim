@@ -8,7 +8,7 @@ export async function unsharpMaskSample(): Promise<void> {
   const fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
 
   // Load the sample image
-  const url = 'https://www.leosingleton.com/sample-images/jellyfish.jpg';
+  const url = 'https://www.leosingleton.com/sample-images/point-lobos.jpg';
   const options: FimImageOptions = { bpp: FimBitsPerPixel.BPP8, glReadOnly: true };
   const inputImage = await fim.createImageFromJpegFileAsync(url, options);
 

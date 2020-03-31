@@ -55,7 +55,7 @@ export function measureFrameStop(): void {
 export function renderDetails(fim: Fim, canvas: HTMLCanvasElement, message?: string, showFPS = true,
     showResources = true, showCapabilities = true): void {
   message = message ?? '';
-  message += '\n\n';
+  message += `\nResolution: ${canvas.width}x${canvas.height}\n\n`;
 
   if (showFPS) {
     const executionTime = executionClock.getElapsedMilliseconds();
