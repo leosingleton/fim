@@ -3,8 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { bottomLeft, bottomRight, topLeft, topRight } from './Globals';
+import { expectedPixelDataLength, getPixelFromPixelData } from './PixelData';
 import { TestColors } from './TestColors';
 import { FimColor, FimDimensions, FimImage } from '@leosingleton/fim';
+import { CoreCanvas } from '@leosingleton/fim/internals';
 
 /** Portable implementation of atob(). Works on both browser and Node.js. */
 function atobPortable(str: string): string {
@@ -79,6 +81,23 @@ export namespace TestImages {
   }
 
   /**
+   * Validates the `CoreCanvas` matches the test pattern from `fourSquaresJpeg()`
+   * @param canvas Canvas to validate
+   * @param threshold Margin of error. The default value is sufficient for the JPEG lossiness in the image, but may
+   *    need to be raised for test cases that do multiple rounds of compression/decompression.
+   * @param dimensions Dimensions of the test pattern (must be in top-left corner). Defaults to the dimensions of the
+   *    `canvas` parameter.
+   */
+  export async function expectFourSquaresJpegCanvasAsync(canvas: CoreCanvas, threshold = 0.002,
+      dimensions?: FimDimensions): Promise<void> {
+    dimensions = dimensions ?? canvas.dim;
+    expect(canvas.getPixel(topLeft(dimensions)).distance(TestColors.red)).toBeLessThan(threshold);
+    expect(canvas.getPixel(topRight(dimensions)).distance(TestColors.green)).toBeLessThan(threshold);
+    expect(canvas.getPixel(bottomLeft(dimensions)).distance(TestColors.blue)).toBeLessThan(threshold);
+    expect(canvas.getPixel(bottomRight(dimensions)).distance(TestColors.black)).toBeLessThan(threshold);
+}
+
+  /**
    * A Base64-encoded string containing a 128x128 pixel PNG. The image consists of four solid-colored squares:
    * - Top-Left = Red
    * - Top-Right = Green
@@ -117,6 +136,36 @@ export namespace TestImages {
     expect(await image.getPixelAsync(bottomLeft(dimensions))).toEqual(TestColors.blue);
     expect(await image.getPixelAsync(bottomRight(dimensions))).toEqual(TestColors.black);
   }
+
+  /**
+   * Validates the `CoreCanvas` matches the test pattern from `fourSquaresPng()`
+   * @param canvas Canvas to validate
+   * @param dimensions Dimensions of the test pattern (must be in top-left corner). Defaults to the dimensions of the
+   *    `canvas` parameter.
+   */
+  export async function expectFourSquaresPngCanvasAsync(canvas: CoreCanvas, dimensions?: FimDimensions): Promise<void> {
+    dimensions = dimensions ?? canvas.dim;
+    expect(canvas.getPixel(topLeft(dimensions))).toEqual(TestColors.red);
+    expect(canvas.getPixel(topRight(dimensions))).toEqual(TestColors.green);
+    expect(canvas.getPixel(bottomLeft(dimensions))).toEqual(TestColors.blue);
+    expect(canvas.getPixel(bottomRight(dimensions))).toEqual(TestColors.black);
+  }
+
+  /**
+   * Validates the RGBA pixel data matches the test pattern from `fourSquaresPng()`
+   * @param data 8BPP pixel data, as an RGBA byte array
+   * @param dimensions Dimensions of the test pattern (must be in top-left corner). Defaults to the dimensions of the
+   *    `canvas` parameter.
+   */
+  export async function expectFourSquaresPngPixelDataAsync(data: Uint8ClampedArray, dimensions: FimDimensions):
+      Promise<void> {
+    expect(data.length).toEqual(expectedPixelDataLength(dimensions));
+    expect(getPixelFromPixelData(data, dimensions, topLeft(dimensions))).toEqual(TestColors.red);
+    expect(getPixelFromPixelData(data, dimensions, topRight(dimensions))).toEqual(TestColors.green);
+    expect(getPixelFromPixelData(data, dimensions, bottomLeft(dimensions))).toEqual(TestColors.blue);
+    expect(getPixelFromPixelData(data, dimensions, bottomRight(dimensions))).toEqual(TestColors.black);
+  }
+
 
   /**
    * Returns an array of RGBA pixel data with a solid color

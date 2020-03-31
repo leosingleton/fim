@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { bottomLeft, bottomRight, midpoint, topLeft, topRight } from '../../common/Globals';
+import { midpoint } from '../../common/Globals';
 import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
 import { TestSizes } from '../../common/TestSizes';
@@ -42,10 +42,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
         // Load the pixel data onto a temporary 2D canvas
         await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
           await temp.loadPixelDataAsync(data);
-          expect(temp.getPixel(topLeft())).toEqual(TestColors.red);
-          expect(temp.getPixel(topRight())).toEqual(TestColors.green);
-          expect(temp.getPixel(bottomLeft())).toEqual(TestColors.blue);
-          expect(temp.getPixel(bottomRight())).toEqual(TestColors.black);
+          await TestImages.expectFourSquaresPngCanvasAsync(canvas);
         });
       });
     });
@@ -114,8 +111,5 @@ async function renderFourSquares(canvas: CoreCanvasWebGL): Promise<void> {
 
   // Render the texture to the WebGL canvas
   canvas.copyFrom(texture);
-  expect(canvas.getPixel(topLeft())).toEqual(TestColors.red);
-  expect(canvas.getPixel(topRight())).toEqual(TestColors.green);
-  expect(canvas.getPixel(bottomLeft())).toEqual(TestColors.blue);
-  expect(canvas.getPixel(bottomRight())).toEqual(TestColors.black);
+  await TestImages.expectFourSquaresPngCanvasAsync(canvas);
 }

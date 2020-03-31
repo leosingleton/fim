@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { bottomLeft, bottomRight, midpoint, topLeft, topRight } from '../common/Globals';
-import { expectedPixelDataLength, getPixelFromPixelData } from '../common/PixelData';
 import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
@@ -195,12 +194,7 @@ export function fimTestSuiteOversized(
 
         // Export the result to pixel array
         const output = await outputImage.exportToPixelDataAsync();
-        const dim = outputImage.dim;
-        expect(output.length).toEqual(expectedPixelDataLength(dim));
-        expect(getPixelFromPixelData(output, dim, topLeft(dim))).toEqual(TestColors.red);
-        expect(getPixelFromPixelData(output, dim, topRight(dim))).toEqual(TestColors.green);
-        expect(getPixelFromPixelData(output, dim, bottomLeft(dim))).toEqual(TestColors.blue);
-        expect(getPixelFromPixelData(output, dim, bottomRight(dim))).toEqual(TestColors.black);
+        await TestImages.expectFourSquaresPngPixelDataAsync(output, outputImage.dim);
       });
     });
 

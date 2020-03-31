@@ -82,10 +82,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
-        expect(canvas.getPixel(topLeft())).toEqual(TestColors.red);
-        expect(canvas.getPixel(topRight())).toEqual(TestColors.green);
-        expect(canvas.getPixel(bottomLeft())).toEqual(TestColors.blue);
-        expect(canvas.getPixel(bottomRight())).toEqual(TestColors.black);
+        await TestImages.expectFourSquaresPngCanvasAsync(canvas);
       });
     });
 
