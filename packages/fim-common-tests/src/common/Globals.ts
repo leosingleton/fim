@@ -52,4 +52,4 @@ export const magenta = FimColor.fromString('#f0f');
 export const cyan = FimColor.fromString('#0ff');
 
 /** URL to the sample-images folder */
-export const sampleImagesUrl = 'https://www.leosingleton.com/sample-images/';
+export const sampleImagesUrl = 'https://www.leosingleton.com/sample-images';

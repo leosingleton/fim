@@ -12,7 +12,7 @@ import { FimError, FimErrorCode } from '@leosingleton/fim';
 export async function fileDownload(url: string): Promise<Uint8Array> {
   const fetchResponse = await fetch(url);
   if (!fetchResponse.ok) {
-    throw new FimError(FimErrorCode.FetchError, `${url}: ${fetchResponse.statusText}`);
+    throw new FimError(FimErrorCode.FetchError, `${url}: ${fetchResponse.status} ${fetchResponse.statusText}`);
   }
 
   const data = await fetchResponse.arrayBuffer();
