@@ -2,9 +2,10 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
+import { bottomLeft, bottomRight, medium, midpoint, small, smallFourSquares, topLeft,
   topRight } from '../common/Globals';
 import { expectedPixelDataLength, getPixelFromPixelData } from '../common/PixelData';
+import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
@@ -135,16 +136,16 @@ export function fimTestSuiteOversized(
 
         // The top-left corner (128x128) was overwritten by the previous copy. The rest of the 480x640 image should
         // remain however.
-        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
-        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(blue);
-        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(black);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(TestColors.green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(TestColors.blue);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(TestColors.black);
 
         // Copy part of the top-right corner (32x32) of image1 to the entire image2 (480x640)
         await image2.copyFromAsync(image1, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
-        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(green);
-        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
-        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(green);
-        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(green);
+        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(TestColors.green);
+        expect(await image2.getPixelAsync(topRight(medium))).toEqual(TestColors.green);
+        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(TestColors.green);
+        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(TestColors.green);
       });
     });
 
@@ -195,10 +196,10 @@ export function fimTestSuiteOversized(
         const output = await outputImage.exportToPixelDataAsync();
         const dim = outputImage.dim;
         expect(output.length).toEqual(expectedPixelDataLength(dim));
-        expect(getPixelFromPixelData(output, dim, topLeft(dim))).toEqual(red);
-        expect(getPixelFromPixelData(output, dim, topRight(dim))).toEqual(green);
-        expect(getPixelFromPixelData(output, dim, bottomLeft(dim))).toEqual(blue);
-        expect(getPixelFromPixelData(output, dim, bottomRight(dim))).toEqual(black);
+        expect(getPixelFromPixelData(output, dim, topLeft(dim))).toEqual(TestColors.red);
+        expect(getPixelFromPixelData(output, dim, topRight(dim))).toEqual(TestColors.green);
+        expect(getPixelFromPixelData(output, dim, bottomLeft(dim))).toEqual(TestColors.blue);
+        expect(getPixelFromPixelData(output, dim, bottomRight(dim))).toEqual(TestColors.black);
       });
     });
 

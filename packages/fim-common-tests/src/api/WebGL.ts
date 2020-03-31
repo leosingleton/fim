@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { expectErrorAsync } from '../common/Async';
-import { blue, green, grey, midpoint, red, small, smallFourSquares } from '../common/Globals';
+import { midpoint, small, smallFourSquares } from '../common/Globals';
 import { copyShader, fillConstShader, fillUniformShader } from '../common/Shaders';
+import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { using, usingAsync } from '@leosingleton/commonlibs';
@@ -48,7 +49,7 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is grey
-        expect((await image.getPixelAsync(midpoint(small))).distance(grey)).toBeLessThan(0.05);
+        expect((await image.getPixelAsync(midpoint(small))).distance(TestColors.grey)).toBeLessThan(0.05);
       });
     });
 
@@ -65,7 +66,7 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is green
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(green);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.green);
       });
     });
 
@@ -175,7 +176,7 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is red
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
@@ -193,7 +194,7 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is blue
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(blue);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.blue);
       });
     });
 

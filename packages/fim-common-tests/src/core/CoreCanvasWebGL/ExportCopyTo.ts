@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { black, blue, bottomLeft, bottomRight, green, midpoint, red, small, smallFourSquares, topLeft,
-  topRight } from '../../common/Globals';
+import { bottomLeft, bottomRight, midpoint, small, smallFourSquares, topLeft, topRight } from '../../common/Globals';
+import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimRect } from '@leosingleton/fim';
@@ -19,7 +19,7 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
 
     it('Exports to pixel data', () => {
       using(factory(canvasOptions, small), canvas => {
-        canvas.fillSolid(red);
+        canvas.fillSolid(TestColors.red);
         const data = canvas.exportToPixelData();
 
         expect(data.length).toEqual(small.getArea() * 4);
@@ -41,10 +41,10 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
         // Load the pixel data onto a temporary 2D canvas
         await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
           await temp.loadPixelDataAsync(data);
-          expect(temp.getPixel(topLeft())).toEqual(red);
-          expect(temp.getPixel(topRight())).toEqual(green);
-          expect(temp.getPixel(bottomLeft())).toEqual(blue);
-          expect(temp.getPixel(bottomRight())).toEqual(black);
+          expect(temp.getPixel(topLeft())).toEqual(TestColors.red);
+          expect(temp.getPixel(topRight())).toEqual(TestColors.green);
+          expect(temp.getPixel(bottomLeft())).toEqual(TestColors.blue);
+          expect(temp.getPixel(bottomRight())).toEqual(TestColors.black);
         });
       });
     });
@@ -70,12 +70,12 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     it('Copies to a CoreCanvas2D', async () => {
       await usingAsync(factory(canvasOptions, small), async canvas => {
         // Fill the WebGL canvas with red
-        canvas.fillSolid(red);
+        canvas.fillSolid(TestColors.red);
 
         // Copy the WebGL canvas to a CoreCanvas2D
         await usingAsync(canvas.createTemporaryCanvas2D(), async temp => {
           await temp.copyFromAsync(canvas);
-          expect(temp.getPixel(midpoint(small))).toEqual(red);
+          expect(temp.getPixel(midpoint(small))).toEqual(TestColors.red);
         });
       });
     });
@@ -83,19 +83,19 @@ export function coreCanvasWebGLTestSuiteExportCopyTo(
     it('Copies to a CoreTexture', async () => {
       await usingAsync(factory(canvasOptions, small), async canvas => {
         // Fill the WebGL canvas with red
-        canvas.fillSolid(red);
+        canvas.fillSolid(TestColors.red);
 
         // Copy the WebGL canvas to a CoreTexture
         const texture = canvas.createCoreTexture(textureOptions);
         await texture.copyFromAsync(canvas);
 
         // Fill the WebGL canvas with green
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
 
         // Render the CoreTexture to the WebGL canvas and ensure it is red
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
@@ -113,8 +113,8 @@ async function renderFourSquares(canvas: CoreCanvasWebGL): Promise<void> {
 
   // Render the texture to the WebGL canvas
   canvas.copyFrom(texture);
-  expect(canvas.getPixel(topLeft())).toEqual(red);
-  expect(canvas.getPixel(topRight())).toEqual(green);
-  expect(canvas.getPixel(bottomLeft())).toEqual(blue);
-  expect(canvas.getPixel(bottomRight())).toEqual(black);
+  expect(canvas.getPixel(topLeft())).toEqual(TestColors.red);
+  expect(canvas.getPixel(topRight())).toEqual(TestColors.green);
+  expect(canvas.getPixel(bottomLeft())).toEqual(TestColors.blue);
+  expect(canvas.getPixel(bottomRight())).toEqual(TestColors.black);
 }

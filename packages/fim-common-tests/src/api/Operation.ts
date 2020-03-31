@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { midpoint, red, small } from '../common/Globals';
+import { midpoint, small } from '../common/Globals';
+import { TestColors } from '../common/TestColors';
 import { Fim, FimDimensions, FimImage, FimObject, FimOperation, FimRect } from '@leosingleton/fim';
 import { usingAsync } from '@leosingleton/commonlibs';
 
@@ -13,7 +14,7 @@ class MockOpFillRed extends FimOperation {
   }
 
   public async executeAsync(outputImage: FimImage, _destCoords?: FimRect): Promise<void> {
-    await outputImage.fillSolidAsync(red);
+    await outputImage.fillSolidAsync(TestColors.red);
   }
 }
 
@@ -57,7 +58,7 @@ export function fimTestSuiteOperation(
         const fillOp = new MockOpFillRed(fim);
         const image = fim.createImage();
         await image.executeAsync(fillOp);
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
@@ -66,7 +67,7 @@ export function fimTestSuiteOperation(
         const fillOp = new MockOpFillRedChild(fim);
         const image = fim.createImage();
         await image.executeAsync(fillOp);
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
@@ -75,7 +76,7 @@ export function fimTestSuiteOperation(
         const fillOp = new MockOpFillRedGrandchild(fim);
         const image = fim.createImage();
         await image.executeAsync(fillOp);
-        expect(await image.getPixelAsync(midpoint(small))).toEqual(red);
+        expect(await image.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
       });
     });
 

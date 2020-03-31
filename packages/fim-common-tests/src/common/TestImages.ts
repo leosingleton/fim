@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, red, topLeft, topRight } from './Globals';
+import { bottomLeft, bottomRight, topLeft, topRight } from './Globals';
+import { TestColors } from './TestColors';
 import { FimColor, FimDimensions, FimImage } from '@leosingleton/fim';
 
 /** Portable implementation of atob(). Works on both browser and Node.js. */
@@ -71,10 +72,10 @@ export namespace TestImages {
   export async function expectFourSquaresJpegAsync(image: FimImage, threshold = 0.002, dimensions?: FimDimensions):
       Promise<void> {
     dimensions = dimensions ?? image.dim;
-    expect((await image.getPixelAsync(topLeft(dimensions))).distance(red)).toBeLessThan(threshold);
-    expect((await image.getPixelAsync(topRight(dimensions))).distance(green)).toBeLessThan(threshold);
-    expect((await image.getPixelAsync(bottomLeft(dimensions))).distance(blue)).toBeLessThan(threshold);
-    expect((await image.getPixelAsync(bottomRight(dimensions))).distance(black)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(topLeft(dimensions))).distance(TestColors.red)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(topRight(dimensions))).distance(TestColors.green)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(bottomLeft(dimensions))).distance(TestColors.blue)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(bottomRight(dimensions))).distance(TestColors.black)).toBeLessThan(threshold);
   }
 
   /**
@@ -111,10 +112,10 @@ export namespace TestImages {
    */
   export async function expectFourSquaresPngAsync(image: FimImage, dimensions?: FimDimensions): Promise<void> {
     dimensions = dimensions ?? image.dim;
-    expect(await image.getPixelAsync(topLeft(dimensions))).toEqual(red);
-    expect(await image.getPixelAsync(topRight(dimensions))).toEqual(green);
-    expect(await image.getPixelAsync(bottomLeft(dimensions))).toEqual(blue);
-    expect(await image.getPixelAsync(bottomRight(dimensions))).toEqual(black);
+    expect(await image.getPixelAsync(topLeft(dimensions))).toEqual(TestColors.red);
+    expect(await image.getPixelAsync(topRight(dimensions))).toEqual(TestColors.green);
+    expect(await image.getPixelAsync(bottomLeft(dimensions))).toEqual(TestColors.blue);
+    expect(await image.getPixelAsync(bottomRight(dimensions))).toEqual(TestColors.black);
   }
 
   /**

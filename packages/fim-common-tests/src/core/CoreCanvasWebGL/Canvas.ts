@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { black, blue, bottomLeft, bottomRight, green, medium, midpoint, red, small, smallFourSquares, topLeft,
+import { bottomLeft, bottomRight, medium, midpoint, small, smallFourSquares, topLeft,
   topRight } from '../../common/Globals';
+import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimPoint, FimRect } from '@leosingleton/fim';
@@ -19,12 +20,12 @@ export function coreCanvasWebGLTestSuiteCanvas(
 
     it('Fills with solid colors', () => {
       using(factory(canvasOptions, small), canvas => {
-        canvas.fillSolid(red);
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
-        canvas.fillSolid(blue);
-        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+        canvas.fillSolid(TestColors.red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
+        canvas.fillSolid(TestColors.blue);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.blue);
       });
     });
 
@@ -32,17 +33,17 @@ export function coreCanvasWebGLTestSuiteCanvas(
       using(factory(canvasOptions, small), canvas => {
         // Create a texture of solid blue
         const texture = canvas.createCoreTexture(textureOptions);
-        texture.fillSolid(blue);
+        texture.fillSolid(TestColors.blue);
 
         // Fill the WebGL canvas with green
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
 
         // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
-        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.blue);
       });
     });
 
@@ -50,21 +51,21 @@ export function coreCanvasWebGLTestSuiteCanvas(
       await usingAsync(factory(canvasOptions, small), async canvas => {
         // Create a canvas of solid red
         const temp = canvas.createTemporaryCanvas2D();
-        temp.fillSolid(red);
+        temp.fillSolid(TestColors.red);
 
         // Copy the canvas to a texture
         const texture = canvas.createCoreTexture(textureOptions);
         await texture.copyFromAsync(temp);
 
         // Fill the WebGL canvas with green
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
 
         // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
@@ -74,17 +75,17 @@ export function coreCanvasWebGLTestSuiteCanvas(
         const texture = await createFourSquaresTexture(canvas);
 
         // Fill the WebGL canvas with green
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
 
         // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture);
 
         // Ensure the texture copied correctly
-        expect(canvas.getPixel(topLeft())).toEqual(red);
-        expect(canvas.getPixel(topRight())).toEqual(green);
-        expect(canvas.getPixel(bottomLeft())).toEqual(blue);
-        expect(canvas.getPixel(bottomRight())).toEqual(black);
+        expect(canvas.getPixel(topLeft())).toEqual(TestColors.red);
+        expect(canvas.getPixel(topRight())).toEqual(TestColors.green);
+        expect(canvas.getPixel(bottomLeft())).toEqual(TestColors.blue);
+        expect(canvas.getPixel(bottomRight())).toEqual(TestColors.black);
       });
     });
 
@@ -94,17 +95,17 @@ export function coreCanvasWebGLTestSuiteCanvas(
         const texture = await createFourSquaresTexture(canvas);
 
         // Fill the WebGL canvas with green
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(medium))).toEqual(green);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(medium))).toEqual(TestColors.green);
 
         // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture, FimRect.fromPoints(midpoint(smallFourSquares), topRight(smallFourSquares)));
 
         // Check a few pixels to ensure the texture rendered correctly
-        expect(canvas.getPixel(topLeft(medium))).toEqual(green);
-        expect(canvas.getPixel(topRight(medium))).toEqual(green);
-        expect(canvas.getPixel(bottomLeft(medium))).toEqual(green);
-        expect(canvas.getPixel(bottomRight(medium))).toEqual(green);
+        expect(canvas.getPixel(topLeft(medium))).toEqual(TestColors.green);
+        expect(canvas.getPixel(topRight(medium))).toEqual(TestColors.green);
+        expect(canvas.getPixel(bottomLeft(medium))).toEqual(TestColors.green);
+        expect(canvas.getPixel(bottomRight(medium))).toEqual(TestColors.green);
       });
     });
 
@@ -114,8 +115,8 @@ export function coreCanvasWebGLTestSuiteCanvas(
         const texture = await createFourSquaresTexture(canvas, medium);
 
         // Fill the WebGL canvas with blue
-        canvas.fillSolid(blue);
-        expect(canvas.getPixel(midpoint(medium))).toEqual(blue);
+        canvas.fillSolid(TestColors.blue);
+        expect(canvas.getPixel(midpoint(medium))).toEqual(TestColors.blue);
 
         // Copy the texture to the WebGL canvas
         canvas.copyFrom(texture,
@@ -123,10 +124,10 @@ export function coreCanvasWebGLTestSuiteCanvas(
           FimRect.fromPointWidthHeight(midpoint(medium), medium.w / 2, medium.h / 2));
 
         // Check a few pixels to ensure the texture rendered correctly
-        expect(canvas.getPixel(topLeft(medium))).toEqual(blue);
-        expect(canvas.getPixel(topRight(medium))).toEqual(blue);
-        expect(canvas.getPixel(bottomLeft(medium))).toEqual(blue);
-        expect(canvas.getPixel(bottomRight(medium))).toEqual(red);
+        expect(canvas.getPixel(topLeft(medium))).toEqual(TestColors.blue);
+        expect(canvas.getPixel(topRight(medium))).toEqual(TestColors.blue);
+        expect(canvas.getPixel(bottomLeft(medium))).toEqual(TestColors.blue);
+        expect(canvas.getPixel(bottomRight(medium))).toEqual(TestColors.red);
       });
     });
 

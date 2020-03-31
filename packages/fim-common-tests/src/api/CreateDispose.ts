@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { red, small } from '../common/Globals';
+import { small } from '../common/Globals';
 import { fillConstShader, fillUniformShader } from '../common/Shaders';
+import { TestColors } from '../common/TestColors';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
 
@@ -33,7 +34,7 @@ export function fimTestSuiteCreateDispose(
     it('Creates and disposes images', async () => {
       await usingAsync(factory(small), async fim => {
         const img1 = fim.createImage();
-        await img1.fillSolidAsync(red);
+        await img1.fillSolidAsync(TestColors.red);
         img1.dispose();
 
         const img2 = fim.createImage();

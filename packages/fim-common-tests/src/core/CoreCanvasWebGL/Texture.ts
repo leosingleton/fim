@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { black, blue, green, grey, midpoint, red, small, medium } from '../../common/Globals';
+import { midpoint, small, medium } from '../../common/Globals';
+import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
@@ -53,18 +54,18 @@ export function coreCanvasWebGLTestSuiteTexture(
         const texture = canvas.createCoreTexture(textureOptions);
 
         // Fill with red
-        texture.fillSolid(red);
+        texture.fillSolid(TestColors.red);
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
 
         // Clear the WebGL canvas
-        canvas.fillSolid(black);
-        expect(canvas.getPixel(midpoint(small))).toEqual(black);
+        canvas.fillSolid(TestColors.black);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.black);
 
         // Fill with blue
-        texture.fillSolid(blue);
+        texture.fillSolid(TestColors.blue);
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.blue);
       });
     });
 
@@ -72,11 +73,11 @@ export function coreCanvasWebGLTestSuiteTexture(
       using(factory(canvasOptions, small), canvas => {
         // Load a texture with green
         const texture = canvas.createCoreTexture(textureOptions);
-        texture.loadPixelData(TestImages.solidPixelData(small, green));
+        texture.loadPixelData(TestImages.solidPixelData(small, TestColors.green));
 
         // Ensure the texture is green
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
       });
     });
 
@@ -86,7 +87,7 @@ export function coreCanvasWebGLTestSuiteTexture(
 
         // Create a 2D grey canvas
         const temp = canvas.createTemporaryCanvas2D(canvasOptions, medium);
-        temp.fillSolid(grey);
+        temp.fillSolid(TestColors.grey);
 
         for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
           for (const isReadOnly of [false, true]) {
@@ -113,12 +114,12 @@ export function coreCanvasWebGLTestSuiteTexture(
               await texture.copyFromAsync(temp);
 
               // Clear the WebGL canvas
-              canvas.fillSolid(black);
-              expect(canvas.getPixel(midpoint(small))).toEqual(black);
+              canvas.fillSolid(TestColors.black);
+              expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.black);
 
               // Render the texture to the WebGL canvas
               canvas.copyFrom(texture);
-              expect(canvas.getPixel(midpoint(small))).toEqual(grey);
+              expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.grey);
             }
           }
         }

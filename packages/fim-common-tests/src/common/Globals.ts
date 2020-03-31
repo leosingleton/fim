@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimColor, FimDimensions, FimPoint } from '@leosingleton/fim';
+import { FimDimensions, FimPoint } from '@leosingleton/fim';
 
 /** Small 100x50 canvas dimensions */
 export const small = FimDimensions.fromWidthHeight(100, 50);
@@ -40,16 +40,6 @@ export function bottomLeft(dimensions = smallFourSquares): FimPoint {
 export function bottomRight(dimensions = smallFourSquares): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.75, dimensions.h * 0.75).toFloor();
 }
-
-export const red = FimColor.fromString('#f00');
-export const green = FimColor.fromString('#0f0');
-export const blue = FimColor.fromString('#00f');
-export const black = FimColor.fromString('#000');
-export const grey = FimColor.fromString('#888');
-export const white = FimColor.fromString('#fff');
-export const yellow = FimColor.fromString('#ff0');
-export const magenta = FimColor.fromString('#f0f');
-export const cyan = FimColor.fromString('#0ff');
 
 /** URL to the sample-images folder */
 export const sampleImagesUrl = 'https://www.leosingleton.com/sample-images';

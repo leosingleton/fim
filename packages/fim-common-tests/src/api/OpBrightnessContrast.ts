@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { grey, midpoint, red, small, white } from '../common/Globals';
+import { midpoint, small } from '../common/Globals';
+import { TestColors } from '../common/TestColors';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimOpBrightnessContrast } from '@leosingleton/fim';
 
@@ -16,13 +17,13 @@ export function fimTestSuiteOpBrightnessContrast(
     it('Increases Brightness', async () => {
       await usingAsync(factory(small), async fim => {
         const input = fim.createImage();
-        await input.fillSolidAsync(grey);
+        await input.fillSolidAsync(TestColors.grey);
         const op = new FimOpBrightnessContrast(fim);
         op.setInputs(input, 0.5, 0.0);
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(white);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.white);
       });
     });
 
@@ -35,7 +36,7 @@ export function fimTestSuiteOpBrightnessContrast(
 
         const outputImage = fim.createImage();
         await outputImage.executeAsync(op);
-        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(red);
+        expect(await outputImage.getPixelAsync(midpoint(small))).toEqual(TestColors.red);
       });
     });
 

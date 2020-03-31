@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { blue, green, red, white } from './Globals';
+import { TestColors } from './TestColors';
 import { FimColor, FimImage } from '@leosingleton/fim';
 
 /** Generates and validates test patterns for unit testing */
@@ -23,10 +23,10 @@ export module TestPatterns {
   /** Generator function for a test pattern that stresses downscale operations. On average, it is 50% grey. */
   export function downscaleStress(x: number, _y: number): FimColor {
     switch (x % 4) {
-      case 0:   return red;
-      case 1:   return green;
-      case 2:   return blue;
-      default:  return white;
+      case 0:   return TestColors.red;
+      case 1:   return TestColors.green;
+      case 2:   return TestColors.blue;
+      default:  return TestColors.white;
     }
   }
 

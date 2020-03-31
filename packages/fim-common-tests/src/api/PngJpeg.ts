@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { medium, red, small, smallFourSquares } from '../common/Globals';
+import { medium, small, smallFourSquares } from '../common/Globals';
+import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
@@ -57,7 +58,7 @@ export function fimTestSuitePngJpeg(
     it('Exports to PNG', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
-        await image.fillSolidAsync(red);
+        await image.fillSolidAsync(TestColors.red);
         const png = await image.exportToPngAsync();
 
         // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
@@ -71,7 +72,7 @@ export function fimTestSuitePngJpeg(
     it('Exports to JPEG', async () => {
       await usingAsync(factory(small), async fim => {
         const image = fim.createImage();
-        await image.fillSolidAsync(red);
+        await image.fillSolidAsync(TestColors.red);
         const jpeg = await image.exportToJpegAsync();
 
         // JPEG magic number is FF D8 FF

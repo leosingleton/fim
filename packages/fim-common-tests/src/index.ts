@@ -16,6 +16,7 @@ export * from './common/CoreOptions';
 export * from './common/Globals';
 export * from './common/PixelData';
 export * from './common/Shaders';
+export * from './common/TestColors';
 export * from './common/TestImages';
 export * from './common/TestPatterns';
 

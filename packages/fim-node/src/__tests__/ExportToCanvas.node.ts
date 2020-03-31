@@ -5,13 +5,11 @@
 import { FimNodeFactory } from '../factory/FimNodeFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimColor, FimDimensions, FimRect } from '@leosingleton/fim';
+import { TestColors } from '@leosingleton/fim-common-tests';
 import { Canvas, createCanvas } from 'canvas';
 
 /** Small dimensions for unit test */
 const small = FimDimensions.fromWidthHeight(200, 200);
-
-const red = FimColor.fromString('#f00');
-const blue = FimColor.fromString('#00f');
 
 /**
  * Helper function to create a canvas
@@ -54,10 +52,10 @@ describe('Exports to Canvas', () => {
     await usingAsync(FimNodeFactory.create(small), async fim => {
       // Create a FIM image and fill it with blue
       const image = fim.createImage();
-      await image.fillSolidAsync(blue);
+      await image.fillSolidAsync(TestColors.blue);
 
       // Create a 100x100 canvas and fill with red
-      const canvas = createCanvasAndFill(FimDimensions.fromSquareDimension(100), red);
+      const canvas = createCanvasAndFill(FimDimensions.fromSquareDimension(100), TestColors.red);
 
       try {
         // Copy the FIM image to the top-left corner of the canvas
@@ -65,10 +63,10 @@ describe('Exports to Canvas', () => {
 
         // Check a few pixels of the canvas
         const context = canvas.getContext('2d');
-        expect(getPixel(context, 25, 25)).toEqual(blue);
-        expect(getPixel(context, 25, 75)).toEqual(red);
-        expect(getPixel(context, 75, 25)).toEqual(red);
-        expect(getPixel(context, 75, 75)).toEqual(red);
+        expect(getPixel(context, 25, 25)).toEqual(TestColors.blue);
+        expect(getPixel(context, 25, 75)).toEqual(TestColors.red);
+        expect(getPixel(context, 75, 25)).toEqual(TestColors.red);
+        expect(getPixel(context, 75, 75)).toEqual(TestColors.red);
       } finally {
         disposeCanvas(canvas);
       }
@@ -81,20 +79,20 @@ describe('Exports to Canvas', () => {
 
       // Create a FIM image and fill it with blue
       const image = fim.createImage({}, dim);
-      await image.fillSolidAsync(blue);
+      await image.fillSolidAsync(TestColors.blue);
 
       // Create an oversized canvas and fill with red
-      const canvas = createCanvasAndFill(dim, red);
+      const canvas = createCanvasAndFill(dim, TestColors.red);
       try {
         // Copy the FIM image to the canvas
         await image.exportToCanvasAsync(canvas);
 
         // Check a few pixels of the canvas
         const context = canvas.getContext('2d');
-        expect(getPixel(context, 0, 0)).toEqual(blue);
-        expect(getPixel(context, 0, dim.h - 1)).toEqual(blue);
-        expect(getPixel(context, dim.w - 1, 0)).toEqual(blue);
-        expect(getPixel(context, dim.w - 1, dim.h - 1)).toEqual(blue);
+        expect(getPixel(context, 0, 0)).toEqual(TestColors.blue);
+        expect(getPixel(context, 0, dim.h - 1)).toEqual(TestColors.blue);
+        expect(getPixel(context, dim.w - 1, 0)).toEqual(TestColors.blue);
+        expect(getPixel(context, dim.w - 1, dim.h - 1)).toEqual(TestColors.blue);
       } finally {
         disposeCanvas(canvas);
       }

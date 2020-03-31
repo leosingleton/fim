@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions } from '../../common/CoreOptions';
-import { blue, green, midpoint, red, small, smallFourSquares } from '../../common/Globals';
+import { midpoint, small, smallFourSquares } from '../../common/Globals';
+import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimRect } from '@leosingleton/fim';
@@ -18,33 +19,33 @@ export function coreCanvas2DTestSuiteCanvas(
 
     it('Gets and sets pixels', async () => {
       await usingAsync(factory(canvasOptions, small), async canvas => {
-        const pixelData = TestImages.solidPixelData(small, red);
+        const pixelData = TestImages.solidPixelData(small, TestColors.red);
         await canvas.loadPixelDataAsync(pixelData);
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
     it('Fills with solid colors', () => {
       using(factory(canvasOptions, small), canvas => {
-        canvas.fillSolid(green);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        canvas.fillSolid(TestColors.green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
       });
     });
 
     it('Copies from one canvas to another', async () => {
       await usingAsync(factory(canvasOptions, small), async canvas1 => {
-        canvas1.fillSolid(blue);
+        canvas1.fillSolid(TestColors.blue);
 
         await usingAsync(factory(canvasOptions, small), async canvas2 => {
           await canvas2.copyFromAsync(canvas1);
-          expect(canvas2.getPixel(midpoint(small))).toEqual(blue);
+          expect(canvas2.getPixel(midpoint(small))).toEqual(TestColors.blue);
         });
       });
     });
 
     it('Exports to pixel data', () => {
       using(factory(canvasOptions, small), canvas => {
-        canvas.fillSolid(red);
+        canvas.fillSolid(TestColors.red);
         const data = canvas.exportToPixelData();
 
         expect(data.length).toEqual(small.getArea() * 4);

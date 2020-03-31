@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { green, grey, midpoint, red, small } from '../../common/Globals';
+import { midpoint, small } from '../../common/Globals';
 import { fillConstShader, fillUniformShader } from '../../common/Shaders';
+import { TestColors } from '../../common/TestColors';
 import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasOptions, CoreCanvasWebGL, CoreShader } from '@leosingleton/fim/internals';
@@ -45,7 +46,7 @@ export function coreCanvasWebGLTestSuiteShader(
         shader.execute();
 
         // Ensure the output is red
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.red);
       });
     });
 
@@ -64,7 +65,7 @@ export function coreCanvasWebGLTestSuiteShader(
         canvas.copyFrom(texture);
 
         // Ensure the output is grey
-        expect(canvas.getPixel(midpoint(small)).distance(grey)).toBeLessThan(0.05);
+        expect(canvas.getPixel(midpoint(small)).distance(TestColors.grey)).toBeLessThan(0.05);
       });
     });
 
@@ -81,7 +82,7 @@ export function coreCanvasWebGLTestSuiteShader(
         canvas.copyFrom(texture);
 
         // Ensure the output is green
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        expect(canvas.getPixel(midpoint(small))).toEqual(TestColors.green);
       });
     });
 

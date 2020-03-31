@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { expectErrorAsync } from '../common/Async';
-import { grey, medium, small } from '../common/Globals';
+import { medium, small } from '../common/Globals';
+import { TestColors } from '../common/TestColors';
 import { TestPatterns } from '../common/TestPatterns';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimImage, FimOpDownscale, FimTextureSampling, FimError } from '@leosingleton/fim';
@@ -75,6 +76,6 @@ async function testAndValidateDownscale(
     // Run the downscale operation and sample a pixel in the center. It should be 50% grey.
     const output = await testDownscale(fim, ratio, inputDimensions);
     const color = await output.getPixelAsync(output.dim.getCenter());
-    expect(color.distance(grey)).toBeLessThan(maxError);
+    expect(color.distance(TestColors.grey)).toBeLessThan(maxError);
   });
 }

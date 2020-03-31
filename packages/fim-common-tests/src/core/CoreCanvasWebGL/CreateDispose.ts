@@ -3,7 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { large, red, small } from '../../common/Globals';
+import { large, small } from '../../common/Globals';
+import { TestColors } from '../../common/TestColors';
 import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals';
@@ -51,14 +52,14 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
       canvas.dispose();
 
       // Temporary canvas IS NOT automatically disposed by WebGL canvas
-      temp.fillSolid(red);
+      temp.fillSolid(TestColors.red);
       temp.dispose();
     });
 
     it('getContext() stress', () => {
       using(factory(canvasOptions, large), canvas => {
         for (let n = 0; n < 100; n++) {
-          canvas.fillSolid(red);
+          canvas.fillSolid(TestColors.red);
           const gl = canvas.getContext();
           expect(gl.isContextLost()).toBeFalsy();
         }
@@ -68,9 +69,9 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
     it('Create/dispose stress', () => {
       for (let n = 0; n < 100; n++) {
         using(factory(canvasOptions, large), canvas => {
-          canvas.fillSolid(red);
+          canvas.fillSolid(TestColors.red);
           const texture = canvas.createCoreTexture(textureOptions);
-          texture.fillSolid(red);
+          texture.fillSolid(TestColors.red);
         });
       }
     });
