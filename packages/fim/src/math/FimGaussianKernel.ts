@@ -65,11 +65,16 @@ export class FimGaussianKernel {
   /**
    * Calculates a 1-dimensional Gaussian kernel
    * @param sigma Standard deviation
-   * @param kernelSize Number of elements in the kernel
+   * @param kernelSize Number of elements in the Gaussian kernel. Must be an odd number. Defaults to ~6x the sigma.
    * @param samples Number of samples to use when calculating each element in the kernel
    * @param quantize
    */
-  public static calculate(sigma: number, kernelSize: number, samples = 100, quantize = true): number[] {
+  public static calculate(sigma: number, kernelSize?: number, samples = 100, quantize = true): number[] {
+    // General guidance is 3x the standard deviation in each direction, so 6x total. And make it odd.
+    if (!kernelSize) {
+      kernelSize = Math.max(Math.floor((sigma * 6) / 2) * 2 + 1, 3);
+    }
+
     // Cache kernels once they are calculated, as we frequently reuse the same ones, and they are expensive to compute
     const kernelName = `${sigma}:${kernelSize}:${samples}:${quantize ? 'Q' : '-'}`;
     let kernel = this.kernelCache[kernelName];
