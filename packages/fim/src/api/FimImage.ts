@@ -46,6 +46,15 @@ export interface FimImage extends FimObject {
   getEffectiveImageOptions(): FimImageOptions;
 
   /**
+   * Backs up any WebGL textures so that the image contents are not lost if the WebGL context is lost. The contents will
+   * be preserved until the next call to `executeAsync()`.
+   *
+   * Instead of explicitly calling this method, callers can also automatically back up the WebGL textures after every
+   * call to `executeAsync()` by enabling `imageOptions.backup`.
+   */
+  backupAsync(): Promise<void>;
+
+  /**
    * Fills the image with a solid color
    * @param color Fill color
    */

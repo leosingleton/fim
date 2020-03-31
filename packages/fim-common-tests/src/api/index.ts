@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { fimTestSuiteBackup } from './Backup';
 import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
 import { fimTestSuiteImage } from './Image';
@@ -38,5 +39,6 @@ export function fimTestSuite(
   fimTestSuiteOpDownscale(description, factory);
   fimTestSuiteOpGaussianBlur(description, factory);
   fimTestSuiteOversized(description, factory);
+  fimTestSuiteBackup(description, factory);
   fimTestSuiteResourceTracker(description, factory);
 }

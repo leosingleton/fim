@@ -374,6 +374,21 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
   }
 
+  public async backupAsync(): Promise<void> {
+    const me = this;
+    const optimizer = me.rootObject.optimizer;
+    me.ensureNotDisposed();
+
+    if (me.contentTexture.isCurrent && !me.contentFillColor.isCurrent && !me.contentCanvas.isCurrent) {
+      // The WebGL texture is the only copy of the image contents and needs to be backed up to a canvas
+      await me.populateContentCanvas();
+      optimizer.recordImageWrite(me, ImageType.Canvas);
+
+      // Let the optimizer release unneeded resources
+      optimizer.releaseResources();
+    }
+  }
+
   public async fillSolidAsync(color: FimColor | string): Promise<void> {
     const me = this;
     me.ensureNotDisposed();
