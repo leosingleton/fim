@@ -19,7 +19,7 @@ export function fimTestSuiteImage(
         const image = fim.createImage();
         const options = image.getEffectiveImageOptions();
         expect(options.allowOversized).toEqual(defaultImageOptions.allowOversized);
-        expect(options.backup).toEqual(defaultImageOptions.backup);
+        expect(options.autoBackup).toEqual(defaultImageOptions.autoBackup);
         // Skip BPP. It varies based on the GPU and WebGL capabilities.
         expect(options.downscale).toEqual(defaultImageOptions.downscale);
         expect(options.fillColorOnContextLost).toEqual(defaultImageOptions.fillColorOnContextLost);

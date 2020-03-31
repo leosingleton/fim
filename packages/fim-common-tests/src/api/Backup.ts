@@ -39,11 +39,11 @@ export function fimTestSuiteBackup(
       });
     });
 
-    it('Backs up automatically with imageOptions.backup', async () => {
+    it('Backs up automatically with imageOptions.autoBackup', async () => {
       await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
         // Load an image and enable auto-backup
         const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png, { backup: true });
+        const image = await fim.createImageFromPngAsync(png, { autoBackup: true });
         expect((image as any).contentCanvas.isCurrent).toBeTruthy();
         expect((image as any).contentTexture.isCurrent).toBeFalsy();
 

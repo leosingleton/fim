@@ -50,7 +50,7 @@ export interface FimImage extends FimObject {
    * be preserved until the next call to `executeAsync()`.
    *
    * Instead of explicitly calling this method, callers can also automatically back up the WebGL textures after every
-   * call to `executeAsync()` by enabling `imageOptions.backup`.
+   * call to `executeAsync()` by enabling `imageOptions.autoBackup`.
    */
   backupAsync(): Promise<void>;
 

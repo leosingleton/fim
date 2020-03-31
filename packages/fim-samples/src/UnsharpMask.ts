@@ -9,7 +9,7 @@ export async function unsharpMaskSample(): Promise<void> {
 
   // Load the sample image
   const url = 'https://www.leosingleton.com/sample-images/point-lobos.jpg';
-  const inputImage = await fim.createImageFromJpegFileAsync(url, { backup: true, bpp: 8, glReadOnly: true });
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
 
   // Create the unsharp mask operation
   const usmOperation = new FimOpUnsharpMask(fim, true);

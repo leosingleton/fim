@@ -23,11 +23,11 @@ export interface FimImageOptions {
   sampling?: FimTextureSampling;
 
   /**
-   * Backs up WebGL textures to a non-WebGL canvas. Adds extra performance and memory overheads, but can be used to
-   * ensure the image contents are not lost due to loss of the WebGL context. In particular, this frequently happens
-   * when a page loses focus.
+   * Automatically backs up WebGL textures to a non-WebGL canvas. Adds extra performance and memory overheads, but can
+   * be used to ensure the image contents are not lost due to loss of the WebGL context. In particular, this frequently
+   * happens when a page loses focus.
    */
-  backup?: boolean;
+  autoBackup?: boolean;
 
   /**
    * By default, images are automatically downscaled to the size of the FIM object, as it is assumed that they will be
@@ -79,7 +79,7 @@ export interface FimImageOptions {
 export const defaultImageOptions: FimImageOptions = {
   bpp: FimBitsPerPixel.BPP16,
   sampling: FimTextureSampling.Linear,
-  backup: false,
+  autoBackup: false,
   allowOversized: false,
   fillColorOnContextLost: undefined,
   glReadOnly: false,
@@ -100,7 +100,7 @@ export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptio
   return {
     bpp: child.bpp ?? parent.bpp,
     sampling: child.sampling ?? parent.sampling,
-    backup: child.backup ?? parent.backup,
+    autoBackup: child.autoBackup ?? parent.autoBackup,
     allowOversized: child.allowOversized ?? parent.allowOversized,
     fillColorOnContextLost: child.fillColorOnContextLost ?? parent.fillColorOnContextLost,
     glReadOnly: child.glReadOnly ?? parent.glReadOnly,

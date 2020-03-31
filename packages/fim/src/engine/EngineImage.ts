@@ -562,7 +562,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.
-    if (me.getImageOptions().backup) {
+    if (me.getImageOptions().autoBackup) {
       await me.populateContentCanvas();
       optimizer.recordImageWrite(me, ImageType.Canvas);
     }

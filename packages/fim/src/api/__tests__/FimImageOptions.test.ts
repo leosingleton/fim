@@ -22,7 +22,7 @@ describe('FimImageOptions', () => {
     const parent: FimImageOptions = {
       bpp: FimBitsPerPixel.BPP16,
       sampling: FimTextureSampling.Nearest,
-      backup: false,
+      autoBackup: false,
       allowOversized: true,
       glReadOnly: true,
       downscale: 1,
@@ -31,7 +31,7 @@ describe('FimImageOptions', () => {
     const child: FimImageOptions = {
       bpp: FimBitsPerPixel.BPP8,
       sampling: FimTextureSampling.Linear,
-      backup: true,
+      autoBackup: true,
       allowOversized: false,
       glReadOnly: false,
       downscale: 0,
@@ -40,7 +40,7 @@ describe('FimImageOptions', () => {
     const options = mergeImageOptions(parent, child);
     expect(options.bpp).toEqual(child.bpp);
     expect(options.sampling).toEqual(child.sampling);
-    expect(options.backup).toEqual(child.backup);
+    expect(options.autoBackup).toEqual(child.autoBackup);
     expect(options.allowOversized).toEqual(child.allowOversized);
     expect(options.glReadOnly).toEqual(child.glReadOnly);
     expect(options.downscale).toEqual(child.downscale);
