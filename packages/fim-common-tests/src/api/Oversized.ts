@@ -82,10 +82,7 @@ export function fimTestSuiteOversized(
         expect(eff.downscale).toEqual(50 / 128);
 
         // Four squares test pattern is present
-        expect(await image.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image.getPixelAsync(topRight())).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image);
 
         // Exports back to 128x128
         const png2 = await image.exportToPngAsync();
@@ -93,10 +90,7 @@ export function fimTestSuiteOversized(
         expect(image2.dim).toEqual(smallFourSquares);
 
         // Four squares test pattern is present
-        expect(await image2.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image2.getPixelAsync(topRight())).toEqual(green);
-        expect(await image2.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image2.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image2);
       });
     });
 
@@ -111,10 +105,7 @@ export function fimTestSuiteOversized(
         expect(eff.downscale).toEqual(50 / 128);
 
         // Four squares test pattern is present
-        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+        await TestImages.expectFourSquaresJpegAsync(image);
 
         // Exports back to 128x128
         const jpeg2 = await image.exportToJpegAsync();
@@ -122,10 +113,7 @@ export function fimTestSuiteOversized(
         expect(image2.dim).toEqual(smallFourSquares);
 
         // Four squares test pattern is present (note the distance tolerance is higher due to JPEG lossiness)
-        expect((await image2.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.004);
-        expect((await image2.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.004);
-        expect((await image2.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.004);
-        expect((await image2.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.004);
+        await TestImages.expectFourSquaresJpegAsync(image, 0.004);
       });
     });
 
@@ -139,17 +127,11 @@ export function fimTestSuiteOversized(
 
         // Scale image1 (128x128) to medium size (480x640)
         await image2.copyFromAsync(image1);
-        expect(await image2.getPixelAsync(topLeft(medium))).toEqual(red);
-        expect(await image2.getPixelAsync(topRight(medium))).toEqual(green);
-        expect(await image2.getPixelAsync(bottomLeft(medium))).toEqual(blue);
-        expect(await image2.getPixelAsync(bottomRight(medium))).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image2);
 
         // Copy image1 (128x128) to the top-left corner without rescaling (128x128 destination)
         await image2.copyFromAsync(image1, undefined, FimRect.fromDimensions(smallFourSquares));
-        expect(await image2.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image2.getPixelAsync(topRight())).toEqual(green);
-        expect(await image2.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image2.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image2, smallFourSquares);
 
         // The top-left corner (128x128) was overwritten by the previous copy. The rest of the 480x640 image should
         // remain however.

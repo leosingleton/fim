@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimColor, FimDimensions } from '@leosingleton/fim';
+import { black, blue, bottomLeft, bottomRight, green, red, topLeft, topRight } from './Globals';
+import { FimColor, FimDimensions, FimImage } from '@leosingleton/fim';
 
 /** Portable implementation of atob(). Works on both browser and Node.js. */
 function atobPortable(str: string): string {
@@ -60,6 +61,23 @@ export namespace TestImages {
   }
 
   /**
+   * Validates the image matches the test pattern from `fourSquaresJpeg()`
+   * @param image Image to validate
+   * @param threshold Margin of error. The default value is sufficient for the JPEG lossiness in the image, but may
+   *    need to be raised for test cases that do multiple rounds of compression/decompression.
+   * @param dimensions Dimensions of the test pattern (must be in top-left corner). Defaults to the dimensions of the
+   *    `image` parameter.
+   */
+  export async function expectFourSquaresJpegAsync(image: FimImage, threshold = 0.002, dimensions?: FimDimensions):
+      Promise<void> {
+    dimensions = dimensions ?? image.dim;
+    expect((await image.getPixelAsync(topLeft(dimensions))).distance(red)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(topRight(dimensions))).distance(green)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(bottomLeft(dimensions))).distance(blue)).toBeLessThan(threshold);
+    expect((await image.getPixelAsync(bottomRight(dimensions))).distance(black)).toBeLessThan(threshold);
+  }
+
+  /**
    * A Base64-encoded string containing a 128x128 pixel PNG. The image consists of four solid-colored squares:
    * - Top-Left = Red
    * - Top-Right = Green
@@ -83,6 +101,20 @@ export namespace TestImages {
   export function fourSquaresPng(): Uint8Array {
     // Base64-decode the data
     return Uint8Array.from(atobPortable(fourSquaresPngBase64), c => c.charCodeAt(0));
+  }
+
+  /**
+   * Validates the image matches the test pattern from `fourSquaresPng()`
+   * @param image Image to validate
+   * @param dimensions Dimensions of the test pattern (must be in top-left corner). Defaults to the dimensions of the
+   *    `image` parameter.
+   */
+  export async function expectFourSquaresPngAsync(image: FimImage, dimensions?: FimDimensions): Promise<void> {
+    dimensions = dimensions ?? image.dim;
+    expect(await image.getPixelAsync(topLeft(dimensions))).toEqual(red);
+    expect(await image.getPixelAsync(topRight(dimensions))).toEqual(green);
+    expect(await image.getPixelAsync(bottomLeft(dimensions))).toEqual(blue);
+    expect(await image.getPixelAsync(bottomRight(dimensions))).toEqual(black);
   }
 
   /**

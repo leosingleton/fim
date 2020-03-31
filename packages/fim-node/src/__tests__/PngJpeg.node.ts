@@ -4,8 +4,7 @@
 
 import { FimNodeFactory } from '../factory/FimNodeFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { black, blue, bottomLeft, bottomRight, green, red, smallFourSquares, topLeft,
-  topRight } from '@leosingleton/fim-common-tests';
+import { TestImages, smallFourSquares } from '@leosingleton/fim-common-tests';
 import { resolve } from 'path';
 
 describe('Loads from PNG and JPEG files', () => {
@@ -16,10 +15,7 @@ describe('Loads from PNG and JPEG files', () => {
       const image = await fim.createImageFromPngFileAsync(resolve(__dirname, 'sample-images/four-squares.png'));
 
       // Validate the test pattern
-      expect(await image.getPixelAsync(topLeft())).toEqual(red);
-      expect(await image.getPixelAsync(topRight())).toEqual(green);
-      expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
-      expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+      await TestImages.expectFourSquaresPngAsync(image);
     });
   });
 
@@ -29,10 +25,7 @@ describe('Loads from PNG and JPEG files', () => {
       const image = await fim.createImageFromJpegFileAsync(resolve(__dirname, 'sample-images/four-squares.jpg'));
 
       // Validate the test pattern
-      expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-      expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-      expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-      expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+      await TestImages.expectFourSquaresJpegAsync(image);
     });
   });
 

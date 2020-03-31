@@ -2,8 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, medium, red, small, smallFourSquares, topLeft,
-  topRight } from '../common/Globals';
+import { medium, red, small, smallFourSquares } from '../common/Globals';
 import { TestImages } from '../common/TestImages';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
@@ -21,10 +20,7 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 
-        expect(await image.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image.getPixelAsync(topRight())).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
@@ -34,10 +30,7 @@ export function fimTestSuitePngJpeg(
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg);
 
-        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+        await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 
@@ -47,10 +40,7 @@ export function fimTestSuitePngJpeg(
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png, true);
 
-        expect(await image.getPixelAsync(topLeft(medium))).toEqual(red);
-        expect(await image.getPixelAsync(topRight(medium))).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft(medium))).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight(medium))).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
@@ -60,10 +50,7 @@ export function fimTestSuitePngJpeg(
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg, true);
 
-        expect((await image.getPixelAsync(topLeft(medium))).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight(medium))).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft(medium))).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight(medium))).distance(black)).toBeLessThan(0.002);
+        await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 
@@ -100,10 +87,7 @@ export function fimTestSuitePngJpeg(
         const image = await fim.createImageFromPngAsync(png);
 
         expect(image.dim).toEqual(smallFourSquares);
-        expect(await image.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image.getPixelAsync(topRight())).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
@@ -113,10 +97,7 @@ export function fimTestSuitePngJpeg(
         const image = await fim.createImageFromJpegAsync(jpeg);
 
         expect(image.dim).toEqual(smallFourSquares);
-        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+        await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 

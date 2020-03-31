@@ -3,8 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { expectErrorAsync } from '../common/Async';
-import { bottomLeft, bottomRight, black, blue, green, grey, midpoint, red, small, smallFourSquares, topLeft,
-  topRight } from '../common/Globals';
+import { blue, green, grey, midpoint, red, small, smallFourSquares } from '../common/Globals';
 import { copyShader, fillConstShader, fillUniformShader } from '../common/Shaders';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
@@ -85,10 +84,7 @@ export function fimTestSuiteWebGL(
         await destImage.executeAsync(shader);
 
         // Ensure the output is the test pattern
-        expect(await destImage.getPixelAsync(topLeft())).toEqual(red);
-        expect(await destImage.getPixelAsync(topRight())).toEqual(green);
-        expect(await destImage.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await destImage.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(destImage);
       });
     });
 
