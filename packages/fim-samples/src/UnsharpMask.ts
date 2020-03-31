@@ -1,4 +1,5 @@
-import { Stopwatch, UnhandledError } from '@leosingleton/commonlibs';
+import { getAnimationValue, measureFrameStart, measureFrameStop, renderDetails } from './Common';
+import { UnhandledError } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimImageOptions, FimOpUnsharpMask } from '@leosingleton/fim';
 import { FimBrowserFactory } from '@leosingleton/fim-browser';
 
@@ -23,17 +24,14 @@ export async function unsharpMaskSample(): Promise<void> {
   canvas.height = outputImage.dim.h;
 
   // Start the animation loop
-  const stopwatch = Stopwatch.startNew();
   requestAnimationFrame(renderOneFrame);
 
   async function renderOneFrame() {
     try {
       // Cycle back and forth every 10 seconds
-      let amount = (stopwatch.getElapsedMilliseconds() % 10000) / 10000;
-      if (amount > 0.5) {
-        amount = 1 - amount;
-      }
-      console.log(amount);
+      const amount = getAnimationValue(10000);
+
+      measureFrameStart();
 
       // Apply the unsharp mask operation
       usmOperation.setInputs(inputImage, amount, 1);
@@ -41,6 +39,11 @@ export async function unsharpMaskSample(): Promise<void> {
 
       // Copy the result to the screen
       await outputImage.exportToCanvasAsync(canvas);
+
+      measureFrameStop();
+
+      // Write additional details to the screen
+      renderDetails(fim, canvas, `Unsharp Mask Amount: ${amount.toFixed(3)} Sigma: 1.0`);
     } catch (err) {
       UnhandledError.reportError(err);
     }
