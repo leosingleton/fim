@@ -34,6 +34,7 @@ export class FimOpUnsharpMask extends FimOperation {
   public setInputs(input: FimImage, amount: number, sigma: number, kernelSize?: number): void {
     // Calculate the Gaussian kernel
     const kernel = FimGaussianKernel.calculate(sigma, kernelSize);
+    kernelSize = kernel.length; // kernelSize may be undefined. Read the value calculated by calculate().
 
     // Invert and scale kernel
     for (let n = 0; n < kernelSize; n++) {

@@ -37,13 +37,14 @@ $(async () => {
 
   async function renderOneFrame() {
     try {
-      // Cycle back and forth every 10 seconds
-      const amount = getAnimationValue(10000);
+      // Cycle back and forth every 3 seconds
+      const amount = getAnimationValue(3000, 0, 5);
+      const sigma = 2;
 
       measureFrameStart();
 
       // Apply the unsharp mask operation
-      usmOperation.setInputs(inputImage, amount, 1);
+      usmOperation.setInputs(inputImage, amount, sigma);
       await outputImage.executeAsync(usmOperation);
 
       // Copy the result to the screen
@@ -52,7 +53,7 @@ $(async () => {
       measureFrameStop();
 
       // Write additional details to the screen
-      renderDetails(fim, canvas, `Unsharp Mask Amount: ${amount.toFixed(3)} Sigma: 1.0`);
+      renderDetails(fim, canvas, `Unsharp Mask Amount: ${amount.toFixed(3)} Sigma: ${sigma.toFixed(3)}`);
     } catch (err) {
       UnhandledError.reportError(err);
     }
