@@ -47,12 +47,12 @@ class MockOpFillRedGrandchild extends FimOperation {
   }
 }
 
-/** Unit tests for `FimOperation` */
-export function fimTestSuiteOperation(
+/** Unit tests for operations which don't warrant their own class/file */
+export function fimTestSuiteOpMisc(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
 ): void {
-  describe(`FimOperation - ${description}`, () => {
+  describe(`FimOpMisc - ${description}`, () => {
 
     it('Executes a simple mock operation', async () => {
       await usingAsync(factory(TestSizes.small), async fim => {
