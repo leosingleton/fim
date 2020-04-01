@@ -79,4 +79,41 @@ describe('FimDimensions', () => {
     expect(() => d2.validateInDimensions(d)).toThrow();
   });
 
+  it('Calculates downscale ratios', () => {
+    const dim1 = FimDimensions.fromWidthHeight(1000, 500);
+    const dim2 = FimDimensions.fromWidthHeight(100, 50);
+    const dim3 = FimDimensions.fromWidthHeight(100, 100);
+    const dim4 = FimDimensions.fromWidthHeight(1000, 1000);
+    expect(FimDimensions.calculateDownscaleRatio(dim1, dim1)).toEqual(1);
+    expect(FimDimensions.calculateDownscaleRatio(dim1, dim2)).toEqual(0.1);
+    expect(FimDimensions.calculateDownscaleRatio(dim1, dim3)).toEqual(0.1);
+    expect(FimDimensions.calculateDownscaleRatio(dim1, dim4)).toEqual(1);
+    expect(FimDimensions.calculateDownscaleRatio(dim2, dim3)).toEqual(1);
+    expect(FimDimensions.calculateDownscaleRatio(dim3, dim2)).toEqual(0.5);
+    expect(FimDimensions.calculateDownscaleRatio(dim3, dim4)).toEqual(10);
+    expect(FimDimensions.calculateDownscaleRatio(dim4, dim3)).toEqual(0.1);
+  });
+
+  it('Compares aspect ratios', () => {
+    const dim = FimDimensions.fromWidthHeight(640, 480);
+    const dim1 = FimDimensions.fromWidthHeight(64, 48);
+    expect(dim.equalsAspectRatio(dim1)).toBeTruthy();
+
+    const dim2 = FimDimensions.fromWidthHeight(63, 47);
+    const dim3 = FimDimensions.fromWidthHeight(65, 49);
+    expect(dim.equalsAspectRatio(dim2)).toBeTruthy();
+    expect(dim.equalsAspectRatio(dim3)).toBeTruthy();
+    expect(dim.equalsAspectRatio(dim2, false)).toBeFalsy();
+    expect(dim.equalsAspectRatio(dim3, false)).toBeFalsy();
+
+    const dim4 = FimDimensions.fromWidthHeight(62, 48);
+    const dim5 = FimDimensions.fromWidthHeight(64, 46);
+    const dim6 = FimDimensions.fromWidthHeight(66, 48);
+    const dim7 = FimDimensions.fromWidthHeight(64, 50);
+    expect(dim.equalsAspectRatio(dim4)).toBeFalsy();
+    expect(dim.equalsAspectRatio(dim5)).toBeFalsy();
+    expect(dim.equalsAspectRatio(dim6)).toBeFalsy();
+    expect(dim.equalsAspectRatio(dim7)).toBeFalsy();
+  });
+
 });
