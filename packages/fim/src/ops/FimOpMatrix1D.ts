@@ -31,11 +31,13 @@ export class FimOpMatrix1D extends FimOperationShader {
   public readonly fast: boolean;
 
   /**
-   * Sets the inputs of the shader
+   * Sets the inputs of the shader. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input Input image
    * @param kernel One-dimensional kernel
+   * @returns `this`
    */
-  public setInputs(input: FimImage, kernel: number[]): void {
+  public $(input: FimImage, kernel: number[]): this {
     const me = this;
 
     me.shader.setConstants({
@@ -47,6 +49,8 @@ export class FimOpMatrix1D extends FimOperationShader {
 
     // Set the remaining uniforms later--they vary on the two passes.
     this.inputImage = input;
+
+    return this;
   }
 
   /** Input image */

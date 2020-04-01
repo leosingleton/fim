@@ -52,6 +52,8 @@ async function testDownscale(
   inputDimensions: FimDimensions,
   linear = true
 ): Promise<FimImage> {
+  const downscale = new FimOpDownscale(fim);
+
   // Draw the test pattern
   const input = fim.createImage({}, inputDimensions);
   input.imageOptions.sampling = linear ? FimTextureSampling.Linear : FimTextureSampling.Nearest;
@@ -59,9 +61,7 @@ async function testDownscale(
 
   // Run the downscale program
   const output = fim.createImage({}, inputDimensions.rescale(1 / ratio));
-  const op = new FimOpDownscale(fim);
-  op.setInput(input);
-  await output.executeAsync(op);
+  await output.executeAsync(downscale.$(input));
 
   return output;
 }

@@ -23,11 +23,14 @@ export class FimOpInvert extends FimOperation {
   private readonly linearTransform1: FimOpLinearTransform1;
 
   /**
-   * Sets the input image to invert
+   * Sets the input image to invert. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input Input image
+   * @returns `this`
    */
-  public setInput(input: FimImage): void {
-    this.linearTransform1.setInputs(input, -1, 1);
+  public $(input: FimImage): this {
+    this.linearTransform1.$(input, -1, 1);
+    return this;
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {

@@ -25,13 +25,15 @@ export class FimOpUnsharpMask extends FimOperation {
   private readonly matrix1D: FimOpMatrix1D;
 
   /**
-   * Sets the inputs of the unsharp mask shader
+   * Sets the inputs of the unsharp mask shader. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input Input image
    * @param amount Amount to sharpen (0 = none; 1 = maximum)
    * @param sigma Standard deviation
    * @param kernelSize Number of elements in the Gaussian kernel. Must be an odd number. Defaults to ~6x the sigma.
+   * @returns `this`
    */
-  public setInputs(input: FimImage, amount: number, sigma: number, kernelSize?: number): void {
+  public $(input: FimImage, amount: number, sigma: number, kernelSize?: number): this {
     // Calculate the Gaussian kernel
     const kernel = FimGaussianKernel.calculate(sigma, kernelSize);
     kernelSize = kernel.length; // kernelSize may be undefined. Read the value calculated by calculate().
@@ -45,7 +47,9 @@ export class FimOpUnsharpMask extends FimOperation {
     kernel[Math.floor(kernelSize / 2)] += 1 + amount;
 
     // Set the inputs on the 1D matrix operation
-    this.matrix1D.setInputs(input, kernel);
+    this.matrix1D.$(input, kernel);
+
+    return this;
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {

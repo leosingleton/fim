@@ -23,13 +23,16 @@ export class FimOpAdd extends FimOperation {
   private readonly linearTransform2: FimOpLinearTransform2;
 
   /**
-   * Sets the inputs of the add shader
+   * Sets the inputs of the add shader. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input1 Input image 1
    * @param input2 Input image 2
    * @param constant Optional constant to add to every RGB component
+   * @returns `this`
    */
-  public setInputs(input1: FimImage, input2: FimImage, constant = 0): void {
-    this.linearTransform2.setInputs(input1, input2, 1, 1, constant);
+  public $(input1: FimImage, input2: FimImage, constant = 0): this {
+    this.linearTransform2.$(input1, input2, 1, 1, constant);
+    return this;
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {

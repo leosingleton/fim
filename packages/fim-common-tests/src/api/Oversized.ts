@@ -171,14 +171,14 @@ export function fimTestSuiteOversized(
 
     it('Calculates correct ratio for CoreTexture', async () => {
       await usingAsync(factory(TestSizes.small), async fim => {
+        const invert = new FimOpInvert(fim);
+
         // Load a 128x128 PNG with a FIM instance of 100x50
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
 
         // Run an invert operation to use a CoreTexture
-        const opInvert = new FimOpInvert(fim);
-        opInvert.setInput(image);
-        await image.executeAsync(opInvert);
+        await image.executeAsync(invert.$(image));
 
         // The CoreTexture backing image should have been downscaled to 50x50
         expect(ImageInternals.hasTexture(image)).toBeTruthy();
@@ -193,11 +193,10 @@ export function fimTestSuiteOversized(
         const png = TestImages.fourSquaresPng();
         const inputImage = await fim.createImageFromPngAsync(png, { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
         const outputImage = fim.createImage({}, TestSizes.smallFourSquares);
-        const opUnsharpMask = new FimOpUnsharpMask(fim, true);
+        const unsharpMask = new FimOpUnsharpMask(fim, true);
 
         // Run the WebGL operation
-        opUnsharpMask.setInputs(inputImage, 0.5, 2);
-        await outputImage.executeAsync(opUnsharpMask);
+        await outputImage.executeAsync(unsharpMask.$(inputImage, 0.5, 2));
 
         // Export the result to pixel array
         const output = await outputImage.exportToPixelDataAsync();

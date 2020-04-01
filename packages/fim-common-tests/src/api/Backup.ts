@@ -17,6 +17,8 @@ export function fimTestSuiteBackup(
 
     it('Backs up with explicit calls to backupAsync()', async () => {
       await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
+        const invert = new FimOpInvert(fim);
+
         // Load an image
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
@@ -27,9 +29,7 @@ export function fimTestSuiteBackup(
         expect(ImageInternals.hasTexture(image)).toBeFalsy();
 
         // Run an invert operation to make the current copy a WebGL texture
-        const opInvert = new FimOpInvert(fim);
-        opInvert.setInput(image);
-        await image.executeAsync(opInvert);
+        await image.executeAsync(invert.$(image));
         expect(ImageInternals.hasCanvas(image)).toBeFalsy();
         expect(ImageInternals.hasTexture(image)).toBeTruthy();
 
@@ -42,6 +42,8 @@ export function fimTestSuiteBackup(
 
     it('Backs up automatically with imageOptions.autoBackup', async () => {
       await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
+        const invert = new FimOpInvert(fim);
+
         // Load an image and enable auto-backup
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png, { autoBackup: true });
@@ -49,9 +51,7 @@ export function fimTestSuiteBackup(
         expect(ImageInternals.hasTexture(image)).toBeFalsy();
 
         // Run an invert operation to make the current copy a WebGL texture. The texture is automatically backed up.
-        const opInvert = new FimOpInvert(fim);
-        opInvert.setInput(image);
-        await image.executeAsync(opInvert);
+        await image.executeAsync(invert.$(image));
         expect(ImageInternals.hasCanvas(image)).toBeTruthy();
         expect(ImageInternals.hasTexture(image)).toBeTruthy();
       });

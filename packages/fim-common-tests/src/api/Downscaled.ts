@@ -83,6 +83,8 @@ export function fimTestSuiteDownscaled(
 
     xit('Preserves dimensions when transfering to a WebGL texture and back', async () => {
       await usingAsync(factory(TestSizes.medium), async fim => {
+        const invert = new FimOpInvert(fim);
+
         // Create a medium 480x640 image
         const image1 = fim.createImage();
 
@@ -95,9 +97,7 @@ export function fimTestSuiteDownscaled(
 
         // Perform an invert as a WebGL operation
         const image2 = fim.createImage();
-        const invert = new FimOpInvert(fim);
-        invert.setInput(image1);
-        await image2.executeAsync(invert);
+        await image2.executeAsync(invert.$(image1));
 
         // The input WebGL texture remained 128x128, but the output texture was the requested dimensions
         expect(ImageInternals.hasTexture(image1)).toBeTruthy();
@@ -113,8 +113,7 @@ export function fimTestSuiteDownscaled(
         expect(ImageInternals.getCanvas(image2).dim).toEqual(TestSizes.medium);
 
         // Run the WebGL invert again, this time from 2 -> 1
-        invert.setInput(image2);
-        await image1.executeAsync(invert);
+        await image1.executeAsync(invert.$(image2));
 
         // Ensure the output texture is now medium
         expect(ImageInternals.hasTexture(image1)).toBeTruthy();
@@ -173,6 +172,8 @@ export function fimTestSuiteDownscaled(
 
     xit('Upscales dimensions when glDownscale < downscale and preserveDownscaledDimensions=false', async () => {
       await usingAsync(factory(TestSizes.medium), async fim => {
+        const invert = new FimOpInvert(fim);
+
         // Disable the preserveDownscaledDimensions optimization
         fim.engineOptions.preserveDownscaledDimensions = false;
 
@@ -183,9 +184,7 @@ export function fimTestSuiteDownscaled(
         const outputImage = fim.createImage({ glDownscale: 0.5 }, TestSizes.small);
 
         // Populate the destination image with a WebGL shader
-        const invert = new FimOpInvert(fim);
-        invert.setInput(inputImage);
-        await outputImage.executeAsync(invert);
+        await outputImage.executeAsync(invert.$(inputImage));
 
         // The texture backing the output image should be downscaled by 0.5x
         expect(ImageInternals.hasTexture(outputImage)).toBeTruthy();

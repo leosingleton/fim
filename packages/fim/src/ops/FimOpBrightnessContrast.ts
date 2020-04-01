@@ -23,12 +23,14 @@ export class FimOpBrightnessContrast extends FimOperation {
   private readonly linearTransform1: FimOpLinearTransform1;
 
   /**
-   * Sets the inputs to perform brightness and contrast adjustion
+   * Sets the inputs to perform brightness and contrast adjustion. Returns `this` so the operation may be run in a
+   * one-line call to `FimImage.executeAsync()`.
    * @param input Input
    * @param brightness Value from -1 to 1, where 0 is no change
    * @param contrast Value from -1 to 1, where 0 is no change
+   * @returns `this`
    */
-  public setInputs(input: FimImage, brightness: number, contrast: number): void {
+  public $(input: FimImage, brightness: number, contrast: number): this {
     // To adjust contrast (c), we multiply to increase the slope, however we want to keep the midpoint at 0.5.
     //   Solving y = mx + b, we get: y = cx + (0.5 - 0.5c)
     // The contrast parameter is -1 to 1 and needs to be scaled to 0 to Infinity
@@ -37,7 +39,9 @@ export class FimOpBrightnessContrast extends FimOperation {
     // Thus m and b in y = mx + b are below:
     const m = (contrast < 0.0) ? (contrast + 1.0) : (1.0 / (1.0 - contrast));
     const b = 0.5 - (0.5 * m) + brightness;
-    this.linearTransform1.setInputs(input, m, b);
+    this.linearTransform1.$(input, m, b);
+
+    return this;
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {

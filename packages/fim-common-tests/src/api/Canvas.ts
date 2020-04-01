@@ -160,6 +160,8 @@ export function fimTestSuiteCanvas(
 
     it('Supports debug mode, including tracing and warnings', async () => {
       await usingAsync(factory(TestSizes.small), async fim => {
+        const blur = new FimOpGaussianBlur(fim);
+
         fim.engineOptions.debugMode = true;
         fim.engineOptions.showTracing = true;
         fim.engineOptions.showWarnings = true;
@@ -173,9 +175,7 @@ export function fimTestSuiteCanvas(
         await image.loadFromPngAsync(png);
 
         // Run a WebGL operation to allocate WebGL traces, too
-        const blur = new FimOpGaussianBlur(fim);
-        blur.setInputs(image, 5);
-        await image.executeAsync(blur);
+        await image.executeAsync(blur.$(image, 5));
 
         image.releaseAllResources();
         fim.releaseAllResources();
