@@ -7,6 +7,7 @@ import { fimTestSuiteCanvas } from '../api/Canvas';
 import { fimTestSuiteCreateDispose } from '../api/CreateDispose';
 import { fimTestSuiteDownscaled } from '../api/Downscaled';
 import { fimTestSuiteImage } from '../api/Image';
+import { fimTestSuiteOperation } from '../api/Operation';
 import { fimTestSuiteOversized } from '../api/Oversized';
 import { fimTestSuitePngJpeg } from '../api/PngJpeg';
 import { fimTestSuiteResourceTracker } from '../api/ResourceTracker';
@@ -26,7 +27,6 @@ import { fimTestSuiteOpBrightnessContrast } from '../ops/OpBrightnessContrast';
 import { fimTestSuiteOpBuiltin } from '../ops/OpBuiltin';
 import { fimTestSuiteOpDownscale } from '../ops/OpDownscale';
 import { fimTestSuiteOpGaussianBlur } from '../ops/OpGaussianBlur';
-import { fimTestSuiteOpMisc } from '../ops/OpMisc';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
@@ -52,9 +52,9 @@ export namespace TestSuites {
     fimTestSuiteDownscaled(description, factory);
     fimTestSuiteBackup(description, factory);
     fimTestSuiteResourceTracker(description, factory);
+    fimTestSuiteOperation(description, factory);
 
     // ops/ tests
-    fimTestSuiteOpMisc(description, factory);
     fimTestSuiteOpBuiltin(description, factory);
     fimTestSuiteOpBrightnessContrast(description, factory);
     fimTestSuiteOpDownscale(description, factory);
