@@ -9,13 +9,6 @@ export interface FimEngineOptions {
   /** Execution strategy (space vs. time) */
   executionStrategy: FimExecutionStrategy;
 
-  /**
-   * This optimization is enabled by default and reduces both WebGL and canvas memory consumption at minimal degredation
-   * in image quality. When a smaller image is copied to a large one, rather than upscaling the source image contents,
-   * the destination image is instead transparently downscaled to match the source's dimensions.
-   */
-  preserveDownscaledDimensions: boolean;
-
   /** Maximum canvas memory to use, in bytes. 0 for no limit. */
   maxCanvasMemory: number;
 
@@ -72,7 +65,6 @@ export interface FimEngineOptions {
  */
 export const defaultEngineOptions: FimEngineOptions = {
   executionStrategy: FimExecutionStrategy.MaximizeSpeed,
-  preserveDownscaledDimensions: true,
   maxCanvasMemory: 0,
   maxGLMemory: 0,
   shaderInstanceLimit: 4,

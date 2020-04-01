@@ -52,6 +52,14 @@ export interface FimImageOptions {
   glReadOnly?: boolean;
 
   /**
+   * This optimization is enabled by default and reduces both WebGL and canvas memory consumption at minimal degredation
+   * in image quality. When a smaller image is copied to a large one, rather than upscaling the source image contents,
+   * the destination image is instead transparently downscaled to match the source's dimensions. Setting this value on
+   * the destination `FimImage` disables this optimization.
+   */
+  preserveDownscaledDimensions?: boolean;
+
+  /**
    * A scaling value ranging from [1.0, 0.0) which causes the underlying canvas and WebGL textures to be smaller than
    * the reported image size. A value of 1.0 indicates no downscaling. Downscaling can improve performance and reduce
    * memory consumption.
@@ -83,6 +91,7 @@ export const defaultImageOptions: FimImageOptions = {
   allowOversized: false,
   fillColorOnContextLost: undefined,
   glReadOnly: false,
+  preserveDownscaledDimensions: true,
   downscale: 1,
   glDownscale: 1,
 };
@@ -104,6 +113,7 @@ export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptio
     allowOversized: child.allowOversized ?? parent.allowOversized,
     fillColorOnContextLost: child.fillColorOnContextLost ?? parent.fillColorOnContextLost,
     glReadOnly: child.glReadOnly ?? parent.glReadOnly,
+    preserveDownscaledDimensions: child.preserveDownscaledDimensions ?? parent.preserveDownscaledDimensions,
     downscale: child.downscale ?? parent.downscale,
     glDownscale: child.glDownscale ?? parent.glDownscale
   };

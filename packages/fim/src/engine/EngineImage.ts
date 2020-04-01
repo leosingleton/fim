@@ -144,7 +144,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   /** Contains the contents of the image as a WebGL texture */
   private readonly contentTexture = defaultImageContent<CoreTexture>();
 
-  /** Ensures `contentCanvas.imageContent` points to a valid 2D canvas */
+  /**
+   * Ensures `contentCanvas.imageContent` points to a valid 2D canvas
+   *
+   * Note that this call is NOT GUARANTEED to preserve the contents of the canvas if it is already allocated. It may
+   * choose to reuse the existing canvas, in which case it is dirty with the previous contents, or it may choose to
+   * allocate a new canvas, whichever is more efficient.
+   */
   private allocateContentCanvas(): void {
     const me = this;
     const root = me.rootObject;
@@ -166,7 +172,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     root.resources.recordCreate(me, canvas);
   }
 
-  /** Ensures `contentTexture.imageContent` points to a valid WebGL texture */
+  /**
+   * Ensures `contentTexture.imageContent` points to a valid WebGL texture
+   *
+   * Note that this call is NOT GUARANTEED to preserve the contents of the texture if it is already allocated. It may
+   * choose to reuse the existing texture, in which case it is dirty with the previous contents, or it may choose to
+   * allocate a new texture, whichever is more efficient.
+   */
   private allocateContentTexture(): void {
     const me = this;
     const root = me.rootObject;
@@ -225,7 +237,10 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
       // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
       // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
-      root.writeWarning(me, `Auto-downscale ${handle}: ${me.dim} > max (${root.maxImageDimensions})`);
+      if (!me.autoDownscaleWarningLogged) {
+        root.writeWarning(me, `Auto-downscale ${handle}: ${me.dim} > max (${root.maxImageDimensions})`);
+        me.autoDownscaleWarningLogged = true;
+      }
     }
 
     // Calculate the scale factor and new dimensions
@@ -233,6 +248,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const scaledDimensions = me.dim.rescale(downscale).toFloor();
     return { downscale, scaledDimensions };
   }
+
+  /** Boolean used to ensure we only log an auto-downscale warning once per image */
+  private autoDownscaleWarningLogged = false;
 
   /**
    * Marks one of the image content values as current
