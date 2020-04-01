@@ -32,13 +32,9 @@ export class FimOpUnsharpMask extends FimOperation {
    * @param kernelSize Number of elements in the Gaussian kernel. Must be an odd number. Defaults to ~6x the sigma.
    */
   public setInputs(input: FimImage, amount: number, sigma: number, kernelSize?: number): void {
-    // General guidance is 3x the standard deviation in each direction, so 6x total. And make it odd.
-    if (!kernelSize) {
-      kernelSize = Math.floor((sigma * 6) / 2) * 2 + 1;
-    }
-
     // Calculate the Gaussian kernel
     const kernel = FimGaussianKernel.calculate(sigma, kernelSize);
+    kernelSize = kernel.length; // kernelSize may be undefined. Read the value calculated by calculate().
 
     // Invert and scale kernel
     for (let n = 0; n < kernelSize; n++) {

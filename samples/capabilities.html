@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Detect FIM Capabilities</title>
+    <script src="samples.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div>
+      <h1>Detect FIM Capabilities</h1>
+    </div>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+    <div id="gpu" style="white-space: pre;"></div>
+    <script>
+$(() => {
+  // Initialize the global FIM instance
+  const fim = FimBrowserFactory.create();
+
+  // Write GPU details to the screen
+  const caps = JSON.stringify(fim.capabilities, null, 4);
+  $('#gpu').text(`fim.capabilities = ${caps}`);
+});
+    </script>
+  </body>
+</html>

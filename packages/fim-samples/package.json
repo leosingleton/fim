@@ -1,0 +1,24 @@
+{
+  "name": "@leosingleton/fim-samples",
+  "version": "2.0.0-alpha",
+  "author": "Leo C. Singleton IV <leo@leosingleton.com>",
+  "description": "Fast Image Manipulation Library for JavaScript",
+  "homepage": "https://github.com/leosingleton/fim",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leosingleton/fim.git"
+  },
+  "devDependencies": {
+    "@types/jquery": "latest"
+  },
+  "dependencies": {
+    "@leosingleton/commonlibs": "latest",
+    "@leosingleton/fim": "^2.0.0-alpha",
+    "@leosingleton/fim-browser": "^2.0.0-alpha",
+    "jquery": "latest"
+  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts"
+}

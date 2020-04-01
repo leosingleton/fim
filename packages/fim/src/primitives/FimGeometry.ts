@@ -26,12 +26,19 @@ export abstract class FimGeometry {
   public abstract containedBy(object: FimGeometry): boolean;
 
   /**
-   * Throws an invalid parameter exception if this set of dimensions is not contained within the dimensions of the
-   * `object` parameter
+   * Throws an invalid parameter exception if this object is not contained within the dimensions of the `object`
+   * parameter
    */
   public validateIn(object: FimDimensional): void {
-    if (!this.containedBy(object.dim)) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${this} !in ${object.dim}`);
+    this.validateInDimensions(object.dim);
+  }
+
+  /**
+   * Throws an invalid parameter exception if this object is not contained within the `dimensions` parameter
+   */
+  public validateInDimensions(dimensions: FimDimensions): void {
+    if (!this.containedBy(dimensions)) {
+      throw new FimError(FimErrorCode.InvalidParameter, `${this} !in ${dimensions}`);
     }
   }
 

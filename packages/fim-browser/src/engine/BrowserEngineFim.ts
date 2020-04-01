@@ -3,16 +3,18 @@
 // See LICENSE in the project root for license information.
 
 import { BrowserEngineImage } from './BrowserEngineImage';
-import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
-import { CoreBrowserCanvasWebGL } from '../core/CoreBrowserCanvasWebGL';
+import { fileDownload } from './FileDownload';
+import { FimBrowser } from '../api/FimBrowser';
+import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
+import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
-  EngineShader } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
+  fileToName } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
-export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> {
+export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> implements FimBrowser {
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(parent, options, dimensions, name);
@@ -37,7 +39,7 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvas2D(options, dimensions, handle, this.engineOptions);
     } else {
-      return new CoreBrowserCanvas2D(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvas2D(options, dimensions, handle, this.engineOptions);
     }
   }
 
@@ -45,7 +47,19 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     if (!this.engineOptions.disableOffscreenCanvas) {
       return new CoreBrowserOffscreenCanvasWebGL(options, dimensions, handle, this.engineOptions);
     } else {
-      return new CoreBrowserCanvasWebGL(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvasWebGL(options, dimensions, handle, this.engineOptions);
     }
+  }
+
+  public async createImageFromPngFileAsync(pngUrl: string, options?: FimImageOptions, name?: string,
+      parent?: FimObject): Promise<BrowserEngineImage> {
+    const pngFile = await fileDownload(pngUrl);
+    return this.createImageFromPngAsync(pngFile, options, name ?? fileToName(pngUrl), parent);
+  }
+
+  public async createImageFromJpegFileAsync(jpegUrl: string, options?: FimImageOptions, name?: string,
+      parent?: FimObject): Promise<BrowserEngineImage> {
+    const jpegFile = await fileDownload(jpegUrl);
+    return this.createImageFromPngAsync(jpegFile, options, name ?? fileToName(jpegUrl), parent);
   }
 }

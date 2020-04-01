@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <title>2D Image transformation using WebGL</title>
+    <script src="samples.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+    <canvas id="output"></canvas>
+    <script>
+// Global variables
+var fim, inputImage, outputImage, stopwatch;
+
+$(async () => {
+  // Initialize the global FIM instance
+  fim = FimBrowserFactory.create();
+
+  // Load the sample image
+  const url = 'https://www.leosingleton.com/sample-images/jellyfish.jpg';
+  const fetchResponse = await fetch(url, { method: 'GET', mode: 'no-cors' });
+  const jpeg = await fetchResponse.arrayBuffer();
+  inputImage = await fim.createImageFromJpegAsync(new Uint8Array(jpeg));
+
+  // Create the output image and scale the output canvas
+  outputImage = fim.createImage({}, inputImage.dim);
+  $('#output').width(outputImage.dim.w);
+  $('#output').height(outputImage.dim.h);
+
+  // Start the animation loop
+  stopwatch = Stopwatch.startNew();
+  requestAnimationFrame(renderOneFrame);
+});
+
+async function renderOneFrame() {
+  try {
+    // Rotate 360 degrees every 5 seconds
+    const angle = Math.PI * 2 * stopwatch.getElapsedMilliseconds() / 5000;
+
+    // Scale to 10% and back every 30 seconds
+    let scale = (stopwatch.getElapsedMilliseconds() % 30000) / 15000;
+    if (scale > 1) {
+      scale = 2 - scale;
+    }
+    if (scale < 0.1) {
+      scale = 0.1;
+    }
+
+    // Translate in a square every 10 seconds
+    let tx, ty;
+    const translate = (stopwatch.getElapsedMilliseconds() % 10000) / 2500;
+    if (translate > 3) {
+      tx = -0.5;
+      ty = 0.5 - (translate - 3);
+    } else if (translate > 2) {
+      tx = 0.5 - (translate - 2);
+      ty = 0.5;
+    } else if (translate > 1) {
+      tx = 0.5;
+      ty = (translate - 1) - 0.5;
+    } else {
+      tx = translate - 0.5;
+      ty = -0.5;
+    }
+
+    // Calculate the vertex transformation matrix. Note that the operations are applied in reverse order due to the
+    // way matrix multiplication works. Translate, then rotate, then scale.
+    const matrix = new FimTransform2D();
+    const width = image.dim.w, height = image.dim.h;
+    matrix.rescale(width, height);
+    matrix.rescale(scale, scale);
+    matrix.rotation(angle);
+    matrix.translation(tx * i.w, ty * height);
+    matrix.rescale(1 / width, 1 / height);
+
+    // Render inputImage to outputImage
+    await outputImage.fillSolidAsync('#000');
+
+
+    program.setInputs(texture);
+    program.applyVertexMatrix(matrix);
+    program.execute();
+
+    // Copy the result to the screen
+    const fps = ++frameCount * 1000 / clock.getElapsedMilliseconds();
+    const message = `FPS=${fps.toFixed(2)}`;
+    await renderOutput(gl, message, null, canvasId);
+
+  } catch (err) {
+    UnhandledError.reportError(ex);
+  }
+
+  requestAnimationFrame(renderOneFrame);
+}
+    </script>
+  </body>
+</html>

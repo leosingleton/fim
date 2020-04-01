@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+    "importHelpers": true
   },
   "exclude": ["**/__tests__/*", "**/build/*", "internals.*"]
 }

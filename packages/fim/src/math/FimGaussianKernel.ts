@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { FimError, FimErrorCode } from '../primitives/FimError';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /**
  * Calculates Gaussian Kernel matrices. Useful for Gaussian Blur filters.
@@ -65,16 +66,23 @@ export class FimGaussianKernel {
   /**
    * Calculates a 1-dimensional Gaussian kernel
    * @param sigma Standard deviation
-   * @param kernelSize Number of elements in the kernel
+   * @param kernelSize Number of elements in the Gaussian kernel. Must be an odd number. Defaults to ~6x the sigma.
    * @param samples Number of samples to use when calculating each element in the kernel
-   * @param quantize
+   * @param quantize Quantizes the kernel so that the values are multiples of 1/255, resulting in better performance
+   *    when the output is an 8 BPP image.
    */
-  public static calculate(sigma: number, kernelSize: number, samples = 100, quantize = true): number[] {
+  public static calculate(sigma: number, kernelSize?: number, samples = 100, quantize = false): number[] {
+    // General guidance is 3x the standard deviation in each direction, so 6x total. And make it odd.
+    if (!kernelSize) {
+      kernelSize = Math.max(Math.floor((sigma * 6) / 2) * 2 + 1, 3);
+    }
+
     // Cache kernels once they are calculated, as we frequently reuse the same ones, and they are expensive to compute
     const kernelName = `${sigma}:${kernelSize}:${samples}:${quantize ? 'Q' : '-'}`;
     let kernel = this.kernelCache[kernelName];
     if (kernel) {
-      return kernel;
+      // Perform a deep copy of the result in case the caller modifies it
+      return deepCopy(kernel);
     }
 
     // Ensure kernelSize is odd and large enough
@@ -111,7 +119,7 @@ export class FimGaussianKernel {
 
     // Cache the result
     this.kernelCache[kernelName] = kernel;
-    return kernel;
+    return deepCopy(kernel);
   }
 
   /**

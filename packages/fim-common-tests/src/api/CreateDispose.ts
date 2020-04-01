@@ -2,8 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { red, small } from '../common/Globals';
 import { fillConstShader, fillUniformShader } from '../common/Shaders';
+import { TestColors } from '../common/TestColors';
+import { TestSizes } from '../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
 
@@ -15,7 +16,7 @@ export function fimTestSuiteCreateDispose(
   describe(`FIM Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const fim = factory(small);
+      const fim = factory(TestSizes.small);
       fim.dispose();
 
       // Double-dispose throws an exception
@@ -23,7 +24,7 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Handles multiple releaseAllResources() calls', () => {
-      using(factory(small), fim => {
+      using(factory(TestSizes.small), fim => {
         fim.releaseAllResources();
         fim.releaseAllResources();
         fim.releaseAllResources();
@@ -31,9 +32,9 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Creates and disposes images', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const img1 = fim.createImage();
-        await img1.fillSolidAsync(red);
+        await img1.fillSolidAsync(TestColors.red);
         img1.dispose();
 
         const img2 = fim.createImage();
@@ -42,7 +43,7 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Creates and disposes shaders', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const shader1 = fim.createGLShader(fillConstShader);
         shader1.dispose();
 
@@ -55,7 +56,7 @@ export function fimTestSuiteCreateDispose(
       let shader: FimShader;
       let image: FimImage;
 
-      using(factory(small), fim => {
+      using(factory(TestSizes.small), fim => {
         shader = fim.createGLShader(fillConstShader);
         image = fim.createImage();
       });

@@ -39,4 +39,14 @@ describe('FimPoint', () => {
     expect(p1.containsPoint(p2)).toBeFalsy();
   });
 
+  it('validateIn(FimDimensions)', () => {
+    const d = FimDimensions.fromWidthHeight(640, 480);
+    const p1 = FimPoint.fromXY(639, 479);
+    const p2 = FimPoint.fromXY(480, 640);
+    const p3 = FimPoint.fromXY(20, -10);
+    p1.validateInDimensions(d);
+    expect(() => p2.validateInDimensions(d)).toThrow();
+    expect(() => p3.validateInDimensions(d)).toThrow();
+  });
+
 });

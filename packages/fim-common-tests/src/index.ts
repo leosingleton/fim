@@ -10,7 +10,16 @@ import { coreCanvasWebGLTestSuite } from './core/CoreCanvasWebGL';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals';
 
-export { TestImages } from './common/TestImages';
+export * from './common/Async';
+export * from './common/ContextLost';
+export * from './common/CoreOptions';
+export * from './common/Globals';
+export * from './common/PixelData';
+export * from './common/Shaders';
+export * from './common/TestColors';
+export * from './common/TestImages';
+export * from './common/TestPatterns';
+export * from './common/TestSizes';
 
 /** Reusable test suites */
 export namespace TestSuites {

@@ -3,8 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { green, grey, midpoint, red, small } from '../../common/Globals';
+import { midpoint } from '../../common/Globals';
 import { fillConstShader, fillUniformShader } from '../../common/Shaders';
+import { TestColors } from '../../common/TestColors';
+import { TestSizes } from '../../common/TestSizes';
 import { using } from '@leosingleton/commonlibs';
 import { FimDimensions } from '@leosingleton/fim';
 import { CoreCanvasOptions, CoreCanvasWebGL, CoreShader } from '@leosingleton/fim/internals';
@@ -17,7 +19,7 @@ export function coreCanvasWebGLTestSuiteShader(
   describe(`CoreCanvasWebGL Shader - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const shader = canvas.createCoreShader(fillConstShader);
         shader.dispose();
       });
@@ -26,7 +28,7 @@ export function coreCanvasWebGLTestSuiteShader(
     it('Disposes automatically', () => {
       let shader: CoreShader;
 
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         shader = canvas.createCoreShader(fillConstShader);
       });
 
@@ -35,7 +37,7 @@ export function coreCanvasWebGLTestSuiteShader(
     });
 
     it('Executes a simple fill shader', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const shader = canvas.createCoreShader(fillUniformShader);
 
         // Fill the output with the color red
@@ -45,12 +47,12 @@ export function coreCanvasWebGLTestSuiteShader(
         shader.execute();
 
         // Ensure the output is red
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.red);
       });
     });
 
     it('Executes a simple fill shader with a constant, outputting to a texture', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const shader = canvas.createCoreShader(fillConstShader);
         const texture = canvas.createCoreTexture(textureOptions);
 
@@ -64,12 +66,12 @@ export function coreCanvasWebGLTestSuiteShader(
         canvas.copyFrom(texture);
 
         // Ensure the output is grey
-        expect(canvas.getPixel(midpoint(small)).distance(grey)).toBeLessThan(0.05);
+        expect(canvas.getPixel(midpoint(TestSizes.small)).distance(TestColors.grey)).toBeLessThan(0.05);
       });
     });
 
     it('Executes a simple fill shader with a uniform, outputting to a texture', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const shader = canvas.createCoreShader(fillUniformShader);
         const texture = canvas.createCoreTexture(textureOptions);
 
@@ -81,7 +83,7 @@ export function coreCanvasWebGLTestSuiteShader(
         canvas.copyFrom(texture);
 
         // Ensure the output is green
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.green);
       });
     });
 

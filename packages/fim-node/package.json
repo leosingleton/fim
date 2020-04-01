@@ -12,13 +12,15 @@
   },
   "devDependencies": {
     "@leosingleton/fim-common-tests": "^2.0.0-alpha",
-    "@types/gl": "latest"
+    "@types/gl": "latest",
+    "@types/node": "latest"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
     "@leosingleton/fim": "^2.0.0-alpha",
     "canvas": "latest",
     "gl": "latest",
+    "tslib": "latest",
     "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",

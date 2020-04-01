@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Gaussian Blur using WebGL</title>
+    <script src="samples.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+    <canvas id="output"></canvas>
+    <script>
+$(async () => {
+  // Initialize the global FIM instance
+  const fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
+
+  // Load the sample image
+  const url = 'https://www.leosingleton.com/sample-images/carmel.jpg';
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
+
+  // Create the Gaussian Blur operation
+  const opBlur = new FimOpGaussianBlur(fim, true);
+
+  // Create the output image
+  const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
+
+  // Get and scale the output canvas
+  const canvas = $('#output').get(0);
+  canvas.width = outputImage.dim.w;
+  canvas.height = outputImage.dim.h;
+
+  // Start the animation loop
+  requestAnimationFrame(renderOneFrame);
+
+  async function renderOneFrame() {
+    try {
+      // Cycle sigma from 0 to 10 every 5 seconds
+      const sigma = getAnimationValue(5000, 0, 10);
+
+      measureFrameStart();
+
+      // Apply the Gaussian Blur operation
+      opBlur.setInputs(inputImage, sigma);
+      await outputImage.executeAsync(opBlur);
+
+      // Copy the result to the screen
+      await outputImage.exportToCanvasAsync(canvas);
+
+      measureFrameStop();
+
+      // Write additional details to the screen
+      renderDetails(fim, canvas, `Gaussian Blur Sigma: ${sigma.toFixed(3)}`);
+    } catch (err) {
+      UnhandledError.reportError(err);
+    }
+
+    // Render the next frame of the animation loop
+    requestAnimationFrame(renderOneFrame);
+  }
+});
+    </script>
+  </body>
+</html>

@@ -2,13 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
 import { loadCanvasFromFileAsync } from './LoadFromFile';
+import { usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimEngineOptions, FimRect } from '@leosingleton/fim';
 import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, CoreMimeType,
   RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
-import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
-import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
@@ -91,5 +91,16 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
   public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
     const buffer = this.canvasElement.toBuffer(CoreMimeType.JPEG, { quality });
     return new Uint8Array(buffer);
+  }
+
+  /**
+   * Exports the canvas contents to another canvas
+   * @param canvas Destination canvas
+   * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
+   * @param destCoords Destination coordinates to render to. If unspecified, the output is stretched to fit the entire
+   *    canvas.
+   */
+  public exportToCanvas(canvas: Canvas, srcCoords?: FimRect, destCoords?: FimRect): void {
+    this.exportToCanvasHelper(canvas.getContext('2d'), canvas.width, canvas.height, srcCoords, destCoords);
   }
 }

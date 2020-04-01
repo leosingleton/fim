@@ -2,9 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { black, blue, bottomLeft, bottomRight, green, medium, red, small, smallFourSquares, topLeft,
-  topRight } from '../common/Globals';
+import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
+import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
@@ -16,61 +16,49 @@ export function fimTestSuitePngJpeg(
   describe(`FIM PNG/JPEG - ${description}`, () => {
 
     it('Imports from PNG', async () => {
-      await usingAsync(factory(smallFourSquares), async fim => {
+      await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
         const image = fim.createImage();
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 
-        expect(await image.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image.getPixelAsync(topRight())).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
     it('Imports from JPEG', async () => {
-      await usingAsync(factory(smallFourSquares), async fim => {
+      await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
         const image = fim.createImage();
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg);
 
-        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+        await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 
     it('Imports from PNG with rescale', async () => {
-      await usingAsync(factory(medium), async fim => {
+      await usingAsync(factory(TestSizes.medium), async fim => {
         const image = fim.createImage();
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png, true);
 
-        expect(await image.getPixelAsync(topLeft(medium))).toEqual(red);
-        expect(await image.getPixelAsync(topRight(medium))).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft(medium))).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight(medium))).toEqual(black);
+        await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
     it('Imports from JPEG with rescale', async () => {
-      await usingAsync(factory(medium), async fim => {
+      await usingAsync(factory(TestSizes.medium), async fim => {
         const image = fim.createImage();
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg, true);
 
-        expect((await image.getPixelAsync(topLeft(medium))).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight(medium))).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft(medium))).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight(medium))).distance(black)).toBeLessThan(0.002);
+        await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 
     it('Exports to PNG', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const image = fim.createImage();
-        await image.fillSolidAsync(red);
+        await image.fillSolidAsync(TestColors.red);
         const png = await image.exportToPngAsync();
 
         // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
@@ -82,9 +70,9 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Exports to JPEG', async () => {
-      await usingAsync(factory(small), async fim => {
+      await usingAsync(factory(TestSizes.small), async fim => {
         const image = fim.createImage();
-        await image.fillSolidAsync(red);
+        await image.fillSolidAsync(TestColors.red);
         const jpeg = await image.exportToJpegAsync();
 
         // JPEG magic number is FF D8 FF
@@ -95,28 +83,22 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Creates from PNG', async () => {
-      await usingAsync(factory(medium), async fim => {
+      await usingAsync(factory(TestSizes.medium), async fim => {
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
 
-        expect(image.dim).toEqual(smallFourSquares);
-        expect(await image.getPixelAsync(topLeft())).toEqual(red);
-        expect(await image.getPixelAsync(topRight())).toEqual(green);
-        expect(await image.getPixelAsync(bottomLeft())).toEqual(blue);
-        expect(await image.getPixelAsync(bottomRight())).toEqual(black);
+        expect(image.dim).toEqual(TestSizes.smallFourSquares);
+        await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
     it('Creates from JPEG', async () => {
-      await usingAsync(factory(medium), async fim => {
+      await usingAsync(factory(TestSizes.medium), async fim => {
         const jpeg = TestImages.fourSquaresJpeg();
         const image = await fim.createImageFromJpegAsync(jpeg);
 
-        expect(image.dim).toEqual(smallFourSquares);
-        expect((await image.getPixelAsync(topLeft())).distance(red)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(topRight())).distance(green)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomLeft())).distance(blue)).toBeLessThan(0.002);
-        expect((await image.getPixelAsync(bottomRight())).distance(black)).toBeLessThan(0.002);
+        expect(image.dim).toEqual(TestSizes.smallFourSquares);
+        await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 

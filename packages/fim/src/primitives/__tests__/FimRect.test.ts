@@ -126,4 +126,14 @@ describe('FimRect', () => {
     expect(rect.toFloor()).toEqual(FimRect.fromCoordinates(2, 3, 5, 6));
   });
 
+  it('validateIn(FimDimensions)', () => {
+    const d = FimDimensions.fromWidthHeight(640, 480);
+    const r1 = FimRect.fromXYWidthHeight(0, 0, 640, 480);
+    const r2 = FimRect.fromXYWidthHeight(0, 0, 480, 640);
+    const r3 = FimRect.fromXYWidthHeight(20, -10, 20, 20);
+    r1.validateInDimensions(d);
+    expect(() => r2.validateInDimensions(d)).toThrow();
+    expect(() => r3.validateInDimensions(d)).toThrow();
+  });
+
 });

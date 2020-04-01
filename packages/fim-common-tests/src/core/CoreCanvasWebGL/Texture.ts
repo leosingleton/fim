@@ -3,8 +3,10 @@
 // See LICENSE in the project root for license information.
 
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
-import { black, blue, green, grey, midpoint, red, small, medium } from '../../common/Globals';
+import { midpoint } from '../../common/Globals';
+import { TestColors } from '../../common/TestColors';
 import { TestImages } from '../../common/TestImages';
+import { TestSizes } from '../../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { FimBitsPerPixel, FimDimensions, FimTextureSampling } from '@leosingleton/fim';
 import { CoreCanvasOptions, CoreCanvasWebGL, CoreTexture } from '@leosingleton/fim/internals';
@@ -17,7 +19,7 @@ export function coreCanvasWebGLTestSuiteTexture(
   describe(`CoreCanvasWebGL Texture - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const texture1 = canvas.createCoreTexture(textureOptions);
         texture1.dispose();
 
@@ -29,7 +31,7 @@ export function coreCanvasWebGLTestSuiteTexture(
     it('Disposes automatically', () => {
       let texture: CoreTexture;
 
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         texture = canvas.createCoreTexture(textureOptions);
       });
 
@@ -38,7 +40,7 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Creates readonly', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const texture = canvas.createCoreTexture({
           bpp: FimBitsPerPixel.BPP8, // isReadOnly only supports 8 bits per pixel
           isReadOnly: true,
@@ -49,44 +51,44 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Fills with solid colors', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const texture = canvas.createCoreTexture(textureOptions);
 
         // Fill with red
-        texture.fillSolid(red);
+        texture.fillSolid(TestColors.red);
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(red);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.red);
 
         // Clear the WebGL canvas
-        canvas.fillSolid(black);
-        expect(canvas.getPixel(midpoint(small))).toEqual(black);
+        canvas.fillSolid(TestColors.black);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.black);
 
         // Fill with blue
-        texture.fillSolid(blue);
+        texture.fillSolid(TestColors.blue);
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(blue);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.blue);
       });
     });
 
     it('Loads from pixel data', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         // Load a texture with green
         const texture = canvas.createCoreTexture(textureOptions);
-        texture.loadPixelData(TestImages.solidPixelData(small, green));
+        texture.loadPixelData(TestImages.solidPixelData(TestSizes.small, TestColors.green));
 
         // Ensure the texture is green
         canvas.copyFrom(texture);
-        expect(canvas.getPixel(midpoint(small))).toEqual(green);
+        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.green);
       });
     });
 
     it('Supports all combinations of channels, bits per pixel, and flags', async () => {
-      await usingAsync(factory(canvasOptions, small), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.small), async canvas => {
         const caps = canvas.detectCapabilities();
 
         // Create a 2D grey canvas
-        const temp = canvas.createTemporaryCanvas2D(canvasOptions, medium);
-        temp.fillSolid(grey);
+        const temp = canvas.createTemporaryCanvas2D(canvasOptions, TestSizes.medium);
+        temp.fillSolid(TestColors.grey);
 
         for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
           for (const isReadOnly of [false, true]) {
@@ -107,18 +109,18 @@ export function coreCanvasWebGLTestSuiteTexture(
                 bpp,
                 isReadOnly,
                 sampling
-              }, medium);
+              }, TestSizes.medium);
 
               // Copy the 2D grey canvas to the texture
               await texture.copyFromAsync(temp);
 
               // Clear the WebGL canvas
-              canvas.fillSolid(black);
-              expect(canvas.getPixel(midpoint(small))).toEqual(black);
+              canvas.fillSolid(TestColors.black);
+              expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.black);
 
               // Render the texture to the WebGL canvas
               canvas.copyFrom(texture);
-              expect(canvas.getPixel(midpoint(small))).toEqual(grey);
+              expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.grey);
             }
           }
         }
@@ -126,7 +128,7 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Prevents creation of oversized textures', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const caps = canvas.detectCapabilities();
         const dim = FimDimensions.fromWidthHeight(caps.glMaxTextureSize + 1, 10);
         expect(() => canvas.createCoreTexture({
@@ -138,7 +140,7 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Prevents creation of oversized framebuffers', () => {
-      using(factory(canvasOptions, small), canvas => {
+      using(factory(canvasOptions, TestSizes.small), canvas => {
         const caps = canvas.detectCapabilities();
         const dim = FimDimensions.fromWidthHeight(caps.glMaxRenderBufferSize + 1, 10);
         expect(() => canvas.createCoreTexture(textureOptions, dim)).toThrow();

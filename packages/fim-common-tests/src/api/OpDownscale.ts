@@ -3,8 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { expectErrorAsync } from '../common/Async';
-import { grey, medium, small } from '../common/Globals';
+import { TestColors } from '../common/TestColors';
 import { TestPatterns } from '../common/TestPatterns';
+import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions, FimImage, FimOpDownscale, FimTextureSampling, FimError } from '@leosingleton/fim';
 
@@ -27,8 +28,8 @@ export function fimTestSuiteOpDownscale(
       FimDimensions.fromWidthHeight(480, 240)));
 
     it('Performs a copy at 1x', async () => {
-      await usingAsync(factory(small), async fim => {
-        const output = await testDownscale(fim, 1, small);
+      await usingAsync(factory(TestSizes.small), async fim => {
+        const output = await testDownscale(fim, 1, TestSizes.small);
         await TestPatterns.validateAsync(output, TestPatterns.downscaleStress, true);
       });
     });
@@ -38,8 +39,8 @@ export function fimTestSuiteOpDownscale(
     });
 
     it('Fails if input is non-linear', async () => {
-      await usingAsync(factory(small), async fim => {
-        (await expectErrorAsync(testDownscale(fim, 1, small, false))).toBeInstanceOf(FimError);
+      await usingAsync(factory(TestSizes.small), async fim => {
+        (await expectErrorAsync(testDownscale(fim, 1, TestSizes.small, false))).toBeInstanceOf(FimError);
       });
     });
   });
@@ -71,10 +72,10 @@ async function testAndValidateDownscale(
   inputDimensions = FimDimensions.fromWidthHeight(256, 512),
   maxError = 0.05
 ): Promise<void> {
-  await usingAsync(factory(medium), async fim => {
+  await usingAsync(factory(TestSizes.medium), async fim => {
     // Run the downscale operation and sample a pixel in the center. It should be 50% grey.
     const output = await testDownscale(fim, ratio, inputDimensions);
     const color = await output.getPixelAsync(output.dim.getCenter());
-    expect(color.distance(grey)).toBeLessThan(maxError);
+    expect(color.distance(TestColors.grey)).toBeLessThan(maxError);
   });
 }
