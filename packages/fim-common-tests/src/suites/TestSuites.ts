@@ -19,7 +19,7 @@ import { coreCanvasWebGLTestSuiteCanvas } from '../core/CoreCanvasWebGL/Canvas';
 import { coreCanvasWebGLTestSuiteCapabilities } from '../core/CoreCanvasWebGL/Capabilities';
 import { coreCanvasWebGLTestSuiteContextLost } from '../core/CoreCanvasWebGL/ContextLost';
 import { coreCanvasWebGLTestSuiteCreateDispose } from '../core/CoreCanvasWebGL/CreateDispose';
-import { coreCanvasWebGLTestSuiteExportCopyTo } from '../core/coreCanvasWebGL/ExportCopyTo';
+import { coreCanvasWebGLTestSuiteExportCopyTo } from '../core/CoreCanvasWebGL/ExportCopyTo';
 import { coreCanvasWebGLTestSuiteShader } from '../core/CoreCanvasWebGL/Shader';
 import { coreCanvasWebGLTestSuiteTexture } from '../core/CoreCanvasWebGL/Texture';
 import { fimTestSuiteOpBrightnessContrast } from '../ops/OpBrightnessContrast';
