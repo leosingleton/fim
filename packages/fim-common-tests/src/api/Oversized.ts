@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { bottomLeft, bottomRight, midpoint, topLeft, topRight } from '../common/Globals';
+import { ImageInternals } from '../common/ImageInternals';
 import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
@@ -162,9 +163,9 @@ export function fimTestSuiteOversized(
         const image = await fim.createImageFromPngAsync(png);
 
         // The CoreCanvas2D backing image should have been downscaled to 50x50
-        expect((image as any).contentCanvas.isCurrent).toBeTruthy();
-        expect((image as any).contentCanvas.downscale).toEqual(50 / 128);
-        expect((image as any).contentCanvas.imageContent.dim).toEqual(FimDimensions.fromSquareDimension(50));
+        expect(ImageInternals.hasCanvas(image)).toBeTruthy();
+        expect(ImageInternals.getCanvasDownscale(image)).toEqual(50 / 128);
+        expect(ImageInternals.getCanvas(image).dim).toEqual(FimDimensions.fromSquareDimension(50));
       });
     });
 
@@ -180,9 +181,9 @@ export function fimTestSuiteOversized(
         await image.executeAsync(opInvert);
 
         // The CoreTexture backing image should have been downscaled to 50x50
-        expect((image as any).contentTexture.isCurrent).toBeTruthy();
-        expect((image as any).contentTexture.downscale).toEqual(50 / 128);
-        expect((image as any).contentTexture.imageContent.dim).toEqual(FimDimensions.fromSquareDimension(50));
+        expect(ImageInternals.hasTexture(image)).toBeTruthy();
+        expect(ImageInternals.getTextureDownscale(image)).toEqual(50 / 128);
+        expect(ImageInternals.getTexture(image).dim).toEqual(FimDimensions.fromSquareDimension(50));
       });
     });
 

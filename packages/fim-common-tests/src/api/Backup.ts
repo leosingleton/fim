@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { ImageInternals } from '../common/ImageInternals';
 import { TestImages } from '../common/TestImages';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
@@ -22,20 +23,20 @@ export function fimTestSuiteBackup(
 
         // Backup is a no-op when there is no WebGL texture
         await image.backupAsync();
-        expect((image as any).contentCanvas.isCurrent).toBeTruthy();
-        expect((image as any).contentTexture.isCurrent).toBeFalsy();
+        expect(ImageInternals.hasCanvas(image)).toBeTruthy();
+        expect(ImageInternals.hasTexture(image)).toBeFalsy();
 
         // Run an invert operation to make the current copy a WebGL texture
         const opInvert = new FimOpInvert(fim);
         opInvert.setInput(image);
         await image.executeAsync(opInvert);
-        expect((image as any).contentCanvas.isCurrent).toBeFalsy();
-        expect((image as any).contentTexture.isCurrent).toBeTruthy();
+        expect(ImageInternals.hasCanvas(image)).toBeFalsy();
+        expect(ImageInternals.hasTexture(image)).toBeTruthy();
 
         // Backup the WebGL texture to a canvas
         await image.backupAsync();
-        expect((image as any).contentCanvas.isCurrent).toBeTruthy();
-        expect((image as any).contentTexture.isCurrent).toBeTruthy();
+        expect(ImageInternals.hasCanvas(image)).toBeTruthy();
+        expect(ImageInternals.hasTexture(image)).toBeTruthy();
       });
     });
 
@@ -44,15 +45,15 @@ export function fimTestSuiteBackup(
         // Load an image and enable auto-backup
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png, { autoBackup: true });
-        expect((image as any).contentCanvas.isCurrent).toBeTruthy();
-        expect((image as any).contentTexture.isCurrent).toBeFalsy();
+        expect(ImageInternals.hasCanvas(image)).toBeTruthy();
+        expect(ImageInternals.hasTexture(image)).toBeFalsy();
 
         // Run an invert operation to make the current copy a WebGL texture. The texture is automatically backed up.
         const opInvert = new FimOpInvert(fim);
         opInvert.setInput(image);
         await image.executeAsync(opInvert);
-        expect((image as any).contentCanvas.isCurrent).toBeTruthy();
-        expect((image as any).contentTexture.isCurrent).toBeTruthy();
+        expect(ImageInternals.hasCanvas(image)).toBeTruthy();
+        expect(ImageInternals.hasTexture(image)).toBeTruthy();
       });
     });
 
