@@ -5,6 +5,7 @@
 import { fimTestSuiteBackup } from './Backup';
 import { fimTestSuiteCanvas } from './Canvas';
 import { fimTestSuiteCreateDispose } from './CreateDispose';
+import { fimTestSuiteDownscaled } from './Downscaled';
 import { fimTestSuiteImage } from './Image';
 import { fimTestSuiteOpBrightnessContrast } from './OpBrightnessContrast';
 import { fimTestSuiteOpBuiltin } from './OpBuiltin';
@@ -39,6 +40,7 @@ export function fimTestSuite(
   fimTestSuiteOpDownscale(description, factory);
   fimTestSuiteOpGaussianBlur(description, factory);
   fimTestSuiteOversized(description, factory);
+  fimTestSuiteDownscaled(description, factory);
   fimTestSuiteBackup(description, factory);
   fimTestSuiteResourceTracker(description, factory);
 }

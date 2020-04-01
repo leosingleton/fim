@@ -10,7 +10,13 @@ import { TestSizes } from '../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
 import { Fim, FimBitsPerPixel, FimDimensions, FimOpInvert, FimOpUnsharpMask, FimRect } from '@leosingleton/fim';
 
-/** FIM test cases around transparent downscaling of oversized images */
+/**
+ * FIM test cases around transparent downscaling of oversized images
+ *
+ * Note that this is similar to, but separate from `fimTestSuiteDownscaled`, which covers images downscaled due to their
+ * inputs being smaller than the desired dimensions. This suite is specifically for cases where downscale occurs because
+ * the contents are larger than the parent FIM instance or the WebGL capabilities.
+ */
 export function fimTestSuiteOversized(
   description: string,
   factory: (maxImageDimensions: FimDimensions) => Fim
