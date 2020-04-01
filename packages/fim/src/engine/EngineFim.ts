@@ -171,7 +171,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
-    const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
+    const glDimensions = me.maxImageDimensions.fitInsideSquare(maxDimension).toFloor();
     me.optimizer.reserveCanvasMemory(glDimensions.getArea() * 4);
     const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(me.getGLCanvasOptions(), glDimensions,
       `${me.handle}/WebGLCanvas`);

@@ -59,14 +59,16 @@ describe('FimDimensions', () => {
     expect(dim3).toEqual(FimDimensions.fromWidthHeight(300, 500));
   });
 
-  it('Downscales dimensions', () => {
-    const dim = FimDimensions.downscaleToMaxDimension(640, 480, 512);
+  it('fitInsideSquare()', () => {
+    const originalDim = FimDimensions.fromWidthHeight(640, 480);
+    const dim = originalDim.fitInsideSquare(512);
     expect(dim.w).toEqual(512);
     expect(dim.h).toEqual(384);
   });
 
-  it('Does not downscale if below max', () => {
-    const dim = FimDimensions.downscaleToMaxDimension(640, 480, 1024);
+  it('fitInsideSquare() does not downscale if below max', () => {
+    const originalDim = FimDimensions.fromWidthHeight(640, 480);
+    const dim = originalDim.fitInsideSquare(1024);
     expect(dim.w).toEqual(640);
     expect(dim.h).toEqual(480);
   });

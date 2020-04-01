@@ -70,13 +70,30 @@ export class FimDimensions extends FimGeometry {
   }
 
   /**
-   * Downscales this to a maximum dimension, preserving aspect ratio
-   * @param maxDimension Maximum value of either width or height
-   * @returns Downscaled FimDimensions with the same aspect ratio as this one. Note that the dimensions are rounded
-   *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
+   * Downscales the current dimensions to fit inside of the requested maximum dimensions, while preserving the original
+   * aspect ratio
+   * @param maxDimensions Maximum dimensions to fit inside of
+   * @returns Downscaled dimensions. May be the original dimensions if they already fit. Also note that the values may
+   *    be non-integers, so the caller may want to call `toFloor()` on the result.
    */
-  public downscaleToMaxDimension(maxDimension: number): FimDimensions {
-    return FimDimensions.downscaleToMaxDimension(this.w, this.h, maxDimension);
+  public fitInside(maxDimensions: FimDimensions): FimDimensions {
+    const me = this;
+    if (me.w <= maxDimensions.w && me.h <= maxDimensions.h) {
+      return me;
+    }
+
+    return me.rescale(Math.min(maxDimensions.w / me.w, maxDimensions.h / me.h));
+  }
+
+  /**
+   * Downscales the current dimensions to fit inside a square of the requested maximum dimension while preserving the
+   * original aspect ratio
+   * @param maxDimension Dimension of one side of the maximum square
+   * @returns Downscaled dimensions. May be the original dimensions if they already fit. Also note that the values may
+   *    be non-integers, so the caller may want to call `toFloor()` on the result.
+   */
+  public fitInsideSquare(maxDimension: number): FimDimensions {
+    return this.fitInside(FimDimensions.fromSquareDimension(maxDimension));
   }
 
   /**
@@ -104,23 +121,6 @@ export class FimDimensions extends FimGeometry {
 
   public static max(d1: FimDimensions, d2: FimDimensions): FimDimensions {
     return new FimDimensions(Math.max(d1.w, d2.w), Math.max(d1.h, d2.h));
-  }
-
-  /**
-   * Downscales a set of dimensions, preserving aspect ratio
-   * @param width Input width
-   * @param height Input height
-   * @param maxDimension Maximum value of either width or height
-   * @returns Downscaled FimDimensions with the same aspect ratio as the original. Note that the dimensions are rounded
-   *    to the nearest pixel, so the aspect ratio may be slightly different due to rounding errors.
-   */
-  public static downscaleToMaxDimension(width: number, height: number, maxDimension: number): FimDimensions {
-    if (width <= maxDimension && height <= maxDimension) {
-      return new FimDimensions(width, height);
-    }
-
-    const scale = Math.min(maxDimension / width, maxDimension / height);
-    return new FimDimensions(width * scale, height * scale).toFloor();
   }
 
   /**
