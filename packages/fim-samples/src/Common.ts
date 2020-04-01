@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { DocumentReady, Stopwatch, UnhandledError } from '@leosingleton/commonlibs';
-import { Fim } from '@leosingleton/fim';
+import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Stopwatch used to track elapsed time from page load. Used for animation and FPS calculations. */
 const elapsedClock = Stopwatch.startNew();
@@ -29,6 +29,25 @@ export function getAnimationValue(period: number, minValue = 0, maxValue = 1): n
 
   const delta = maxValue - minValue;
   return value * delta + minValue;
+}
+
+/**
+ * This function calculates the correct dimensions to enable high device pixel ratio (High DPR) support on a canvas. It
+ * should be called regularly during the lifetime of the canvas, as the browser window could move to a different monitor
+ * with a different DPR.
+ * @param canvas Canvas to enable high DPR support on
+ */
+export function enableHighDprCanvas(canvas: HTMLCanvasElement, dimensions: FimDimensions): void {
+  const dpr = window.devicePixelRatio || 1;
+  const expectedCssWidth = dimensions.w / dpr;
+  const expectedCssHeight = dimensions.h / dpr;
+  if (canvas.width !== dimensions.w || canvas.height !== dimensions.h ||
+      canvas.clientWidth !== expectedCssWidth || canvas.clientHeight !== expectedCssHeight) {
+    canvas.width = dimensions.w;
+    canvas.height = dimensions.h;
+    canvas.style.width = expectedCssWidth + 'px';
+    canvas.style.height = expectedCssHeight + 'px';
+  }
 }
 
 /** Called at the beginning of rendering one frame */

@@ -18,7 +18,7 @@ $(async () => {
   const fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
 
   // Load the sample image
-  const url = 'https://www.leosingleton.com/sample-images/point-lobos.jpg';
+  const url = 'https://www.leosingleton.com/sample-images/carmel.jpg';
   const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
 
   // Create the unsharp mask operation
@@ -29,14 +29,15 @@ $(async () => {
 
   // Get and scale the output canvas
   const canvas = $('#output').get(0);
-  canvas.width = outputImage.dim.w;
-  canvas.height = outputImage.dim.h;
 
   // Start the animation loop
   requestAnimationFrame(renderOneFrame);
 
   async function renderOneFrame() {
     try {
+      // Adjust canvas dimensions to support high DPR displays
+      enableHighDprCanvas(canvas, outputImage.dim);
+
       // Cycle back and forth every 3 seconds
       const amount = getAnimationValue(3000, 0, 5);
       const sigma = 2;
