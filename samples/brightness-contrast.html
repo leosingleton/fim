@@ -37,6 +37,9 @@ $(async () => {
 
   async function renderOneFrame() {
     try {
+      // Adjust canvas dimensions to support high DPR displays
+      enableHighDprCanvas(canvas, outputImage.dim);
+
       // Cycle back and forth brightness every 5 seconds and contrast every 7 seconds
       const brightness = getAnimationValue(5000, -1, 1);
       const contrast = getAnimationValue(7000, -1, 1);
