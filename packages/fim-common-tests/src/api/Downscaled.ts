@@ -23,11 +23,11 @@ export function fimTestSuiteDownscaled(
 ): void {
   describe(`FIM Downscaled - ${description}`, () => {
 
-    xit('Preserves input dimensions when copying', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
+    it('Preserves input dimensions when copying', async () => {
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a small image
-        const smallImage = fim.createImage({}, TestSizes.small);
-        await smallImage.fillSolidAsync(TestColors.red);
+        const smallImage = fim.createImage({}, TestSizes.smallSquare);
+        await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
         const mediumImage = fim.createImage();
@@ -35,15 +35,15 @@ export function fimTestSuiteDownscaled(
 
         // The memory backing the medium image should actually be the same size as the small one
         expect(ImageInternals.hasCanvas(mediumImage)).toBeTruthy();
-        expect(ImageInternals.getCanvas(mediumImage).dim).toEqual(TestSizes.small);
+        expect(ImageInternals.getCanvas(mediumImage).dim).toEqual(TestSizes.smallSquare);
 
         // Ensure the test pattern is as expected
         await TestImages.expectFourSquaresPngAsync(mediumImage);
       });
     });
 
-    xit('Preserves input dimensions when copying with srcCoords', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
+    it('Preserves input dimensions when copying with srcCoords', async () => {
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a small test image
         const smallImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
@@ -65,74 +65,76 @@ export function fimTestSuiteDownscaled(
     });
 
     xit('Preserves dimensions when loading from a smaller image', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
-        // Create a medium 480x640 image
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
+        // Create a medium 640x640 image
         const image = fim.createImage();
 
-        // Load a 128x128 PNG onto the 480x640 image with "rescale"
+        // Load a 128x128 PNG onto the 640x640 image with "rescale"
         await image.loadFromPngAsync(TestImages.fourSquaresPng(), true);
 
         // The memory backing the medium image should actually be 128x128
         expect(ImageInternals.hasCanvas(image)).toBeTruthy();
-        expect(ImageInternals.getCanvas(image).dim).toEqual(TestSizes.smallFourSquares);
+        expect(ImageInternals.getCanvas(image).dim).toEqual(TestSizes.smallSquare);
 
         // Ensure the test pattern is as expected
         await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
-    xit('Preserves dimensions when transfering to a WebGL texture and back', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
+    it('Preserves dimensions when transfering to a WebGL texture and back', async () => {
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         const invert = new FimOpInvert(fim);
 
-        // Create a medium 480x640 image
+        // Create a medium 640x640 image
         const image1 = fim.createImage();
 
-        // Load a 128x128 PNG onto the 480x640 image with "rescale"
+        // Load a 128x128 PNG onto the 640x640 image with "rescale"
         await image1.loadFromPngAsync(TestImages.fourSquaresPng(), true);
 
         // The memory backing the input image should actually be 128x128
-        expect(ImageInternals.hasCanvas(image1)).toBeTruthy();
-        expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.smallFourSquares);
+        // BUGBUG: loadFromPngAsync() doesn't have the preserveDownscaledDimensions optimization yet!
+        //expect(ImageInternals.hasCanvas(image1)).toBeTruthy();
+        //expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.smallSquare);
 
         // Perform an invert as a WebGL operation
         const image2 = fim.createImage();
         await image2.executeAsync(invert.$(image1));
 
         // The input WebGL texture remained 128x128, but the output texture was the requested dimensions
-        expect(ImageInternals.hasTexture(image1)).toBeTruthy();
-        expect(ImageInternals.getTexture(image1).dim).toEqual(TestSizes.smallFourSquares);
+        // BUGBUG: loadFromPngAsync() doesn't have the preserveDownscaledDimensions optimization yet!
+        //expect(ImageInternals.hasTexture(image1)).toBeTruthy();
+        //expect(ImageInternals.getTexture(image1).dim).toEqual(TestSizes.smallSquare);
         expect(ImageInternals.hasTexture(image2)).toBeTruthy();
-        expect(ImageInternals.getTexture(image2).dim).toEqual(TestSizes.medium);
+        expect(ImageInternals.getTexture(image2).dim).toEqual(TestSizes.mediumSquare);
 
         // Backup the output texture to a canvas
         await image2.backupAsync();
 
         // The memory backing the output canvas should also be medium
         expect(ImageInternals.hasCanvas(image2)).toBeTruthy();
-        expect(ImageInternals.getCanvas(image2).dim).toEqual(TestSizes.medium);
+        expect(ImageInternals.getCanvas(image2).dim).toEqual(TestSizes.mediumSquare);
 
         // Run the WebGL invert again, this time from 2 -> 1
         await image1.executeAsync(invert.$(image2));
 
         // Ensure the output texture is now medium
         expect(ImageInternals.hasTexture(image1)).toBeTruthy();
-        expect(ImageInternals.getTexture(image1).dim).toEqual(TestSizes.medium);
+        expect(ImageInternals.getTexture(image1).dim).toEqual(TestSizes.mediumSquare);
 
         // Ensure the test pattern is as expected
         await TestImages.expectFourSquaresPngAsync(image1);
 
         // Reading the test pattern copied it to a canvas. Ensure that is now medium too.
         expect(ImageInternals.hasCanvas(image1)).toBeTruthy();
-        expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.medium);
+        expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.mediumSquare);
       });
     });
 
-    xit('Upscales dimensions when copying and preserveDownscaledDimensions=false', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
+    it('Upscales dimensions when copying and preserveDownscaledDimensions=false', async () => {
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a small image
-        const smallImage = fim.createImage({}, TestSizes.small);
-        await smallImage.fillSolidAsync(TestColors.red);
+        const smallImage = fim.createImage({}, TestSizes.smallSquare);
+        await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
         const mediumImage = fim.createImage({ preserveDownscaledDimensions: false });
@@ -140,7 +142,7 @@ export function fimTestSuiteDownscaled(
 
         // The image contents should be upscaled to the destination dimensions
         expect(ImageInternals.hasCanvas(mediumImage)).toBeTruthy();
-        expect(ImageInternals.getCanvas(mediumImage).dim).toEqual(TestSizes.medium);
+        expect(ImageInternals.getCanvas(mediumImage).dim).toEqual(TestSizes.mediumSquare);
 
         // Ensure the test pattern is as expected
         await TestImages.expectFourSquaresPngAsync(mediumImage);
@@ -148,47 +150,51 @@ export function fimTestSuiteDownscaled(
     });
 
     it('Upscales dimensions when loading from a smaller image and preserveDownscaledDimensions=false', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
-        // Create a medium 480x640 image
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
+        // Create a medium 640x640 image
         const image = fim.createImage({ preserveDownscaledDimensions: false });
 
-        // Load a 128x128 PNG onto the 480x640 image with "rescale"
+        // Load a 128x128 PNG onto the 640x640 image with "rescale"
         await image.loadFromPngAsync(TestImages.fourSquaresPng(), true);
 
         // The image contents should be upscaled to the destination dimensions
         expect(ImageInternals.hasCanvas(image)).toBeTruthy();
-        expect(ImageInternals.getCanvas(image).dim).toEqual(TestSizes.medium);
+        expect(ImageInternals.getCanvas(image).dim).toEqual(TestSizes.mediumSquare);
 
         // Ensure the test pattern is as expected
         await TestImages.expectFourSquaresPngAsync(image);
       });
     });
 
-    xit('Upscales dimensions when glDownscale < downscale and preserveDownscaledDimensions=false', async () => {
-      await usingAsync(factory(TestSizes.medium), async fim => {
+    it('Upscales dimensions when glDownscale < downscale and preserveDownscaledDimensions=false', async () => {
+      await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         const invert = new FimOpInvert(fim);
 
         // Create a small test image
         const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Create a small destination image with glDownscale = 0.5
-        const outputImage = fim.createImage({ glDownscale: 0.5, preserveDownscaledDimensions: false }, TestSizes.small);
+        const outputImage = fim.createImage({ glDownscale: 0.5, preserveDownscaledDimensions: false },
+          TestSizes.smallSquare);
 
         // Populate the destination image with a WebGL shader
         await outputImage.executeAsync(invert.$(inputImage));
 
         // The texture backing the output image should be downscaled by 0.5x
         expect(ImageInternals.hasTexture(outputImage)).toBeTruthy();
-        expect(ImageInternals.getCanvasDownscale(outputImage)).toEqual(0.5);
-        expect(ImageInternals.getTexture(outputImage).dim).toEqual(TestSizes.small.rescale(0.5));
+        expect(ImageInternals.getTextureDownscale(outputImage)).toEqual(0.5);
+        expect(ImageInternals.getTexture(outputImage).dim).toEqual(TestSizes.smallSquare.rescale(0.5));
 
-        // Ensure the test pattern is as expected
-        await TestImages.expectFourSquaresPngAsync(outputImage);
+        // Ensure the test pattern is inverted as expected
+        expect(await outputImage.getPixelAsync(topLeft())).toEqual(TestColors.cyan);      // ~red
+        expect(await outputImage.getPixelAsync(topRight())).toEqual(TestColors.magenta);  // ~green
+        expect(await outputImage.getPixelAsync(bottomLeft())).toEqual(TestColors.yellow); // ~blue
+        expect(await outputImage.getPixelAsync(bottomRight())).toEqual(TestColors.white); // ~black
 
         // Reading the test pattern copied it to a canvas. However, the canvas has a downscale of 1.0.
         expect(ImageInternals.hasCanvas(outputImage)).toBeTruthy();
         expect(ImageInternals.getCanvasDownscale(outputImage)).toEqual(1.0);
-        expect(ImageInternals.getCanvas(outputImage).dim).toEqual(TestSizes.small);
+        expect(ImageInternals.getCanvas(outputImage).dim).toEqual(TestSizes.smallSquare);
       });
     });
 

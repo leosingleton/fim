@@ -243,7 +243,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Support the preserveDownscaledDimensions optimization
-    if (dimensions && options.preserveDownscaledDimensions) {
+    if (dimensions && options.preserveDownscaledDimensions && dimensions.equalsAspectRatio(me.dim)) {
       downscaleValues.push(FimDimensions.calculateDownscaleRatio(me.dim, dimensions));
     }
 
@@ -561,15 +561,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
       // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
       // optimization).
-      me.allocateContentCanvas(destCoords.dim);
+      me.allocateContentCanvas(srcCoords.dim);
     } else {
       // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
       // and throw an exception if the current image is uninitialized.
       await me.populateContentCanvas();
     }
 
-    const scaledSrcCoords = srcCoords.rescale(srcImage.contentCanvas.downscale);
-    const scaledDestCoords = destCoords.rescale(me.contentCanvas.downscale);
+    const scaledSrcCoords = srcCoords.rescale(srcImage.contentCanvas.downscale).toFloor();
+    const scaledDestCoords = destCoords.rescale(me.contentCanvas.downscale).toFloor();
     await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, scaledSrcCoords,
       scaledDestCoords);
     me.markCurrent(me.contentCanvas, true);

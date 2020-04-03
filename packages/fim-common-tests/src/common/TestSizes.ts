@@ -17,4 +17,16 @@ export namespace TestSizes {
 
   /** Large 1920x1080 canvas dimensions */
   export const large = FimDimensions.fromWidthHeight(1920, 1080);
+
+  /** Small 128x32 dimensions */
+  export const smallWide4 = FimDimensions.fromWidthHeight(128, 32);
+
+  /** Small 128x128 dimensions, also used by the four squares sample images */
+  export const smallSquare = FimDimensions.fromSquareDimension(128);
+
+  /** Medium 640x160 dimensions */
+  export const mediumWide4 = FimDimensions.fromWidthHeight(640, 160);
+
+  /** Medium 640x640 dimensions */
+  export const mediumSquare = FimDimensions.fromSquareDimension(640);
 }
