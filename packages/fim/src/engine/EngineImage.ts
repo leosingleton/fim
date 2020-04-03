@@ -5,6 +5,7 @@
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
+import { CanvasImageContent, ColorImageContent, ImageContent, TextureImageContent } from './ImageContent';
 import { ImageType } from './optimizer/ImageType';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
@@ -136,13 +137,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   //
 
   /** Contains the color of the image if the contents are a solid color */
-  private readonly contentFillColor = defaultImageContent<FimColor>();
+  private readonly contentFillColor = new ColorImageContent();
 
   /** Contains the contents of the image as a 2D canvas */
-  private readonly contentCanvas = defaultImageContent<CoreCanvas2D>();
+  private readonly contentCanvas = new CanvasImageContent();
 
   /** Contains the contents of the image as a WebGL texture */
-  private readonly contentTexture = defaultImageContent<CoreTexture>();
+  private readonly contentTexture = new TextureImageContent();
 
   /**
    * Ensures `contentCanvas.imageContent` points to a valid 2D canvas
@@ -777,27 +778,4 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     return result;
   }
-}
-
-/** Wrapper around textures and canvases containing the image content */
-interface ImageContent<T> {
-  /** Texture or canvas containing the image content. May be undefined if unallocated. */
-  imageContent?: T;
-
-  /** True if `imageContent` contains the latest image. False if it is out-of-date. */
-  isCurrent: boolean;
-
-  /**
-   * Downscale factor which can be passed to `FimGeometry.rescale()` to convert coordinates from the `EngineImage`'s
-   * virtual dimensions to the actual dimensions of the underlying `imageContent` object
-   */
-  downscale: number;
-}
-
-/** Returns an instance of `ImageContent<T>` with default values */
-function defaultImageContent<T>(): ImageContent<T> {
-  return {
-    isCurrent: false,
-    downscale: 1
-  };
 }
