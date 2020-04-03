@@ -14,7 +14,6 @@ import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
-import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { FimColor } from '../primitives/FimColor';
@@ -39,7 +38,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     this.dim = dimensions ?? this.rootObject.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
 
-    this.rootObject.optimizer.recordImageCreate(this);
+    const root = this.rootObject;
+    root.optimizer.recordImageCreate(this);
+
+    // Initialize the imageContent collection. This class contains the management of the three internal representations
+    // of the image contents. There is a 1:1 mapping between EngineImage and ImageCollection instances. Originally, it
+    // was part of this class itself, however was separated out to make the code more manageable.
+    this.imageContent = new ImageCollection(() => this.getImageOptions(), root.optimizer, root.resources);
   }
 
   public dispose(): void {
@@ -86,7 +91,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Calculate any options which would get applied on the next texture creation
       const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
       textureDownscale = dsf.downscale;
-      textureOptions = me.getTextureOptions();
+      textureOptions = me.imageContent.contentTexture.getOptions();
     }
     options = mergeImageOptions(options, {
       bpp: textureOptions.bpp,
@@ -107,22 +112,6 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     return mergeImageOptions(this.rootObject.defaultImageOptions, this.imageOptions);
   }
 
-  /** Calculates and returns the `CoreCanvasOptions` for creating a new canvas */
-  public getCanvasOptions(): CoreCanvasOptions {
-    //const options = this.getImageOptions();
-    return {};
-  }
-
-  /** Calculates and returns the `CoreTextureOptions` for creating a new texture */
-  public getTextureOptions(): CoreTextureOptions {
-    const options = this.getImageOptions();
-    return {
-      bpp: options.bpp,
-      isReadOnly: options.glReadOnly,
-      sampling: options.sampling
-    };
-  }
-
   /**
    * Internally, the image contents has three different representations:
    *  - A solid fill color
@@ -132,7 +121,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * At any time, anywhere between zero and three may be set and the rest undefined. If multiple values are set, it is
    * safe to assume that the values are equivalent.
    */
-  private readonly imageContent = new ImageCollection();
+  private readonly imageContent: ImageCollection;
 
   /**
    * Ensures `contentCanvas.imageContent` points to a valid 2D canvas
@@ -163,7 +152,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Create a 2D canvas
-    const options = me.getCanvasOptions();
+    const options = me.imageContent.contentCanvas.getOptions();
     root.optimizer.reserveCanvasMemory(dsf.scaledDimensions.getArea() * 4);
     const canvas = me.imageContent.contentCanvas.imageContent = root.createCoreCanvas2D(options, dsf.scaledDimensions,
       handle);
@@ -204,7 +193,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // Create a WebGL texture
     const glCanvas = root.getWebGLCanvas();
-    const options = me.getTextureOptions();
+    const options = me.imageContent.contentTexture.getOptions();
     root.optimizer.reserveGLMemory(dsf.scaledDimensions.getArea() * options.bpp * 0.5);
     const texture = me.imageContent.contentTexture.imageContent = glCanvas.createCoreTexture(options,
       dsf.scaledDimensions, handle);
@@ -584,7 +573,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
       const glCanvas = root.getWebGLCanvas();
-      const outputTexture = glCanvas.createCoreTexture(me.getTextureOptions(),
+      const outputTexture = glCanvas.createCoreTexture(me.imageContent.contentTexture.getOptions(),
         me.imageContent.contentTexture.imageContent.dim);
       try {
         root.resources.recordCreate(me, outputTexture);
@@ -733,7 +722,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    const temp = root.createCoreCanvas2D(me.getCanvasOptions(), srcCoords.dim, `${me.handle}/RescaleHelper`);
+    const temp = root.createCoreCanvas2D(me.imageContent.contentCanvas.getOptions(), srcCoords.dim,
+      `${me.handle}/RescaleHelper`);
     try {
       root.resources.recordCreate(me, temp);
 
