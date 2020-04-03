@@ -246,7 +246,7 @@ export class ImageCollection {
   private autoDownscaleWarningLogged = false;
 
   /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
-  public async populateContentCanvas(): Promise<void> {
+  public async populateContentCanvasAsync(): Promise<void> {
     const me = this;
     const parentImage = me.parentImage;
     const root = parentImage.rootObject;
@@ -290,7 +290,7 @@ export class ImageCollection {
    * Ensures `contentTexture.imageContent` is allocated and contains the current image data
    * @returns The `CoreTexture` instance backing the content texture
    */
-  public async populateContentTexture(): Promise<CoreTexture> {
+  public async populateContentTextureAsync(): Promise<CoreTexture> {
     const me = this;
     const parentImage = me.parentImage;
     const optimizer = parentImage.rootObject.optimizer;

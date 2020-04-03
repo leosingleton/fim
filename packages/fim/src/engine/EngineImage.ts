@@ -127,8 +127,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * Returns a WebGL texture containing the current image contents
    * @returns The `CoreTexture` instance backing the content texture
    */
-  public populateContentTexture(): Promise<CoreTexture> {
-    return this.imageContent.populateContentTexture();
+  public populateContentTextureAsync(): Promise<CoreTexture> {
+    return this.imageContent.populateContentTextureAsync();
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
@@ -161,7 +161,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     if (me.imageContent.contentTexture.isCurrent && !me.imageContent.contentFillColor.isCurrent &&
         !me.imageContent.contentCanvas.isCurrent) {
       // The WebGL texture is the only copy of the image contents and needs to be backed up to a canvas
-      await me.imageContent.populateContentCanvas();
+      await me.imageContent.populateContentCanvasAsync();
       optimizer.recordImageWrite(me, ImageType.Canvas);
 
       // Let the optimizer release unneeded resources
@@ -193,7 +193,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       return me.imageContent.contentFillColor.imageContent;
     }
 
-    await me.imageContent.populateContentCanvas();
+    await me.imageContent.populateContentCanvasAsync();
     const scaledPoint = point.rescale(me.imageContent.contentCanvas.downscale);
     const color = me.imageContent.contentCanvas.imageContent.getPixel(scaledPoint);
 
@@ -281,7 +281,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords.validateIn(srcImage);
     destCoords.validateIn(me);
 
-    await srcImage.imageContent.populateContentCanvas();
+    await srcImage.imageContent.populateContentCanvasAsync();
 
     if (destCoords.dim.equals(me.dim)) {
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
@@ -291,7 +291,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     } else {
       // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
       // and throw an exception if the current image is uninitialized.
-      await me.imageContent.populateContentCanvas();
+      await me.imageContent.populateContentCanvasAsync();
     }
 
     const scaledSrcCoords = srcCoords.rescale(srcImage.imageContent.contentCanvas.downscale).toFloor();
@@ -333,7 +333,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     } else {
       // The destination is not the full image. Some of the current image is required. Ensure the texture is populated,
       // and throw an exception if the current image is uninitialized.
-      await me.imageContent.populateContentTexture();
+      await me.imageContent.populateContentTextureAsync();
     }
 
     const scaledDestCoords = destCoords.rescale(me.imageContent.contentTexture.downscale);
@@ -365,7 +365,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.
     if (me.getImageOptions().autoBackup) {
-      await me.imageContent.populateContentCanvas();
+      await me.imageContent.populateContentCanvasAsync();
       optimizer.recordImageWrite(me, ImageType.Canvas);
     }
 
@@ -382,7 +382,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     srcCoords.validateIn(me);
 
-    await me.imageContent.populateContentCanvas();
+    await me.imageContent.populateContentCanvasAsync();
     let pixelData: Uint8ClampedArray;
     if (me.imageContent.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
@@ -419,7 +419,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     srcCoords.validateIn(me);
 
-    await me.imageContent.populateContentCanvas();
+    await me.imageContent.populateContentCanvasAsync();
     const scaledSrcCoords = srcCoords.rescale(me.imageContent.contentCanvas.downscale).toFloor();
     await exportLambda(me.imageContent.contentCanvas.imageContent, scaledSrcCoords, destCoords);
 
@@ -432,7 +432,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    await me.imageContent.populateContentCanvas();
+    await me.imageContent.populateContentCanvasAsync();
     let png: Uint8Array;
     if (me.imageContent.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
@@ -454,7 +454,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    await me.imageContent.populateContentCanvas();
+    await me.imageContent.populateContentCanvasAsync();
     let jpeg: Uint8Array;
     if (me.imageContent.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
