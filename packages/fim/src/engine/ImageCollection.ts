@@ -43,4 +43,26 @@ export class ImageCollection {
 
   /** Contains the contents of the image as a WebGL texture */
   public readonly contentTexture = new TextureImageContent();
+
+  /** Returns `true` if any of the image representations have `isCurrent === true` */
+  public hasImage(): boolean {
+    return this.contentFillColor.isCurrent || this.contentCanvas.isCurrent || this.contentTexture.isCurrent;
+  }
+
+  /**
+   * Marks one of the image content values as current
+   * @param ic The `ImageContent` object to mark as current
+   * @param invalidateOthers If `true`, all other `ImageContent` objects are marked as not current
+   */
+  public markCurrent<T>(ic: ImageContent<T>, invalidateOthers: boolean): void {
+    const me = this;
+
+    if (invalidateOthers) {
+      me.contentFillColor.isCurrent = false;
+      me.contentCanvas.isCurrent = false;
+      me.contentTexture.isCurrent = false;
+    }
+
+    ic.isCurrent = true;
+  }
 }
