@@ -15,7 +15,7 @@ export function coreCanvas2DTestSuiteCreateDispose(
   describe(`CoreCanvas2D Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const canvas = factory(canvasOptions, TestSizes.small);
+      const canvas = factory(canvasOptions, TestSizes.smallWide);
       canvas.dispose();
       expect(() => canvas.dispose()).toThrow(); // Double dispose throws exception
     });

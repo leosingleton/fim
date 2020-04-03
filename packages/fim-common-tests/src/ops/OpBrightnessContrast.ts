@@ -16,7 +16,7 @@ export function fimTestSuiteOpBrightnessContrast(
   describe(`FimOpBrightnessContrast - ${description}`, () => {
 
     it('Increases Brightness', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
         const input = fim.createImage();
@@ -25,12 +25,12 @@ export function fimTestSuiteOpBrightnessContrast(
         const outputImage = fim.createImage();
         await outputImage.executeAsync(brightnessContrast.$(input, 0.5, 0.0));
 
-        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.white);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.white);
       });
     });
 
     it('Increases Contrast', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
         const input = fim.createImage();
@@ -39,7 +39,7 @@ export function fimTestSuiteOpBrightnessContrast(
         const outputImage = fim.createImage();
         await outputImage.executeAsync(brightnessContrast.$(input, 0.0, 0.5));
 
-        expect(await outputImage.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
+        expect(await outputImage.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 

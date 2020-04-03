@@ -19,7 +19,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
   describe(`CoreCanvasWebGL Context Lost - ${description}`, () => {
 
     it('Simulate a context loss', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.small), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
         // Simulate a context loss
         expect(canvas.isContextLost).toBeFalsy();
         await loseContextAsync(canvas);
@@ -31,7 +31,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
     });
 
     it('Simulate a context loss and restored', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.small), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
         // Simulate a context loss and immediate restore
         expect(canvas.isContextLost).toBeFalsy();
         await loseContextAsync(canvas);
@@ -41,12 +41,12 @@ export function coreCanvasWebGLTestSuiteContextLost(
 
         // Calls after context is restored will succeed
         canvas.fillSolid(TestColors.red);
-        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.red);
+        expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 
     it('Simulate a complex context loss', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.small), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(TestColors.red);
 
@@ -60,7 +60,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
 
         // Copy the green texture to the canvas
         canvas.copyFrom(texture1);
-        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.green);
+        expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.green);
 
         // Simulate a context loss
         await loseContextAsync(canvas);
@@ -84,7 +84,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
         const texture2 = canvas.createCoreTexture(textureOptions);
         texture2.fillSolid(TestColors.blue);
         canvas.copyFrom(texture2);
-        expect(canvas.getPixel(midpoint(TestSizes.small))).toEqual(TestColors.blue);
+        expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
       });
     });
 

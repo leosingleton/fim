@@ -16,7 +16,7 @@ export function fimTestSuiteCreateDispose(
   describe(`FIM Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const fim = factory(TestSizes.small);
+      const fim = factory(TestSizes.smallWide);
       fim.dispose();
 
       // Double-dispose throws an exception
@@ -24,7 +24,7 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Handles multiple releaseAllResources() calls', () => {
-      using(factory(TestSizes.small), fim => {
+      using(factory(TestSizes.smallWide), fim => {
         fim.releaseAllResources();
         fim.releaseAllResources();
         fim.releaseAllResources();
@@ -32,7 +32,7 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Creates and disposes images', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const img1 = fim.createImage();
         await img1.fillSolidAsync(TestColors.red);
         img1.dispose();
@@ -43,7 +43,7 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Creates and disposes shaders', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const shader1 = fim.createGLShader(fillConstShader);
         shader1.dispose();
 
@@ -56,7 +56,7 @@ export function fimTestSuiteCreateDispose(
       let shader: FimShader;
       let image: FimImage;
 
-      using(factory(TestSizes.small), fim => {
+      using(factory(TestSizes.smallWide), fim => {
         shader = fim.createGLShader(fillConstShader);
         image = fim.createImage();
       });

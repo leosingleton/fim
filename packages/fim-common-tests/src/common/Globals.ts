@@ -11,22 +11,22 @@ export function midpoint(dimensions: FimDimensions): FimPoint {
 }
 
 /** Returns a point in the top-left quadrant */
-export function topLeft(dimensions = TestSizes.smallFourSquares): FimPoint {
+export function topLeft(dimensions = TestSizes.smallSquare): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.25, dimensions.h * 0.25).toFloor();
 }
 
 /** Returns a point in the top-right quadrant */
-export function topRight(dimensions = TestSizes.smallFourSquares): FimPoint {
+export function topRight(dimensions = TestSizes.smallSquare): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.75, dimensions.h * 0.25).toFloor();
 }
 
 /** Returns a point in the bottom-left quadrant */
-export function bottomLeft(dimensions = TestSizes.smallFourSquares): FimPoint {
+export function bottomLeft(dimensions = TestSizes.smallSquare): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.25, dimensions.h * 0.75).toFloor();
 }
 
 /** Returns a point in the bottom-right quadrant */
-export function bottomRight(dimensions = TestSizes.smallFourSquares): FimPoint {
+export function bottomRight(dimensions = TestSizes.smallSquare): FimPoint {
   return FimPoint.fromXY(dimensions.w * 0.75, dimensions.h * 0.75).toFloor();
 }
 

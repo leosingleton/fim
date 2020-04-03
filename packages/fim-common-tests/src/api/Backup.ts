@@ -16,7 +16,7 @@ export function fimTestSuiteBackup(
   describe(`FIM Backup - ${description}`, () => {
 
     it('Backs up with explicit calls to backupAsync()', async () => {
-      await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
+      await usingAsync(factory(TestSizes.smallSquare), async fim => {
         const invert = new FimOpInvert(fim);
 
         // Load an image
@@ -41,7 +41,7 @@ export function fimTestSuiteBackup(
     });
 
     it('Backs up automatically with imageOptions.autoBackup', async () => {
-      await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
+      await usingAsync(factory(TestSizes.smallSquare), async fim => {
         const invert = new FimOpInvert(fim);
 
         // Load an image and enable auto-backup
