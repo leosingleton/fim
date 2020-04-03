@@ -32,3 +32,15 @@ export class CanvasImageContent extends ImageContent<CoreCanvas2D> {
 /** Implementation of `ImageContent` for `CoreTexture` */
 export class TextureImageContent extends ImageContent<CoreTexture> {
 }
+
+/** Collection of representations of the same image, used by `EngineImage` to store its data */
+export class ImageCollection {
+  /** Contains the color of the image if the contents are a solid color */
+  public readonly contentFillColor = new ColorImageContent();
+
+  /** Contains the contents of the image as a 2D canvas */
+  public readonly contentCanvas = new CanvasImageContent();
+
+  /** Contains the contents of the image as a WebGL texture */
+  public readonly contentTexture = new TextureImageContent();
+}
