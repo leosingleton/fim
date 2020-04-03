@@ -127,10 +127,27 @@ export class FimDimensions extends FimGeometry {
    * Calculates the downscale ratio to fit a larger set of `FimDimensions` inside of a smaller set of `FimDimensions`
    * @param larger Original `FimDimensions` object
    * @param smaller `FimDimensions` object to fit inside of
+   * @param withFloor If `true` (default), solves so that `larger.rescale(result).toFloor()` fits inside `smaller`.
+   *    Otherwise, if `false`, solves so that `larger.rescale(result)` fits inside `smaller`.
    * @returns Downscale ratio
    */
-  public static calculateDownscaleRatio(larger: FimDimensions, smaller: FimDimensions): number {
-    return Math.min(smaller.w / larger.w, smaller.h / larger.h);
+  public static calculateDownscaleRatio(larger: FimDimensions, smaller: FimDimensions, withFloor = true): number {
+    const ratioW = smaller.w / larger.w;
+    const ratioH = smaller.h / larger.h;
+    const ratio = Math.min(ratioW, ratioH);
+
+    if (withFloor) {
+      // In some cases, the smaller parameter may be an already-downscaled set of dimensions created from larger.
+      // Repetetive rescale() plus toFloor() calls will cause cumulative rounding errors, as each toFloor() operation
+      // may subtract up to one pixel. To mitigate this, we check whether the larger ratio of the two fits within
+      // smaller after the toFloor() operation, and if so, return that value instead.
+      const maxRatio = Math.max(ratioW, ratioH);
+      if (larger.rescale(maxRatio).toFloor().equals(smaller)) {
+        return maxRatio;
+      }
+    }
+
+    return ratio;
   }
 
   /**

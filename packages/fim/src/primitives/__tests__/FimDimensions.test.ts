@@ -96,6 +96,26 @@ describe('FimDimensions', () => {
     expect(FimDimensions.calculateDownscaleRatio(dim4, dim3)).toEqual(0.1);
   });
 
+  it('Calculates downscale ratios with rounding errors', () => {
+    const from = FimDimensions.fromWidthHeight(480, 640);
+    const to = FimDimensions.fromWidthHeight(100, 50);
+
+    // The raw downscale ratio is simply fitting the Y-axis with simple division
+    expect(FimDimensions.calculateDownscaleRatio(from, to, false)).toEqual(5 / 64);
+
+    // However, when accounting for toFloor() rounding errors, we may get a slightly higher value as what matters is
+    // that the downscaled dimensions are 37x50 (e.g. floor(37.5x50))
+    const expectedDimensions = FimDimensions.fromWidthHeight(37, 50);
+
+    const downscale1 = FimDimensions.calculateDownscaleRatio(from, to);
+    const dimensions1 = from.rescale(downscale1).toFloor();
+    expect(dimensions1).toEqual(expectedDimensions);
+
+    const downscale2 = FimDimensions.calculateDownscaleRatio(from, expectedDimensions);
+    const newDimensions2 = from.rescale(downscale2).toFloor();
+    expect(newDimensions2).toEqual(expectedDimensions);
+  });
+
   it('Compares aspect ratios', () => {
     const dim = FimDimensions.fromWidthHeight(640, 480);
     const dim1 = FimDimensions.fromWidthHeight(64, 48);

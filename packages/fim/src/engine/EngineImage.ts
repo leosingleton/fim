@@ -150,19 +150,29 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * Note that this call is NOT GUARANTEED to preserve the contents of the canvas if it is already allocated. It may
    * choose to reuse the existing canvas, in which case it is dirty with the previous contents, or it may choose to
    * allocate a new canvas, whichever is more efficient.
+   *
+   * @param dimensions Requested dimensions or downscale ratio of the canvas. This value is used to support the
+   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
    */
-  private allocateContentCanvas(): void {
+  private allocateContentCanvas(dimensions?: FimDimensions): void {
     const me = this;
     const root = me.rootObject;
     const handle = `${me.handle}/ContentCanvas`;
 
-    // If a canvas is already allocated, this function is a no-op
+    // Calculate the desired dimensions
+    const dsf = me.calculateDimensionsAndScaleFactor(handle, false, dimensions);
+
+    // If a canvas is already allocated and of the correct size, this function is a no-op
     if (me.contentCanvas.imageContent) {
-      return;
+      if (me.contentCanvas.downscale === dsf.downscale) {
+        return;
+      } else {
+        // The canvas is allocated but of the wrong size. Release the current one and reallocate it.
+        me.releaseContentCanvas();
+      }
     }
 
-    // Calculate the downscaled dimensions and create a 2D canvas
-    const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
+    // Create a 2D canvas
     const options = me.getCanvasOptions();
     root.optimizer.reserveCanvasMemory(dsf.scaledDimensions.getArea() * 4);
     const canvas = me.contentCanvas.imageContent = root.createCoreCanvas2D(options, dsf.scaledDimensions, handle);
@@ -178,19 +188,30 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * Note that this call is NOT GUARANTEED to preserve the contents of the texture if it is already allocated. It may
    * choose to reuse the existing texture, in which case it is dirty with the previous contents, or it may choose to
    * allocate a new texture, whichever is more efficient.
+   *
+   * @param dimensions Requested dimensions of the canvas. This value is used to support the
+   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
    */
-  private allocateContentTexture(): void {
+  private allocateContentTexture(dimensions?: FimDimensions): void {
     const me = this;
     const root = me.rootObject;
     const handle = `${me.handle}/ContentTexture`;
 
-    // If a texture is already allocated, this function is a no-op
+    // Calculate the desired dimensions
+    const dsf = me.calculateDimensionsAndScaleFactor(handle, true, dimensions);
+
+    // If a texture is already allocated and of the correct size, this function is a no-op
+    // TODO: Detect changes in the imageOptions that could also cause the texture to be reallocated
     if (me.contentTexture.imageContent) {
-      return;
+      if (me.contentTexture.downscale === dsf.downscale) {
+        return;
+      } else {
+        // The canvas is allocated but of the wrong size. Release the current one and reallocate it.
+        me.releaseContentTexture();
+      }
     }
 
-    // Calculate the downscaled dimensions and create a WebGL texture
-    const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
+    // Create a WebGL texture
     const glCanvas = root.getWebGLCanvas();
     const options = me.getTextureOptions();
     root.optimizer.reserveGLMemory(dsf.scaledDimensions.getArea() * options.bpp * 0.5);
@@ -205,8 +226,10 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * Calculates the dimensions and scale factor (`1 / downscale`) for a 2D canvas or WebGL texture
    * @param handle Handle of the object being created (for logging purposes)
    * @param isTexture True for WebGL textures; false for 2D canvases
+   * @param dimensions Requested dimensions or downscale ratio of the canvas. This value is used to support the
+   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
    */
-  private calculateDimensionsAndScaleFactor(handle: string, isTexture: boolean):
+  private calculateDimensionsAndScaleFactor(handle: string, isTexture: boolean, dimensions?: FimDimensions):
       { downscale: number, scaledDimensions: FimDimensions } {
     const me = this;
     const options = me.getImageOptions();
@@ -217,6 +240,11 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const downscaleValues = [options.downscale];
     if (isTexture) {
       downscaleValues.push(options.glDownscale);
+    }
+
+    // Support the preserveDownscaledDimensions optimization
+    if (dimensions && options.preserveDownscaledDimensions) {
+      downscaleValues.push(FimDimensions.calculateDownscaleRatio(me.dim, dimensions));
     }
 
     // Check whether the image dimensions are larger than supported by WebGL
@@ -284,13 +312,20 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
       optimizer.recordImageWrite(me, ImageType.Canvas);
     } else if (me.contentTexture.isCurrent) {
-      // Copy texture to the WebGL canvas
-      me.allocateContentCanvas();
+      // First, get the WebGL canvas. The getWebGLCanvas() call will allocate or resize it if necessary.
+      const srcTexture = me.contentTexture.imageContent;
       const glCanvas = me.rootObject.getWebGLCanvas();
-      glCanvas.copyFrom(me.contentTexture.imageContent);
+
+      // Calculate the coordinates to use on the WebGL canvas
+      const glCanvasDim = srcTexture.dim.fitInside(glCanvas.dim).toFloor();
+      const glCanvasCoords = FimRect.fromDimensions(glCanvasDim);
+
+      // Copy texture to the WebGL canvas
+      glCanvas.copyFrom(srcTexture, undefined, glCanvasCoords);
 
       // Copy the WebGL canvas to a 2D canvas
-      await me.contentCanvas.imageContent.copyFromAsync(glCanvas);
+      me.allocateContentCanvas(glCanvasDim);
+      await me.contentCanvas.imageContent.copyFromAsync(glCanvas, glCanvasCoords);
 
       optimizer.recordImageRead(me, ImageType.Texture);
       optimizer.recordImageWrite(me, ImageType.Canvas);
@@ -320,8 +355,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       optimizer.recordImageWrite(me, ImageType.Texture);
     } else if (me.contentCanvas.isCurrent) {
       // Copy canvas to texture
-      me.allocateContentTexture();
-      await me.contentTexture.imageContent.copyFromAsync(me.contentCanvas.imageContent);
+      const srcImage = me.contentCanvas.imageContent;
+      me.allocateContentTexture(srcImage.dim);
+      await me.contentTexture.imageContent.copyFromAsync(srcImage);
 
       optimizer.recordImageRead(me, ImageType.Canvas);
       optimizer.recordImageWrite(me, ImageType.Texture);
@@ -453,7 +489,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
     }
 
-    me.allocateContentCanvas();
+    me.allocateContentCanvas(dimensions);
     await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
     me.markCurrent(me.contentCanvas, true);
 
@@ -520,7 +556,18 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     destCoords.validateIn(me);
 
     await srcImage.populateContentCanvas();
-    me.allocateContentCanvas();
+
+    if (destCoords.dim.equals(me.dim)) {
+      // The destination is the full image. The current image contents will be erased, so use the opportunity to update
+      // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
+      // optimization).
+      me.allocateContentCanvas(destCoords.dim);
+    } else {
+      // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
+      // and throw an exception if the current image is uninitialized.
+      await me.populateContentCanvas();
+    }
+
     const scaledSrcCoords = srcCoords.rescale(srcImage.contentCanvas.downscale);
     const scaledDestCoords = destCoords.rescale(me.contentCanvas.downscale);
     await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, scaledSrcCoords,
@@ -552,7 +599,17 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     destCoords = destCoords ?? FimRect.fromDimensions(me.dim);
     destCoords.validateIn(me);
 
-    me.allocateContentTexture();
+    if (destCoords.dim.equals(me.dim)) {
+      // The destination is the full image. The current image contents will be erased, so use the opportunity to update
+      // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
+      // optimization).
+      me.allocateContentTexture();
+    } else {
+      // The destination is not the full image. Some of the current image is required. Ensure the texture is populated,
+      // and throw an exception if the current image is uninitialized.
+      await me.populateContentTexture();
+    }
+
     const scaledDestCoords = destCoords.rescale(me.contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
