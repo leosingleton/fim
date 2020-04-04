@@ -13,16 +13,12 @@ import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
 
-/** Wrapper around textures and canvases containing the image content */
-export abstract class ImageContent<TContent, TOptions> {
-  /**
-   * Constructor
-   * @param imageCollection Parent `ImageCollection`
-   */
-  public constructor(protected readonly imageCollection: ImageCollection) {
-  }
-
-  /** Texture or canvas containing the image content. May be undefined if unallocated. */
+/**
+ * Base class for any object containing the image contents
+ * @template TContent Class containing the image contents
+ */
+export class ImageContent<TContent> {
+  /** Object containing the image content. May be undefined if unallocated. */
   public imageContent?: TContent;
 
   /** True if `imageContent` contains the latest image. False if it is out-of-date. */
@@ -33,169 +29,43 @@ export abstract class ImageContent<TContent, TOptions> {
    * virtual dimensions to the actual dimensions of the underlying `imageContent` object
    */
   public downscale = 1;
-
-  /** Calculates the options for creating a new `imageContent` instance */
-  public abstract getOptions(): TOptions;
 }
 
-/** Implementation of `ImageContent` for `FimColor` */
-export class ColorImageContent extends ImageContent<FimColor, never> {
-  public getOptions(): never {
-    FimError.throwOnUnreachableCode();
-  }
-}
-
-/** Implementation of `ImageContent` for `CoreCanvas2D` */
-export class CanvasImageContent extends ImageContent<CoreCanvas2D, CoreCanvasOptions> {
-  public getOptions(): CoreCanvasOptions {
-    //const options = this.imageCollection.parentImage.getImageOptions();
-    return {};
-  }
-}
-
-/** Implementation of `ImageContent` for `CoreTexture` */
-export class TextureImageContent extends ImageContent<CoreTexture, CoreTextureOptions> {
-  public getOptions(): CoreTextureOptions {
-    const options = this.imageCollection.parentImage.getImageOptions();
-    return {
-      bpp: options.bpp,
-      isReadOnly: options.glReadOnly,
-      sampling: options.sampling
-    };
-  }
-}
-
-/** Collection of representations of the same image, used by `EngineImage` to store its data */
-export class ImageCollection {
+/**
+ * Base class for textures and canvases containing the image contents
+ * @template TContent Texture or canvas class containing the image contents
+ * @template TOptions Options class used to construct `TContent`
+ */
+export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanvas2D, TOptions>
+    extends ImageContent<TContent> {
   /**
    * Constructor
-   * @param parentImage Parent `EngineImage` instance
+   * @param imageCollection Parent `ImageCollection`
+   * @param imageType Type enum
+   * @param name Object name used to create a unique handle
    */
-  public constructor(public readonly parentImage: EngineImage) {
+  public constructor(protected readonly imageCollection: ImageCollection, protected readonly imageType: ImageType,
+      name: string) {
+    super();
+    this.handle = `${imageCollection.parentImage.handle}/${name}`;
   }
 
-  /** Contains the color of the image if the contents are a solid color */
-  public readonly contentFillColor = new ColorImageContent(this);
+  /** Unique string identifying the object */
+  public readonly handle: string;
 
-  /** Contains the contents of the image as a 2D canvas */
-  public readonly contentCanvas = new CanvasImageContent(this);
-
-  /** Contains the contents of the image as a WebGL texture */
-  public readonly contentTexture = new TextureImageContent(this);
-
-  /** Returns `true` if any of the image representations have `isCurrent === true` */
-  public hasImage(): boolean {
-    return this.contentFillColor.isCurrent || this.contentCanvas.isCurrent || this.contentTexture.isCurrent;
-  }
+  /** Returns the options for creating a new `TContent` instance */
+  public abstract getOptions(): TOptions;
 
   /**
-   * Marks one of the image content values as current
-   * @param ic The `ImageContent` object to mark as current
-   * @param invalidateOthers If `true`, all other `ImageContent` objects are marked as not current
-   */
-  public markCurrent<TContent, TOptions>(ic: ImageContent<TContent, TOptions>, invalidateOthers: boolean): void {
-    const me = this;
-
-    if (invalidateOthers) {
-      me.contentFillColor.isCurrent = false;
-      me.contentCanvas.isCurrent = false;
-      me.contentTexture.isCurrent = false;
-    }
-
-    ic.isCurrent = true;
-  }
-
-  /**
-   * Ensures `contentCanvas.imageContent` points to a valid 2D canvas
-   *
-   * Note that this call is NOT GUARANTEED to preserve the contents of the canvas if it is already allocated. It may
-   * choose to reuse the existing canvas, in which case it is dirty with the previous contents, or it may choose to
-   * allocate a new canvas, whichever is more efficient.
-   *
+   * Calculates the dimensions and dowbscale factor for a 2D canvas or WebGL texture
    * @param dimensions Requested dimensions or downscale ratio of the canvas. This value is used to support the
    *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
+   * @returns Object containing the downscaled dimensions and downscale factor
    */
-  public allocateContentCanvas(dimensions?: FimDimensions): void {
+  public calculateDimensionsAndDownscale(dimensions?: FimDimensions): DimensionsAndDownscale {
     const me = this;
-    const parentImage = me.parentImage;
-    const root = parentImage.rootObject;
-    const handle = `${parentImage.handle}/ContentCanvas`;
-
-    // Calculate the desired dimensions
-    const dsf = me.calculateDimensionsAndScaleFactor(handle, false, dimensions);
-
-    // If a canvas is already allocated and of the correct size, this function is a no-op
-    if (me.contentCanvas.imageContent) {
-      if (me.contentCanvas.downscale === dsf.downscale) {
-        return;
-      } else {
-        // The canvas is allocated but of the wrong size. Release the current one and reallocate it.
-        me.releaseContentCanvas();
-      }
-    }
-
-    // Create a 2D canvas
-    const options = me.contentCanvas.getOptions();
-    root.optimizer.reserveCanvasMemory(dsf.scaledDimensions.getArea() * 4);
-    const canvas = me.contentCanvas.imageContent = root.createCoreCanvas2D(options, dsf.scaledDimensions, handle);
-    me.contentCanvas.downscale = dsf.downscale;
-
-    // Record the canvas creation
-    root.resources.recordCreate(parentImage, canvas);
-  }
-
-  /**
-   * Ensures `contentTexture.imageContent` points to a valid WebGL texture
-   *
-   * Note that this call is NOT GUARANTEED to preserve the contents of the texture if it is already allocated. It may
-   * choose to reuse the existing texture, in which case it is dirty with the previous contents, or it may choose to
-   * allocate a new texture, whichever is more efficient.
-   *
-   * @param dimensions Requested dimensions of the canvas. This value is used to support the
-   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
-   */
-  public allocateContentTexture(dimensions?: FimDimensions): void {
-    const me = this;
-    const parentImage = me.parentImage;
-    const root = parentImage.rootObject;
-    const handle = `${parentImage.handle}/ContentTexture`;
-
-    // Calculate the desired dimensions
-    const dsf = me.calculateDimensionsAndScaleFactor(handle, true, dimensions);
-
-    // If a texture is already allocated and of the correct size, this function is a no-op
-    // TODO: Detect changes in the imageOptions that could also cause the texture to be reallocated
-    if (me.contentTexture.imageContent) {
-      if (me.contentTexture.downscale === dsf.downscale) {
-        return;
-      } else {
-        // The canvas is allocated but of the wrong size. Release the current one and reallocate it.
-        me.releaseContentTexture();
-      }
-    }
-
-    // Create a WebGL texture
-    const glCanvas = root.getWebGLCanvas();
-    const options = me.contentTexture.getOptions();
-    root.optimizer.reserveGLMemory(dsf.scaledDimensions.getArea() * options.bpp * 0.5);
-    const texture = me.contentTexture.imageContent = glCanvas.createCoreTexture(options, dsf.scaledDimensions, handle);
-    me.contentTexture.downscale = dsf.downscale;
-
-    // Record the texture creation
-    root.resources.recordCreate(parentImage, texture);
-  }
-
-  /**
-   * Calculates the dimensions and scale factor (`1 / downscale`) for a 2D canvas or WebGL texture
-   * @param handle Handle of the object being created (for logging purposes)
-   * @param isTexture True for WebGL textures; false for 2D canvases
-   * @param dimensions Requested dimensions or downscale ratio of the canvas. This value is used to support the
-   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
-   */
-  public calculateDimensionsAndScaleFactor(handle: string, isTexture: boolean, dimensions?: FimDimensions):
-      { downscale: number, scaledDimensions: FimDimensions } {
-    const me = this;
-    const parentImage = me.parentImage;
+    const imageCollection = me.imageCollection;
+    const parentImage = imageCollection.parentImage;
     const dim = parentImage.dim;
     const options = parentImage.getImageOptions();
     const root = parentImage.rootObject;
@@ -203,9 +73,6 @@ export class ImageCollection {
 
     // We build an array of downscale values. The minimum one wins.
     const downscaleValues = [options.downscale];
-    if (isTexture) {
-      downscaleValues.push(options.glDownscale);
-    }
 
     // Support the preserveDownscaledDimensions optimization
     if (dimensions && options.preserveDownscaledDimensions && dimensions.equalsAspectRatio(dim)) {
@@ -230,9 +97,9 @@ export class ImageCollection {
       // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
       // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
       // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
-      if (!me.autoDownscaleWarningLogged) {
-        root.writeWarning(parentImage, `Auto-downscale ${handle}: ${dim} > max (${root.maxImageDimensions})`);
-        me.autoDownscaleWarningLogged = true;
+      if (!me.imageCollection.autoDownscaleWarningLogged) {
+        root.writeWarning(parentImage, `Auto-downscale ${me.handle}: ${dim} > max (${root.maxImageDimensions})`);
+        me.imageCollection.autoDownscaleWarningLogged = true;
       }
     }
 
@@ -242,27 +109,170 @@ export class ImageCollection {
     return { downscale, scaledDimensions };
   }
 
-  /** Boolean used to ensure we only log an auto-downscale warning once per image */
-  private autoDownscaleWarningLogged = false;
-
-  /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
-  public async populateContentCanvasAsync(): Promise<void> {
+  /**
+   * Allocates or reallocates `imageContent`. This function should be called before writing to `imageContent` with an
+   * operation that fully erases the previous image contents.
+   *
+   * Note that this call is NOT GUARANTEED to preserve the contents of the canvas if it is already allocated. It may
+   * choose to reuse the existing canvas, in which case it is dirty with the previous contents, or it may choose to
+   * allocate a new canvas, whichever is more efficient.
+   *
+   * @param dimensions Requested dimensions of the canvas or texture. This value is used to support the
+   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
+   * @returns `this.imageContent`
+   */
+  public allocateContent(dimensions?: FimDimensions): TContent {
     const me = this;
-    const parentImage = me.parentImage;
+    const parentImage = me.imageCollection.parentImage;
     const root = parentImage.rootObject;
     const optimizer = root.optimizer;
 
-    if (me.contentCanvas.isCurrent) {
-      // If a canvas is already current, this function is a no-op
-    } else if (me.contentFillColor.isCurrent) {
-      // Copy the fill color to the canvas to make it current
-      me.allocateContentCanvas();
-      me.contentCanvas.imageContent.fillSolid(me.contentFillColor.imageContent);
+    // Calculate the desired dimensions and downscale ratio
+    const dd = me.calculateDimensionsAndDownscale(dimensions);
 
-      optimizer.recordImageWrite(parentImage, ImageType.Canvas);
-    } else if (me.contentTexture.isCurrent) {
+    // If a canvas or texture is already allocated and of the correct size, this function is a no-op
+    // TODO: Detect changes in the imageOptions that could also cause the texture to be reallocated
+    if (me.imageContent) {
+      if (me.downscale === dd.downscale) {
+        optimizer.recordImageWrite(parentImage, me.imageType);
+        return me.imageContent;
+      } else {
+        // The canvas or texture is allocated but of the wrong size. Release the current one and reallocate it.
+        me.releaseContent();
+      }
+    }
+
+    // Create the underlying canvas or texture
+    const options = me.getOptions();
+    const content = me.imageContent = me.allocateContentInternal(dd.scaledDimensions, options);
+    me.downscale = dd.downscale;
+
+    // Record the object creation
+    root.resources.recordCreate(parentImage, content);
+
+    optimizer.recordImageWrite(parentImage, me.imageType);
+    return content;
+  }
+
+  /**
+   * Derived classes must implement this method to allocate a `TContent` object
+   * @param dimensions Dimensions of the object to allocate
+   * @param options Object creation options
+   * @returns New `TContent`
+   */
+  protected abstract allocateContentInternal(dimensions: FimDimensions, options: TOptions): TContent;
+
+  /**
+   * Ensures `imageContent` is current and contains the current image data. This function should be called before
+   * reading from `imageContent`.
+   */
+  public async populateContentAsync(): Promise<TContent> {
+    const me = this;
+    const imageCollection = me.imageCollection;
+    const parentImage = imageCollection.parentImage;
+    const optimizer = parentImage.rootObject.optimizer;
+
+    if (!imageCollection.hasImage()) {
+      FimError.throwOnImageUninitialized(parentImage.handle);
+    } else if (me.isCurrent) {
+      // If a canvas is already current, this function is a no-op
+    } else {
+      await me.populateContentInternalAsync();
+      imageCollection.markCurrent(this, false);
+      optimizer.recordImageWrite(parentImage, me.imageType);
+    }
+
+    optimizer.recordImageRead(parentImage, me.imageType);
+    return me.imageContent;
+  }
+
+  /**
+   * Derived classes must implement this method to populate `imageContent` with the current image data from another
+   * `ImageContent` instance
+   */
+  protected abstract populateContentInternalAsync(): Promise<void>;
+
+  /**
+   * This function should be called before writing to `imageContent`. It calls either `allocateContent()` or
+   * `populateContentAsync()` depending on whether the destination coordinates of the operation will fully erase the
+   * previous image contents
+   * @param destCoords Destination coordinates of the write operation
+   * @param dimensions Requested dimensions of the canvas or texture. This value is used to support the
+   *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
+   */
+  public async allocateOrPopulateContentAsync(destCoords: FimRect, dimensions?: FimDimensions): Promise<TContent> {
+    const me = this;
+    const parentImage = me.imageCollection.parentImage;
+    const optimizer = parentImage.rootObject.optimizer;
+
+    if (destCoords.dim.equals(me.imageCollection.parentImage.dim)) {
+      // The destination is the full image. The current image contents will be erased, so use the opportunity to update
+      // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
+      // optimization).
+      me.allocateContent(dimensions);
+    } else {
+      // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
+      // and throw an exception if the current image is uninitialized.
+      await me.populateContentAsync();
+
+      // populateContentAsync() is normally called before read operations. We have to explicitly record the write here.
+      optimizer.recordImageWrite(parentImage, me.imageType);
+    }
+
+    return me.imageContent;
+  }
+
+  /** Releases any resources used by `imageContent` */
+  public releaseContent(): void {
+    const me = this;
+    const parentImage = me.imageCollection.parentImage;
+    const resources = parentImage.rootObject.resources;
+
+    if (me.imageContent) {
+      // Record the object disposal
+      resources.recordDispose(parentImage, me.imageContent);
+
+      me.imageContent.dispose();
+      me.imageContent = undefined;
+      me.isCurrent = false;
+    }
+  }
+}
+
+/** Implementation of `ImageContent` for `CoreCanvas2D` */
+export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCanvasOptions> {
+  /**
+   * Constructor
+   * @param imageCollection Parent `ImageCollection`
+   */
+  public constructor(imageCollection: ImageCollection) {
+    super(imageCollection, ImageType.Canvas, 'ContentCanvas');
+  }
+
+  public getOptions(): CoreCanvasOptions {
+    //const options = this.imageCollection.parentImage.getImageOptions();
+    return {};
+  }
+
+  protected allocateContentInternal(dimensions: FimDimensions, options: CoreCanvasOptions): CoreCanvas2D {
+    const root = this.imageCollection.parentImage.rootObject;
+    root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
+    return root.createCoreCanvas2D(options, dimensions, this.handle);
+  }
+
+  protected async populateContentInternalAsync(): Promise<void> {
+    const me = this;
+    const imageCollection = me.imageCollection;
+    const parentImage = imageCollection.parentImage;
+    const root = parentImage.rootObject;
+    const optimizer = root.optimizer;
+
+    if (imageCollection.contentFillColor.isCurrent) {
+      // Copy the fill color to the canvas to make it current
+      me.allocateContent().fillSolid(imageCollection.contentFillColor.imageContent);
+    } else if (imageCollection.contentTexture.isCurrent) {
       // First, get the WebGL canvas. The getWebGLCanvas() call will allocate or resize it if necessary.
-      const srcTexture = me.contentTexture.imageContent;
+      const srcTexture = imageCollection.contentTexture.imageContent;
       const glCanvas = root.getWebGLCanvas();
 
       // Calculate the coordinates to use on the WebGL canvas
@@ -273,82 +283,133 @@ export class ImageCollection {
       glCanvas.copyFrom(srcTexture, undefined, glCanvasCoords);
 
       // Copy the WebGL canvas to a 2D canvas
-      me.allocateContentCanvas(glCanvasDim);
-      await me.contentCanvas.imageContent.copyFromAsync(glCanvas, glCanvasCoords);
+      await me.allocateContent(glCanvasDim).copyFromAsync(glCanvas, glCanvasCoords);
 
       optimizer.recordImageRead(parentImage, ImageType.Texture);
-      optimizer.recordImageWrite(parentImage, ImageType.Canvas);
-    } else {
-      FimError.throwOnImageUninitialized(parentImage.handle);
     }
 
-    me.markCurrent(me.contentCanvas, false);
-    optimizer.recordImageRead(parentImage, ImageType.Canvas);
+    optimizer.recordImageWrite(parentImage, ImageType.Canvas);
+  }
+}
+
+/** Implementation of `ImageContent` for `CoreTexture` */
+export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTextureOptions> {
+  /**
+   * Constructor
+   * @param imageCollection Parent `ImageCollection`
+   */
+  public constructor(imageCollection: ImageCollection) {
+    super(imageCollection, ImageType.Texture, 'ContentTexture');
+  }
+
+  public getOptions(): CoreTextureOptions {
+    const options = this.imageCollection.parentImage.getImageOptions();
+    return {
+      bpp: options.bpp,
+      isReadOnly: options.glReadOnly,
+      sampling: options.sampling
+    };
+  }
+
+  public calculateDimensionsAndDownscale(dimensions?: FimDimensions): DimensionsAndDownscale {
+    // Run the standard calculation for downscale
+    let dd = super.calculateDimensionsAndDownscale(dimensions);
+
+    // For WebGL textures, also consider the glDownscale parameter in the image options. If it results in smaller
+    // dimensions, override the result with the lower values.
+    const parentImage = this.imageCollection.parentImage;
+    const glDownscale = parentImage.getImageOptions().glDownscale;
+    if (glDownscale < dd.downscale) {
+      dd = {
+        downscale: glDownscale,
+        scaledDimensions: parentImage.dim.rescale(glDownscale)
+      };
+    }
+
+    return dd;
+  }
+
+  protected allocateContentInternal(dimensions: FimDimensions, options: CoreTextureOptions): CoreTexture {
+    const me = this;
+    const root = me.imageCollection.parentImage.rootObject;
+    const glCanvas = root.getWebGLCanvas();
+    root.optimizer.reserveGLMemory(dimensions.getArea() * options.bpp * 0.5);
+    return glCanvas.createCoreTexture(options, dimensions, me.handle);
+  }
+
+  protected async populateContentInternalAsync(): Promise<void> {
+    const me = this;
+    const imageCollection = me.imageCollection;
+    const parentImage = imageCollection.parentImage;
+    const root = parentImage.rootObject;
+    const optimizer = root.optimizer;
+
+    if (imageCollection.contentFillColor.isCurrent) {
+      // Fill texture with solid color
+      me.allocateContent().fillSolid(imageCollection.contentFillColor.imageContent);
+    } else if (imageCollection.contentCanvas.isCurrent) {
+      // Copy canvas to texture
+      const srcImage = imageCollection.contentCanvas.imageContent;
+      await me.allocateContent(srcImage.dim).copyFromAsync(srcImage);
+      optimizer.recordImageRead(parentImage, ImageType.Canvas);
+    }
+
+    optimizer.recordImageWrite(parentImage, ImageType.Texture);
+  }
+}
+
+/** Collection of representations of the same image, used by `EngineImage` to store its data */
+export class ImageCollection {
+  /**
+   * Constructor
+   * @param parentImage Parent `EngineImage` instance
+   */
+  public constructor(public readonly parentImage: EngineImage) {
+  }
+
+  /** Contains the color of the image if the contents are a solid color */
+  public readonly contentFillColor = new ImageContent<FimColor>();
+
+  /** Contains the contents of the image as a 2D canvas */
+  public readonly contentCanvas = new CanvasImageContent(this);
+
+  /** Contains the contents of the image as a WebGL texture */
+  public readonly contentTexture = new TextureImageContent(this);
+
+  /** Returns `true` if any of the image representations have `isCurrent === true` */
+  public hasImage(): boolean {
+    return this.contentFillColor.isCurrent || this.contentCanvas.isCurrent || this.contentTexture.isCurrent;
   }
 
   /**
-   * Ensures `contentTexture.imageContent` is allocated and contains the current image data
-   * @returns The `CoreTexture` instance backing the content texture
+   * Marks one of the image content values as current
+   * @param ic The `ImageContent` object to mark as current
+   * @param invalidateOthers If `true`, all other `ImageContent` objects are marked as not current
    */
-  public async populateContentTextureAsync(): Promise<CoreTexture> {
+  public markCurrent<TContent>(ic: ImageContent<TContent>, invalidateOthers: boolean): void {
     const me = this;
-    const parentImage = me.parentImage;
-    const optimizer = parentImage.rootObject.optimizer;
 
-    if (me.contentTexture.isCurrent) {
-      // If a texture is already current, this function is a no-op
-    } else if (me.contentFillColor.isCurrent) {
-      // Fill texture with solid color
-      me.allocateContentTexture();
-      me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
-
-      optimizer.recordImageWrite(parentImage, ImageType.Texture);
-    } else if (me.contentCanvas.isCurrent) {
-      // Copy canvas to texture
-      const srcImage = me.contentCanvas.imageContent;
-      me.allocateContentTexture(srcImage.dim);
-      await me.contentTexture.imageContent.copyFromAsync(srcImage);
-
-      optimizer.recordImageRead(parentImage, ImageType.Canvas);
-      optimizer.recordImageWrite(parentImage, ImageType.Texture);
-    } else {
-      FimError.throwOnImageUninitialized(parentImage.handle);
+    if (invalidateOthers) {
+      me.contentFillColor.isCurrent = false;
+      me.contentCanvas.isCurrent = false;
+      me.contentTexture.isCurrent = false;
     }
 
-    me.markCurrent(me.contentTexture, false);
-    optimizer.recordImageRead(parentImage, ImageType.Texture);
-    return me.contentTexture.imageContent;
+    ic.isCurrent = true;
   }
 
-  /** Releases any resources used by `contentCanvas.imageContent` */
-  public releaseContentCanvas(): void {
-    const me = this;
-    const parentImage = me.parentImage;
-    const canvas = me.contentCanvas;
+  /**
+   * Boolean used to ensure we only log an auto-downscale warning once per image. It is located here to avoid logging
+   * the same warning both for the texture and canvas backing the image.
+   */
+  public autoDownscaleWarningLogged = false;
+}
 
-    if (canvas.imageContent) {
-      // Record the canvas disposal
-      parentImage.rootObject.resources.recordDispose(parentImage, canvas.imageContent);
+/** Return value from `ImageContentCommon.calculateDimensionsAndDownscale()` */
+export interface DimensionsAndDownscale {
+  /** Dimensions downscaled by `downscale` */
+  scaledDimensions: FimDimensions;
 
-      canvas.imageContent.dispose();
-      canvas.imageContent = undefined;
-      canvas.isCurrent = false;
-    }
-  }
-
-  /** Releases any resources used by `contentTexture.imageContent` */
-  public releaseContentTexture(): void {
-    const me = this;
-    const parentImage = me.parentImage;
-    const texture = me.contentTexture;
-
-    if (texture.imageContent) {
-      // Record the texture disposal
-      parentImage.rootObject.resources.recordDispose(parentImage, texture.imageContent);
-
-      texture.imageContent.dispose();
-      texture.imageContent = undefined;
-      texture.isCurrent = false;
-    }
-  }
+  /** Downscale ratio */
+  downscale: number;
 }
