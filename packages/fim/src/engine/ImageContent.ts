@@ -2,16 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { EngineImage } from './EngineImage';
 import { ImageType } from './optimizer/ImageType';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
-import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { EngineImage } from '../internal';
 
 /**
  * Base class for any object containing the image contents
@@ -40,14 +39,14 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     extends ImageContent<TContent> {
   /**
    * Constructor
-   * @param imageCollection Parent `ImageCollection`
+   * @param parentImage Parent `EngineImage` instance
    * @param imageType Type enum
    * @param name Object name used to create a unique handle
    */
-  public constructor(protected readonly imageCollection: ImageCollection, protected readonly imageType: ImageType,
+  public constructor(protected readonly parentImage: EngineImage, protected readonly imageType: ImageType,
       name: string) {
     super();
-    this.handle = `${imageCollection.parentImage.handle}/${name}`;
+    this.handle = `${parentImage.handle}/${name}`;
   }
 
   /** Unique string identifying the object */
@@ -64,8 +63,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    */
   public calculateDimensionsAndDownscale(dimensions?: FimDimensions): DimensionsAndDownscale {
     const me = this;
-    const imageCollection = me.imageCollection;
-    const parentImage = imageCollection.parentImage;
+    const parentImage = me.parentImage;
     const dim = parentImage.dim;
     const options = parentImage.getImageOptions();
     const root = parentImage.rootObject;
@@ -97,9 +95,9 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
       // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
       // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
       // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
-      if (!me.imageCollection.autoDownscaleWarningLogged) {
+      if (!parentImage.autoDownscaleWarningLogged) {
         root.writeWarning(parentImage, `Auto-downscale ${me.handle}: ${dim} > max (${root.maxImageDimensions})`);
-        me.imageCollection.autoDownscaleWarningLogged = true;
+        parentImage.autoDownscaleWarningLogged = true;
       }
     }
 
@@ -123,7 +121,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    */
   public allocateContent(dimensions?: FimDimensions): TContent {
     const me = this;
-    const parentImage = me.imageCollection.parentImage;
+    const parentImage = me.parentImage;
     const root = parentImage.rootObject;
     const optimizer = root.optimizer;
 
@@ -168,17 +166,16 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    */
   public async populateContentAsync(): Promise<TContent> {
     const me = this;
-    const imageCollection = me.imageCollection;
-    const parentImage = imageCollection.parentImage;
+    const parentImage = me.parentImage;
     const optimizer = parentImage.rootObject.optimizer;
 
-    if (!imageCollection.hasImage()) {
+    if (!parentImage.hasImage()) {
       FimError.throwOnImageUninitialized(parentImage.handle);
     } else if (me.isCurrent) {
       // If a canvas is already current, this function is a no-op
     } else {
       await me.populateContentInternalAsync();
-      imageCollection.markCurrent(this, false);
+      parentImage.markCurrent(this, false);
       optimizer.recordImageWrite(parentImage, me.imageType);
     }
 
@@ -202,10 +199,10 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    */
   public async allocateOrPopulateContentAsync(destCoords: FimRect, dimensions?: FimDimensions): Promise<TContent> {
     const me = this;
-    const parentImage = me.imageCollection.parentImage;
+    const parentImage = me.parentImage;
     const optimizer = parentImage.rootObject.optimizer;
 
-    if (destCoords.dim.equals(me.imageCollection.parentImage.dim)) {
+    if (destCoords.dim.equals(parentImage.dim)) {
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
       // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
       // optimization).
@@ -225,12 +222,11 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   /** Releases any resources used by `imageContent` */
   public releaseContent(): void {
     const me = this;
-    const parentImage = me.imageCollection.parentImage;
-    const resources = parentImage.rootObject.resources;
+    const resources = me.parentImage.rootObject.resources;
 
     if (me.imageContent) {
       // Record the object disposal
-      resources.recordDispose(parentImage, me.imageContent);
+      resources.recordDispose(me.parentImage, me.imageContent);
 
       me.imageContent.dispose();
       me.imageContent = undefined;
@@ -243,10 +239,10 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
 export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCanvasOptions> {
   /**
    * Constructor
-   * @param imageCollection Parent `ImageCollection`
+   * @param parentImage Parent `EngineImage` instance
    */
-  public constructor(imageCollection: ImageCollection) {
-    super(imageCollection, ImageType.Canvas, 'ContentCanvas');
+  public constructor(parentImage: EngineImage) {
+    super(parentImage, ImageType.Canvas, 'ContentCanvas');
   }
 
   public getOptions(): CoreCanvasOptions {
@@ -255,24 +251,25 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
   }
 
   protected allocateContentInternal(dimensions: FimDimensions, options: CoreCanvasOptions): CoreCanvas2D {
-    const root = this.imageCollection.parentImage.rootObject;
+    const root = this.parentImage.rootObject;
     root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
     return root.createCoreCanvas2D(options, dimensions, this.handle);
   }
 
   protected async populateContentInternalAsync(): Promise<void> {
     const me = this;
-    const imageCollection = me.imageCollection;
-    const parentImage = imageCollection.parentImage;
+    const parentImage = me.parentImage;
     const root = parentImage.rootObject;
     const optimizer = root.optimizer;
+    const contentFillColor = parentImage.contentFillColor;
+    const contentTexture = parentImage.contentTexture;
 
-    if (imageCollection.contentFillColor.isCurrent) {
+    if (contentFillColor.isCurrent) {
       // Copy the fill color to the canvas to make it current
-      me.allocateContent().fillSolid(imageCollection.contentFillColor.imageContent);
-    } else if (imageCollection.contentTexture.isCurrent) {
+      me.allocateContent().fillSolid(contentFillColor.imageContent);
+    } else if (contentTexture.isCurrent) {
       // First, get the WebGL canvas. The getWebGLCanvas() call will allocate or resize it if necessary.
-      const srcTexture = imageCollection.contentTexture.imageContent;
+      const srcTexture = contentTexture.imageContent;
       const glCanvas = root.getWebGLCanvas();
 
       // Calculate the coordinates to use on the WebGL canvas
@@ -296,14 +293,14 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
 export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTextureOptions> {
   /**
    * Constructor
-   * @param imageCollection Parent `ImageCollection`
+   * @param parentImage Parent `EngineImage` instance
    */
-  public constructor(imageCollection: ImageCollection) {
-    super(imageCollection, ImageType.Texture, 'ContentTexture');
+  public constructor(parentImage: EngineImage) {
+    super(parentImage, ImageType.Texture, 'ContentTexture');
   }
 
   public getOptions(): CoreTextureOptions {
-    const options = this.imageCollection.parentImage.getImageOptions();
+    const options = this.parentImage.getImageOptions();
     return {
       bpp: options.bpp,
       isReadOnly: options.glReadOnly,
@@ -317,7 +314,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
 
     // For WebGL textures, also consider the glDownscale parameter in the image options. If it results in smaller
     // dimensions, override the result with the lower values.
-    const parentImage = this.imageCollection.parentImage;
+    const parentImage = this.parentImage;
     const glDownscale = parentImage.getImageOptions().glDownscale;
     if (glDownscale < dd.downscale) {
       dd = {
@@ -331,7 +328,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
 
   protected allocateContentInternal(dimensions: FimDimensions, options: CoreTextureOptions): CoreTexture {
     const me = this;
-    const root = me.imageCollection.parentImage.rootObject;
+    const root = me.parentImage.rootObject;
     const glCanvas = root.getWebGLCanvas();
     root.optimizer.reserveGLMemory(dimensions.getArea() * options.bpp * 0.5);
     return glCanvas.createCoreTexture(options, dimensions, me.handle);
@@ -339,70 +336,24 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
 
   protected async populateContentInternalAsync(): Promise<void> {
     const me = this;
-    const imageCollection = me.imageCollection;
-    const parentImage = imageCollection.parentImage;
+    const parentImage = me.parentImage;
     const root = parentImage.rootObject;
     const optimizer = root.optimizer;
+    const contentFillColor = parentImage.contentFillColor;
+    const contentCanvas = parentImage.contentCanvas;
 
-    if (imageCollection.contentFillColor.isCurrent) {
+    if (contentFillColor.isCurrent) {
       // Fill texture with solid color
-      me.allocateContent().fillSolid(imageCollection.contentFillColor.imageContent);
-    } else if (imageCollection.contentCanvas.isCurrent) {
+      me.allocateContent().fillSolid(contentFillColor.imageContent);
+    } else if (contentCanvas.isCurrent) {
       // Copy canvas to texture
-      const srcImage = imageCollection.contentCanvas.imageContent;
+      const srcImage = contentCanvas.imageContent;
       await me.allocateContent(srcImage.dim).copyFromAsync(srcImage);
       optimizer.recordImageRead(parentImage, ImageType.Canvas);
     }
 
     optimizer.recordImageWrite(parentImage, ImageType.Texture);
   }
-}
-
-/** Collection of representations of the same image, used by `EngineImage` to store its data */
-export class ImageCollection {
-  /**
-   * Constructor
-   * @param parentImage Parent `EngineImage` instance
-   */
-  public constructor(public readonly parentImage: EngineImage) {
-  }
-
-  /** Contains the color of the image if the contents are a solid color */
-  public readonly contentFillColor = new ImageContent<FimColor>();
-
-  /** Contains the contents of the image as a 2D canvas */
-  public readonly contentCanvas = new CanvasImageContent(this);
-
-  /** Contains the contents of the image as a WebGL texture */
-  public readonly contentTexture = new TextureImageContent(this);
-
-  /** Returns `true` if any of the image representations have `isCurrent === true` */
-  public hasImage(): boolean {
-    return this.contentFillColor.isCurrent || this.contentCanvas.isCurrent || this.contentTexture.isCurrent;
-  }
-
-  /**
-   * Marks one of the image content values as current
-   * @param ic The `ImageContent` object to mark as current
-   * @param invalidateOthers If `true`, all other `ImageContent` objects are marked as not current
-   */
-  public markCurrent<TContent>(ic: ImageContent<TContent>, invalidateOthers: boolean): void {
-    const me = this;
-
-    if (invalidateOthers) {
-      me.contentFillColor.isCurrent = false;
-      me.contentCanvas.isCurrent = false;
-      me.contentTexture.isCurrent = false;
-    }
-
-    ic.isCurrent = true;
-  }
-
-  /**
-   * Boolean used to ensure we only log an auto-downscale warning once per image. It is located here to avoid logging
-   * the same warning both for the texture and canvas backing the image.
-   */
-  public autoDownscaleWarningLogged = false;
 }
 
 /** Return value from `ImageContentCommon.calculateDimensionsAndDownscale()` */

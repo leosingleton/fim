@@ -25,4 +25,3 @@ export { EngineFim, EngineFimBase } from '../engine/EngineFim';
 export { EngineImage } from '../engine/EngineImage';
 export { EngineShader } from '../engine/EngineShader';
 export { fileToName } from '../engine/FileToName';
-export { ImageCollection } from '../engine/ImageCollection';

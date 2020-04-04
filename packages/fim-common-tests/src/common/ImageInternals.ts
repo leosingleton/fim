@@ -3,52 +3,47 @@
 // See LICENSE in the project root for license information.
 
 import { FimColor, FimImage } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreTexture, ImageCollection } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreTexture, EngineImage } from '@leosingleton/fim/internals';
 
 /** Helper functions for accessing the internals of the `FimImage` class */
 export namespace ImageInternals {
-  /** Gets the private `imageContent` property from a `FimImage` instance */
-  export function getImageContent(image: FimImage): ImageCollection {
-    return (image as any).imageContent;
-  }
-
   /** Returns whether the image has a current solid fill color */
   export function hasFill(image: FimImage): boolean {
-    return getImageContent(image).contentFillColor.isCurrent;
+    return (image as EngineImage).contentFillColor.isCurrent;
   }
 
   /** Returns the solid fill color backing the image */
   export function getFill(image: FimImage): FimColor {
-    return getImageContent(image).contentFillColor.imageContent;
+    return (image as EngineImage).contentFillColor.imageContent;
   }
 
   /** Returns whether the image has a current canvas */
   export function hasCanvas(image: FimImage): boolean {
-    return getImageContent(image).contentCanvas.isCurrent;
+    return (image as EngineImage).contentCanvas.isCurrent;
   }
 
   /** Returns the downscale value of the canvas backing the image */
   export function getCanvasDownscale(image: FimImage): number {
-    return getImageContent(image).contentCanvas.downscale;
+    return (image as EngineImage).contentCanvas.downscale;
   }
 
   /** Returns the canvas backing the image */
   export function getCanvas(image: FimImage): CoreCanvas2D {
-    return getImageContent(image).contentCanvas.imageContent;
+    return (image as EngineImage).contentCanvas.imageContent;
   }
 
   /** Returns whether the image has a current WebGL texture */
   export function hasTexture(image: FimImage): boolean {
-    return getImageContent(image).contentTexture.isCurrent;
+    return (image as EngineImage).contentTexture.isCurrent;
   }
 
   /** Returns the downscale value of the texture backing the image */
   export function getTextureDownscale(image: FimImage): number {
-    return getImageContent(image).contentTexture.downscale;
+    return (image as EngineImage).contentTexture.downscale;
   }
 
   /** Returns the WebGL texture backing the image */
   export function getTexture(image: FimImage): CoreTexture {
-    return getImageContent(image).contentTexture.imageContent;
+    return (image as EngineImage).contentTexture.imageContent;
   }
 }
