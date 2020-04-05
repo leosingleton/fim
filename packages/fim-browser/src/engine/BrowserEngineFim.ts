@@ -7,8 +7,11 @@ import { fileDownload } from './FileDownload';
 import { FimBrowser } from '../api/FimBrowser';
 import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
 import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
+import { CoreBrowserDomImageFile } from '../core/CoreBrowserDomImageFile';
+import { CoreBrowserImageFile } from '../core/CoreBrowserImageFile';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
+import { CoreBrowserOffscreenImageFile } from '../core/CoreBrowserOffscreenImageFile';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
   fileToName } from '@leosingleton/fim/internals';
@@ -33,6 +36,14 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
       name?: string): EngineShader {
     return new EngineShader(parent, fragmentShader, vertexShader, name);
+  }
+
+  public getCoreImageFile(): CoreBrowserImageFile {
+    if (!this.engineOptions.disableOffscreenCanvas) {
+      return CoreBrowserOffscreenImageFile.instance;
+    } else {
+      return CoreBrowserDomImageFile.instance;
+    }
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
@@ -60,6 +71,6 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
   public async createImageFromJpegFileAsync(jpegUrl: string, options?: FimImageOptions, name?: string,
       parent?: FimObject): Promise<BrowserEngineImage> {
     const jpegFile = await fileDownload(jpegUrl);
-    return this.createImageFromPngAsync(jpegFile, options, name ?? fileToName(jpegUrl), parent);
+    return this.createImageFromJpegAsync(jpegFile, options, name ?? fileToName(jpegUrl), parent);
   }
 }

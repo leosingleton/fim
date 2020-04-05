@@ -3,8 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
+import { CoreCanvasOptions } from './CoreCanvasOptions';
+import { CoreImageFile } from './CoreImageFile';
+import { CoreMimeType } from './CoreMimeType';
 import { ImageSource } from './types/ImageSource';
 import { RenderingContext2D } from './types/RenderingContext2D';
+import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
@@ -14,6 +18,18 @@ import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas2D extends CoreCanvas {
+  /**
+   * @param imageFile `CoreImageFile` implementation for reading and writing to and from PNG and JPEG formats
+   * @param canvasOptions Canvas options
+   * @param dimensions Canvas dimensions
+   * @param handle Handle of the image that owns this canvas. Used only for debugging.
+   * @param engineOptions Options for the FIM execution engine
+   */
+  protected constructor(protected readonly imageFile: CoreImageFile, canvasOptions: CoreCanvasOptions,
+      dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions) {
+    super(canvasOptions, dimensions, handle, engineOptions);
+  }
+
   /** Returns the 2D rendering context for the canvas */
   public getContext(): RenderingContext2D {
     const me = this;
@@ -198,7 +214,10 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
    *    to fit this canvas.
    */
-  public abstract loadFromPngAsync(pngFile: Uint8Array, allowRescale?: boolean): Promise<void>;
+  public loadFromPngAsync(pngFile: Uint8Array, allowRescale?: boolean): Promise<void> {
+    return this.imageFile.loadFromFileAsync(pngFile, CoreMimeType.PNG,
+      image => this.loadFromImage(image, allowRescale));
+  }
 
   /**
    * Loads the image contents from a JPEG file
@@ -207,7 +226,10 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
    *    to fit this canvas.
    */
-  public abstract loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void>;
+  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void> {
+    return this.imageFile.loadFromFileAsync(jpegFile, CoreMimeType.JPEG,
+      image => this.loadFromImage(image, allowRescale));
+  }
 
   /**
    * Copies contents from another canvas. Supports both cropping and rescaling.
@@ -302,12 +324,16 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * Exports the canvas contents to a PNG file
    * @returns Compressed PNG file as a Uint8Array
    */
-  public abstract exportToPngAsync(): Promise<Uint8Array>;
+  public exportToPngAsync(): Promise<Uint8Array> {
+    return this.imageFile.exportToFileAsync(this, CoreMimeType.PNG);
+  }
 
   /**
    * Exports the canvas contents to a JPEG file
    * @param quality Optional compression quality (0.0 to 1.0)
    * @returns Compressed JPEG file as a Uint8Array
    */
-  public abstract exportToJpegAsync(quality: number): Promise<Uint8Array>;
+  public exportToJpegAsync(quality: number): Promise<Uint8Array> {
+    return this.imageFile.exportToFileAsync(this, CoreMimeType.JPEG, quality);
+  }
 }

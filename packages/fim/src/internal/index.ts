@@ -14,6 +14,7 @@ export { CoreCanvas } from '../core/CoreCanvas';
 export { CoreCanvas2D } from '../core/CoreCanvas2D';
 export { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 export { CoreCanvasWebGL, EventListenerType } from '../core/CoreCanvasWebGL';
+export { CoreImageFile } from '../core/CoreImageFile';
 export { CoreMimeType } from '../core/CoreMimeType';
 export { CoreShader } from '../core/CoreShader';
 export { CoreTexture } from '../core/CoreTexture';

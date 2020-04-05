@@ -3,9 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
-import { loadCanvasFromFileAsync } from './LoadFromFile';
+import { CoreBrowserOffscreenImageFile } from './CoreBrowserOffscreenImageFile';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, RenderingContext2D } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
@@ -14,11 +14,12 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+    super(CoreBrowserOffscreenImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
     this.canvasElement = new OffscreenCanvas(dimensions.w, dimensions.h);
   }
 
-  private canvasElement: OffscreenCanvas;
+  /** Underlying canvas backing this object */
+  public canvasElement: OffscreenCanvas;
 
   protected disposeSelf(): void {
     // Chrome is the only browser that currently supports OffscreenCanvas, and I've never actually hit an out-of-memory
@@ -39,25 +40,5 @@ export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
     return new CoreBrowserOffscreenCanvas2D(canvasOptions, dimensions, handle, engineOptions);
-  }
-
-  public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, pngFile, CoreMimeType.PNG, allowRescale);
-  }
-
-  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, jpegFile, CoreMimeType.JPEG, allowRescale);
-  }
-
-  public async exportToPngAsync(): Promise<Uint8Array> {
-    const blob = await this.canvasElement.convertToBlob({});
-    const buffer = await new Response(blob).arrayBuffer();
-    return new Uint8Array(buffer);
-  }
-
-  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    const blob = await this.canvasElement.convertToBlob({ type: CoreMimeType.JPEG, quality });
-    const buffer = await new Response(blob).arrayBuffer();
-    return new Uint8Array(buffer);
   }
 }

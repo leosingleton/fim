@@ -7,11 +7,13 @@ import { NodeEngineImage } from './NodeEngineImage';
 import { FimNode } from '../api/FimNode';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
+import { CoreNodeImageFile } from '../core/CoreNodeImageFile';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
   fileToName } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
+/** Implementation of `EngineFim` for Node.js */
 export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> implements FimNode {
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       NodeEngineImage {
@@ -33,6 +35,10 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
     return new EngineShader(parent, fragmentShader, vertexShader, name);
   }
 
+  public getCoreImageFile(): CoreNodeImageFile {
+    return CoreNodeImageFile.instance;
+  }
+
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
     return new CoreNodeCanvas2D(options, dimensions, handle, this.engineOptions);
   }
@@ -50,6 +56,6 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
   public async createImageFromJpegFileAsync(jpegPath: string, options?: FimImageOptions, name?: string,
       parent?: FimObject): Promise<NodeEngineImage> {
     const jpegFile = await fileRead(jpegPath);
-    return this.createImageFromPngAsync(jpegFile, options, name ?? fileToName(jpegPath), parent);
+    return this.createImageFromJpegAsync(jpegFile, options, name ?? fileToName(jpegPath), parent);
   }
 }

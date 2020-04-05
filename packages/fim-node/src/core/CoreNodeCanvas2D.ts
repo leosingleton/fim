@@ -3,24 +3,24 @@
 // See LICENSE in the project root for license information.
 
 import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
-import { loadCanvasFromFileAsync } from './LoadFromFile';
+import { CoreNodeImageFile } from './CoreNodeImageFile';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimEngineOptions, FimRect } from '@leosingleton/fim';
-import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, CoreMimeType,
-  RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+    super(CoreNodeImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
 
     // Create the canvas using node-canvas
     this.canvasElement = createCanvas(dimensions.w, dimensions.h);
   }
 
-  private canvasElement: Canvas;
+  /** Underlying canvas backing this object */
+  public canvasElement: Canvas;
 
   protected disposeSelf(): void {
     this.canvasElement.width = 0;
@@ -73,24 +73,6 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     } else {
       return super.copyFromAsync(srcCanvas, srcCoords, destCoords);
     }
-  }
-
-  public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, pngFile, allowRescale);
-  }
-
-  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, jpegFile, allowRescale);
-  }
-
-  public async exportToPngAsync(): Promise<Uint8Array> {
-    const buffer = this.canvasElement.toBuffer(CoreMimeType.PNG);
-    return new Uint8Array(buffer);
-  }
-
-  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    const buffer = this.canvasElement.toBuffer(CoreMimeType.JPEG, { quality });
-    return new Uint8Array(buffer);
   }
 
   /**

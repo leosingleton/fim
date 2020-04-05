@@ -23,6 +23,7 @@ import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { deepCopy } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
+import { CoreImageFile } from '../internal';
 
 /** Shorthand for `EngineFimBase` with the non-platform-specfic implementations of `TEngineImage` and `TEngineShader` */
 export type EngineFim = EngineFimBase<EngineImage, EngineShader>;
@@ -299,6 +300,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   /** Derived classes must implement this method to call the TEngineShader constructor */
   protected abstract createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
     name?: string): TEngineShader;
+
+  /**
+   * Derived classes must implement this method to return an instance of `CoreImageFile` supporting the object returned
+   * by `createCoreCanvas2D`
+   */
+  public abstract getCoreImageFile(): CoreImageFile;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
   public abstract createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):

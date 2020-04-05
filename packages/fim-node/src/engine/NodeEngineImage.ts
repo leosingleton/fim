@@ -5,11 +5,12 @@
 import { fileRead } from './FileRead';
 import { FimNodeImage } from '../api/FimNodeImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
-import { loadFromFileAsync } from '../core/LoadFromFile';
+import { loadFromFileAsync } from '../core/CoreNodeImageFile';
 import { FimDimensions, FimImageOptions, FimObject, FimRect } from '@leosingleton/fim';
 import { CoreCanvas2D, EngineImage } from '@leosingleton/fim/internals';
 import { Canvas } from 'canvas';
 
+/** Implementation of `EngineImage` for Node.js */
 export class NodeEngineImage extends EngineImage implements FimNodeImage {
   public async loadFromPngFileAsync(pngPath: string, allowRescale?: boolean): Promise<void> {
     const pngFile = await fileRead(pngPath);
@@ -61,7 +62,7 @@ export class NodeEngineImage extends EngineImage implements FimNodeImage {
     await loadFromFileAsync(jpegFile, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
       result = new NodeEngineImage(parent, options, dimensions, name);
-      await result.loadFromPngAsync(jpegFile);
+      await result.loadFromJpegAsync(jpegFile);
     });
 
     return result;

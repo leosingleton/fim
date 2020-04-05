@@ -5,10 +5,11 @@
 import { fileDownload } from './FileDownload';
 import { FimBrowserImage } from '../api/FimBrowserImage';
 import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
-import { loadFromFileAsync } from '../core/LoadFromFile';
+import { loadFromFileAsync } from '../core/CoreBrowserImageFile';
 import { FimImageOptions, FimDimensions, FimObject, FimRect } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
 
+/** Implementation of `EngineImage` for web browsers */
 export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
   public async loadFromPngFileAsync(pngUrl: string, allowRescale?: boolean): Promise<void> {
     const pngFile = await fileDownload(pngUrl);
@@ -60,7 +61,7 @@ export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
     await loadFromFileAsync(jpegFile, CoreMimeType.JPEG, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
       result = new BrowserEngineImage(parent, options, dimensions, name);
-      await result.loadFromPngAsync(jpegFile);
+      await result.loadFromJpegAsync(jpegFile);
     });
 
     return result;
