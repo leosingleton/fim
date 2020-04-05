@@ -189,7 +189,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.ensureNotDisposed();
 
     // Validate the dimensions
-    const imageDimensions = FimDimensions.fromWidthHeight(image.width, image.height);
+    const imageDimensions = FimDimensions.fromObject(image);
     let sameDimensions = true;
     if (!imageDimensions.equals(me.dim)) {
       if (allowRescale) {

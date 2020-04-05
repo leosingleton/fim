@@ -115,6 +115,14 @@ export class FimDimensions extends FimGeometry {
     return new FimDimensions(dimension, dimension);
   }
 
+  /**
+   * Creates a `FimDimensions` object from any object containing `width` and `height` properties
+   * @param object Any object containing `width` and `height` properties
+   */
+  public static fromObject(object: { width: number, height: number }): FimDimensions {
+    return new FimDimensions(object.width, object.height);
+  }
+
   public static min(d1: FimDimensions, d2: FimDimensions): FimDimensions {
     return new FimDimensions(Math.min(d1.w, d2.w), Math.min(d1.h, d2.h));
   }

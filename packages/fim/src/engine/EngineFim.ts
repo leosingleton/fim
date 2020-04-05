@@ -287,8 +287,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     let result: TEngineImage;
     await me.imageLoader(file, type, image => {
-      result = me.createEngineImage(parent ?? this, options ?? {},
-        FimDimensions.fromWidthHeight(image.width, image.height), name);
+      result = me.createEngineImage(parent ?? this, options ?? {}, FimDimensions.fromObject(image), name);
       result.loadFromImage(image);
     });
 

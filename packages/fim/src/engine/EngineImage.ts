@@ -285,7 +285,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     return me.rootObject.imageLoader(file, type, image => {
       // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
       // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
-      const imageDimensions = FimDimensions.fromWidthHeight(image.width, image.height);
+      const imageDimensions = FimDimensions.fromObject(image);
       if (!allowRescale && !imageDimensions.equals(me.dim)) {
         FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
       }

@@ -138,4 +138,12 @@ describe('FimDimensions', () => {
     expect(dim.equalsAspectRatio(dim7)).toBeFalsy();
   });
 
+  it('fromObject()', () => {
+    const object = {
+      width: 640,
+      height: 480
+    };
+    expect(FimDimensions.fromObject(object)).toEqual(FimDimensions.fromWidthHeight(640, 480));
+  });
+
 });
