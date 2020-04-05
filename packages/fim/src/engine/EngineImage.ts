@@ -182,16 +182,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
   public async backupAsync(): Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
     if (me.contentTexture.isCurrent && !me.contentFillColor.isCurrent && !me.contentCanvas.isCurrent) {
       // The WebGL texture is the only copy of the image contents and needs to be backed up to a canvas
       await me.contentCanvas.populateContentAsync();
-      optimizer.recordImageWrite(me, ImageType.Canvas);
 
       // Let the optimizer release unneeded resources
-      optimizer.releaseResources();
+      me.rootObject.optimizer.releaseResources();
     }
   }
 
@@ -224,6 +222,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const color = me.contentCanvas.imageContent.getPixel(scaledPoint);
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return color;
@@ -319,6 +318,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(destContentCanvas, true);
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(srcImage, ImageType.Canvas);
     optimizer.recordImageWrite(me, ImageType.Canvas);
     optimizer.releaseResources();
   }
@@ -402,6 +402,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return pixelData;
@@ -432,6 +433,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords, destCoords);
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
   }
 
@@ -452,6 +454,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return png;
@@ -474,6 +477,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return jpeg;

@@ -40,11 +40,9 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   /**
    * Constructor
    * @param parentImage Parent `EngineImage` instance
-   * @param imageType Type enum
    * @param name Object name used to create a unique handle
    */
-  public constructor(protected readonly parentImage: EngineImage, protected readonly imageType: ImageType,
-      name: string) {
+  public constructor(protected readonly parentImage: EngineImage, name: string) {
     super();
     this.handle = `${parentImage.handle}/${name}`;
   }
@@ -123,7 +121,6 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     const me = this;
     const parentImage = me.parentImage;
     const root = parentImage.rootObject;
-    const optimizer = root.optimizer;
 
     // Calculate the desired dimensions and downscale ratio
     const dd = me.calculateDimensionsAndDownscale(dimensions);
@@ -132,7 +129,6 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     // TODO: Detect changes in the imageOptions that could also cause the texture to be reallocated
     if (me.imageContent) {
       if (me.downscale === dd.downscale) {
-        optimizer.recordImageWrite(parentImage, me.imageType);
         return me.imageContent;
       } else {
         // The canvas or texture is allocated but of the wrong size. Release the current one and reallocate it.
@@ -148,7 +144,6 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     // Record the object creation
     root.resources.recordCreate(parentImage, content);
 
-    optimizer.recordImageWrite(parentImage, me.imageType);
     return content;
   }
 
@@ -167,7 +162,6 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   public async populateContentAsync(): Promise<TContent> {
     const me = this;
     const parentImage = me.parentImage;
-    const optimizer = parentImage.rootObject.optimizer;
 
     if (!parentImage.hasImage()) {
       FimError.throwOnImageUninitialized(parentImage.handle);
@@ -176,10 +170,8 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     } else {
       await me.populateContentInternalAsync();
       parentImage.markCurrent(this, false);
-      optimizer.recordImageWrite(parentImage, me.imageType);
     }
 
-    optimizer.recordImageRead(parentImage, me.imageType);
     return me.imageContent;
   }
 
@@ -200,7 +192,6 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   public async allocateOrPopulateContentAsync(destCoords: FimRect, dimensions?: FimDimensions): Promise<TContent> {
     const me = this;
     const parentImage = me.parentImage;
-    const optimizer = parentImage.rootObject.optimizer;
 
     if (destCoords.dim.equals(parentImage.dim)) {
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
@@ -211,9 +202,6 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
       // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
       // and throw an exception if the current image is uninitialized.
       await me.populateContentAsync();
-
-      // populateContentAsync() is normally called before read operations. We have to explicitly record the write here.
-      optimizer.recordImageWrite(parentImage, me.imageType);
     }
 
     return me.imageContent;
@@ -242,7 +230,7 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
    * @param parentImage Parent `EngineImage` instance
    */
   public constructor(parentImage: EngineImage) {
-    super(parentImage, ImageType.Canvas, 'ContentCanvas');
+    super(parentImage, 'ContentCanvas');
   }
 
   public getOptions(): CoreCanvasOptions {
@@ -296,7 +284,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
    * @param parentImage Parent `EngineImage` instance
    */
   public constructor(parentImage: EngineImage) {
-    super(parentImage, ImageType.Texture, 'ContentTexture');
+    super(parentImage, 'ContentTexture');
   }
 
   public getOptions(): CoreTextureOptions {
