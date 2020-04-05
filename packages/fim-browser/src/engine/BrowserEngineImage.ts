@@ -18,7 +18,7 @@ export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
 
   public async loadFromJpegFileAsync(jpegUrl: string, allowRescale?: boolean): Promise<void> {
     const jpegFile = await fileDownload(jpegUrl);
-    await this.loadFromPngAsync(jpegFile, allowRescale);
+    await this.loadFromJpegAsync(jpegFile, allowRescale);
   }
 
   public exportToCanvasAsync(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {

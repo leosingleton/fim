@@ -17,6 +17,7 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, Engine
   fileToName } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
+/** Implementation of `EngineFim` for web browsers */
 export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> implements FimBrowser {
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       BrowserEngineImage {
