@@ -5,9 +5,9 @@
 import { fileRead } from './FileRead';
 import { FimNodeImage } from '../api/FimNodeImage';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
-import { loadFromFileAsync } from '../core/CoreNodeImageFile';
+import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject, FimRect } from '@leosingleton/fim';
-import { CoreCanvas2D, EngineImage } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
 import { Canvas } from 'canvas';
 
 /** Implementation of `EngineImage` for Node.js */
@@ -39,7 +39,7 @@ export class NodeEngineImage extends EngineImage implements FimNodeImage {
       name?: string): Promise<NodeEngineImage> {
     let result: NodeEngineImage;
 
-    await loadFromFileAsync(pngFile, async img => {
+    await loadFromFileAsync(pngFile, CoreMimeType.PNG, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
       result = new NodeEngineImage(parent, options, dimensions, name);
       await result.loadFromPngAsync(pngFile);
@@ -59,7 +59,7 @@ export class NodeEngineImage extends EngineImage implements FimNodeImage {
       name?: string): Promise<NodeEngineImage> {
     let result: NodeEngineImage;
 
-    await loadFromFileAsync(jpegFile, async img => {
+    await loadFromFileAsync(jpegFile, CoreMimeType.JPEG, async img => {
       const dimensions = FimDimensions.fromWidthHeight(img.width, img.height);
       result = new NodeEngineImage(parent, options, dimensions, name);
       await result.loadFromJpegAsync(jpegFile);

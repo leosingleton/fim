@@ -7,7 +7,6 @@ import { fileDownload } from './FileDownload';
 import { FimBrowser } from '../api/FimBrowser';
 import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
 import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
-import { CoreBrowserImageFile } from '../core/CoreBrowserImageFile';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
@@ -35,10 +34,6 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
       name?: string): EngineShader {
     return new EngineShader(parent, fragmentShader, vertexShader, name);
-  }
-
-  public getCoreImageFile(): CoreBrowserImageFile {
-    return CoreBrowserImageFile.instance;
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {

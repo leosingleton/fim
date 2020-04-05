@@ -4,7 +4,7 @@
 
 import { CoreCanvas } from './CoreCanvas';
 import { CoreCanvasOptions } from './CoreCanvasOptions';
-import { CoreImageFile } from './CoreImageFile';
+import { CoreImageLoader } from './CoreImageLoader';
 import { CoreMimeType } from './CoreMimeType';
 import { ImageSource } from './types/ImageSource';
 import { RenderingContext2D } from './types/RenderingContext2D';
@@ -19,13 +19,13 @@ import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas2D extends CoreCanvas {
   /**
-   * @param imageFile `CoreImageFile` implementation for reading and writing to and from PNG and JPEG formats
+   * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
    * @param canvasOptions Canvas options
    * @param dimensions Canvas dimensions
    * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
    */
-  protected constructor(protected readonly imageFile: CoreImageFile, canvasOptions: CoreCanvasOptions,
+  protected constructor(protected readonly imageLoader: CoreImageLoader, canvasOptions: CoreCanvasOptions,
       dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions) {
     super(canvasOptions, dimensions, handle, engineOptions);
   }
@@ -215,8 +215,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    *    to fit this canvas.
    */
   public loadFromPngAsync(pngFile: Uint8Array, allowRescale?: boolean): Promise<void> {
-    return this.imageFile.loadFromFileAsync(pngFile, CoreMimeType.PNG,
-      image => this.loadFromImage(image, allowRescale));
+    return this.imageLoader(pngFile, CoreMimeType.PNG, image => this.loadFromImage(image, allowRescale));
   }
 
   /**
@@ -227,8 +226,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    *    to fit this canvas.
    */
   public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void> {
-    return this.imageFile.loadFromFileAsync(jpegFile, CoreMimeType.JPEG,
-      image => this.loadFromImage(image, allowRescale));
+    return this.imageLoader(jpegFile, CoreMimeType.JPEG, image => this.loadFromImage(image, allowRescale));
   }
 
   /**

@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
-import { CoreNodeImageFile } from './CoreNodeImageFile';
+import { loadFromFileAsync } from './ImageLoader';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimDimensions, FimEngineOptions, FimError, FimRect } from '@leosingleton/fim';
 import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, CoreMimeType,
@@ -14,7 +14,7 @@ import { Canvas, createCanvas } from 'canvas';
 export class CoreNodeCanvas2D extends CoreCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(CoreNodeImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
 
     // Create the canvas using node-canvas
     this.canvasElement = createCanvas(dimensions.w, dimensions.h);

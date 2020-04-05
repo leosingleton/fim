@@ -7,7 +7,6 @@ import { NodeEngineImage } from './NodeEngineImage';
 import { FimNode } from '../api/FimNode';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
-import { CoreNodeImageFile } from '../core/CoreNodeImageFile';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
   fileToName } from '@leosingleton/fim/internals';
@@ -33,10 +32,6 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
       name?: string): EngineShader {
     return new EngineShader(parent, fragmentShader, vertexShader, name);
-  }
-
-  public getCoreImageFile(): CoreNodeImageFile {
-    return CoreNodeImageFile.instance;
   }
 
   public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {

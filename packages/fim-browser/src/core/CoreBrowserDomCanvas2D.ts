@@ -3,8 +3,8 @@
 // See LICENSE in the project root for license information.
 
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
-import { CoreBrowserImageFile } from './CoreBrowserImageFile';
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
+import { loadFromFileAsync } from './ImageLoader';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
@@ -12,7 +12,7 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(CoreBrowserImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserDomCanvas2D.canvasPool.getCanvas();
@@ -28,7 +28,7 @@ export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
   private static canvasPool = new DomCanvasPool();
 
   /** Underlying canvas backing this object */
-  public canvasElement: DisposableCanvas;
+  private canvasElement: DisposableCanvas;
 
   protected disposeSelf(): void {
     this.canvasElement.dispose();

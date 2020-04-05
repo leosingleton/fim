@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
-import { CoreBrowserImageFile } from './CoreBrowserImageFile';
+import { loadFromFileAsync } from './ImageLoader';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
@@ -14,12 +14,12 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(CoreBrowserImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
     this.canvasElement = new OffscreenCanvas(dimensions.w, dimensions.h);
   }
 
   /** Underlying canvas backing this object */
-  public canvasElement: OffscreenCanvas;
+  private canvasElement: OffscreenCanvas;
 
   protected disposeSelf(): void {
     // Chrome is the only browser that currently supports OffscreenCanvas, and I've never actually hit an out-of-memory

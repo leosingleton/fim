@@ -2,24 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CoreImageFile, CoreMimeType, ImageSource } from '@leosingleton/fim/internals';
-
-/**
- * Helper functions to import and export PNG and JPEG image files
- * @template TBrowserCanvas2D Type of `CoreBrowserCanvas2D` supported by this implementation
- */
-export class CoreBrowserImageFile implements CoreImageFile {
-  /** Use the global static instance */
-  protected constructor() {}
-
-  public loadFromFileAsync(file: Uint8Array, type: CoreMimeType, callback: (image: ImageSource) => void):
-      Promise<void> {
-    return loadFromFileAsync(file, type, callback);
-  }
-
-  /** Shared global instance */
-  public static readonly instance = new CoreBrowserImageFile();
-}
+import { CoreMimeType, ImageSource } from '@leosingleton/fim/internals';
 
 /**
  * Loads a file's contents onto an `ImageSource` instance which can then be loaded onto a canvas

@@ -5,7 +5,7 @@
 import { fileDownload } from './FileDownload';
 import { FimBrowserImage } from '../api/FimBrowserImage';
 import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
-import { loadFromFileAsync } from '../core/CoreBrowserImageFile';
+import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimImageOptions, FimDimensions, FimObject, FimRect } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
 
