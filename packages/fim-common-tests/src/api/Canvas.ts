@@ -172,7 +172,7 @@ export function fimTestSuiteCanvas(
 
         // Load a PNG image to generate some tracing
         const png = TestImages.fourSquaresPng();
-        await image.loadFromPngAsync(png);
+        await image.loadFromPngAsync(png, true);
 
         // Run a WebGL operation to allocate WebGL traces, too
         await image.executeAsync(blur.$(image, 5));

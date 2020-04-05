@@ -177,7 +177,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   /**
-   * Loads the image contents from an Image
+   * Loads the image contents from an `HTMLImageElement`-like object
    * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
    *    calling this function.
    * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of

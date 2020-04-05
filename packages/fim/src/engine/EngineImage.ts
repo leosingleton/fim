@@ -14,8 +14,10 @@ import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
+import { CoreMimeType } from '../core/CoreMimeType';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
+import { ImageSource } from '../core/types/ImageSource';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -249,17 +251,19 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     optimizer.releaseResources();
   }
 
-  public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+  /**
+   * Loads the image contents from an `HTMLImageElement`-like object. Automatically rescales the contents to fit the
+   * full canvas.
+   * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
+   *    calling this function.
+   */
+  public loadFromImage(image: ImageSource): void {
     const me = this;
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
     me.contentCanvas.allocateContent();
-    // BUGBUG: If the underlying 2D canvas isn't the same dimensions as this image, we always treat allowRescale as
-    //    true. This makes the FIM library behave as it should in normal cases. However if the PNG file's dimensions
-    //    don't match the EngineImage's, it will succeed rather than fail as expected.
-    allowRescale = allowRescale || (me.contentCanvas.downscale !== 1);
-    await me.contentCanvas.imageContent.loadFromPngAsync(pngFile, allowRescale);
+    me.contentCanvas.imageContent.loadFromImage(image, true);
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources
@@ -267,22 +271,27 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     optimizer.releaseResources();
   }
 
+  public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+    return this.loadFromFileAsync(pngFile, CoreMimeType.PNG, allowRescale);
+  }
+
   public async loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
+    return this.loadFromFileAsync(jpegFile, CoreMimeType.JPEG, allowRescale);
+  }
+
+  private async loadFromFileAsync(file: Uint8Array, type: CoreMimeType, allowRescale: boolean): Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
-    me.ensureNotDisposed();
 
-    me.contentCanvas.allocateContent();
-    // BUGBUG: If the underlying 2D canvas isn't the same dimensions as this image, we always treat allowRescale as
-    //    true. This makes the FIM library behave as it should in normal cases. However if the JPEG file's dimensions
-    //    don't match the EngineImage's, it will succeed rather than fail as expected.
-    allowRescale = allowRescale || (me.contentCanvas.downscale !== 1);
-    await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
-    me.markCurrent(me.contentCanvas, true);
+    return me.rootObject.imageLoader(file, type, image => {
+      // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
+      // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
+      const imageDimensions = FimDimensions.fromWidthHeight(image.width, image.height);
+      if (!allowRescale && !imageDimensions.equals(me.dim)) {
+        FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
+      }
 
-    // Let the optimizer release unneeded resources
-    optimizer.recordImageWrite(me, ImageType.Canvas);
-    optimizer.releaseResources();
+      me.loadFromImage(image);
+    });
   }
 
   public async copyFromAsync(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {

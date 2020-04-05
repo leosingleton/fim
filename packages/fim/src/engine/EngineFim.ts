@@ -19,6 +19,8 @@ import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
+import { CoreImageLoader } from '../core/CoreImageLoader';
+import { CoreMimeType } from '../core/CoreMimeType';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -32,11 +34,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     extends EngineObject implements FimBase<TEngineImage, TEngineShader> {
   /**
    * Constructor
+   * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
    * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
    *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(maxImageDimensions?: FimDimensions, name?: string) {
+  public constructor(public readonly imageLoader: CoreImageLoader, maxImageDimensions?: FimDimensions, name?: string) {
     super(EngineObjectType.Fim, name);
     this.resources = new ResourceTracker(this);
     this.optimizer = new OptimizerNull(this);
@@ -268,14 +271,28 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
       Promise<TEngineImage> {
-    this.ensureNotDisposed();
-    return this.createEngineImageFromPngAsync(pngFile, parent ?? this, options ?? {}, name);
+    return this.createImageFromFileAsync(pngFile, CoreMimeType.PNG, options, name, parent);
   }
 
   public createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
       Promise<TEngineImage> {
-    this.ensureNotDisposed();
-    return this.createEngineImageFromJpegAsync(jpegFile, parent ?? this, options ?? {}, name);
+    return this.createImageFromFileAsync(jpegFile, CoreMimeType.JPEG, options, name, parent);
+  }
+
+  /** Internal implementation of `createImageFromPngAsync` and `createImageFromJpegAsync` */
+  private async createImageFromFileAsync(file: Uint8Array, type: CoreMimeType, options?: FimImageOptions, name?: string,
+      parent?: FimObject): Promise<TEngineImage> {
+    const me = this;
+    me.ensureNotDisposed();
+
+    let result: TEngineImage;
+    await me.imageLoader(file, type, image => {
+      result = me.createEngineImage(parent ?? this, options ?? {},
+        FimDimensions.fromWidthHeight(image.width, image.height), name);
+      result.loadFromImage(image);
+    });
+
+    return result;
   }
 
   public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
@@ -287,14 +304,6 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions,
     name?: string): TEngineImage;
-
-  /** Derived classes must implement this method to create a TEngineImage from a PNG file */
-  protected abstract createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
-    name?: string): Promise<TEngineImage>;
-
-  /** Derived classes must implement this method to create a TEngineImage from a JPEG file */
-  protected abstract createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
-    name?: string): Promise<TEngineImage>;
 
   /** Derived classes must implement this method to call the TEngineShader constructor */
   protected abstract createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
