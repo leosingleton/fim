@@ -21,7 +21,7 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
   }
 
   /** Underlying canvas backing this object */
-  public canvasElement: Canvas;
+  private canvasElement: Canvas;
 
   protected disposeSelf(): void {
     this.canvasElement.width = 0;

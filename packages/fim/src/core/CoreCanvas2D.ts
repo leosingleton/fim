@@ -25,7 +25,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
    */
-  protected constructor(protected readonly imageLoader: CoreImageLoader, canvasOptions: CoreCanvasOptions,
+  protected constructor(private readonly imageLoader: CoreImageLoader, canvasOptions: CoreCanvasOptions,
       dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions) {
     super(canvasOptions, dimensions, handle, engineOptions);
   }
