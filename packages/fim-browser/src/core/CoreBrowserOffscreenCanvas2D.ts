@@ -3,9 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
-import { CoreBrowserOffscreenImageFile } from './CoreBrowserOffscreenImageFile';
+import { CoreBrowserImageFile } from './CoreBrowserImageFile';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 // uglify-js is not yet aware of OffscreenCanvas and name mangles it
 // @nomangle OffscreenCanvas convertToBlob
@@ -14,7 +14,7 @@ import { CoreCanvas2D, CoreCanvasOptions, RenderingContext2D } from '@leosinglet
 export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(CoreBrowserOffscreenImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
+    super(CoreBrowserImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
     this.canvasElement = new OffscreenCanvas(dimensions.w, dimensions.h);
   }
 
@@ -40,5 +40,9 @@ export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
     return new CoreBrowserOffscreenCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+  }
+
+  protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
+    return this.canvasElement.convertToBlob({ type, quality });
   }
 }

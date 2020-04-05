@@ -2,15 +2,14 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
 import { CoreImageFile, CoreMimeType, ImageSource } from '@leosingleton/fim/internals';
 
 /**
  * Helper functions to import and export PNG and JPEG image files
  * @template TBrowserCanvas2D Type of `CoreBrowserCanvas2D` supported by this implementation
  */
-export abstract class CoreBrowserImageFile implements CoreImageFile {
-  /** Derived classes should create a global static instance */
+export class CoreBrowserImageFile implements CoreImageFile {
+  /** Use the global static instance */
   protected constructor() {}
 
   public loadFromFileAsync(file: Uint8Array, type: CoreMimeType, callback: (image: ImageSource) => void):
@@ -18,22 +17,8 @@ export abstract class CoreBrowserImageFile implements CoreImageFile {
     return loadFromFileAsync(file, type, callback);
   }
 
-  public async exportToFileAsync(canvas: CoreBrowserCanvas2D, type: CoreMimeType, quality?: number):
-      Promise<Uint8Array> {
-    const blob = await this.convertToBlobAsync(canvas, type, quality);
-    const buffer = await new Response(blob).arrayBuffer();
-    return new Uint8Array(buffer);
-  }
-
-  /**
-   * Converts a canvas to a `Blob`
-   * @param canvas Canvas to convert to a `Blob`
-   * @param type Mime type of the `Blob`
-   * @param quality Optional compression quality (0.0 to 1.0)
-   * @returns `Blob`
-   */
-  protected abstract convertToBlobAsync(canvas: CoreBrowserCanvas2D, type: CoreMimeType, quality?: number):
-    Promise<Blob>;
+  /** Shared global instance */
+  public static readonly instance = new CoreBrowserImageFile();
 }
 
 /**

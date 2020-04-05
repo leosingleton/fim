@@ -325,7 +325,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @returns Compressed PNG file as a Uint8Array
    */
   public exportToPngAsync(): Promise<Uint8Array> {
-    return this.imageFile.exportToFileAsync(this, CoreMimeType.PNG);
+    return this.exportToFileAsync(CoreMimeType.PNG);
   }
 
   /**
@@ -334,6 +334,14 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @returns Compressed JPEG file as a Uint8Array
    */
   public exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    return this.imageFile.exportToFileAsync(this, CoreMimeType.JPEG, quality);
+    return this.exportToFileAsync(CoreMimeType.JPEG, quality);
   }
+
+  /**
+   * Derived classes must implement this method to export the canvas contents to an image file
+   * @param type Mime type of the image file to export
+   * @param quality Optional compression quality (0.0 to 1.0)
+   * @returns Image file as a Uint8Array
+   */
+  protected abstract exportToFileAsync(type: CoreMimeType, quality?: number): Promise<Uint8Array>;
 }

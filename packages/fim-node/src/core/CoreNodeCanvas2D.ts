@@ -5,8 +5,9 @@
 import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
 import { CoreNodeImageFile } from './CoreNodeImageFile';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { FimDimensions, FimEngineOptions, FimRect } from '@leosingleton/fim';
-import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, RenderingContext2D } from '@leosingleton/fim/internals';
+import { FimDimensions, FimEngineOptions, FimError, FimRect } from '@leosingleton/fim';
+import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, CoreMimeType,
+  RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
 
 /** Wrapper around the Node.js canvas library */
@@ -40,6 +41,26 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
       engineOptions: FimEngineOptions): CoreCanvas2D {
     return new CoreNodeCanvas2D(canvasOptions, dimensions, handle, engineOptions);
   }
+
+  protected async exportToFileAsync(type: CoreMimeType, quality?: number): Promise<Uint8Array> {
+    const canvas = this.canvasElement;
+    let buffer: Buffer;
+    switch (type) {
+      case CoreMimeType.JPEG:
+        buffer = canvas.toBuffer(CoreMimeType.JPEG, { quality });
+        break;
+
+      case CoreMimeType.PNG:
+        buffer = canvas.toBuffer(CoreMimeType.PNG);
+        break;
+
+      default:
+        FimError.throwOnUnreachableCodeValue(type);
+    }
+
+    return new Uint8Array(buffer);
+  }
+
 
   public async copyFromAsync(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     if (srcCanvas instanceof CoreNodeCanvasWebGL) {

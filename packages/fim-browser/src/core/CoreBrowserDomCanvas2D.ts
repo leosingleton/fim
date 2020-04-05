@@ -3,16 +3,16 @@
 // See LICENSE in the project root for license information.
 
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
-import { CoreBrowserDomImageFile } from './CoreBrowserDomImageFile';
+import { CoreBrowserImageFile } from './CoreBrowserImageFile';
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, RenderingContext2D } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(CoreBrowserDomImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
+    super(CoreBrowserImageFile.instance, canvasOptions, dimensions, handle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserDomCanvas2D.canvasPool.getCanvas();
@@ -46,5 +46,11 @@ export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
   protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
     return new CoreBrowserDomCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+  }
+
+  protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
+    return new Promise<Blob>(resolve => {
+      this.canvasElement.toBlob(blob => resolve(blob), type, quality);
+    });
   }
 }
