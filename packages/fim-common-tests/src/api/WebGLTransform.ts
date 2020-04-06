@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { topLeft, topRight, bottomLeft, bottomRight } from '../common/Globals';
+//import { topLeft, topRight, bottomLeft, bottomRight } from '../common/Globals';
+import { topRight } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
