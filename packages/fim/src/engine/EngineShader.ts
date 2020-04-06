@@ -9,6 +9,7 @@ import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
 import { FimValue } from '../api/FimValue';
+import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { CoreShader } from '../core/CoreShader';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreValue } from '../core/CoreValue';
@@ -150,13 +151,14 @@ export class EngineShader extends EngineObject implements FimShader {
 
   /**
    * Executes a program. Callers must first set the constant and uniform values before calling this method.
-   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to the parent
-   *    CoreCanvasWebGL.
+   * @param glCanvas The `CoreCanvasWebGL` instance
+   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to `glCanvas`.
    * @param destCoords If set, renders the output to the specified destination coordinates using WebGL's viewport and
    *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
    *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
    */
-  public async executeAsync(outputTexture?: CoreTexture, destCoords?: FimRect): Promise<void> {
+  public async executeAsync(glCanvas: CoreCanvasWebGL, outputTexture?: CoreTexture, destCoords?: FimRect):
+      Promise<void> {
     const me = this;
     const root = me.rootObject;
     me.ensureNotDisposedAndHasContext();
@@ -167,7 +169,7 @@ export class EngineShader extends EngineObject implements FimShader {
     if (!shader) {
       // Create a new shader, set the constants, and compile it. We explicitly compile the program to catch any compiler
       // errors here before caching, rather than letting CoreShader automatically compile on first use.
-      shader = new CoreShader(root.getWebGLCanvas(), me.handle, me.fragmentShader, me.vertexShader);
+      shader = new CoreShader(glCanvas, me.handle, me.fragmentShader, me.vertexShader);
       shader.setConstants(me.constantValues);
       shader.compileProgram();
 

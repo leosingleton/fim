@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { CoreCallbackCollection } from './CoreCallbackCollection';
 import { CoreCanvas } from './CoreCanvas';
 import { CoreShader } from './CoreShader';
 import { CoreTexture } from './CoreTexture';
@@ -18,7 +19,6 @@ import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
-import { UnhandledError } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
@@ -100,8 +100,8 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.childObjects = [];
 
     // Remove all callbacks
-    me.contextLostHandlers = [];
-    me.contextRestoredHandlers = [];
+    me.contextLostHandlers.removeAllCallbacks();
+    me.contextRestoredHandlers.removeAllCallbacks();
 
     // Some WebGL implementations support an extension to force a context loss. This seems to help on Chrome, where unit
     // tests may create hundreds of WebGL contexts before the garbage collector cleans up the unused ones.
@@ -133,7 +133,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * @param handler Handler to invoke
    */
   public registerContextLostHandler(handler: () => void): void {
-    this.contextLostHandlers.push(handler);
+    this.contextLostHandlers.registerCallback(handler);
   }
 
   /**
@@ -141,7 +141,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
    * @param handler Handler to invoke
    */
   public registerContextRestoredHandler(handler: () => void): void {
-    this.contextRestoredHandlers.push(handler);
+    this.contextRestoredHandlers.registerCallback(handler);
   }
 
   /** Handler for the `webglcontextlost` event */
@@ -161,13 +161,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.isContextLost = true;
     me.hasImage = false;
 
-    for (const handler of me.contextLostHandlers) {
-      try {
-        handler();
-      } catch (err) {
-        UnhandledError.reportError(err);
-      }
-    }
+    me.contextLostHandlers.invokeCallbacks();
 
     // Dispose all child objects
     for (const child of me.childObjects) {
@@ -195,13 +189,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     // I'm not 100% sure, but we probably will have re-enable all WebGL extensions after losing the WebGL context...
     me.loadExtensions();
 
-    for (const handler of me.contextRestoredHandlers) {
-      try {
-        handler();
-      } catch (err) {
-        UnhandledError.reportError(err);
-      }
-    }
+    me.contextRestoredHandlers.invokeCallbacks();
   }
 
   /** Handler for the `webglcontextcreationerror` event */
@@ -210,10 +198,10 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** Context lost callbacks */
-  private contextLostHandlers: (() => void)[] = [];
+  private contextLostHandlers = new CoreCallbackCollection();
 
   /** Context restored callbacks */
-  private contextRestoredHandlers: (() => void)[] = [];
+  private contextRestoredHandlers = new CoreCallbackCollection();
 
   /** Returns additional error details in case `getContext('webgl')` fails */
   private contextFailMessage: string;

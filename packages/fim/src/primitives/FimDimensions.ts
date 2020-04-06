@@ -123,11 +123,11 @@ export class FimDimensions extends FimGeometry {
     return new FimDimensions(object.width, object.height);
   }
 
-  public static min(d1: FimDimensions, d2: FimDimensions): FimDimensions {
+  public static fromMin(d1: FimDimensions, d2: FimDimensions): FimDimensions {
     return new FimDimensions(Math.min(d1.w, d2.w), Math.min(d1.h, d2.h));
   }
 
-  public static max(d1: FimDimensions, d2: FimDimensions): FimDimensions {
+  public static fromMax(d1: FimDimensions, d2: FimDimensions): FimDimensions {
     return new FimDimensions(Math.max(d1.w, d2.w), Math.max(d1.h, d2.h));
   }
 

@@ -16,6 +16,7 @@ import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
+import { CoreCallbackCollection } from '../core/CoreCallbackCollection';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
@@ -76,7 +77,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
       glTextureDepthsLinear: [],
       glTextureDepthsNearest: []
     };
-    const tinyCanvas = this.createCoreCanvasWebGL({}, FimDimensions.fromWidthHeight(10, 10),
+    const tinyCanvas = this.createCoreCanvasWebGL({}, FimDimensions.fromSquareDimension(1),
       `${this.handle}/DetectCapabilities`);
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
@@ -204,8 +205,9 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   protected ensureNotDisposedAndHasContext(): void {
     // Child objects recursively call their parents. As parent, we must check the WebGL context.
-    const gl = this.getWebGLCanvas();
-    gl.throwOnContextLost();
+    if (this.isContextLostValue) {
+      throw new FimError(FimErrorCode.WebGLContextLost);
+    }
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
@@ -234,12 +236,16 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Release all shaders and textures
     me.releaseResources(FimReleaseResourcesFlags.WebGLShader | FimReleaseResourcesFlags.WebGLTexture);
+
+    me.contextLostHandlers.invokeCallbacks();
   }
 
   private onContextRestored(): void {
     const me = this;
     me.isContextLostValue = false;
     me.writeWarning(me, 'WebGL context restored');
+
+    me.contextRestoredHandlers.invokeCallbacks();
   }
 
   private isContextLostValue = false;
@@ -249,14 +255,22 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   }
 
   public registerContextLostHandler(handler: () => void): void {
-    const glCanvas = this.getWebGLCanvas();
-    glCanvas.registerContextLostHandler(handler);
+    // We keep a level of indirection rather than registering the callbacks directly on the WebGL canvas, because the
+    // WebGL canvas may get destroyed and recreated in order to resize it.
+    this.contextLostHandlers.registerCallback(handler);
   }
 
   public registerContextRestoredHandler(handler: () => void): void {
-    const glCanvas = this.getWebGLCanvas();
-    glCanvas.registerContextRestoredHandler(handler);
+    // We keep a level of indirection rather than registering the callbacks directly on the WebGL canvas, because the
+    // WebGL canvas may get destroyed and recreated in order to resize it.
+    this.contextRestoredHandlers.registerCallback(handler);
   }
+
+  /** Context lost callbacks */
+  private contextLostHandlers = new CoreCallbackCollection();
+
+  /** Context restored callbacks */
+  private contextRestoredHandlers = new CoreCallbackCollection();
 
   public getResourceMetrics(): FimResourceMetrics {
     return this.resources.totals;

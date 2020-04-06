@@ -367,15 +367,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // populated based on the destination coordinates.
     await contentTexture.allocateOrPopulateContentAsync(destCoords, shaderOrOperation.hasNonDefaultVertices());
 
+    const glCanvas = root.getWebGLCanvas();
     const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
-      const glCanvas = root.getWebGLCanvas();
       const outputTexture = glCanvas.createCoreTexture(contentTexture.getOptions(), contentTexture.imageContent.dim);
       try {
         root.resources.recordCreate(me, outputTexture);
-        await shaderOrOperation.executeAsync(outputTexture, scaledDestCoords);
+        await shaderOrOperation.executeAsync(glCanvas, outputTexture, scaledDestCoords);
       } catch (err) {
         root.resources.recordDispose(me, outputTexture);
         outputTexture.dispose();
@@ -385,7 +385,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       contentTexture.imageContent = outputTexture;
     } else {
       // Normal case: we can write to the normal WebGL texture as it is not an input to the shader.
-      await shaderOrOperation.executeAsync(contentTexture.imageContent, scaledDestCoords);
+      await shaderOrOperation.executeAsync(glCanvas, contentTexture.imageContent, scaledDestCoords);
     }
 
     me.markCurrent(contentTexture, true);

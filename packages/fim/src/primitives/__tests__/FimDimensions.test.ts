@@ -48,14 +48,14 @@ describe('FimDimensions', () => {
   it('Calculates minimum', () => {
     const dim1 = FimDimensions.fromWidthHeight(300, 400);
     const dim2 = FimDimensions.fromWidthHeight(200, 500);
-    const dim3 = FimDimensions.min(dim1, dim2);
+    const dim3 = FimDimensions.fromMin(dim1, dim2);
     expect(dim3).toEqual(FimDimensions.fromWidthHeight(200, 400));
   });
 
   it('Calculates maximum', () => {
     const dim1 = FimDimensions.fromWidthHeight(300, 400);
     const dim2 = FimDimensions.fromWidthHeight(200, 500);
-    const dim3 = FimDimensions.max(dim1, dim2);
+    const dim3 = FimDimensions.fromMax(dim1, dim2);
     expect(dim3).toEqual(FimDimensions.fromWidthHeight(300, 500));
   });
 
