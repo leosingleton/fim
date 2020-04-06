@@ -104,6 +104,6 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
    *    canvas.
    */
   public exportToCanvas(canvas: Canvas, srcCoords?: FimRect, destCoords?: FimRect): void {
-    this.exportToCanvasHelper(canvas.getContext('2d'), canvas.width, canvas.height, srcCoords, destCoords);
+    this.exportToCanvasHelper(canvas.getContext('2d'), FimDimensions.fromObject(canvas), srcCoords, destCoords);
   }
 }

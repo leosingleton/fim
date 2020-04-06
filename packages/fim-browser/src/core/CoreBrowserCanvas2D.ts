@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { FimRect } from '@leosingleton/fim';
+import { FimRect, FimDimensions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreMimeType } from '@leosingleton/fim/internals';
 
 /** Wrapper around `CoreCanvas2D` to add browser-specific methods */
@@ -29,6 +29,6 @@ export abstract class CoreBrowserCanvas2D extends CoreCanvas2D {
    *    canvas.
    */
   public exportToCanvas(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): void {
-    this.exportToCanvasHelper(canvas.getContext('2d'), canvas.width, canvas.height, srcCoords, destCoords);
+    this.exportToCanvasHelper(canvas.getContext('2d'), FimDimensions.fromObject(canvas), srcCoords, destCoords);
   }
 }

@@ -269,23 +269,21 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * Helper function to implement a platform-specific `exportToCanvasAsync()` function which copies this canvas's
    * contents to another canvas
    * @param context 2D rendering context to copy to
-   * @param width Width of the canvas to copy to, in pixels
-   * @param height Height of the canvas to copy to, in pixels
+   * @param dimensions Dimensions of the canvas to copy to, in pixels
    * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
    * @param destCoords Destination coordinates to render to. If unspecified, the output is stretched to fit the entire
    *    canvas.
    */
-  protected exportToCanvasHelper(context: RenderingContext2D, width: number, height: number, srcCoords?: FimRect,
+  protected exportToCanvasHelper(context: RenderingContext2D, dimensions: FimDimensions, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     const me = this;
     me.ensureNotDisposedAndHasImage();
 
     // Default parameters
-    const destDim = FimDimensions.fromWidthHeight(width, height);
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
-    destCoords = destCoords ?? FimRect.fromDimensions(destDim);
+    destCoords = destCoords ?? FimRect.fromDimensions(dimensions);
     srcCoords.validateIn(me);
-    destCoords.validateInDimensions(destDim);
+    destCoords.validateInDimensions(dimensions);
 
     // copy is slightly faster than source-over
     const op = (destCoords.dim.equals(me.dim)) ? 'copy' : 'source-over';
