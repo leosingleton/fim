@@ -294,6 +294,16 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     });
   }
 
+  public async loadFromPngFileAsync(pngUrl: string, allowRescale?: boolean): Promise<void> {
+    const pngFile = await this.rootObject.fileReader(pngUrl);
+    return this.loadFromPngAsync(pngFile, allowRescale);
+  }
+
+  public async loadFromJpegFileAsync(jpegUrl: string, allowRescale?: boolean): Promise<void> {
+    const jpegFile = await this.rootObject.fileReader(jpegUrl);
+    return this.loadFromPngAsync(jpegFile, allowRescale);
+  }
+
   public async copyFromAsync(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     const me = this;
     const optimizer = me.rootObject.optimizer;

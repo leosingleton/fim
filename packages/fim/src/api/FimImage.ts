@@ -98,6 +98,24 @@ export interface FimImage extends FimObject {
   loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void>;
 
   /**
+   * Reads or downloads a PNG file and loads the image contents
+   * @param pngUrlOrPath URL or path to a PNG file. Support varies by platform.
+   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
+   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
+   *    to fit this canvas.
+   */
+  loadFromPngFileAsync(pngUrl: string, allowRescale?: boolean): Promise<void>;
+
+  /**
+   * Reads or downloads a JPEG file and loads the image contents
+   * @param jpegUrlOrPath URL or path to a JPEG file. Support varies by platform.
+   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
+   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
+   *    to fit this canvas.
+   */
+  loadFromJpegFileAsync(jpegUrl: string, allowRescale?: boolean): Promise<void>;
+
+  /**
    * Copies contents from another image. Supports both cropping and rescaling.
    * @param srcImage Source image
    * @param srcCoords Coordinates of source image to copy from

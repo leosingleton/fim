@@ -2,15 +2,15 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { fileRead } from './FileRead';
 import { NodeEngineImage } from './NodeEngineImage';
 import { FimNode } from '../api/FimNode';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
+import { fileReader } from '../core/FileReader';
 import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
-  fileToName } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
+  EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Implementation of `EngineFim` for Node.js */
@@ -22,7 +22,7 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
    * @param name An optional name specified when creating the object to help with debugging
    */
   public constructor(maxImageDimensions?: FimDimensions, name?: string) {
-    super(loadFromFileAsync, maxImageDimensions, name);
+    super(fileReader, loadFromFileAsync, maxImageDimensions, name);
   }
 
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
@@ -41,17 +41,5 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
 
   public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
     return new CoreNodeCanvasWebGL(options, dimensions, handle, this.engineOptions);
-  }
-
-  public async createImageFromPngFileAsync(pngPath: string, options?: FimImageOptions, name?: string,
-      parent?: FimObject): Promise<NodeEngineImage> {
-    const pngFile = await fileRead(pngPath);
-    return this.createImageFromPngAsync(pngFile, options, name ?? fileToName(pngPath), parent);
-  }
-
-  public async createImageFromJpegFileAsync(jpegPath: string, options?: FimImageOptions, name?: string,
-      parent?: FimObject): Promise<NodeEngineImage> {
-    const jpegFile = await fileRead(jpegPath);
-    return this.createImageFromJpegAsync(jpegFile, options, name ?? fileToName(jpegPath), parent);
   }
 }

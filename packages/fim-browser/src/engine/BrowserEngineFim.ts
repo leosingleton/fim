@@ -3,16 +3,16 @@
 // See LICENSE in the project root for license information.
 
 import { BrowserEngineImage } from './BrowserEngineImage';
-import { fileDownload } from './FileDownload';
 import { FimBrowser } from '../api/FimBrowser';
 import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
 import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
+import { fileReader } from '../core/FileReader';
 import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
-  fileToName } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
+  EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Implementation of `EngineFim` for web browsers */
@@ -24,7 +24,7 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
    * @param name An optional name specified when creating the object to help with debugging
    */
   public constructor(maxImageDimensions?: FimDimensions, name?: string) {
-    super(loadFromFileAsync, maxImageDimensions, name);
+    super(fileReader, loadFromFileAsync, maxImageDimensions, name);
   }
 
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
@@ -51,17 +51,5 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     } else {
       return new CoreBrowserDomCanvasWebGL(options, dimensions, handle, this.engineOptions);
     }
-  }
-
-  public async createImageFromPngFileAsync(pngUrl: string, options?: FimImageOptions, name?: string,
-      parent?: FimObject): Promise<BrowserEngineImage> {
-    const pngFile = await fileDownload(pngUrl);
-    return this.createImageFromPngAsync(pngFile, options, name ?? fileToName(pngUrl), parent);
-  }
-
-  public async createImageFromJpegFileAsync(jpegUrl: string, options?: FimImageOptions, name?: string,
-      parent?: FimObject): Promise<BrowserEngineImage> {
-    const jpegFile = await fileDownload(jpegUrl);
-    return this.createImageFromJpegAsync(jpegFile, options, name ?? fileToName(jpegUrl), parent);
   }
 }
