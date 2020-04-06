@@ -37,10 +37,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   /**
    * Constructor
    * @param fileReader `CoreFileReader` implementation for reading or downloading binary files
-   * @param imageLoaderAsync `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
+   * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(public readonly fileReader: CoreFileReader, public readonly imageLoaderAsync: CoreImageLoader,
+  public constructor(public readonly fileReader: CoreFileReader, public readonly imageLoader: CoreImageLoader,
       name?: string) {
     super(EngineObjectType.Fim, name);
     this.resources = new ResourceTracker(this);
@@ -150,7 +150,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   }
 
   /** Returns the WebGL canvas for running shaders. Creates the canvas on first use. */
-  public async getWebGLCanvas(_dimensions: FimDimensions): Promise<CoreCanvasWebGL> {
+  public getWebGLCanvas(): CoreCanvasWebGL {
     const me = this;
 
     // The WebGL canvas is created on first use and may be disposed prematurely via releaseResources(). If it is already
@@ -304,9 +304,9 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     me.ensureNotDisposed();
 
     let result: TEngineImage;
-    await me.imageLoaderAsync(file, type, image => {
+    await me.imageLoader(file, type, image => {
       result = me.createEngineImage(parent ?? this, FimDimensions.fromObject(image), options ?? {}, name);
-      return result.loadFromImageAsync(image);
+      result.loadFromImage(image);
     });
 
     return result;

@@ -242,7 +242,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
     }
 
-    await me.contentCanvas.allocateContentAsync(dimensions);
+    me.contentCanvas.allocateContent(dimensions);
     await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
     me.markCurrent(me.contentCanvas, true);
 
@@ -257,12 +257,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
    *    calling this function.
    */
-  public async loadFromImageAsync(image: ImageSource): Promise<void> {
+  public loadFromImage(image: ImageSource): void {
     const me = this;
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    await me.contentCanvas.allocateContentAsync(FimDimensions.fromObject(image));
+    me.contentCanvas.allocateContent(FimDimensions.fromObject(image));
     me.contentCanvas.imageContent.loadFromImage(image);
     me.markCurrent(me.contentCanvas, true);
 
@@ -282,7 +282,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   private async loadFromFileAsync(file: Uint8Array, type: CoreMimeType, allowRescale: boolean): Promise<void> {
     const me = this;
 
-    return me.rootObject.imageLoaderAsync(file, type, image => {
+    return me.rootObject.imageLoader(file, type, image => {
       // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
       // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
       const imageDimensions = FimDimensions.fromObject(image);
@@ -290,7 +290,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
         FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
       }
 
-      return me.loadFromImageAsync(image);
+      me.loadFromImage(image);
     });
   }
 
@@ -363,13 +363,11 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     destCoords = destCoords ?? FimRect.fromDimensions(me.dim);
     destCoords.validateIn(me);
 
-    // Allocate or resize the WebGL canvas
-    const glCanvas = await root.getWebGLCanvas(me.dim);
-
     // By default, we leave it up to allocateOrPopulateContentAsync to decide whether the output image needs to be
     // populated based on the destination coordinates.
     await contentTexture.allocateOrPopulateContentAsync(destCoords, shaderOrOperation.hasNonDefaultVertices());
 
+    const glCanvas = root.getWebGLCanvas();
     const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and

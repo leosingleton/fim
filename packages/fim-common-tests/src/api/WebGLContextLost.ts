@@ -8,19 +8,17 @@ import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim } from '@leosingleton/fim';
 import { EngineFim } from '@leosingleton/fim/internals';
-
-const tinyDimensions = FimDimensions.fromSquareDimension(1);
 
 /**
  * Forces a WebGL context loss for test purposes
  * @param fim FIM instance
  */
-async function loseFimContextAsync(fim: Fim): Promise<void> {
+function loseFimContextAsync(fim: Fim): Promise<void> {
   // Typecast to an internal engine object to get access to the CoreCanvasWebGL instance
   const engine = fim as EngineFim;
-  const canvas = await engine.getWebGLCanvas(tinyDimensions);
+  const canvas = engine.getWebGLCanvas();
 
   return loseContextAsync(canvas);
 }
@@ -29,10 +27,10 @@ async function loseFimContextAsync(fim: Fim): Promise<void> {
  * Forces the WebGL context to be restored for test purposes
  * @param fim FIM instance
  */
-async function restoreFimContextAsync(fim: Fim): Promise<void> {
+function restoreFimContextAsync(fim: Fim): Promise<void> {
   // Typecast to an internal engine object to get access to the CoreCanvasWebGL instance
   const engine = fim as EngineFim;
-  const canvas = await engine.getWebGLCanvas(tinyDimensions);
+  const canvas = engine.getWebGLCanvas();
 
   return restoreContextAsync(canvas);
 }
