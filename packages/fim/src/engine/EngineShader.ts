@@ -110,27 +110,33 @@ export class EngineShader extends EngineObject implements FimShader {
   private uniformValues: { [name: string]: FimValue } = {};
 
   public setVertices(vertexPositions?: number[], textureCoords?: number[]): void {
-    this.vertexPositions = vertexPositions;
-    this.textureCoords = textureCoords;
-    this.vertexMatrix = undefined;
+    const me = this;
+    me.vertexPositions = vertexPositions;
+    me.textureCoords = textureCoords;
+    me.vertexMatrix = undefined;
+    me.verticesSet = true;
   }
 
   public applyVertexMatrix(vertexMatrix: FimTransform2D | FimTransform3D | number[]): void {
-    this.vertexPositions = undefined;
-    this.textureCoords = undefined;
-    this.vertexMatrix = vertexMatrix;
+    const me = this;
+    me.vertexPositions = undefined;
+    me.textureCoords = undefined;
+    me.vertexMatrix = vertexMatrix;
+    me.verticesSet = true;
   }
 
   /**
-   * Vertex position array to pass to `CoreShader.setVertices()`. If this value is set, then `vertexMatrix` should be
-   * `undefined`.
+   * Returns `true` if either the vertex position array or texture coordinates array has been changed from its default
+   * (Two Triangles) values
    */
+  public hasNonDefaultVertices(): boolean {
+    return this.verticesSet;
+  }
+
+  /** Vertex position array to pass to `CoreShader.setVertices()` */
   private vertexPositions?: number[];
 
-  /**
-   * Texture coordinates array to pass to `CoreShader.setVertices()`. If this value is set, then `vertexMatrix` should
-   * be `undefined`.
-   */
+  /** Texture coordinates array to pass to `CoreShader.setVertices()` */
   private textureCoords?: number[];
 
   /**
@@ -138,6 +144,9 @@ export class EngineShader extends EngineObject implements FimShader {
    * `textureCoords` should be `undefined`.
    */
   private vertexMatrix?: FimTransform2D | FimTransform3D | number[];
+
+  /** Set on a call to `setVertices()` or `applyVertexMatrix()` */
+  private verticesSet = false;
 
   /**
    * Executes a program. Callers must first set the constant and uniform values before calling this method.
@@ -201,10 +210,12 @@ export class EngineShader extends EngineObject implements FimShader {
     shader.setUniforms(uniformValues);
 
     // Set the vertices for the vertex shader
-    if (me.vertexMatrix) {
-      shader.applyVertexMatrix(me.vertexMatrix);
-    } else {
-      shader.setVertices(me.vertexPositions, me.textureCoords);
+    if (me.verticesSet) {
+      if (me.vertexMatrix) {
+        shader.applyVertexMatrix(me.vertexMatrix);
+      } else {
+        shader.setVertices(me.vertexPositions, me.textureCoords);
+      }
     }
 
     // Execute the shader

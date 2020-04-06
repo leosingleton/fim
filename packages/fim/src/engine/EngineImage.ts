@@ -328,7 +328,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     destCoords.validateIn(me);
 
     await srcContentCanvas.populateContentAsync();
-    await destContentCanvas.allocateOrPopulateContentAsync(destCoords, srcCoords.dim);
+    await destContentCanvas.allocateOrPopulateContentAsync(destCoords, false, srcCoords.dim);
 
     const scaledSrcCoords = srcCoords.rescale(srcContentCanvas.downscale).toFloor();
     const scaledDestCoords = destCoords.rescale(destContentCanvas.downscale).toFloor();
@@ -363,7 +363,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     destCoords = destCoords ?? FimRect.fromDimensions(me.dim);
     destCoords.validateIn(me);
 
-    await contentTexture.allocateOrPopulateContentAsync(destCoords);
+    // By default, we leave it up to allocateOrPopulateContentAsync to decide whether the output image needs to be
+    // populated based on the destination coordinates.
+    await contentTexture.allocateOrPopulateContentAsync(destCoords, shaderOrOperation.hasNonDefaultVertices());
 
     const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {

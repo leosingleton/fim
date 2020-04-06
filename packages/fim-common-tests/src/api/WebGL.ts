@@ -10,8 +10,7 @@ import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { TestSizes } from '../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimColor, FimDimensions, FimError, FimTextureSampling, FimTransform3D,
-  FimTwoTriangles} from '@leosingleton/fim';
+import { Fim, FimColor, FimDimensions, FimError, FimTextureSampling } from '@leosingleton/fim';
 
 /** WebGL tests for FIM */
 export function fimTestSuiteWebGL(
@@ -161,42 +160,6 @@ export function fimTestSuiteWebGL(
 
         // Validate the test pattern matches on the output
         await TestPatterns.validateAsync(output, TestPatterns.copyStress, true);
-      });
-    });
-
-    it('Executes a shader with vertex positions and texture coords', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
-        // Create a WebGL shader and destination image
-        const shader = fim.createGLShader(fillUniformShader);
-        const image = fim.createImage();
-
-        // Execute the shader
-        shader.setUniforms({
-          uColor: [1, 0, 0, 1]
-        });
-        shader.setVertices(FimTwoTriangles.vertexPositions, FimTwoTriangles.textureCoords);
-        await image.executeAsync(shader);
-
-        // Ensure the output is red
-        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
-      });
-    });
-
-    it('Executes a shader with a vertex matrix', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
-        // Create a WebGL shader and destination image
-        const shader = fim.createGLShader(fillUniformShader);
-        const image = fim.createImage();
-
-        // Execute the shader
-        shader.setUniforms({
-          uColor: [0, 0, 1, 1]
-        });
-        shader.applyVertexMatrix(new FimTransform3D());
-        await image.executeAsync(shader);
-
-        // Ensure the output is blue
-        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
       });
     });
 

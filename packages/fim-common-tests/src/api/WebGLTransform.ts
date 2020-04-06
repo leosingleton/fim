@@ -2,12 +2,12 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-//import { topLeft, topRight, bottomLeft, bottomRight } from '../common/Globals';
-import { topRight } from '../common/Globals';
+import { bottomLeft, bottomRight, midpoint, topLeft, topRight } from '../common/Globals';
+import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpCopy, FimTransform2D } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpCopy, FimTransform2D, FimTransform3D, FimTwoTriangles } from '@leosingleton/fim';
 
 /** WebGL tests for FIM with vertex transformation*/
 export function fimTestSuiteWebGLTransform(
@@ -16,7 +16,45 @@ export function fimTestSuiteWebGLTransform(
 ): void {
   describe(`FIM WebGL Transform - ${description}`, () => {
 
-    it('Accepts vertex matrices', async () => {
+    it('Executes a shader with vertex positions and texture coords', async () => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+        await image.fillSolidAsync(TestColors.black);
+
+        // Execute the shader
+        shader.setUniforms({
+          uColor: TestColors.red.toVector()
+        });
+        shader.setVertices(FimTwoTriangles.vertexPositions, FimTwoTriangles.textureCoords);
+        await image.executeAsync(shader);
+
+        // Ensure the output is red
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
+      });
+    });
+
+    it('Executes a shader with a vertex matrix', async () => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
+        // Create a WebGL shader and destination image
+        const shader = fim.createGLShader(fillUniformShader);
+        const image = fim.createImage();
+        await image.fillSolidAsync(TestColors.black);
+
+        // Execute the shader
+        shader.setUniforms({
+          uColor: TestColors.blue.toVector()
+        });
+        shader.applyVertexMatrix(new FimTransform3D());
+        await image.executeAsync(shader);
+
+        // Ensure the output is blue
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
+      });
+    });
+
+    it('Preserves background with vertex matrices', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         const copy = new FimOpCopy(fim);
 
@@ -28,17 +66,16 @@ export function fimTestSuiteWebGLTransform(
 
         // Copy red, shifted down and to the right 50%
         const matrix = new FimTransform2D();
-        matrix.translation(0.5, 0.5);
+        matrix.translation(1, 1);
 
         // Execute copy shader
         await output.executeAsync(copy.$(red, matrix));
 
         // Validate expected output
-        // TODO: Re-enable checks once bug is fixed. The blue fillSolidAsync() gets optimized out.
-        //expect(await output.getPixelAsync(topLeft(TestSizes.smallWide))).toEqual(TestColors.blue);
+        expect(await output.getPixelAsync(topLeft(TestSizes.smallWide))).toEqual(TestColors.blue);
         expect(await output.getPixelAsync(topRight(TestSizes.smallWide))).toEqual(TestColors.red);
-        //expect(await output.getPixelAsync(bottomLeft(TestSizes.smallWide))).toEqual(TestColors.blue);
-        //expect(await output.getPixelAsync(bottomRight(TestSizes.smallWide))).toEqual(TestColors.blue);
+        expect(await output.getPixelAsync(bottomLeft(TestSizes.smallWide))).toEqual(TestColors.blue);
+        expect(await output.getPixelAsync(bottomRight(TestSizes.smallWide))).toEqual(TestColors.blue);
       });
 
     });
