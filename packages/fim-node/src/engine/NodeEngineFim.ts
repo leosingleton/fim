@@ -25,9 +25,9 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
     super(fileReader, loadFromFileAsync, maxImageDimensions, name);
   }
 
-  protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
+  protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
       NodeEngineImage {
-    return new NodeEngineImage(parent, options, dimensions, name);
+    return new NodeEngineImage(parent, dimensions, options, name);
   }
 
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
@@ -35,11 +35,11 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
     return new EngineShader(parent, fragmentShader, vertexShader, name);
   }
 
-  public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
-    return new CoreNodeCanvas2D(options, dimensions, handle, this.engineOptions);
+  public createCoreCanvas2D(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string): CoreCanvas2D {
+    return new CoreNodeCanvas2D(dimensions, options, handle, this.engineOptions);
   }
 
-  public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
-    return new CoreNodeCanvasWebGL(options, dimensions, handle, this.engineOptions);
+  public createCoreCanvasWebGL(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string): CoreCanvasWebGL {
+    return new CoreNodeCanvasWebGL(dimensions, options, handle, this.engineOptions);
   }
 }

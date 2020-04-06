@@ -446,20 +446,20 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /**
    * Calls the CoreTexture constructor
+   * @param dimensions Texture dimensions
    * @param options Texture options
-   * @param dimensions Optional texture dimensions. Defaults to the size of this canvas.
    * @param handle Optional texture handle, for debugging
    */
-  public createCoreTexture(options: CoreTextureOptions, dimensions?: FimDimensions, handle?: string): CoreTexture {
+  public createCoreTexture(dimensions: FimDimensions, options: CoreTextureOptions, handle?: string): CoreTexture {
     const me = this;
     me.ensureNotDisposed();
 
-    return me.createCoreTextureInternal(me, options, dimensions ?? me.dim, handle ?? `${me.handle}/Texture`);
+    return me.createCoreTextureInternal(me, dimensions, options, handle ?? `${me.handle}/Texture`);
   }
 
   /** Derived classes must implement this method to call the `CoreCanvas2D` constructor */
-  protected abstract createCoreTextureInternal(parent: CoreCanvasWebGL, options: FimImageOptions,
-    dimensions: FimDimensions, handle: string): CoreTexture;
+  protected abstract createCoreTextureInternal(parent: CoreCanvasWebGL, dimensions: FimDimensions,
+    options: FimImageOptions, handle: string): CoreTexture;
 
   public fillSolid(color: FimColor | string): void {
     const me = this;

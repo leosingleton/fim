@@ -27,9 +27,9 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     super(fileReader, loadFromFileAsync, maxImageDimensions, name);
   }
 
-  protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
+  protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
       BrowserEngineImage {
-    return new BrowserEngineImage(parent, options, dimensions, name);
+    return new BrowserEngineImage(parent, dimensions, options, name);
   }
 
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
@@ -37,19 +37,19 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     return new EngineShader(parent, fragmentShader, vertexShader, name);
   }
 
-  public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
+  public createCoreCanvas2D(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string): CoreCanvas2D {
     if (!this.engineOptions.disableOffscreenCanvas) {
-      return new CoreBrowserOffscreenCanvas2D(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserOffscreenCanvas2D(dimensions, options, handle, this.engineOptions);
     } else {
-      return new CoreBrowserDomCanvas2D(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvas2D(dimensions, options, handle, this.engineOptions);
     }
   }
 
-  public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
+  public createCoreCanvasWebGL(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string): CoreCanvasWebGL {
     if (!this.engineOptions.disableOffscreenCanvas) {
-      return new CoreBrowserOffscreenCanvasWebGL(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserOffscreenCanvasWebGL(dimensions, options, handle, this.engineOptions);
     } else {
-      return new CoreBrowserDomCanvasWebGL(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvasWebGL(dimensions, options, handle, this.engineOptions);
     }
   }
 }

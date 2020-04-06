@@ -53,11 +53,11 @@ async function testGaussianBlur(
 
     // Create a solid blue image of a specific shade
     const blueShade = FimColor.fromString('#21f');
-    const blueImage = fim.createImage({ sampling: inputSampling });
+    const blueImage = fim.createImage(TestSizes.mediumTall, { sampling: inputSampling });
     await blueImage.fillSolidAsync(blueShade);
 
     // Blur the image
-    const output = fim.createImage({ sampling: outputSampling });
+    const output = fim.createImage(TestSizes.mediumTall, { sampling: outputSampling });
     await output.executeAsync(blur.$(blueImage, sigma, kernelSize));
 
     // Ensure the output is still the same shade of blue--blurring shouldn't change the color

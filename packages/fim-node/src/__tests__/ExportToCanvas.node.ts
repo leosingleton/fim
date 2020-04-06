@@ -75,7 +75,7 @@ describe('Exports to Canvas', () => {
       const dim = FimDimensions.fromWidthHeight(302, 298);
 
       // Create a FIM image and fill it with blue
-      const image = fim.createImage({}, dim);
+      const image = fim.createImage(dim);
       await image.fillSolidAsync(TestColors.blue);
 
       // Create an oversized canvas and fill with red

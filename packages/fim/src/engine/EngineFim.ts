@@ -77,7 +77,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
       glTextureDepthsLinear: [],
       glTextureDepthsNearest: []
     };
-    const tinyCanvas = this.createCoreCanvasWebGL({}, FimDimensions.fromSquareDimension(1),
+    const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromSquareDimension(1), {},
       `${this.handle}/DetectCapabilities`);
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
@@ -180,7 +180,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     // the requested resolution.
     const glDimensions = me.maxImageDimensions.fitInsideSquare(maxDimension).toFloor();
     me.optimizer.reserveCanvasMemory(glDimensions.getArea() * 4);
-    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(me.getGLCanvasOptions(), glDimensions,
+    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.getGLCanvasOptions(),
       `${me.handle}/WebGLCanvas`);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
@@ -280,10 +280,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     return this.resources.metrics;
   }
 
-  public createImage(options?: FimImageOptions, dimensions?: FimDimensions, name?: string, parent?: FimObject):
+  public createImage(dimensions?: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject):
       TEngineImage {
     this.ensureNotDisposed();
-    return this.createEngineImage(parent ?? this, options ?? {}, dimensions ?? this.maxImageDimensions, name);
+    return this.createEngineImage(parent ?? this, dimensions ?? this.maxImageDimensions, options ?? {}, name);
   }
 
   public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
@@ -304,7 +304,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     let result: TEngineImage;
     await me.imageLoader(file, type, image => {
-      result = me.createEngineImage(parent ?? this, options ?? {}, FimDimensions.fromObject(image), name);
+      result = me.createEngineImage(parent ?? this, FimDimensions.fromObject(image), options ?? {}, name);
       result.loadFromImage(image);
     });
 
@@ -330,7 +330,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   }
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
-  protected abstract createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions,
+  protected abstract createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions,
     name?: string): TEngineImage;
 
   /** Derived classes must implement this method to call the TEngineShader constructor */
@@ -338,10 +338,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     name?: string): TEngineShader;
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  public abstract createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):
+  public abstract createCoreCanvas2D(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string):
     CoreCanvas2D;
 
   /** Derived classes must implement this method to call the CoreCanvasWebGL constructor */
-  public abstract createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string):
+  public abstract createCoreCanvasWebGL(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string):
     CoreCanvasWebGL;
 }

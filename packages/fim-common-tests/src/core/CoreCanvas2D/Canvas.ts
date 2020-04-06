@@ -14,12 +14,12 @@ import { CoreCanvas2D, CoreCanvasOptions,  } from '@leosingleton/fim/internals';
 /** CoreCanvas2D test cases around canvases */
 export function coreCanvas2DTestSuiteCanvas(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvas2D
 ): void {
   describe(`CoreCanvas2D Canvas - ${description}`, () => {
 
     it('Gets and sets pixels', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.red);
         await canvas.loadPixelDataAsync(pixelData);
         expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
@@ -27,17 +27,17 @@ export function coreCanvas2DTestSuiteCanvas(
     });
 
     it('Fills with solid colors', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         canvas.fillSolid(TestColors.green);
         expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.green);
       });
     });
 
     it('Copies from one canvas to another', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas1 => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas1 => {
         canvas1.fillSolid(TestColors.blue);
 
-        await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas2 => {
+        await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas2 => {
           await canvas2.copyFromAsync(canvas1);
           expect(canvas2.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
         });
@@ -45,7 +45,7 @@ export function coreCanvas2DTestSuiteCanvas(
     });
 
     it('Exports to pixel data', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         canvas.fillSolid(TestColors.red);
         const data = canvas.exportToPixelData();
 
@@ -58,7 +58,7 @@ export function coreCanvas2DTestSuiteCanvas(
     });
 
     it('Exports a region to pixel data', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallSquare), async canvas => {
+      await usingAsync(factory(TestSizes.smallSquare, canvasOptions), async canvas => {
         // Load the four squares test pattern
         await canvas.loadFromPngAsync(TestImages.fourSquaresPng());
 

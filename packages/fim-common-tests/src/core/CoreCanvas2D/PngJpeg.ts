@@ -12,12 +12,12 @@ import { CoreCanvas2D, CoreCanvasOptions } from '@leosingleton/fim/internals';
 /** CoreCanvas2D test cases for PNG and JPEG support */
 export function coreCanvas2DTestSuitePngJpeg(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvas2D
 ): void {
   describe(`CoreCanvas2D PNG/JPEG - ${description}`, () => {
 
     it('Imports from PNG', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallSquare), async canvas => {
+      await usingAsync(factory(TestSizes.smallSquare, canvasOptions), async canvas => {
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png);
         await TestImages.expectFourSquaresPngCanvasAsync(canvas);
@@ -25,7 +25,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from JPEG', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallSquare), async canvas => {
+      await usingAsync(factory(TestSizes.smallSquare, canvasOptions), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
         await canvas.loadFromJpegAsync(jpeg);
         await TestImages.expectFourSquaresJpegCanvasAsync(canvas);
@@ -33,7 +33,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from PNG with rescale', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
+      await usingAsync(factory(TestSizes.mediumTall, canvasOptions), async canvas => {
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png);
         await TestImages.expectFourSquaresPngCanvasAsync(canvas);
@@ -41,7 +41,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from JPEG with rescale', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
+      await usingAsync(factory(TestSizes.mediumTall, canvasOptions), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
         await canvas.loadFromJpegAsync(jpeg);
         await TestImages.expectFourSquaresJpegCanvasAsync(canvas);

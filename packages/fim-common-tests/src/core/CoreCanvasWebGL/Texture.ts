@@ -14,16 +14,16 @@ import { CoreCanvasOptions, CoreCanvasWebGL, CoreTexture } from '@leosingleton/f
 /** CoreCanvasWebGL test cases for textures */
 export function coreCanvasWebGLTestSuiteTexture(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Texture - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
-        const texture1 = canvas.createCoreTexture(textureOptions);
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
+        const texture1 = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         texture1.dispose();
 
-        const texture2 = canvas.createCoreTexture(textureOptions);
+        const texture2 = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         texture2.dispose();
       });
     });
@@ -31,8 +31,8 @@ export function coreCanvasWebGLTestSuiteTexture(
     it('Disposes automatically', () => {
       let texture: CoreTexture;
 
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
-        texture = canvas.createCoreTexture(textureOptions);
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
+        texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
       });
 
       // Since the parent canvas was disposed, dispose() on the child object will throw an exception
@@ -40,8 +40,8 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Creates readonly', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
-        const texture = canvas.createCoreTexture({
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, {
           bpp: FimBitsPerPixel.BPP8, // isReadOnly only supports 8 bits per pixel
           isReadOnly: true,
           sampling: FimTextureSampling.Nearest
@@ -51,8 +51,8 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Fills with solid colors', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
-        const texture = canvas.createCoreTexture(textureOptions);
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
 
         // Fill with red
         texture.fillSolid(TestColors.red);
@@ -71,9 +71,9 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Loads from pixel data', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         // Load a texture with green
-        const texture = canvas.createCoreTexture(textureOptions);
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         texture.loadPixelData(TestImages.solidPixelData(TestSizes.smallWide, TestColors.green));
 
         // Ensure the texture is green
@@ -83,11 +83,11 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Supports all combinations of channels, bits per pixel, and flags', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         const caps = canvas.detectCapabilities();
 
         // Create a 2D grey canvas
-        const temp = canvas.createTemporaryCanvas2D(canvasOptions, TestSizes.mediumTall);
+        const temp = canvas.createTemporaryCanvas2D(TestSizes.mediumTall, canvasOptions);
         temp.fillSolid(TestColors.grey);
 
         for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {
@@ -105,11 +105,11 @@ export function coreCanvasWebGLTestSuiteTexture(
               }
 
               // Create a texture with the requested image options
-              const texture = canvas.createCoreTexture({
+              const texture = canvas.createCoreTexture(TestSizes.mediumTall, {
                 bpp,
                 isReadOnly,
                 sampling
-              }, TestSizes.mediumTall);
+              });
 
               // Copy the 2D grey canvas to the texture
               await texture.copyFromAsync(temp);
@@ -128,22 +128,22 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Prevents creation of oversized textures', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const caps = canvas.detectCapabilities();
         const dim = FimDimensions.fromWidthHeight(caps.glMaxTextureSize + 1, 10);
-        expect(() => canvas.createCoreTexture({
+        expect(() => canvas.createCoreTexture(dim, {
           bpp: FimBitsPerPixel.BPP8,
           isReadOnly: true,
           sampling: FimTextureSampling.Nearest
-        }, dim)).toThrow();
+        })).toThrow();
       });
     });
 
     it('Prevents creation of oversized framebuffers', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const caps = canvas.detectCapabilities();
         const dim = FimDimensions.fromWidthHeight(caps.glMaxRenderBufferSize + 1, 10);
-        expect(() => canvas.createCoreTexture(textureOptions, dim)).toThrow();
+        expect(() => canvas.createCoreTexture(dim, textureOptions)).toThrow();
       });
     });
 

@@ -244,7 +244,7 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
   protected allocateContentInternal(dimensions: FimDimensions, options: CoreCanvasOptions): CoreCanvas2D {
     const root = this.parentImage.rootObject;
     root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
-    return root.createCoreCanvas2D(options, dimensions, this.handle);
+    return root.createCoreCanvas2D(dimensions, options, this.handle);
   }
 
   protected async populateContentInternalAsync(): Promise<void> {
@@ -322,7 +322,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     const root = me.parentImage.rootObject;
     const glCanvas = root.getWebGLCanvas();
     root.optimizer.reserveGLMemory(dimensions.getArea() * options.bpp * 0.5);
-    return glCanvas.createCoreTexture(options, dimensions, me.handle);
+    return glCanvas.createCoreTexture(dimensions, options, me.handle);
   }
 
   protected async populateContentInternalAsync(): Promise<void> {

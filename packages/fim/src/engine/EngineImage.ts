@@ -31,13 +31,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   /**
    * Constructor
    * @param parent Parent object
+   * @param dimensions Image dimensions
    * @param options Optional image options to override the parent FIM's defaults
-   * @param dimensions Optional image dimensions. Defaults to `maxImageDimensions` of the parent FIM object.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(parent: FimObject, options?: FimImageOptions, dimensions?: FimDimensions, name?: string) {
+  public constructor(parent: FimObject, dimensions: FimDimensions, options?: FimImageOptions, name?: string) {
     super(EngineObjectType.Image, name, parent);
-    this.dim = dimensions ?? this.rootObject.maxImageDimensions;
+    this.dim = dimensions;
     this.imageOptions = deepCopy(options) ?? {};
 
     const root = this.rootObject;
@@ -372,7 +372,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
-      const outputTexture = glCanvas.createCoreTexture(contentTexture.getOptions(), contentTexture.imageContent.dim);
+      const outputTexture = glCanvas.createCoreTexture(contentTexture.imageContent.dim, contentTexture.getOptions());
       try {
         root.resources.recordCreate(me, outputTexture);
         await shaderOrOperation.executeAsync(glCanvas, outputTexture, scaledDestCoords);
@@ -523,7 +523,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    const temp = root.createCoreCanvas2D(me.contentCanvas.getOptions(), srcCoords.dim, `${me.handle}/RescaleHelper`);
+    const temp = root.createCoreCanvas2D(srcCoords.dim, me.contentCanvas.getOptions(), `${me.handle}/RescaleHelper`);
     try {
       root.resources.recordCreate(me, temp);
 

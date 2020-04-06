@@ -167,7 +167,7 @@ export function fimTestSuiteCanvas(
         fim.engineOptions.showWarnings = true;
 
         // Create an image larger than the parent FIM instance to generate a warning
-        const image = fim.createImage({}, TestSizes.mediumTall);
+        const image = fim.createImage(TestSizes.mediumTall);
         await image.fillSolidAsync(TestColors.red);
 
         // Load a PNG image to generate some tracing

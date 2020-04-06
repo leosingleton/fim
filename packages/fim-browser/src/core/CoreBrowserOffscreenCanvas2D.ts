@@ -12,9 +12,9 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 
 /** Wrapper around the browser's OffscreenCanvas */
 export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
-  public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, dimensions, canvasOptions, handle, engineOptions);
     this.canvasElement = new OffscreenCanvas(dimensions.w, dimensions.h);
   }
 
@@ -37,9 +37,9 @@ export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected createCanvas2D(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreBrowserOffscreenCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreBrowserOffscreenCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
   protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {

@@ -11,9 +11,9 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserDomCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+    super(dimensions, canvasOptions, handle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserDomCanvasWebGL.canvasPool.getCanvas();
@@ -45,14 +45,14 @@ export class CoreBrowserDomCanvasWebGL extends CoreCanvasWebGL {
     return this.canvasElement.getContext('webgl');
   }
 
-  protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected createCanvas2D(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreBrowserDomCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreBrowserDomCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
-  protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, dimensions: FimDimensions, options: CoreTextureOptions,
       handle: string): CoreBrowserTexture {
-    return new CoreBrowserTexture(parent, options, dimensions, handle);
+    return new CoreBrowserTexture(parent, dimensions, options, handle);
   }
 
   protected addCanvasEventListener(type: string, listener: EventListenerObject, options: boolean): void {

@@ -12,18 +12,18 @@ import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals'
 /** CoreCanvasWebGL test cases for create/dispose */
 export function coreCanvasWebGLTestSuiteCreateDispose(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const canvas = factory(canvasOptions, TestSizes.smallWide);
+      const canvas = factory(TestSizes.smallWide, canvasOptions);
       canvas.dispose();
       expect(() => canvas.dispose()).toThrow(); // Double dispose throws exception
     });
 
     it('Automatically disposes shaders', () => {
-      const canvas = factory(canvasOptions, TestSizes.smallWide);
+      const canvas = factory(TestSizes.smallWide, canvasOptions);
       const source = require('../../glsl/FillUniform.glsl.js');
       const shader = canvas.createCoreShader(source);
       canvas.dispose();
@@ -31,14 +31,14 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
     });
 
     it('Automatically disposes textures', () => {
-      const canvas = factory(canvasOptions, TestSizes.smallWide);
-      const texture = canvas.createCoreTexture(textureOptions);
+      const canvas = factory(TestSizes.smallWide, canvasOptions);
+      const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
       canvas.dispose();
       expect(() => texture.dispose()).toThrow(); // Texture is automatically disposed by WebGL canvas
     });
 
     it('Automatically disposes built-in shaders', () => {
-      const canvas = factory(canvasOptions, TestSizes.smallWide);
+      const canvas = factory(TestSizes.smallWide, canvasOptions);
       const copyShader = canvas.getCopyShader();
       const fillShader = canvas.getFillShader();
       canvas.dispose();
@@ -47,7 +47,7 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
     });
 
     it('Does not automatically disposes temporary canvases', () => {
-      const canvas = factory(canvasOptions, TestSizes.smallWide);
+      const canvas = factory(TestSizes.smallWide, canvasOptions);
       const temp = canvas.createTemporaryCanvas2D();
       canvas.dispose();
 
@@ -57,7 +57,7 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
     });
 
     it('getContext() stress', () => {
-      using(factory(canvasOptions, TestSizes.largeWide), canvas => {
+      using(factory(TestSizes.largeWide, canvasOptions), canvas => {
         for (let n = 0; n < 100; n++) {
           canvas.fillSolid(TestColors.red);
           const gl = canvas.getContext();
@@ -68,9 +68,9 @@ export function coreCanvasWebGLTestSuiteCreateDispose(
 
     it('Create/dispose stress', () => {
       for (let n = 0; n < 100; n++) {
-        using(factory(canvasOptions, TestSizes.largeWide), canvas => {
+        using(factory(TestSizes.largeWide, canvasOptions), canvas => {
           canvas.fillSolid(TestColors.red);
-          const texture = canvas.createCoreTexture(textureOptions);
+          const texture = canvas.createCoreTexture(TestSizes.largeWide, textureOptions);
           texture.fillSolid(TestColors.red);
         });
       }

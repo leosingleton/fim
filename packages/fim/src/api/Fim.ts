@@ -70,12 +70,12 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
 
   /**
    * Creates a new image
-   * @param options Optional overrides to the image options from the parent Fim object
    * @param dimensions Optional image dimensions. If unspecified, defaults to the dimensions of the FIM instance.
+   * @param options Optional overrides to the image options from the parent Fim object
    * @param name Optional name specified when creating the object to help with debugging
    * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImage(options?: FimImageOptions, dimensions?: FimDimensions, name?: string, parent?: FimObject): TImage;
+  createImage(dimensions?: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject): TImage;
 
   /**
    * Creates a new image from a PNG file

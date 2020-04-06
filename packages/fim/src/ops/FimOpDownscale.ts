@@ -122,7 +122,7 @@ export class FimOpDownscale extends FimOperationShader {
       allowOversized: true,
       sampling: FimTextureSampling.Linear
     };
-    return usingAsync(me.rootObject.createImage(options, nextDimensions, 'DownscaleTemp'), async temp => {
+    return usingAsync(me.rootObject.createImage(nextDimensions, options, 'DownscaleTemp'), async temp => {
       await me.executeInternalAsync(inputImage, temp);
       await me.executeInternalAsync(temp, outputImage, destCoords);
     });

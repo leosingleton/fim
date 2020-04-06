@@ -26,7 +26,7 @@ export function fimTestSuiteDownscaled(
     it('Preserves input dimensions when copying', async () => {
       await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a small image
-        const smallImage = fim.createImage({}, TestSizes.smallSquare);
+        const smallImage = fim.createImage(TestSizes.smallSquare);
         await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
@@ -131,11 +131,11 @@ export function fimTestSuiteDownscaled(
     it('Upscales dimensions when copying and preserveDownscaledDimensions=false', async () => {
       await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a small image
-        const smallImage = fim.createImage({}, TestSizes.smallSquare);
+        const smallImage = fim.createImage(TestSizes.smallSquare);
         await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
-        const mediumImage = fim.createImage({ preserveDownscaledDimensions: false });
+        const mediumImage = fim.createImage(TestSizes.mediumSquare, { preserveDownscaledDimensions: false });
         await mediumImage.copyFromAsync(smallImage);
 
         // The image contents should be upscaled to the destination dimensions
@@ -150,7 +150,7 @@ export function fimTestSuiteDownscaled(
     it('Upscales dimensions when loading from a smaller image and preserveDownscaledDimensions=false', async () => {
       await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a medium 640x640 image
-        const image = fim.createImage({ preserveDownscaledDimensions: false });
+        const image = fim.createImage(TestSizes.mediumSquare, { preserveDownscaledDimensions: false });
 
         // Load a 128x128 PNG onto the 640x640 image with "rescale"
         await image.loadFromPngAsync(TestImages.fourSquaresPng(), true);
@@ -172,8 +172,8 @@ export function fimTestSuiteDownscaled(
         const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Create a small destination image with glDownscale = 0.5
-        const outputImage = fim.createImage({ glDownscale: 0.5, preserveDownscaledDimensions: false },
-          TestSizes.smallSquare);
+        const outputImage = fim.createImage(TestSizes.smallSquare,
+          { glDownscale: 0.5, preserveDownscaledDimensions: false });
 
         // Populate the destination image with a WebGL shader
         await outputImage.executeAsync(invert.$(inputImage));

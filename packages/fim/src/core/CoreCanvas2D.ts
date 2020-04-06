@@ -20,14 +20,14 @@ import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@
 export abstract class CoreCanvas2D extends CoreCanvas {
   /**
    * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
-   * @param canvasOptions Canvas options
    * @param dimensions Canvas dimensions
+   * @param canvasOptions Canvas options
    * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
    */
-  protected constructor(private readonly imageLoader: CoreImageLoader, canvasOptions: CoreCanvasOptions,
-      dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+  protected constructor(private readonly imageLoader: CoreImageLoader, dimensions: FimDimensions,
+      canvasOptions: CoreCanvasOptions, handle: string, engineOptions?: FimEngineOptions) {
+    super(dimensions, canvasOptions, handle, engineOptions);
   }
 
   /** Returns the 2D rendering context for the canvas */
@@ -167,7 +167,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
       });
     } else {
       // Really slow case: Cropping or rescaling is required. Render to a temporary canvas, then copy.
-      await usingAsync(me.createTemporaryCanvas2D({ downscale: 1 }, dimensions), async temp => {
+      await usingAsync(me.createTemporaryCanvas2D(dimensions, { downscale: 1 }), async temp => {
         await temp.loadPixelDataAsync(pixelData, dimensions);
         await me.copyFromAsync(temp);
       });

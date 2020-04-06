@@ -19,14 +19,14 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
   /**
    * Constructor
    * @param parent The parent WebGL canvas
-   * @param options Texture options
    * @param dimensions Texture dimensions
+   * @param options Texture options
    * @param handle Texture handle, for debugging
    */
-  public constructor(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions, handle: string) {
+  public constructor(parent: CoreCanvasWebGL, dimensions: FimDimensions, options: CoreTextureOptions, handle: string) {
     super(parent, handle);
-    this.textureOptions = deepCopy(options);
     this.dim = dimensions.toFloor();
+    this.textureOptions = deepCopy(options);
 
     // Ensure the dimensions do not exceed WebGL's maximum texture size
     const caps = parent.detectCapabilities();
@@ -213,7 +213,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
     const maxDimension = me.parentCanvas.detectCapabilities().glMaxTextureSize;
     if (srcCanvas.dim.w > maxDimension || srcCanvas.dim.h > maxDimension) {
       // Slow path: first copy the source canvas to a smaller canvas
-      await usingAsync(srcCanvas.createTemporaryCanvas2D({ downscale: 1 }, me.dim), async temp => {
+      await usingAsync(srcCanvas.createTemporaryCanvas2D(me.dim, { downscale: 1 }), async temp => {
         await temp.copyFromAsync(srcCanvas);
         await me.copyFromAsync(temp);
       });

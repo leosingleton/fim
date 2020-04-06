@@ -14,12 +14,12 @@ import { CoreCanvasOptions, CoreCanvasWebGL, CoreTexture } from '@leosingleton/f
 /** CoreCanvasWebGL test cases for canvas operations */
 export function coreCanvasWebGLTestSuiteCanvas(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Canvas - ${description}`, () => {
 
     it('Fills with solid colors', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         canvas.fillSolid(TestColors.red);
         expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
         canvas.fillSolid(TestColors.green);
@@ -30,9 +30,9 @@ export function coreCanvasWebGLTestSuiteCanvas(
     });
 
     it('Copies from textures 1', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         // Create a texture of solid blue
-        const texture = canvas.createCoreTexture(textureOptions);
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         texture.fillSolid(TestColors.blue);
 
         // Fill the WebGL canvas with green
@@ -48,13 +48,13 @@ export function coreCanvasWebGLTestSuiteCanvas(
     });
 
     it('Copies from textures 2', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         // Create a canvas of solid red
         const temp = canvas.createTemporaryCanvas2D();
         temp.fillSolid(TestColors.red);
 
         // Copy the canvas to a texture
-        const texture = canvas.createCoreTexture(textureOptions);
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         await texture.copyFromAsync(temp);
 
         // Fill the WebGL canvas with green
@@ -70,7 +70,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
     });
 
     it('Copies from textures 3', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallSquare), async canvas => {
+      await usingAsync(factory(TestSizes.smallSquare, canvasOptions), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);
 
@@ -87,7 +87,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
     });
 
     it('Copies from textures with srcCoords', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
+      await usingAsync(factory(TestSizes.mediumTall, canvasOptions), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas);
 
@@ -107,7 +107,7 @@ export function coreCanvasWebGLTestSuiteCanvas(
     });
 
     it('Copies from textures with srcCoords and destCoords', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
+      await usingAsync(factory(TestSizes.mediumTall, canvasOptions), async canvas => {
         // Create a test image the size of the canvas
         const texture = await createFourSquaresTexture(canvas, TestSizes.mediumTall);
 
@@ -139,10 +139,10 @@ export function coreCanvasWebGLTestSuiteCanvas(
  */
 async function createFourSquaresTexture(canvas: CoreCanvasWebGL, dimensions = TestSizes.smallSquare):
     Promise<CoreTexture> {
-  const texture = canvas.createCoreTexture(textureOptions, dimensions);
+  const texture = canvas.createCoreTexture(dimensions, textureOptions);
 
   // Load the JPEG to a temporary canvas then copy it to the texture
-  await usingAsync(canvas.createTemporaryCanvas2D(canvasOptions, dimensions), async temp => {
+  await usingAsync(canvas.createTemporaryCanvas2D(dimensions, canvasOptions), async temp => {
     const jpeg = TestImages.fourSquaresPng();
     await temp.loadFromJpegAsync(jpeg);
     await texture.copyFromAsync(temp);

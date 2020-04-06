@@ -17,12 +17,12 @@ import { deepCopy } from '@leosingleton/commonlibs';
 export abstract class CoreCanvas implements FimDimensional {
   /**
    * Derived classes must override this constructor to instantiate the canvasElement object
-   * @param canvasOptions Canvas options
    * @param dimensions Canvas dimensions
+   * @param canvasOptions Canvas options
    * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
    */
-  protected constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
     this.dim = dimensions.toFloor();
     this.handle = handle;
@@ -85,13 +85,13 @@ export abstract class CoreCanvas implements FimDimensional {
    * @returns `CoreCanvas2D` instance of the same type as this canvas. The caller is reponsible for calling `dispose()`
    *    on the returned object.
    */
-  public createTemporaryCanvas2D(canvasOptions?: CoreCanvasOptions, dimensions?: FimDimensions): CoreCanvas2D {
-    return this.createCanvas2D(canvasOptions ?? this.canvasOptions, dimensions ?? this.dim, `${this.handle}/Temp`,
+  public createTemporaryCanvas2D(dimensions?: FimDimensions, canvasOptions?: CoreCanvasOptions): CoreCanvas2D {
+    return this.createCanvas2D(dimensions ?? this.dim, canvasOptions ?? this.canvasOptions, `${this.handle}/Temp`,
       this.engineOptions);
   }
 
   /** Derived classes must implement this method to call the CoreCanvas2D constructor */
-  protected abstract createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected abstract createCanvas2D(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
     engineOptions: FimEngineOptions): CoreCanvas2D;
 
   /**

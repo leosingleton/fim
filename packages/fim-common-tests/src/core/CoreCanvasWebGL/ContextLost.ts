@@ -14,12 +14,12 @@ import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals'
 /** CoreCanvasWebGL test cases for context lost simulation */
 export function coreCanvasWebGLTestSuiteContextLost(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Context Lost - ${description}`, () => {
 
     it('Simulate a context loss', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         // Simulate a context loss
         expect(canvas.isContextLost).toBeFalsy();
         await loseContextAsync(canvas);
@@ -31,7 +31,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
     });
 
     it('Simulate a context loss and restored', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         // Simulate a context loss and immediate restore
         expect(canvas.isContextLost).toBeFalsy();
         await loseContextAsync(canvas);
@@ -46,12 +46,12 @@ export function coreCanvasWebGLTestSuiteContextLost(
     });
 
     it('Simulate a complex context loss', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallWide), async canvas => {
+      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         // Fill the WebGL canvas with red
         canvas.fillSolid(TestColors.red);
 
         // Create a green texture
-        const texture1 = canvas.createCoreTexture(textureOptions);
+        const texture1 = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         texture1.fillSolid(TestColors.green);
 
         // The image data on the canvas and texture is now valid
@@ -81,7 +81,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
         expect(() => texture1.dispose()).toThrow();
 
         // Create a new texture and copy it to the WebGL canvas, this time with blue
-        const texture2 = canvas.createCoreTexture(textureOptions);
+        const texture2 = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
         texture2.fillSolid(TestColors.blue);
         canvas.copyFrom(texture2);
         expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);

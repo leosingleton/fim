@@ -26,7 +26,7 @@ export function fimTestSuiteOversized(
 
     it('Downscales images larger than parent FIM', () => {
       using(factory(TestSizes.smallWide), fim => {
-        const image = fim.createImage({}, TestSizes.mediumTall);
+        const image = fim.createImage(TestSizes.mediumTall);
         const eff = image.getEffectiveImageOptions();
 
         // Y-axis to get downscaled from 640 to 32 pixels
@@ -37,7 +37,7 @@ export function fimTestSuiteOversized(
 
     it('Supports allowOversized image option', () => {
       using(factory(TestSizes.smallWide), fim => {
-        const image = fim.createImage({ allowOversized: true }, TestSizes.mediumTall);
+        const image = fim.createImage(TestSizes.mediumTall, { allowOversized: true });
         const eff = image.getEffectiveImageOptions();
 
         // No downscale occurs
@@ -48,10 +48,10 @@ export function fimTestSuiteOversized(
 
     it('Supports custom downscale ratios', () => {
       using(factory(TestSizes.mediumTall), fim => {
-        const image = fim.createImage({
+        const image = fim.createImage(TestSizes.mediumTall, {
           downscale: 0.5,
           glDownscale: 0.05
-        }, TestSizes.mediumTall);
+        });
         const eff = image.getEffectiveImageOptions();
 
         // Downscale matches image options as FIM and image have same dimensions
@@ -62,7 +62,7 @@ export function fimTestSuiteOversized(
 
     it('Import and export pixel data accepts original dimensions', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage({}, TestSizes.mediumTall);
+        const image = fim.createImage(TestSizes.mediumTall);
 
         // renderAsync() uses the image's dimensions (medium)
         await TestPatterns.renderAsync(image, TestPatterns.horizontalGradient);
@@ -130,7 +130,7 @@ export function fimTestSuiteOversized(
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         const png = TestImages.fourSquaresPng();
         const image1 = await fim.createImageFromPngAsync(png);
-        const image2 = fim.createImage({}, TestSizes.mediumTall);
+        const image2 = fim.createImage(TestSizes.mediumTall);
 
         // Scale image1 (128x128) to medium size (480x640)
         await image2.copyFromAsync(image1);
@@ -192,7 +192,7 @@ export function fimTestSuiteOversized(
         // Create FIM resources
         const png = TestImages.fourSquaresPng();
         const inputImage = await fim.createImageFromPngAsync(png, { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
-        const outputImage = fim.createImage({}, TestSizes.smallSquare);
+        const outputImage = fim.createImage(TestSizes.smallSquare);
         const unsharpMask = new FimOpUnsharpMask(fim, true);
 
         // Run the WebGL operation

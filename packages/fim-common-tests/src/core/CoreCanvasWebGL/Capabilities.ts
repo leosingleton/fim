@@ -11,26 +11,26 @@ import { CoreCanvasOptions, CoreCanvasWebGL } from '@leosingleton/fim/internals'
 /** CoreCanvasWebGL test cases for capabilities */
 export function coreCanvasWebGLTestSuiteCapabilities(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Capabilities - ${description}`, () => {
 
     it('Calculates max texture depth with linear filtering', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Linear);
         expect(bpp).toContain(FimBitsPerPixel.BPP8);
       });
     });
 
     it('Calculates max texture depth with nearest filtering', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Nearest);
         expect(bpp).toContain(FimBitsPerPixel.BPP8);
       });
     });
 
     it('Detects capabilities', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const caps = canvas.detectCapabilities();
         expect(caps.glMaxRenderBufferSize).toBeGreaterThan(0);
         expect(caps.glMaxTextureImageUnits).toBeGreaterThan(0);

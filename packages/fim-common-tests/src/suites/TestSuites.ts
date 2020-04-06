@@ -70,7 +70,7 @@ export namespace TestSuites {
    */
   export function coreCanvas2D(
     description: string,
-    factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
+    factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvas2D
   ): void {
     coreCanvas2DTestSuiteCreateDispose(description, factory);
     coreCanvas2DTestSuiteCanvas(description, factory);
@@ -84,7 +84,7 @@ export namespace TestSuites {
    */
   export function coreCanvasWebGL(
     description: string,
-    factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+    factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
   ): void {
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);
     coreCanvasWebGLTestSuiteCapabilities(description, factory);
