@@ -19,10 +19,11 @@ let frameCount = 0;
  * @param period Period of one loop of the animation, in milliseconds
  * @param minValue Minimum value to return
  * @param maxValue Maximum value to return
+ * @param offset Starting time offset, in milliseconds
  * @returns A value in the range `[minValue, maxValue]`
  */
-export function getAnimationValue(period: number, minValue = 0, maxValue = 1): number {
-  let value = (elapsedClock.getElapsedMilliseconds() % period) * 2 / period;
+export function getAnimationValue(period: number, minValue = 0, maxValue = 1, offset = 0): number {
+  let value = ((elapsedClock.getElapsedMilliseconds() + offset) % period) * 2 / period;
   if (value > 1) {
     value = 2 - value;
   }
