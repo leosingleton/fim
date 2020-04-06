@@ -16,21 +16,21 @@ export function coreCanvasWebGLTestSuiteCapabilities(
   describe(`CoreCanvasWebGL Capabilities - ${description}`, () => {
 
     it('Calculates max texture depth with linear filtering', () => {
-      using(factory(canvasOptions, TestSizes.small), canvas => {
+      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
         const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Linear);
         expect(bpp).toContain(FimBitsPerPixel.BPP8);
       });
     });
 
     it('Calculates max texture depth with nearest filtering', () => {
-      using(factory(canvasOptions, TestSizes.small), canvas => {
+      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
         const bpp = canvas.getSupportedColorDepths(FimTextureSampling.Nearest);
         expect(bpp).toContain(FimBitsPerPixel.BPP8);
       });
     });
 
     it('Detects capabilities', () => {
-      using(factory(canvasOptions, TestSizes.small), canvas => {
+      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
         const caps = canvas.detectCapabilities();
         expect(caps.glMaxRenderBufferSize).toBeGreaterThan(0);
         expect(caps.glMaxTextureImageUnits).toBeGreaterThan(0);

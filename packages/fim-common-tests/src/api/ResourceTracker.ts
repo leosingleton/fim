@@ -15,7 +15,7 @@ export function fimTestSuiteResourceTracker(
   describe(`FIM Resource Tracker - ${description}`, () => {
 
     it('Tracks canvas resources', async () => {
-      const fim = factory(TestSizes.smallFourSquares);
+      const fim = factory(TestSizes.smallSquare);
       await usingAsync(fim, async fim => {
         const image = fim.createImage();
         const png = TestImages.fourSquaresPng();
@@ -24,13 +24,13 @@ export function fimTestSuiteResourceTracker(
         // Check summary metrics
         const rm = fim.getResourceMetrics();
         expect(rm.instances).toEqual(1);
-        expect(rm.canvasMemory).toEqual(TestSizes.smallFourSquares.getArea() * 4);
+        expect(rm.canvasMemory).toEqual(TestSizes.smallSquare.getArea() * 4);
         expect(rm.glMemory).toEqual(0);
 
         // Check detailed metrics
         const rmd = fim.getResourceMetricsDetailed();
         expect(rmd.canvas2D.instances).toEqual(1);
-        expect(rmd.canvas2D.canvasMemory).toEqual(TestSizes.smallFourSquares.getArea() * 4);
+        expect(rmd.canvas2D.canvasMemory).toEqual(TestSizes.smallSquare.getArea() * 4);
         expect(rmd.canvas2D.glMemory).toEqual(0);
       });
 

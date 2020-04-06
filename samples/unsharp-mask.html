@@ -22,7 +22,7 @@ $(async () => {
   const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
 
   // Create the unsharp mask operation
-  const usmOperation = new FimOpUnsharpMask(fim, true);
+  const unsharpMask = new FimOpUnsharpMask(fim, true);
 
   // Create the output image
   const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
@@ -45,8 +45,7 @@ $(async () => {
       measureFrameStart();
 
       // Apply the unsharp mask operation
-      usmOperation.setInputs(inputImage, amount, sigma);
-      await outputImage.executeAsync(usmOperation);
+      await outputImage.executeAsync(unsharpMask.$(inputImage, amount, sigma));
 
       // Copy the result to the screen
       await outputImage.exportToCanvasAsync(canvas);

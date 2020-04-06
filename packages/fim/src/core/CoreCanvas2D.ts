@@ -3,8 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { CoreCanvas } from './CoreCanvas';
+import { CoreCanvasOptions } from './CoreCanvasOptions';
+import { CoreImageLoader } from './CoreImageLoader';
+import { CoreMimeType } from './CoreMimeType';
 import { ImageSource } from './types/ImageSource';
 import { RenderingContext2D } from './types/RenderingContext2D';
+import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
@@ -14,6 +18,18 @@ import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@
 
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas2D extends CoreCanvas {
+  /**
+   * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
+   * @param canvasOptions Canvas options
+   * @param dimensions Canvas dimensions
+   * @param handle Handle of the image that owns this canvas. Used only for debugging.
+   * @param engineOptions Options for the FIM execution engine
+   */
+  protected constructor(private readonly imageLoader: CoreImageLoader, canvasOptions: CoreCanvasOptions,
+      dimensions: FimDimensions, handle: string, engineOptions?: FimEngineOptions) {
+    super(canvasOptions, dimensions, handle, engineOptions);
+  }
+
   /** Returns the 2D rendering context for the canvas */
   public getContext(): RenderingContext2D {
     const me = this;
@@ -161,27 +177,17 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   /**
-   * Loads the image contents from an Image
+   * Loads the image contents from an `HTMLImageElement`-like object. Automatically rescales the contents to fit the
+   * full canvas.
    * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
    *    calling this function.
-   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
-   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
-   *    to fit this canvas.
    */
-  public loadFromImage(image: ImageSource, allowRescale = false): void {
+  public loadFromImage(image: ImageSource): void {
     const me = this;
     me.ensureNotDisposed();
 
-    // Validate the dimensions
-    const imageDimensions = FimDimensions.fromWidthHeight(image.width, image.height);
-    let sameDimensions = true;
-    if (!imageDimensions.equals(me.dim)) {
-      if (allowRescale) {
-        sameDimensions = false;
-      } else {
-        FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
-      }
-    }
+    const imageDimensions = FimDimensions.fromObject(image);
+    const sameDimensions = imageDimensions.equals(me.dim);
 
     // Enable image smoothing if we are rescaling the image
     using(me.createDrawingContext(!sameDimensions), ctx => {
@@ -192,22 +198,20 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   /**
-   * Loads the image contents from a PNG file
+   * Loads the image contents from a PNG file. Automatically rescales the contents to fit the full canvas.
    * @param pngFile PNG file, as a Uint8Array
-   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
-   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
-   *    to fit this canvas.
    */
-  public abstract loadFromPngAsync(pngFile: Uint8Array, allowRescale?: boolean): Promise<void>;
+  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
+    return this.imageLoader(pngFile, CoreMimeType.PNG, image => this.loadFromImage(image));
+  }
 
   /**
-   * Loads the image contents from a JPEG file
+   * Loads the image contents from a JPEG file. Automatically rescales the contents to fit the full canvas.
    * @param jpegFile JPEG file, as a Uint8Array
-   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
-   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
-   *    to fit this canvas.
    */
-  public abstract loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void>;
+  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
+    return this.imageLoader(jpegFile, CoreMimeType.JPEG, image => this.loadFromImage(image));
+  }
 
   /**
    * Copies contents from another canvas. Supports both cropping and rescaling.
@@ -265,23 +269,21 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * Helper function to implement a platform-specific `exportToCanvasAsync()` function which copies this canvas's
    * contents to another canvas
    * @param context 2D rendering context to copy to
-   * @param width Width of the canvas to copy to, in pixels
-   * @param height Height of the canvas to copy to, in pixels
+   * @param dimensions Dimensions of the canvas to copy to, in pixels
    * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
    * @param destCoords Destination coordinates to render to. If unspecified, the output is stretched to fit the entire
    *    canvas.
    */
-  protected exportToCanvasHelper(context: RenderingContext2D, width: number, height: number, srcCoords?: FimRect,
+  protected exportToCanvasHelper(context: RenderingContext2D, dimensions: FimDimensions, srcCoords?: FimRect,
       destCoords?: FimRect): void {
     const me = this;
     me.ensureNotDisposedAndHasImage();
 
     // Default parameters
-    const destDim = FimDimensions.fromWidthHeight(width, height);
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
-    destCoords = destCoords ?? FimRect.fromDimensions(destDim);
+    destCoords = destCoords ?? FimRect.fromDimensions(dimensions);
     srcCoords.validateIn(me);
-    destCoords.validateInDimensions(destDim);
+    destCoords.validateInDimensions(dimensions);
 
     // copy is slightly faster than source-over
     const op = (destCoords.dim.equals(me.dim)) ? 'copy' : 'source-over';
@@ -302,12 +304,24 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * Exports the canvas contents to a PNG file
    * @returns Compressed PNG file as a Uint8Array
    */
-  public abstract exportToPngAsync(): Promise<Uint8Array>;
+  public exportToPngAsync(): Promise<Uint8Array> {
+    return this.exportToFileAsync(CoreMimeType.PNG);
+  }
 
   /**
    * Exports the canvas contents to a JPEG file
    * @param quality Optional compression quality (0.0 to 1.0)
    * @returns Compressed JPEG file as a Uint8Array
    */
-  public abstract exportToJpegAsync(quality: number): Promise<Uint8Array>;
+  public exportToJpegAsync(quality: number): Promise<Uint8Array> {
+    return this.exportToFileAsync(CoreMimeType.JPEG, quality);
+  }
+
+  /**
+   * Derived classes must implement this method to export the canvas contents to an image file
+   * @param type Mime type of the image file to export
+   * @param quality Optional compression quality (0.0 to 1.0)
+   * @returns Image file as a Uint8Array
+   */
+  protected abstract exportToFileAsync(type: CoreMimeType, quality?: number): Promise<Uint8Array>;
 }

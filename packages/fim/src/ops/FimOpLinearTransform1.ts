@@ -18,16 +18,20 @@ export class FimOpLinearTransform1 extends FimOperationShader {
   }
 
   /**
-   * Sets the inputs to perform a linear transformation of the input image
+   * Sets the inputs to perform a linear transformation of the input image. Returns `this` so the operation may be run
+   * in a one-line call to `FimImage.executeAsync()`.
    * @param input Input
    * @param m Slope
    * @param b Y-offset
+   * @returns `this`
    */
-  public setInputs(input: FimImage, m: number, b: number): void {
+  public $(input: FimImage, m: number, b: number): this {
     this.shader.setUniforms({
       uInput: input,
       uM: m,
       uB: [b, b, b]
     });
+
+    return this;
   }
 }

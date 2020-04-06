@@ -23,13 +23,16 @@ export class FimOpAlphaBlend extends FimOperation {
   private readonly linearTransform2: FimOpLinearTransform2;
 
   /**
-   * Sets the inputs of the alpha blend shader
+   * Sets the inputs of the alpha blend shader. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input1 Input image 1
    * @param input2 Input image 2
    * @param alpha Amount of `input1` (from 0.0 to 1.0)
+   * @returns `this`
    */
-  public setInputs(input1: FimImage, input2: FimImage, alpha: number): void {
-    this.linearTransform2.setInputs(input1, input2, alpha, 1 - alpha, 0);
+  public $(input1: FimImage, input2: FimImage, alpha: number): this {
+    this.linearTransform2.$(input1, input2, alpha, 1 - alpha, 0);
+    return this;
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {

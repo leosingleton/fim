@@ -4,7 +4,7 @@
 
 import { CoreBrowserCanvas2D } from './CoreBrowserCanvas2D';
 import { DisposableCanvas, DomCanvasPool } from './DomCanvasPool';
-import { loadCanvasFromFileAsync } from './LoadFromFile';
+import { loadFromFileAsync } from './ImageLoader';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
@@ -12,7 +12,7 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserDomCanvas2D.canvasPool.getCanvas();
@@ -27,6 +27,7 @@ export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
   /** Canvas pool of 2D canvases */
   private static canvasPool = new DomCanvasPool();
 
+  /** Underlying canvas backing this object */
   private canvasElement: DisposableCanvas;
 
   protected disposeSelf(): void {
@@ -47,37 +48,9 @@ export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
     return new CoreBrowserDomCanvas2D(canvasOptions, dimensions, handle, engineOptions);
   }
 
-  public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, pngFile, CoreMimeType.PNG, allowRescale);
-  }
-
-  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, jpegFile, CoreMimeType.JPEG, allowRescale);
-  }
-
-  public async exportToPngAsync(): Promise<Uint8Array> {
-    const blob = await this.toPngBlobAsync();
-    const buffer = await new Response(blob).arrayBuffer();
-    return new Uint8Array(buffer);
-  }
-
-  /** Helper function for `exportToPngAsync()` */
-  private toPngBlobAsync(): Promise<Blob> {
+  protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
     return new Promise<Blob>(resolve => {
-      this.canvasElement.toBlob(blob => resolve(blob));
-    });
-  }
-
-  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    const blob = await this.toJpegBlobAsync(quality);
-    const buffer = await new Response(blob).arrayBuffer();
-    return new Uint8Array(buffer);
-  }
-
-  /** Helper function for `exportToJpegAsync()` */
-  private toJpegBlobAsync(quality: number): Promise<Blob> {
-    return new Promise<Blob>(resolve => {
-      this.canvasElement.toBlob(blob => resolve(blob), CoreMimeType.JPEG, quality);
+      this.canvasElement.toBlob(blob => resolve(blob), type, quality);
     });
   }
 }

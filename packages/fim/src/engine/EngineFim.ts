@@ -19,6 +19,9 @@ import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
+import { CoreFileReader, fileToName } from '../core/CoreFileReader';
+import { CoreImageLoader } from '../core/CoreImageLoader';
+import { CoreMimeType } from '../core/CoreMimeType';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -32,11 +35,14 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     extends EngineObject implements FimBase<TEngineImage, TEngineShader> {
   /**
    * Constructor
+   * @param fileReader `CoreFileReader` implementation for reading or downloading binary files
+   * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
    * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
    *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(maxImageDimensions?: FimDimensions, name?: string) {
+  public constructor(public readonly fileReader: CoreFileReader, public readonly imageLoader: CoreImageLoader,
+      maxImageDimensions?: FimDimensions, name?: string) {
     super(EngineObjectType.Fim, name);
     this.resources = new ResourceTracker(this);
     this.optimizer = new OptimizerNull(this);
@@ -171,7 +177,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
-    const glDimensions = me.maxImageDimensions.downscaleToMaxDimension(maxDimension);
+    const glDimensions = me.maxImageDimensions.fitInsideSquare(maxDimension).toFloor();
     me.optimizer.reserveCanvasMemory(glDimensions.getArea() * 4);
     const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(me.getGLCanvasOptions(), glDimensions,
       `${me.handle}/WebGLCanvas`);
@@ -268,14 +274,39 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
       Promise<TEngineImage> {
-    this.ensureNotDisposed();
-    return this.createEngineImageFromPngAsync(pngFile, parent ?? this, options ?? {}, name);
+    return this.createImageFromFileAsync(pngFile, CoreMimeType.PNG, options, name, parent);
   }
 
   public createImageFromJpegAsync(jpegFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
       Promise<TEngineImage> {
-    this.ensureNotDisposed();
-    return this.createEngineImageFromJpegAsync(jpegFile, parent ?? this, options ?? {}, name);
+    return this.createImageFromFileAsync(jpegFile, CoreMimeType.JPEG, options, name, parent);
+  }
+
+  /** Internal implementation of `createImageFromPngAsync` and `createImageFromJpegAsync` */
+  private async createImageFromFileAsync(file: Uint8Array, type: CoreMimeType, options?: FimImageOptions, name?: string,
+      parent?: FimObject): Promise<TEngineImage> {
+    const me = this;
+    me.ensureNotDisposed();
+
+    let result: TEngineImage;
+    await me.imageLoader(file, type, image => {
+      result = me.createEngineImage(parent ?? this, options ?? {}, FimDimensions.fromObject(image), name);
+      result.loadFromImage(image);
+    });
+
+    return result;
+  }
+
+  public async createImageFromPngFileAsync(pngUrlOrPath: string, options?: FimImageOptions, name?: string,
+      parent?: FimObject): Promise<TEngineImage> {
+    const pngFile = await this.fileReader(pngUrlOrPath);
+    return this.createImageFromPngAsync(pngFile, options, name ?? fileToName(pngUrlOrPath), parent);
+  }
+
+  public async createImageFromJpegFileAsync(jpegUrlOrPath: string, options?: FimImageOptions, name?: string,
+      parent?: FimObject): Promise<TEngineImage> {
+    const jpegFile = await this.fileReader(jpegUrlOrPath);
+    return this.createImageFromJpegAsync(jpegFile, options, name ?? fileToName(jpegUrlOrPath), parent);
   }
 
   public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
@@ -287,14 +318,6 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions,
     name?: string): TEngineImage;
-
-  /** Derived classes must implement this method to create a TEngineImage from a PNG file */
-  protected abstract createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
-    name?: string): Promise<TEngineImage>;
-
-  /** Derived classes must implement this method to create a TEngineImage from a JPEG file */
-  protected abstract createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
-    name?: string): Promise<TEngineImage>;
 
   /** Derived classes must implement this method to call the TEngineShader constructor */
   protected abstract createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,

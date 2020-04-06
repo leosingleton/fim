@@ -5,6 +5,7 @@
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
+import { CanvasImageContent, ImageContent, TextureImageContent } from './ImageContent';
 import { ImageType } from './optimizer/ImageType';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
@@ -13,9 +14,10 @@ import { FimObject } from '../api/FimObject';
 import { FimOperation } from '../api/FimOperation';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
-import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
+import { CoreMimeType } from '../core/CoreMimeType';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
+import { ImageSource } from '../core/types/ImageSource';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -38,7 +40,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     this.dim = dimensions ?? this.rootObject.maxImageDimensions;
     this.imageOptions = deepCopy(options) ?? {};
 
-    this.rootObject.optimizer.recordImageCreate(this);
+    const root = this.rootObject;
+    root.optimizer.recordImageCreate(this);
   }
 
   public dispose(): void {
@@ -49,16 +52,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   public readonly dim: FimDimensions;
   public readonly imageOptions: FimImageOptions;
 
-  /** Boolean value returned by `hasImage()` */
-  private hasImageValue = false;
-
-  public hasImage(): boolean {
-    return this.hasImageValue;
-  }
-
   public getEffectiveImageOptions(): FimImageOptions {
     const me = this;
-    const handle = `${me.handle}/EffOptions`;
 
     // Start by merging this object's imageOptions with those inherited from the parent
     let options = me.getImageOptions();
@@ -70,8 +65,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       canvasDownscale = me.contentCanvas.downscale;
     } else {
       // Calculate any options which would get applied on the next canvas creation
-      const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
-      canvasDownscale = dsf.downscale;
+      const dd = me.contentCanvas.calculateDimensionsAndDownscale();
+      canvasDownscale = dd.downscale;
     }
     options = mergeImageOptions(options, {
       downscale: canvasDownscale
@@ -86,9 +81,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       textureOptions = texture.textureOptions;
     } else {
       // Calculate any options which would get applied on the next texture creation
-      const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
-      textureDownscale = dsf.downscale;
-      textureOptions = me.getTextureOptions();
+      const dd = me.contentTexture.calculateDimensionsAndDownscale();
+      textureDownscale = dd.downscale;
+      textureOptions = me.contentTexture.getOptions();
     }
     options = mergeImageOptions(options, {
       bpp: textureOptions.bpp,
@@ -105,24 +100,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   }
 
   /** Calculates and returns the current image options for this image */
-  private getImageOptions(): FimImageOptions {
+  public getImageOptions(): FimImageOptions {
     return mergeImageOptions(this.rootObject.defaultImageOptions, this.imageOptions);
-  }
-
-  /** Calculates and returns the `CoreCanvasOptions` for creating a new canvas */
-  public getCanvasOptions(): CoreCanvasOptions {
-    //const options = this.getImageOptions();
-    return {};
-  }
-
-  /** Calculates and returns the `CoreTextureOptions` for creating a new texture */
-  public getTextureOptions(): CoreTextureOptions {
-    const options = this.getImageOptions();
-    return {
-      bpp: options.bpp,
-      isReadOnly: options.glReadOnly,
-      sampling: options.sampling
-    };
   }
 
   //
@@ -136,102 +115,18 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   //
 
   /** Contains the color of the image if the contents are a solid color */
-  private readonly contentFillColor = defaultImageContent<FimColor>();
+  public readonly contentFillColor = new ImageContent<FimColor>();
 
   /** Contains the contents of the image as a 2D canvas */
-  private readonly contentCanvas = defaultImageContent<CoreCanvas2D>();
+  public readonly contentCanvas = new CanvasImageContent(this);
 
   /** Contains the contents of the image as a WebGL texture */
-  private readonly contentTexture = defaultImageContent<CoreTexture>();
+  public readonly contentTexture = new TextureImageContent(this);
 
-  /** Ensures `contentCanvas.imageContent` points to a valid 2D canvas */
-  private allocateContentCanvas(): void {
+  /** Returns `true` if any of the image representations have `isCurrent === true` */
+  public hasImage(): boolean {
     const me = this;
-    const root = me.rootObject;
-    const handle = `${me.handle}/ContentCanvas`;
-
-    // If a canvas is already allocated, this function is a no-op
-    if (me.contentCanvas.imageContent) {
-      return;
-    }
-
-    // Calculate the downscaled dimensions and create a 2D canvas
-    const dsf = me.calculateDimensionsAndScaleFactor(handle, false);
-    const options = me.getCanvasOptions();
-    root.optimizer.reserveCanvasMemory(dsf.scaledDimensions.getArea() * 4);
-    const canvas = me.contentCanvas.imageContent = root.createCoreCanvas2D(options, dsf.scaledDimensions, handle);
-    me.contentCanvas.downscale = dsf.downscale;
-
-    // Record the canvas creation
-    root.resources.recordCreate(me, canvas);
-  }
-
-  /** Ensures `contentTexture.imageContent` points to a valid WebGL texture */
-  private allocateContentTexture(): void {
-    const me = this;
-    const root = me.rootObject;
-    const handle = `${me.handle}/ContentTexture`;
-
-    // If a texture is already allocated, this function is a no-op
-    if (me.contentTexture.imageContent) {
-      return;
-    }
-
-    // Calculate the downscaled dimensions and create a WebGL texture
-    const dsf = me.calculateDimensionsAndScaleFactor(handle, true);
-    const glCanvas = root.getWebGLCanvas();
-    const options = me.getTextureOptions();
-    root.optimizer.reserveGLMemory(dsf.scaledDimensions.getArea() * options.bpp * 0.5);
-    const texture = me.contentTexture.imageContent = glCanvas.createCoreTexture(options, dsf.scaledDimensions, handle);
-    me.contentTexture.downscale = dsf.downscale;
-
-    // Record the texture creation
-    root.resources.recordCreate(me, texture);
-  }
-
-  /**
-   * Calculates the dimensions and scale factor (`1 / downscale`) for a 2D canvas or WebGL texture
-   * @param handle Handle of the object being created (for logging purposes)
-   * @param isTexture True for WebGL textures; false for 2D canvases
-   */
-  private calculateDimensionsAndScaleFactor(handle: string, isTexture: boolean):
-      { downscale: number, scaledDimensions: FimDimensions } {
-    const me = this;
-    const options = me.getImageOptions();
-    const root = me.rootObject;
-    const caps = root.capabilities;
-
-    // We build an array of downscale values. The minimum one wins.
-    const downscaleValues = [options.downscale];
-    if (isTexture) {
-      downscaleValues.push(options.glDownscale);
-    }
-
-    // Check whether the image dimensions are larger than supported by WebGL
-    const maxGLSize = options.glReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
-    const maxDim = Math.max(me.dim.w, me.dim.h);
-    downscaleValues.push(maxGLSize / maxDim);
-
-    // Check whether the image dimensions are larger than enabled by the engine options
-    const engineOptions = me.getEngineOptions();
-    const maxOptionsSize = options.glReadOnly ? engineOptions.maxGLTextureSize : engineOptions.maxGLRenderBufferSize;
-    downscaleValues.push(maxOptionsSize / maxDim);
-
-    // Check whether the image dimensions are larger than the parent FIM instance
-    if (!options.allowOversized && (me.dim.w > root.maxImageDimensions.w || me.dim.h > root.maxImageDimensions.h)) {
-      downscaleValues.push(root.maxImageDimensions.w / me.dim.w);
-      downscaleValues.push(root.maxImageDimensions.h / me.dim.h);
-
-      // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
-      // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
-      // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
-      root.writeWarning(me, `Auto-downscale ${handle}: ${me.dim} > max (${root.maxImageDimensions})`);
-    }
-
-    // Calculate the scale factor and new dimensions
-    const downscale = Math.min(...downscaleValues);
-    const scaledDimensions = me.dim.rescale(downscale).toFloor();
-    return { downscale, scaledDimensions };
+    return me.contentFillColor.isCurrent || me.contentCanvas.isCurrent || me.contentTexture.isCurrent;
   }
 
   /**
@@ -239,7 +134,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * @param ic The `ImageContent` object to mark as current
    * @param invalidateOthers If `true`, all other `ImageContent` objects are marked as not current
    */
-  private markCurrent<T>(ic: ImageContent<T>, invalidateOthers: boolean): void {
+  public markCurrent<TContent>(ic: ImageContent<TContent>, invalidateOthers: boolean): void {
     const me = this;
 
     if (invalidateOthers) {
@@ -249,107 +144,20 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     ic.isCurrent = true;
-    me.hasImageValue = true;
-  }
-
-  /** Ensures `contentCanvas.imageContent` is allocated and contains the current image data */
-  private async populateContentCanvas(): Promise<void> {
-    const me = this;
-    const optimizer = me.rootObject.optimizer;
-
-    if (me.contentCanvas.isCurrent) {
-      // If a canvas is already current, this function is a no-op
-    } else if (me.contentFillColor.isCurrent) {
-      // Copy the fill color to the canvas to make it current
-      me.allocateContentCanvas();
-      me.contentCanvas.imageContent.fillSolid(me.contentFillColor.imageContent);
-
-      optimizer.recordImageWrite(me, ImageType.Canvas);
-    } else if (me.contentTexture.isCurrent) {
-      // Copy texture to the WebGL canvas
-      me.allocateContentCanvas();
-      const glCanvas = me.rootObject.getWebGLCanvas();
-      glCanvas.copyFrom(me.contentTexture.imageContent);
-
-      // Copy the WebGL canvas to a 2D canvas
-      await me.contentCanvas.imageContent.copyFromAsync(glCanvas);
-
-      optimizer.recordImageRead(me, ImageType.Texture);
-      optimizer.recordImageWrite(me, ImageType.Canvas);
-    } else {
-      FimError.throwOnImageUninitialized(me.handle);
-    }
-
-    me.markCurrent(me.contentCanvas, false);
-    optimizer.recordImageRead(me, ImageType.Canvas);
   }
 
   /**
-   * Ensures `contentTexture.imageContent` is allocated and contains the current image data
+   * Boolean used to ensure we only log an auto-downscale warning once per image. It is located here to avoid logging
+   * the same warning both for the texture and canvas backing the image.
+   */
+  public autoDownscaleWarningLogged = false;
+
+  /**
+   * Returns a WebGL texture containing the current image contents
    * @returns The `CoreTexture` instance backing the content texture
    */
-  public async populateContentTexture(): Promise<CoreTexture> {
-    const me = this;
-    const optimizer = me.rootObject.optimizer;
-
-    if (me.contentTexture.isCurrent) {
-      // If a texture is already current, this function is a no-op
-    } else if (me.contentFillColor.isCurrent) {
-      // Fill texture with solid color
-      me.allocateContentTexture();
-      me.contentTexture.imageContent.fillSolid(me.contentFillColor.imageContent);
-
-      optimizer.recordImageWrite(me, ImageType.Texture);
-    } else if (me.contentCanvas.isCurrent) {
-      // Copy canvas to texture
-      me.allocateContentTexture();
-      await me.contentTexture.imageContent.copyFromAsync(me.contentCanvas.imageContent);
-
-      optimizer.recordImageRead(me, ImageType.Canvas);
-      optimizer.recordImageWrite(me, ImageType.Texture);
-    } else {
-      FimError.throwOnImageUninitialized(me.handle);
-    }
-
-    me.markCurrent(me.contentTexture, false);
-    optimizer.recordImageRead(me, ImageType.Texture);
-    return me.contentTexture.imageContent;
-  }
-
-  /** Releases any resources used by `contentCanvas.imageContent` */
-  private releaseContentCanvas(): void {
-    const me = this;
-    const canvas = me.contentCanvas;
-
-    if (canvas.imageContent) {
-      // Record the canvas disposal
-      me.rootObject.resources.recordDispose(me, canvas.imageContent);
-
-      canvas.imageContent.dispose();
-      canvas.imageContent = undefined;
-      canvas.isCurrent = false;
-
-      // Recalculate hasImageValue
-      me.hasImageValue = me.contentFillColor.isCurrent || me.contentTexture.isCurrent;
-    }
-  }
-
-  /** Releases any resources used by `contentTexture.imageContent` */
-  private releaseContentTexture(): void {
-    const me = this;
-    const texture = me.contentTexture;
-
-    if (texture.imageContent) {
-      // Record the texture disposal
-      me.rootObject.resources.recordDispose(me, texture.imageContent);
-
-      texture.imageContent.dispose();
-      texture.imageContent = undefined;
-      texture.isCurrent = false;
-
-      // Recalculate hasImageValue
-      me.hasImageValue = me.contentFillColor.isCurrent || me.contentCanvas.isCurrent;
-    }
+  public populateContentTextureAsync(): Promise<CoreTexture> {
+    return this.contentTexture.populateContentAsync();
   }
 
   protected releaseOwnResources(flags: FimReleaseResourcesFlags): void {
@@ -357,14 +165,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.ensureNotDisposed();
 
     if (flags & FimReleaseResourcesFlags.Canvas) {
-      me.releaseContentCanvas();
+      me.contentCanvas.releaseContent();
     }
 
     if (flags & FimReleaseResourcesFlags.WebGLTexture) {
-      me.releaseContentTexture();
+      me.contentTexture.releaseContent();
 
       // Handle the image option to fill the image with a solid color if we lost the image contents
-      if (!me.hasImageValue) {
+      if (!me.hasImage()) {
         const imageOptions = me.getImageOptions();
         if (imageOptions.fillColorOnContextLost) {
           me.contentFillColor.imageContent = imageOptions.fillColorOnContextLost;
@@ -376,16 +184,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
   public async backupAsync(): Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
     if (me.contentTexture.isCurrent && !me.contentFillColor.isCurrent && !me.contentCanvas.isCurrent) {
       // The WebGL texture is the only copy of the image contents and needs to be backed up to a canvas
-      await me.populateContentCanvas();
-      optimizer.recordImageWrite(me, ImageType.Canvas);
+      await me.contentCanvas.populateContentAsync();
 
       // Let the optimizer release unneeded resources
-      optimizer.releaseResources();
+      me.rootObject.optimizer.releaseResources();
     }
   }
 
@@ -413,11 +219,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       return me.contentFillColor.imageContent;
     }
 
-    await me.populateContentCanvas();
+    await me.contentCanvas.populateContentAsync();
     const scaledPoint = point.rescale(me.contentCanvas.downscale);
     const color = me.contentCanvas.imageContent.getPixel(scaledPoint);
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return color;
@@ -435,7 +242,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       FimError.throwOnInvalidDimensions(dimensions, pixelData.length);
     }
 
-    me.allocateContentCanvas();
+    me.contentCanvas.allocateContent(dimensions);
     await me.contentCanvas.imageContent.loadPixelDataAsync(pixelData, dimensions);
     me.markCurrent(me.contentCanvas, true);
 
@@ -444,17 +251,19 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     optimizer.releaseResources();
   }
 
-  public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+  /**
+   * Loads the image contents from an `HTMLImageElement`-like object. Automatically rescales the contents to fit the
+   * full image.
+   * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
+   *    calling this function.
+   */
+  public loadFromImage(image: ImageSource): void {
     const me = this;
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    me.allocateContentCanvas();
-    // BUGBUG: If the underlying 2D canvas isn't the same dimensions as this image, we always treat allowRescale as
-    //    true. This makes the FIM library behave as it should in normal cases. However if the PNG file's dimensions
-    //    don't match the EngineImage's, it will succeed rather than fail as expected.
-    allowRescale = allowRescale || (me.contentCanvas.downscale !== 1);
-    await me.contentCanvas.imageContent.loadFromPngAsync(pngFile, allowRescale);
+    me.contentCanvas.allocateContent(FimDimensions.fromObject(image));
+    me.contentCanvas.imageContent.loadFromImage(image);
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources
@@ -462,27 +271,44 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     optimizer.releaseResources();
   }
 
+  public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
+    return this.loadFromFileAsync(pngFile, CoreMimeType.PNG, allowRescale);
+  }
+
   public async loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
+    return this.loadFromFileAsync(jpegFile, CoreMimeType.JPEG, allowRescale);
+  }
+
+  private async loadFromFileAsync(file: Uint8Array, type: CoreMimeType, allowRescale: boolean): Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
-    me.ensureNotDisposed();
 
-    me.allocateContentCanvas();
-    // BUGBUG: If the underlying 2D canvas isn't the same dimensions as this image, we always treat allowRescale as
-    //    true. This makes the FIM library behave as it should in normal cases. However if the JPEG file's dimensions
-    //    don't match the EngineImage's, it will succeed rather than fail as expected.
-    allowRescale = allowRescale || (me.contentCanvas.downscale !== 1);
-    await me.contentCanvas.imageContent.loadFromJpegAsync(jpegFile, allowRescale);
-    me.markCurrent(me.contentCanvas, true);
+    return me.rootObject.imageLoader(file, type, image => {
+      // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
+      // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
+      const imageDimensions = FimDimensions.fromObject(image);
+      if (!allowRescale && !imageDimensions.equals(me.dim)) {
+        FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
+      }
 
-    // Let the optimizer release unneeded resources
-    optimizer.recordImageWrite(me, ImageType.Canvas);
-    optimizer.releaseResources();
+      me.loadFromImage(image);
+    });
+  }
+
+  public async loadFromPngFileAsync(pngUrl: string, allowRescale?: boolean): Promise<void> {
+    const pngFile = await this.rootObject.fileReader(pngUrl);
+    return this.loadFromPngAsync(pngFile, allowRescale);
+  }
+
+  public async loadFromJpegFileAsync(jpegUrl: string, allowRescale?: boolean): Promise<void> {
+    const jpegFile = await this.rootObject.fileReader(jpegUrl);
+    return this.loadFromPngAsync(jpegFile, allowRescale);
   }
 
   public async copyFromAsync(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     const me = this;
     const optimizer = me.rootObject.optimizer;
+    const srcContentCanvas = srcImage.contentCanvas;
+    const destContentCanvas = me.contentCanvas;
     me.ensureNotDisposed();
 
     // copyFrom() does not support copying from itself
@@ -501,15 +327,17 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords.validateIn(srcImage);
     destCoords.validateIn(me);
 
-    await srcImage.populateContentCanvas();
-    me.allocateContentCanvas();
-    const scaledSrcCoords = srcCoords.rescale(srcImage.contentCanvas.downscale);
-    const scaledDestCoords = destCoords.rescale(me.contentCanvas.downscale);
-    await me.contentCanvas.imageContent.copyFromAsync(srcImage.contentCanvas.imageContent, scaledSrcCoords,
+    await srcContentCanvas.populateContentAsync();
+    await destContentCanvas.allocateOrPopulateContentAsync(destCoords, srcCoords.dim);
+
+    const scaledSrcCoords = srcCoords.rescale(srcContentCanvas.downscale).toFloor();
+    const scaledDestCoords = destCoords.rescale(destContentCanvas.downscale).toFloor();
+    await destContentCanvas.imageContent.copyFromAsync(srcContentCanvas.imageContent, scaledSrcCoords,
       scaledDestCoords);
-    me.markCurrent(me.contentCanvas, true);
+    me.markCurrent(destContentCanvas, true);
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(srcImage, ImageType.Canvas);
     optimizer.recordImageWrite(me, ImageType.Canvas);
     optimizer.releaseResources();
   }
@@ -518,6 +346,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const me = this;
     const root = me.rootObject;
     const optimizer = root.optimizer;
+    const contentTexture = me.contentTexture;
     me.ensureNotDisposed();
 
     // Ensure shader belongs to the same EngineFim instance
@@ -534,13 +363,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     destCoords = destCoords ?? FimRect.fromDimensions(me.dim);
     destCoords.validateIn(me);
 
-    me.allocateContentTexture();
-    const scaledDestCoords = destCoords.rescale(me.contentTexture.downscale);
+    await contentTexture.allocateOrPopulateContentAsync(destCoords);
+
+    const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
       const glCanvas = root.getWebGLCanvas();
-      const outputTexture = glCanvas.createCoreTexture(me.getTextureOptions(), me.contentTexture.imageContent.dim);
+      const outputTexture = glCanvas.createCoreTexture(contentTexture.getOptions(), contentTexture.imageContent.dim);
       try {
         root.resources.recordCreate(me, outputTexture);
         await shaderOrOperation.executeAsync(outputTexture, scaledDestCoords);
@@ -549,22 +379,21 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
         outputTexture.dispose();
         throw err;
       }
-      me.releaseContentTexture();
-      me.contentTexture.imageContent = outputTexture;
+      contentTexture.releaseContent();
+      contentTexture.imageContent = outputTexture;
     } else {
       // Normal case: we can write to the normal WebGL texture as it is not an input to the shader.
-      await shaderOrOperation.executeAsync(me.contentTexture.imageContent, scaledDestCoords);
+      await shaderOrOperation.executeAsync(contentTexture.imageContent, scaledDestCoords);
     }
 
-    me.markCurrent(me.contentTexture, true);
+    me.markCurrent(contentTexture, true);
     optimizer.recordShaderUsage(shaderOrOperation);
     optimizer.recordImageWrite(me, ImageType.Texture);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.
     if (me.getImageOptions().autoBackup) {
-      await me.populateContentCanvas();
-      optimizer.recordImageWrite(me, ImageType.Canvas);
+      await me.backupAsync();
     }
 
     // Let the optimizer release unneeded resources
@@ -580,7 +409,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     srcCoords.validateIn(me);
 
-    await me.populateContentCanvas();
+    await me.contentCanvas.populateContentAsync();
     let pixelData: Uint8ClampedArray;
     if (me.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
@@ -592,6 +421,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return pixelData;
@@ -617,11 +447,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     srcCoords.validateIn(me);
 
-    await me.populateContentCanvas();
+    await me.contentCanvas.populateContentAsync();
     const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.downscale).toFloor();
     await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords, destCoords);
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
   }
 
@@ -630,7 +461,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    await me.populateContentCanvas();
+    await me.contentCanvas.populateContentAsync();
     let png: Uint8Array;
     if (me.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
@@ -642,6 +473,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return png;
@@ -652,7 +484,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    await me.populateContentCanvas();
+    await me.contentCanvas.populateContentAsync();
     let jpeg: Uint8Array;
     if (me.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
@@ -664,6 +496,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
+    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
 
     return jpeg;
@@ -688,7 +521,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    const temp = root.createCoreCanvas2D(me.getCanvasOptions(), srcCoords.dim, `${me.handle}/RescaleHelper`);
+    const temp = root.createCoreCanvas2D(me.contentCanvas.getOptions(), srcCoords.dim, `${me.handle}/RescaleHelper`);
     try {
       root.resources.recordCreate(me, temp);
 
@@ -702,27 +535,4 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     return result;
   }
-}
-
-/** Wrapper around textures and canvases containing the image content */
-interface ImageContent<T> {
-  /** Texture or canvas containing the image content. May be undefined if unallocated. */
-  imageContent?: T;
-
-  /** True if `imageContent` contains the latest image. False if it is out-of-date. */
-  isCurrent: boolean;
-
-  /**
-   * Downscale factor which can be passed to `FimGeometry.rescale()` to convert coordinates from the `EngineImage`'s
-   * virtual dimensions to the actual dimensions of the underlying `imageContent` object
-   */
-  downscale: number;
-}
-
-/** Returns an instance of `ImageContent<T>` with default values */
-function defaultImageContent<T>(): ImageContent<T> {
-  return {
-    isCurrent: false,
-    downscale: 1
-  };
 }

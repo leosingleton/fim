@@ -9,7 +9,7 @@ import { FimError, FimErrorCode } from '@leosingleton/fim';
  * @param url URL of the file to download
  * @returns File contents, as a `Uint8Array`
  */
-export async function fileDownload(url: string): Promise<Uint8Array> {
+export async function fileReader(url: string): Promise<Uint8Array> {
   const fetchResponse = await fetch(url);
   if (!fetchResponse.ok) {
     throw new FimError(FimErrorCode.FetchError, `${url}: ${fetchResponse.status} ${fetchResponse.statusText}`);

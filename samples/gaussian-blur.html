@@ -22,7 +22,7 @@ $(async () => {
   const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
 
   // Create the Gaussian Blur operation
-  const opBlur = new FimOpGaussianBlur(fim, true);
+  const blur = new FimOpGaussianBlur(fim, true);
 
   // Create the output image
   const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
@@ -46,8 +46,7 @@ $(async () => {
       measureFrameStart();
 
       // Apply the Gaussian Blur operation
-      opBlur.setInputs(inputImage, sigma);
-      await outputImage.executeAsync(opBlur);
+      await outputImage.executeAsync(blur.$(inputImage, sigma));
 
       // Copy the result to the screen
       await outputImage.exportToCanvasAsync(canvas);

@@ -3,9 +3,9 @@
 // See LICENSE in the project root for license information.
 
 import { CoreNodeCanvasWebGL } from './CoreNodeCanvasWebGL';
-import { loadCanvasFromFileAsync } from './LoadFromFile';
+import { loadFromFileAsync } from './ImageLoader';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { FimDimensions, FimEngineOptions, FimRect } from '@leosingleton/fim';
+import { FimDimensions, FimEngineOptions, FimError, FimRect } from '@leosingleton/fim';
 import { CoreCanvas, CoreCanvas2D, CoreCanvasOptions, CoreMimeType,
   RenderingContext2D } from '@leosingleton/fim/internals';
 import { Canvas, createCanvas } from 'canvas';
@@ -14,12 +14,13 @@ import { Canvas, createCanvas } from 'canvas';
 export class CoreNodeCanvas2D extends CoreCanvas2D {
   public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
 
     // Create the canvas using node-canvas
     this.canvasElement = createCanvas(dimensions.w, dimensions.h);
   }
 
+  /** Underlying canvas backing this object */
   private canvasElement: Canvas;
 
   protected disposeSelf(): void {
@@ -40,6 +41,26 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
       engineOptions: FimEngineOptions): CoreCanvas2D {
     return new CoreNodeCanvas2D(canvasOptions, dimensions, handle, engineOptions);
   }
+
+  protected async exportToFileAsync(type: CoreMimeType, quality?: number): Promise<Uint8Array> {
+    const canvas = this.canvasElement;
+    let buffer: Buffer;
+    switch (type) {
+      case CoreMimeType.JPEG:
+        buffer = canvas.toBuffer(CoreMimeType.JPEG, { quality });
+        break;
+
+      case CoreMimeType.PNG:
+        buffer = canvas.toBuffer(CoreMimeType.PNG);
+        break;
+
+      default:
+        FimError.throwOnUnreachableCodeValue(type);
+    }
+
+    return new Uint8Array(buffer);
+  }
+
 
   public async copyFromAsync(srcCanvas: CoreCanvas, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     if (srcCanvas instanceof CoreNodeCanvasWebGL) {
@@ -75,24 +96,6 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     }
   }
 
-  public loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, pngFile, allowRescale);
-  }
-
-  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale = false): Promise<void> {
-    return loadCanvasFromFileAsync(this, jpegFile, allowRescale);
-  }
-
-  public async exportToPngAsync(): Promise<Uint8Array> {
-    const buffer = this.canvasElement.toBuffer(CoreMimeType.PNG);
-    return new Uint8Array(buffer);
-  }
-
-  public async exportToJpegAsync(quality: number): Promise<Uint8Array> {
-    const buffer = this.canvasElement.toBuffer(CoreMimeType.JPEG, { quality });
-    return new Uint8Array(buffer);
-  }
-
   /**
    * Exports the canvas contents to another canvas
    * @param canvas Destination canvas
@@ -101,6 +104,6 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
    *    canvas.
    */
   public exportToCanvas(canvas: Canvas, srcCoords?: FimRect, destCoords?: FimRect): void {
-    this.exportToCanvasHelper(canvas.getContext('2d'), canvas.width, canvas.height, srcCoords, destCoords);
+    this.exportToCanvasHelper(canvas.getContext('2d'), FimDimensions.fromObject(canvas), srcCoords, destCoords);
   }
 }

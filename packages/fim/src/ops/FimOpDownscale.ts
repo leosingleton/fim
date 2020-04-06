@@ -23,13 +23,20 @@ export class FimOpDownscale extends FimOperationShader {
     super(parent, source, undefined, 'Downscale');
   }
 
-  public setInput(input: FimImage): void {
+  /**
+   * Sets the input image. Returns `this` so the operation may be run in a one-line call to `FimImage.executeAsync()`.
+   * @param input Input image
+   * @returns `this`
+   */
+  public $(input: FimImage): this {
     // Ensure the input image has linear filtering enabled
     if (input.getEffectiveImageOptions().sampling !== FimTextureSampling.Linear) {
       FimError.throwOnInvalidParameter(`${input.handle} not linear`);
     }
 
     this.inputImage = input;
+
+    return this;
   }
 
   /** Input image */

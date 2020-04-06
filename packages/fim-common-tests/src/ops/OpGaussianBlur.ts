@@ -48,7 +48,9 @@ async function testGaussianBlur(
   sigma: number,
   kernelSize?: number
 ): Promise<void> {
-  await usingAsync(factory(TestSizes.medium), async fim => {
+  await usingAsync(factory(TestSizes.mediumTall), async fim => {
+    const blur = new FimOpGaussianBlur(fim, fast);
+
     // Create a solid blue image of a specific shade
     const blueShade = FimColor.fromString('#21f');
     const blueImage = fim.createImage({ sampling: inputSampling });
@@ -56,11 +58,9 @@ async function testGaussianBlur(
 
     // Blur the image
     const output = fim.createImage({ sampling: outputSampling });
-    const blur = new FimOpGaussianBlur(fim, fast);
-    blur.setInputs(blueImage, sigma, kernelSize);
-    await output.executeAsync(blur);
+    await output.executeAsync(blur.$(blueImage, sigma, kernelSize));
 
     // Ensure the output is still the same shade of blue--blurring shouldn't change the color
-    expect(await output.getPixelAsync(midpoint(TestSizes.medium))).toEqual(blueShade);
+    expect(await output.getPixelAsync(midpoint(TestSizes.mediumTall))).toEqual(blueShade);
   });
 }

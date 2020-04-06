@@ -9,7 +9,7 @@ import { readFile } from 'fs';
  * @param path Path of the file to read
  * @returns File contents, as a `Uint8Array`
  */
-export async function fileRead(path: string): Promise<Uint8Array> {
+export async function fileReader(path: string): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     readFile(path, (err, data) => {
       if (err) {

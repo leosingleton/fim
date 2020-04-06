@@ -98,6 +98,26 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
     Promise<TImage>;
 
   /**
+   * Reads or downloads a PNG file and creates a new image from it
+   * @param pngUrlOrPath URL or path to a PNG file. Support varies by platform.
+   * @param options Optional overrides to the image options from the parent Fim object
+   * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
+   */
+  createImageFromPngFileAsync(pngUrlOrPath: string, options?: FimImageOptions, name?: string, parent?: FimObject):
+    Promise<TImage>;
+
+  /**
+   * Reads or downloads a JPEG file and creates a new image from it
+   * @param jpegUrlOrPath URL or path to a JPEG file. Support varies by platform.
+   * @param options Optional overrides to the image options from the parent Fim object
+   * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
+   */
+  createImageFromJpegFileAsync(jpegUrlOrPath: string, options?: FimImageOptions, name?: string, parent?: FimObject):
+    Promise<TImage>;
+
+  /**
    * Creates a WebGL fragment shader for performing processing on an image
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify

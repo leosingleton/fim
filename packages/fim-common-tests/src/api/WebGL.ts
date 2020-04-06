@@ -21,7 +21,7 @@ export function fimTestSuiteWebGL(
   describe(`FIM WebGL - ${description}`, () => {
 
     it('Detects WebGL capabilities', () => {
-      using(factory(TestSizes.small), fim => {
+      using(factory(TestSizes.smallWide), fim => {
         const caps = fim.capabilities;
         expect(caps.glVersion.length).toBeGreaterThan(0);
         expect(caps.glShadingLanguageVersion.length).toBeGreaterThan(0);
@@ -38,7 +38,7 @@ export function fimTestSuiteWebGL(
     });
 
     it('Executes a simple fill shader with a constant', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillConstShader);
         const image = fim.createImage();
@@ -50,12 +50,13 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is grey
-        expect((await image.getPixelAsync(midpoint(TestSizes.small))).distance(TestColors.grey)).toBeLessThan(0.05);
+        expect((await image.getPixelAsync(midpoint(TestSizes.smallWide))).distance(TestColors.grey))
+          .toBeLessThan(0.05);
       });
     });
 
     it('Executes a simple fill shader with a uniform', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
         const image = fim.createImage();
@@ -67,12 +68,12 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is green
-        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.green);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.green);
       });
     });
 
     it('Executes a shader with an image parameter', async () => {
-      await usingAsync(factory(TestSizes.smallFourSquares), async fim => {
+      await usingAsync(factory(TestSizes.smallSquare), async fim => {
         // Load the four squares sample on to an image
         const srcImage = fim.createImage();
         await srcImage.loadFromPngAsync(TestImages.fourSquaresPng());
@@ -91,7 +92,7 @@ export function fimTestSuiteWebGL(
     });
 
     it('Executes a shader with many constant values', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillConstShader);
         const image = fim.createImage();
@@ -103,14 +104,14 @@ export function fimTestSuiteWebGL(
 
           // Ensure the output is the right shade of grey
           const expected = FimColor.fromRGBAFloats(color, color, color, 1);
-          expect((await image.getPixelAsync(midpoint(TestSizes.small))).distance(expected)).toBeLessThan(0.05);
+          expect((await image.getPixelAsync(midpoint(TestSizes.smallWide))).distance(expected)).toBeLessThan(0.05);
         }
       });
     });
 
     it('Executes a shader with many uniform values', async () => {
       // This test case also tests reusing a shader for many executeAsync() calls
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
         const image = fim.createImage();
@@ -122,13 +123,13 @@ export function fimTestSuiteWebGL(
 
           // Ensure the output is the right shade of grey
           const expected = FimColor.fromRGBAFloats(color, color, color, 1);
-          expect((await image.getPixelAsync(midpoint(TestSizes.small))).distance(expected)).toBeLessThan(0.05);
+          expect((await image.getPixelAsync(midpoint(TestSizes.smallWide))).distance(expected)).toBeLessThan(0.05);
         }
       });
     });
 
     it('Executes a copy shader (nearest sampling)', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Generate an input test pattern
         const input = fim.createImage();
         input.imageOptions.sampling = FimTextureSampling.Nearest;
@@ -146,7 +147,7 @@ export function fimTestSuiteWebGL(
     });
 
     it('Executes a copy shader (linear sampling)', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Generate an input test pattern
         const input = fim.createImage();
         input.imageOptions.sampling = FimTextureSampling.Linear;
@@ -164,7 +165,7 @@ export function fimTestSuiteWebGL(
     });
 
     it('Executes a shader with vertex positions and texture coords', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
         const image = fim.createImage();
@@ -177,12 +178,12 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is red
-        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 
     it('Executes a shader with a vertex matrix', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
         const image = fim.createImage();
@@ -195,26 +196,26 @@ export function fimTestSuiteWebGL(
         await image.executeAsync(shader);
 
         // Ensure the output is blue
-        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.blue);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
       });
     });
 
     it('Throws on invalid constant name', () => {
-      using(factory(TestSizes.small), fim => {
+      using(factory(TestSizes.smallWide), fim => {
         const shader = fim.createGLShader(fillConstShader);
         expect(() => shader.setConstant('cInvalid', 0.5)).toThrow();
       });
     });
 
     it('Throws on invalid uniform name', () => {
-      using(factory(TestSizes.small), fim => {
+      using(factory(TestSizes.smallWide), fim => {
         const shader = fim.createGLShader(fillUniformShader);
         expect(() => shader.setUniform('uInvalid', 0.5)).toThrow();
       });
     });
 
     it('Throws on missing constants', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const shader = fim.createGLShader(fillConstShader);
         const image = fim.createImage();
 
@@ -224,7 +225,7 @@ export function fimTestSuiteWebGL(
     });
 
     it('Throws on missing uniforms', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const shader = fim.createGLShader(fillUniformShader);
         const image = fim.createImage();
 

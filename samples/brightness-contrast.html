@@ -22,7 +22,7 @@ $(async () => {
   const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
 
   // Create the brightness and contrast operation
-  const opBrightnessContrast = new FimOpBrightnessContrast(fim);
+  const brightnessContrast = new FimOpBrightnessContrast(fim);
 
   // Create the output image
   const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
@@ -47,8 +47,7 @@ $(async () => {
       measureFrameStart();
 
       // Apply the brightness and contrast operation
-      opBrightnessContrast.setInputs(inputImage, brightness, contrast);
-      await outputImage.executeAsync(opBrightnessContrast);
+      await outputImage.executeAsync(brightnessContrast.$(inputImage, brightness, contrast));
 
       // Copy the result to the screen
       await outputImage.exportToCanvasAsync(canvas);

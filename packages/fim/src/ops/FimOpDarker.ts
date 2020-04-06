@@ -18,14 +18,18 @@ export class FimOpDarker extends FimOperationShader {
   }
 
   /**
-   * Sets the inputs of the darker shader
+   * Sets the inputs of the darker shader. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input1 Input image 1
    * @param input2 Input image 2
+   * @returns `this`
    */
-  public setInputs(input1: FimImage, input2: FimImage): void {
+  public $(input1: FimImage, input2: FimImage): this {
     this.shader.setUniforms({
       uInput1: input1,
       uInput2: input2
     });
+
+    return this;
   }
 }

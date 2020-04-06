@@ -2,30 +2,32 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { fileRead } from './FileRead';
 import { NodeEngineImage } from './NodeEngineImage';
 import { FimNode } from '../api/FimNode';
 import { CoreNodeCanvas2D } from '../core/CoreNodeCanvas2D';
 import { CoreNodeCanvasWebGL } from '../core/CoreNodeCanvasWebGL';
+import { fileReader } from '../core/FileReader';
+import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
-import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase, EngineShader,
-  fileToName } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
+  EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
 
+/** Implementation of `EngineFim` for Node.js */
 export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> implements FimNode {
+  /**
+   * Constructor
+   * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
+   *    supported by the WebGL capabilities of the browser and GPU.
+   * @param name An optional name specified when creating the object to help with debugging
+   */
+  public constructor(maxImageDimensions?: FimDimensions, name?: string) {
+    super(fileReader, loadFromFileAsync, maxImageDimensions, name);
+  }
+
   protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
       NodeEngineImage {
     return new NodeEngineImage(parent, options, dimensions, name);
-  }
-
-  protected createEngineImageFromPngAsync(pngFile: Uint8Array, parent: FimObject, options: FimImageOptions,
-      name?: string): Promise<NodeEngineImage> {
-    return NodeEngineImage.createFromPngAsync(parent, pngFile, options, name);
-  }
-
-  protected createEngineImageFromJpegAsync(jpegFile: Uint8Array, parent: FimObject, options: FimImageOptions,
-      name?: string): Promise<NodeEngineImage> {
-    return NodeEngineImage.createFromJpegAsync(parent, jpegFile, options, name);
   }
 
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
@@ -39,17 +41,5 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
 
   public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
     return new CoreNodeCanvasWebGL(options, dimensions, handle, this.engineOptions);
-  }
-
-  public async createImageFromPngFileAsync(pngPath: string, options?: FimImageOptions, name?: string,
-      parent?: FimObject): Promise<NodeEngineImage> {
-    const pngFile = await fileRead(pngPath);
-    return this.createImageFromPngAsync(pngFile, options, name ?? fileToName(pngPath), parent);
-  }
-
-  public async createImageFromJpegFileAsync(jpegPath: string, options?: FimImageOptions, name?: string,
-      parent?: FimObject): Promise<NodeEngineImage> {
-    const jpegFile = await fileRead(jpegPath);
-    return this.createImageFromPngAsync(jpegFile, options, name ?? fileToName(jpegPath), parent);
   }
 }

@@ -26,15 +26,19 @@ export class FimOpGaussianBlur extends FimOperation {
   private readonly matrix1D: FimOpMatrix1D;
 
   /**
-   * Sets the inputs to the Gaussian blur operation
+   * Sets the inputs to the Gaussian blur operation. Returns `this` so the operation may be run in a one-line call to
+   * `FimImage.executeAsync()`.
    * @param input Input image
    * @param sigma Standard deviation
    * @param kernelSize Number of elements in the Gaussian kernel. Must be an odd number. Defaults to ~6x the sigma.
+   * @returns `this`
    */
-  public setInputs(input: FimImage, sigma: number, kernelSize?: number): void {
+  public $(input: FimImage, sigma: number, kernelSize?: number): this {
     // Calculate and set the Gaussian kernel
     const kernel = FimGaussianKernel.calculate(sigma, kernelSize);
-    this.matrix1D.setInputs(input, kernel);
+    this.matrix1D.$(input, kernel);
+
+    return this;
   }
 
   public executeAsync(outputImage: FimImage, destCoords?: FimRect): Promise<void> {

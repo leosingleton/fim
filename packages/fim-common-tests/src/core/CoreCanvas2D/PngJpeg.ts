@@ -17,7 +17,7 @@ export function coreCanvas2DTestSuitePngJpeg(
   describe(`CoreCanvas2D PNG/JPEG - ${description}`, () => {
 
     it('Imports from PNG', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallSquare), async canvas => {
         const png = TestImages.fourSquaresPng();
         await canvas.loadFromPngAsync(png);
         await TestImages.expectFourSquaresPngCanvasAsync(canvas);
@@ -25,7 +25,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from JPEG', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.smallFourSquares), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.smallSquare), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
         await canvas.loadFromJpegAsync(jpeg);
         await TestImages.expectFourSquaresJpegCanvasAsync(canvas);
@@ -33,17 +33,17 @@ export function coreCanvas2DTestSuitePngJpeg(
     });
 
     it('Imports from PNG with rescale', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.medium), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
         const png = TestImages.fourSquaresPng();
-        await canvas.loadFromPngAsync(png, true);
+        await canvas.loadFromPngAsync(png);
         await TestImages.expectFourSquaresPngCanvasAsync(canvas);
       });
     });
 
     it('Imports from JPEG with rescale', async () => {
-      await usingAsync(factory(canvasOptions, TestSizes.medium), async canvas => {
+      await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
-        await canvas.loadFromJpegAsync(jpeg, true);
+        await canvas.loadFromJpegAsync(jpeg);
         await TestImages.expectFourSquaresJpegCanvasAsync(canvas);
       });
     });

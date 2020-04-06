@@ -55,29 +55,29 @@ export function fimTestSuiteOperation(
   describe(`FimOperation - ${description}`, () => {
 
     it('Executes a simple mock operation', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const fillOp = new MockOpFillRed(fim);
         const image = fim.createImage();
         await image.executeAsync(fillOp);
-        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 
     it('Executes a child operation built on another operation', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const fillOp = new MockOpFillRedChild(fim);
         const image = fim.createImage();
         await image.executeAsync(fillOp);
-        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 
     it('Executes a grandchild operation built on a child operation', async () => {
-      await usingAsync(factory(TestSizes.small), async fim => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
         const fillOp = new MockOpFillRedGrandchild(fim);
         const image = fim.createImage();
         await image.executeAsync(fillOp);
-        expect(await image.getPixelAsync(midpoint(TestSizes.small))).toEqual(TestColors.red);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 
