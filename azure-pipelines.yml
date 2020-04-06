@@ -11,7 +11,7 @@ trigger:
 
 jobs:
   - job: Build
-    timeoutInMinutes: 10
+    timeoutInMinutes: 15
     cancelTimeoutInMinutes: 2
     pool:
       vmImage: 'Ubuntu-16.04'
