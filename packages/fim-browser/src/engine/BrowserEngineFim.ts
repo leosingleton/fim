@@ -8,7 +8,7 @@ import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
 import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
-import { fileReader } from '../core/FileReader';
+import { fileReaderAsync } from '../core/FileReader';
 import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
@@ -22,7 +22,7 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
    * @param name An optional name specified when creating the object to help with debugging
    */
   public constructor(name?: string) {
-    super(fileReader, loadFromFileAsync, name);
+    super(fileReaderAsync, loadFromFileAsync, name);
   }
 
   protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):

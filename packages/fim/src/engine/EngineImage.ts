@@ -282,7 +282,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   private async loadFromFileAsync(file: Uint8Array, type: CoreMimeType, allowRescale: boolean): Promise<void> {
     const me = this;
 
-    return me.rootObject.imageLoader(file, type, image => {
+    return me.rootObject.imageLoaderAsync(file, type, image => {
       // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
       // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
       const imageDimensions = FimDimensions.fromObject(image);
@@ -295,12 +295,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   }
 
   public async loadFromPngFileAsync(pngUrl: string, allowRescale?: boolean): Promise<void> {
-    const pngFile = await this.rootObject.fileReader(pngUrl);
+    const pngFile = await this.rootObject.fileReaderAsync(pngUrl);
     return this.loadFromPngAsync(pngFile, allowRescale);
   }
 
   public async loadFromJpegFileAsync(jpegUrl: string, allowRescale?: boolean): Promise<void> {
-    const jpegFile = await this.rootObject.fileReader(jpegUrl);
+    const jpegFile = await this.rootObject.fileReaderAsync(jpegUrl);
     return this.loadFromPngAsync(jpegFile, allowRescale);
   }
 
