@@ -186,14 +186,17 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    * `populateContentAsync()` depending on whether the destination coordinates of the operation will fully erase the
    * previous image contents
    * @param destCoords Destination coordinates of the write operation
+   * @param forcePopulate If `true`, we assume the operation will not fully erase the previous image contents and thus
+   *    always call `populateContentAsync()`
    * @param dimensions Requested dimensions of the canvas or texture. This value is used to support the
    *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
    */
-  public async allocateOrPopulateContentAsync(destCoords: FimRect, dimensions?: FimDimensions): Promise<TContent> {
+  public async allocateOrPopulateContentAsync(destCoords: FimRect, forcePopulate = false, dimensions?: FimDimensions):
+      Promise<TContent> {
     const me = this;
     const parentImage = me.parentImage;
 
-    if (destCoords.dim.equals(parentImage.dim)) {
+    if (!forcePopulate && destCoords.dim.equals(parentImage.dim)) {
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
       // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
       // optimization).

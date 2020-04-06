@@ -6,8 +6,9 @@ import { midpoint } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpDarker, FimOpInvert, FimOpLighter, FimOpSubtract,
-  FimOpUnsharpMask } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpCopy, FimOpDarker, FimOpFill, FimOpInvert, FimOpLighter,
+  FimOpSubtract, FimOpUnsharpMask } from '@leosingleton/fim';
+import { TestImages } from '../common/TestImages';
 
 /** Built-in operation tests for Fim */
 export function fimTestSuiteOpBuiltin(
@@ -51,6 +52,19 @@ export function fimTestSuiteOpBuiltin(
       });
     });
 
+    it('Copy', async () => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
+        const copy = new FimOpCopy(fim);
+
+        const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
+
+        const outputImage = fim.createImage();
+        await outputImage.executeAsync(copy.$(inputImage));
+
+        await TestImages.expectFourSquaresPngAsync(outputImage);
+      });
+    });
+
     it('Darker', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         const darker = new FimOpDarker(fim);
@@ -65,6 +79,17 @@ export function fimTestSuiteOpBuiltin(
         await outputImage.executeAsync(darker.$(yellowImage, magentaImage));
 
         expect(await outputImage.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
+      });
+    });
+
+    it('Fill', async () => {
+      await usingAsync(factory(TestSizes.smallWide), async fim => {
+        const fill = new FimOpFill(fim);
+
+        const image = fim.createImage();
+        await image.executeAsync(fill.$(TestColors.red));
+
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
     });
 
