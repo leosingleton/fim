@@ -262,7 +262,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
-    me.contentCanvas.allocateContent();
+    me.contentCanvas.allocateContent(FimDimensions.fromObject(image));
     me.contentCanvas.imageContent.loadFromImage(image);
     me.markCurrent(me.contentCanvas, true);
 

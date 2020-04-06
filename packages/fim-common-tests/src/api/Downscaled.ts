@@ -64,7 +64,7 @@ export function fimTestSuiteDownscaled(
       });
     });
 
-    xit('Preserves dimensions when loading from a smaller image', async () => {
+    it('Preserves dimensions when loading from a smaller image', async () => {
       await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a medium 640x640 image
         const image = fim.createImage();
@@ -92,18 +92,16 @@ export function fimTestSuiteDownscaled(
         await image1.loadFromPngAsync(TestImages.fourSquaresPng(), true);
 
         // The memory backing the input image should actually be 128x128
-        // BUGBUG: loadFromPngAsync() doesn't have the preserveDownscaledDimensions optimization yet!
-        //expect(ImageInternals.hasCanvas(image1)).toBeTruthy();
-        //expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.smallSquare);
+        expect(ImageInternals.hasCanvas(image1)).toBeTruthy();
+        expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.smallSquare);
 
         // Perform an invert as a WebGL operation
         const image2 = fim.createImage();
         await image2.executeAsync(invert.$(image1));
 
         // The input WebGL texture remained 128x128, but the output texture was the requested dimensions
-        // BUGBUG: loadFromPngAsync() doesn't have the preserveDownscaledDimensions optimization yet!
-        //expect(ImageInternals.hasTexture(image1)).toBeTruthy();
-        //expect(ImageInternals.getTexture(image1).dim).toEqual(TestSizes.smallSquare);
+        expect(ImageInternals.hasTexture(image1)).toBeTruthy();
+        expect(ImageInternals.getTexture(image1).dim).toEqual(TestSizes.smallSquare);
         expect(ImageInternals.hasTexture(image2)).toBeTruthy();
         expect(ImageInternals.getTexture(image2).dim).toEqual(TestSizes.mediumSquare);
 
