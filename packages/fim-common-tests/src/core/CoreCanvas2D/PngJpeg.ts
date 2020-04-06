@@ -35,7 +35,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     it('Imports from PNG with rescale', async () => {
       await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
         const png = TestImages.fourSquaresPng();
-        await canvas.loadFromPngAsync(png, true);
+        await canvas.loadFromPngAsync(png);
         await TestImages.expectFourSquaresPngCanvasAsync(canvas);
       });
     });
@@ -43,7 +43,7 @@ export function coreCanvas2DTestSuitePngJpeg(
     it('Imports from JPEG with rescale', async () => {
       await usingAsync(factory(canvasOptions, TestSizes.mediumTall), async canvas => {
         const jpeg = TestImages.fourSquaresJpeg();
-        await canvas.loadFromJpegAsync(jpeg, true);
+        await canvas.loadFromJpegAsync(jpeg);
         await TestImages.expectFourSquaresJpegCanvasAsync(canvas);
       });
     });

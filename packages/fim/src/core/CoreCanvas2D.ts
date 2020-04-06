@@ -177,27 +177,17 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   /**
-   * Loads the image contents from an `HTMLImageElement`-like object
+   * Loads the image contents from an `HTMLImageElement`-like object. Automatically rescales the contents to fit the
+   * full canvas.
    * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
    *    calling this function.
-   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
-   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
-   *    to fit this canvas.
    */
-  public loadFromImage(image: ImageSource, allowRescale = false): void {
+  public loadFromImage(image: ImageSource): void {
     const me = this;
     me.ensureNotDisposed();
 
-    // Validate the dimensions
     const imageDimensions = FimDimensions.fromObject(image);
-    let sameDimensions = true;
-    if (!imageDimensions.equals(me.dim)) {
-      if (allowRescale) {
-        sameDimensions = false;
-      } else {
-        FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
-      }
-    }
+    const sameDimensions = imageDimensions.equals(me.dim);
 
     // Enable image smoothing if we are rescaling the image
     using(me.createDrawingContext(!sameDimensions), ctx => {
@@ -208,25 +198,19 @@ export abstract class CoreCanvas2D extends CoreCanvas {
   }
 
   /**
-   * Loads the image contents from a PNG file
+   * Loads the image contents from a PNG file. Automatically rescales the contents to fit the full canvas.
    * @param pngFile PNG file, as a Uint8Array
-   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
-   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
-   *    to fit this canvas.
    */
-  public loadFromPngAsync(pngFile: Uint8Array, allowRescale?: boolean): Promise<void> {
-    return this.imageLoader(pngFile, CoreMimeType.PNG, image => this.loadFromImage(image, allowRescale));
+  public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
+    return this.imageLoader(pngFile, CoreMimeType.PNG, image => this.loadFromImage(image));
   }
 
   /**
-   * Loads the image contents from a JPEG file
+   * Loads the image contents from a JPEG file. Automatically rescales the contents to fit the full canvas.
    * @param jpegFile JPEG file, as a Uint8Array
-   * @param allowRescale With the default value of `false`, then the dimensions of `image` must match the dimensions of
-   *    this canvas. Otherwise, if `allowRescale` is `true`, then the contents of `image` will be automatically rescaled
-   *    to fit this canvas.
    */
-  public loadFromJpegAsync(jpegFile: Uint8Array, allowRescale?: boolean): Promise<void> {
-    return this.imageLoader(jpegFile, CoreMimeType.JPEG, image => this.loadFromImage(image, allowRescale));
+  public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
+    return this.imageLoader(jpegFile, CoreMimeType.JPEG, image => this.loadFromImage(image));
   }
 
   /**

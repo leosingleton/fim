@@ -253,7 +253,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
   /**
    * Loads the image contents from an `HTMLImageElement`-like object. Automatically rescales the contents to fit the
-   * full canvas.
+   * full image.
    * @param image Image object. The caller is responsible for first waiting for the `onload` event of the image before
    *    calling this function.
    */
@@ -263,7 +263,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.ensureNotDisposed();
 
     me.contentCanvas.allocateContent();
-    me.contentCanvas.imageContent.loadFromImage(image, true);
+    me.contentCanvas.imageContent.loadFromImage(image);
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources

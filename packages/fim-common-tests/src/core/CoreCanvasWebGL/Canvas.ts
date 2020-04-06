@@ -144,7 +144,7 @@ async function createFourSquaresTexture(canvas: CoreCanvasWebGL, dimensions = Te
   // Load the JPEG to a temporary canvas then copy it to the texture
   await usingAsync(canvas.createTemporaryCanvas2D(canvasOptions, dimensions), async temp => {
     const jpeg = TestImages.fourSquaresPng();
-    await temp.loadFromJpegAsync(jpeg, true);
+    await temp.loadFromJpegAsync(jpeg);
     await texture.copyFromAsync(temp);
   });
 
