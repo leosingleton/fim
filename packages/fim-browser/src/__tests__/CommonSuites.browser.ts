@@ -15,16 +15,16 @@ import { TestSuites } from '@leosingleton/fim-common-tests';
 const showTracing = false;
 const showWarnings = false;
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.debugMode = true;
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.debugMode = true;
   fim.engineOptions.disableOffscreenCanvas = true;
   fim.engineOptions.showTracing = showTracing;
@@ -32,15 +32,15 @@ TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', (
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.disableOffscreenCanvas = true;
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;

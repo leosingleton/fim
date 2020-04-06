@@ -5,7 +5,7 @@
 import { midpoint } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
-import { Fim, FimDimensions, FimImage, FimObject, FimOperation, FimRect } from '@leosingleton/fim';
+import { Fim, FimImage, FimObject, FimOperation, FimRect } from '@leosingleton/fim';
 import { usingAsync } from '@leosingleton/commonlibs';
 
 /** Mock operation for unit tests that performs a solid red fill. This is pretty useless, but good to test with. */
@@ -50,12 +50,12 @@ class MockOpFillRedGrandchild extends FimOperation {
 /** Unit tests for `FimOperation` */
 export function fimTestSuiteOperation(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FimOperation - ${description}`, () => {
 
     it('Executes a simple mock operation', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const fillOp = new MockOpFillRed(fim);
         const image = fim.createImage(TestSizes.smallWide);
         await image.executeAsync(fillOp);
@@ -64,7 +64,7 @@ export function fimTestSuiteOperation(
     });
 
     it('Executes a child operation built on another operation', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const fillOp = new MockOpFillRedChild(fim);
         const image = fim.createImage(TestSizes.smallWide);
         await image.executeAsync(fillOp);
@@ -73,7 +73,7 @@ export function fimTestSuiteOperation(
     });
 
     it('Executes a grandchild operation built on a child operation', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const fillOp = new MockOpFillRedGrandchild(fim);
         const image = fim.createImage(TestSizes.smallWide);
         await image.executeAsync(fillOp);

@@ -6,19 +6,19 @@ import { midpoint } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpAdd, FimOpAlphaBlend, FimOpCopy, FimOpDarker, FimOpFill, FimOpInvert, FimOpLighter,
-  FimOpSubtract, FimOpUnsharpMask } from '@leosingleton/fim';
+import { Fim, FimOpAdd, FimOpAlphaBlend, FimOpCopy, FimOpDarker, FimOpFill, FimOpInvert, FimOpLighter, FimOpSubtract,
+  FimOpUnsharpMask } from '@leosingleton/fim';
 import { TestImages } from '../common/TestImages';
 
 /** Built-in operation tests for Fim */
 export function fimTestSuiteOpBuiltin(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`Fim built-in operations - ${description}`, () => {
 
     it('Add', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const add = new FimOpAdd(fim);
 
         const redImage = fim.createImage(TestSizes.smallWide);
@@ -35,7 +35,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('AlphaBlend', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const alphaBlend = new FimOpAlphaBlend(fim);
 
         const blackImage = fim.createImage(TestSizes.smallWide);
@@ -53,7 +53,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Copy', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const copy = new FimOpCopy(fim);
 
         const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
@@ -66,7 +66,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Darker', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const darker = new FimOpDarker(fim);
 
         const yellowImage = fim.createImage(TestSizes.smallWide);
@@ -83,7 +83,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Fill', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const fill = new FimOpFill(fim);
 
         const image = fim.createImage(TestSizes.smallWide);
@@ -94,7 +94,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Invert', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const invert = new FimOpInvert(fim);
 
         const blueImage = fim.createImage(TestSizes.smallWide);
@@ -108,7 +108,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('UnsharpMask', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const unsharpMask = new FimOpUnsharpMask(fim);
 
         const redImage = fim.createImage(TestSizes.smallWide);
@@ -122,7 +122,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Lighter', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const lighter = new FimOpLighter(fim);
 
         const redImage = fim.createImage(TestSizes.smallWide);
@@ -139,7 +139,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Subtract', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const subtract = new FimOpSubtract(fim);
 
         const magentaImage = fim.createImage(TestSizes.smallWide);
@@ -156,7 +156,7 @@ export function fimTestSuiteOpBuiltin(
     });
 
     it('Supports the same image as an input and output', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const lighter = new FimOpLighter(fim);
 
         const redImage = fim.createImage(TestSizes.smallWide);

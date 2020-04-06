@@ -6,17 +6,17 @@ import { midpoint } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpBrightnessContrast } from '@leosingleton/fim';
+import { Fim, FimOpBrightnessContrast } from '@leosingleton/fim';
 
 /** FimOpBrightnessContrast unit tests */
 export function fimTestSuiteOpBrightnessContrast(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FimOpBrightnessContrast - ${description}`, () => {
 
     it('Increases Brightness', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
         const input = fim.createImage(TestSizes.smallWide);
@@ -30,7 +30,7 @@ export function fimTestSuiteOpBrightnessContrast(
     });
 
     it('Increases Contrast', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
         const input = fim.createImage(TestSizes.smallWide);

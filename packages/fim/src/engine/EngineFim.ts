@@ -38,12 +38,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
    * Constructor
    * @param fileReader `CoreFileReader` implementation for reading or downloading binary files
    * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
-   * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
-   *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
   public constructor(public readonly fileReader: CoreFileReader, public readonly imageLoader: CoreImageLoader,
-      maxImageDimensions?: FimDimensions, name?: string) {
+      name?: string) {
     super(EngineObjectType.Fim, name);
     this.resources = new ResourceTracker(this);
     this.optimizer = new OptimizerNull(this);
@@ -98,11 +96,14 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     engineOptions.maxGLTextureSize = capabilities.glMaxTextureSize;
 
     // Set the maximum image dimensions to the specified value. If unspecified, default to the WebGL capabilities.
-    const maxDimension = Math.min(capabilities.glMaxRenderBufferSize, capabilities.glMaxTextureSize);
-    this.maxImageDimensions = maxImageDimensions ?? FimDimensions.fromSquareDimension(maxDimension);
+    //const maxDimension = Math.min(capabilities.glMaxRenderBufferSize, capabilities.glMaxTextureSize);
+    //engineOptions.maxImageDimensions = FimDimensions.fromSquareDimension(maxDimension);
+
+    // TODO: Enable the two lines of code above once we have auto-resizing of the WebGL canvas. For now, it's just too
+    // slow to execute every single unit test at the GPU's maximum resolution, so we hardcode the limit to 640x480 here.
+    engineOptions.maxImageDimensions = FimDimensions.fromWidthHeight(640, 480);
   }
 
-  public readonly maxImageDimensions: FimDimensions;
   public readonly engineOptions: FimEngineOptions;
   public readonly defaultImageOptions: FimImageOptions;
   public readonly capabilities: FimCapabilities;
@@ -178,7 +179,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
-    const glDimensions = me.maxImageDimensions.fitInsideSquare(maxDimension).toFloor();
+    const glDimensions = me.engineOptions.maxImageDimensions.fitInsideSquare(maxDimension).toFloor();
     me.optimizer.reserveCanvasMemory(glDimensions.getArea() * 4);
     const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.getGLCanvasOptions(),
       `${me.handle}/WebGLCanvas`);

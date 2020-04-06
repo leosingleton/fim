@@ -20,12 +20,14 @@ import { Fim, FimBitsPerPixel, FimDimensions, FimOpInvert, FimOpUnsharpMask, Fim
  */
 export function fimTestSuiteOversized(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM Oversized - ${description}`, () => {
 
     it('Downscales images larger than parent FIM', () => {
-      using(factory(TestSizes.smallWide), fim => {
+      using(factory(), fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
+
         const image = fim.createImage(TestSizes.mediumTall);
         const eff = image.getEffectiveImageOptions();
 
@@ -36,7 +38,9 @@ export function fimTestSuiteOversized(
     });
 
     it('Supports allowOversized image option', () => {
-      using(factory(TestSizes.smallWide), fim => {
+      using(factory(), fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallSquare;
+
         const image = fim.createImage(TestSizes.mediumTall, { allowOversized: true });
         const eff = image.getEffectiveImageOptions();
 
@@ -47,7 +51,7 @@ export function fimTestSuiteOversized(
     });
 
     it('Supports custom downscale ratios', () => {
-      using(factory(TestSizes.mediumTall), fim => {
+      using(factory(), fim => {
         const image = fim.createImage(TestSizes.mediumTall, {
           downscale: 0.5,
           glDownscale: 0.05
@@ -61,7 +65,7 @@ export function fimTestSuiteOversized(
     });
 
     it('Import and export pixel data accepts original dimensions', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.mediumTall);
 
         // renderAsync() uses the image's dimensions (medium)
@@ -79,7 +83,9 @@ export function fimTestSuiteOversized(
     });
 
     it('Import and export PNG accepts original dimensions', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
+
         // 128x128 PNG is larger than the 128x32 small FIM instance
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
@@ -102,7 +108,9 @@ export function fimTestSuiteOversized(
     });
 
     it('Import and export JPEG accepts original dimensions', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
+
         // 128x128 JPEG is larger than the 128x32 small FIM instance
         const jpeg = TestImages.fourSquaresJpeg();
         const image = await fim.createImageFromJpegAsync(jpeg);
@@ -127,7 +135,7 @@ export function fimTestSuiteOversized(
     it('Copies with crop and rescale', async () => {
       // This is copy-and-paste code from the unit test in Canvas.ts, except this time we run it with the parent FIM
       // instance set to small, so all images get transparently downscaled.
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const png = TestImages.fourSquaresPng();
         const image1 = await fim.createImageFromPngAsync(png);
         const image2 = fim.createImage(TestSizes.mediumTall);
@@ -157,7 +165,9 @@ export function fimTestSuiteOversized(
     });
 
     it('Calculates correct ratios for CoreCanvas2D', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
+
         // Load a 128x128 PNG with a FIM instance of 128x32
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
@@ -170,7 +180,8 @@ export function fimTestSuiteOversized(
     });
 
     it('Calculates correct ratio for CoreTexture', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
         const invert = new FimOpInvert(fim);
 
         // Load a 128x128 PNG with a FIM instance of 128x32
@@ -188,7 +199,7 @@ export function fimTestSuiteOversized(
     });
 
     it('Handles WebGL with downscale', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         // Create FIM resources
         const png = TestImages.fourSquaresPng();
         const inputImage = await fim.createImageFromPngAsync(png, { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });

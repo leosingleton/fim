@@ -50,7 +50,7 @@ function getPixel(context: CanvasRenderingContext2D, x: number, y: number): FimC
 describe('Exports to Canvas', () => {
 
   it('exportToCanvasAsync()', async () => {
-    await usingAsync(FimBrowserFactory.create(TestSizes.mediumSquare), async fim => {
+    await usingAsync(FimBrowserFactory.create(), async fim => {
       // Create a FIM image and fill it with blue
       const image = fim.createImage(TestSizes.mediumSquare);
       await image.fillSolidAsync(TestColors.blue);
@@ -74,7 +74,7 @@ describe('Exports to Canvas', () => {
   });
 
   it('exportToCanvasAsync() with downscale', async () => {
-    await usingAsync(FimBrowserFactory.create(TestSizes.mediumSquare), async fim => {
+    await usingAsync(FimBrowserFactory.create(), async fim => {
       const dim = FimDimensions.fromWidthHeight(302, 298);
 
       // Create a FIM image and fill it with blue

@@ -12,7 +12,7 @@ import { Fim, FimDimensions, FimImage, FimOpDownscale, FimTextureSampling, FimEr
 /** FimOpDownscale unit tests */
 export function fimTestSuiteOpDownscale(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FimOpDownscale - ${description}`, () => {
     it('Downscales at 4x', async () => testAndValidateDownscale(factory, 4));
@@ -27,7 +27,7 @@ export function fimTestSuiteOpDownscale(
     it('Downscales at 128x (wide)', async () => testAndValidateDownscale(factory, 128, TestSizes.mediumWide));
 
     it('Performs a copy at 1x', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const output = await testDownscale(fim, 1, TestSizes.smallWide);
         await TestPatterns.validateAsync(output, TestPatterns.downscaleStress, true);
       });
@@ -38,7 +38,7 @@ export function fimTestSuiteOpDownscale(
     });
 
     it('Fails if input is non-linear', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         (await expectErrorAsync(testDownscale(fim, 1, TestSizes.smallWide, false))).toBeInstanceOf(FimError);
       });
     });
@@ -66,12 +66,14 @@ async function testDownscale(
 }
 
 async function testAndValidateDownscale(
-  factory: (maxImageDimensions: FimDimensions) => Fim,
+  factory: () => Fim,
   ratio: number,
   inputDimensions = FimDimensions.fromWidthHeight(256, 512),
   maxError = 0.05
 ): Promise<void> {
-  await usingAsync(factory(inputDimensions), async fim => {
+  await usingAsync(factory(), async fim => {
+    fim.engineOptions.maxImageDimensions = inputDimensions;
+
     // Run the downscale operation and sample a pixel in the center. It should be 50% grey.
     const output = await testDownscale(fim, ratio, inputDimensions);
     const color = await output.getPixelAsync(output.dim.getCenter());

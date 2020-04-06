@@ -40,7 +40,7 @@ export namespace TestSuites {
    */
   export function fim(
     description: string,
-    factory: (maxImageDimensions: FimDimensions) => Fim
+    factory: () => Fim
   ): void {
     // api/ tests
     fimTestSuiteCreateDispose(description, factory);

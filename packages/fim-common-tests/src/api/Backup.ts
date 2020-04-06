@@ -4,19 +4,18 @@
 
 import { ImageInternals } from '../common/ImageInternals';
 import { TestImages } from '../common/TestImages';
-import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpInvert } from '@leosingleton/fim';
+import { Fim, FimOpInvert } from '@leosingleton/fim';
 
 /** FIM test cases around backing up WebGL textures to canvases */
 export function fimTestSuiteBackup(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM Backup - ${description}`, () => {
 
     it('Backs up with explicit calls to backupAsync()', async () => {
-      await usingAsync(factory(TestSizes.smallSquare), async fim => {
+      await usingAsync(factory(), async fim => {
         const invert = new FimOpInvert(fim);
 
         // Load an image
@@ -41,7 +40,7 @@ export function fimTestSuiteBackup(
     });
 
     it('Backs up automatically with imageOptions.autoBackup', async () => {
-      await usingAsync(factory(TestSizes.smallSquare), async fim => {
+      await usingAsync(factory(), async fim => {
         const invert = new FimOpInvert(fim);
 
         // Load an image and enable auto-backup

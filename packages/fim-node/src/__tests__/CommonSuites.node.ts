@@ -13,16 +13,16 @@ import { TestSuites } from '@leosingleton/fim-common-tests';
 const showTracing = false;
 const showWarnings = false;
 
-TestSuites.fim('FimNodeFactory (debug mode)', (maxImageDimensions) => {
-  const fim = FimNodeFactory.create(maxImageDimensions);
+TestSuites.fim('FimNodeFactory (debug mode)', () => {
+  const fim = FimNodeFactory.create();
   fim.engineOptions.debugMode = true;
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
-TestSuites.fim('FimNodeFactory', (maxImageDimensions) => {
-  const fim = FimNodeFactory.create(maxImageDimensions);
+TestSuites.fim('FimNodeFactory', () => {
+  const fim = FimNodeFactory.create();
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
   return fim;

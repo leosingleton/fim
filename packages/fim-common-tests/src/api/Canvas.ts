@@ -8,17 +8,17 @@ import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimRect, FimError, FimOpGaussianBlur } from '@leosingleton/fim';
+import { Fim, FimRect, FimError, FimOpGaussianBlur } from '@leosingleton/fim';
 
 /** FIM test cases around canvas manipulation */
 export function fimTestSuiteCanvas(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM Canvas - ${description}`, () => {
 
     it('Supports fillSolid() and getPixel()', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
@@ -26,7 +26,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Supports loading pixels from array data', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.green);
         await image.loadPixelDataAsync(pixelData);
@@ -35,7 +35,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Supports loading pixels from array data with rescale', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.mediumTall, TestColors.blue);
         await image.loadPixelDataAsync(pixelData, TestSizes.mediumTall);
@@ -44,7 +44,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Supports loading pixels from array data (ImageBitmap disabled)', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         fim.engineOptions.disableImageBitmap = true;
         const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.green);
@@ -54,7 +54,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Supports loading pixels from array data with rescale (ImageBitmap disabled)', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         fim.engineOptions.disableImageBitmap = true;
         const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.mediumTall, TestColors.blue);
@@ -64,7 +64,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Copies from one image to another', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image1 = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.red);
         await image1.loadPixelDataAsync(pixelData);
@@ -76,7 +76,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Copies from a solid fill to an image', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image1 = fim.createImage(TestSizes.smallWide);
         await image1.fillSolidAsync(TestColors.red);
 
@@ -87,7 +87,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Copies with crop and rescale', async () => {
-      await usingAsync(factory(TestSizes.mediumTall), async fim => {
+      await usingAsync(factory(), async fim => {
         const png = TestImages.fourSquaresPng();
         const image1 = await fim.createImageFromPngAsync(png);
         const image2 = fim.createImage(TestSizes.mediumTall);
@@ -117,7 +117,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('copyFrom() doesn\'t allow an uninitialized source image', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image1 = fim.createImage(TestSizes.smallWide);
         const image2 = fim.createImage(TestSizes.smallWide);
         (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
@@ -125,7 +125,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('copyFrom() doesn\'t allow copying itself', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         (await expectErrorAsync(image.copyFromAsync(image))).toBeInstanceOf(FimError);
@@ -133,8 +133,8 @@ export function fimTestSuiteCanvas(
     });
 
     it('copyFrom() doesn\'t allow copying from another FIM instance', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim1 => {
-        await usingAsync(factory(TestSizes.smallWide), async fim2 => {
+      await usingAsync(factory(), async fim1 => {
+        await usingAsync(factory(), async fim2 => {
           const image1 = fim1.createImage(TestSizes.smallWide);
           const image2 = fim2.createImage(TestSizes.smallWide);
           await image2.fillSolidAsync(TestColors.red);
@@ -144,7 +144,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Exports to raw pixel data', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         // Create a solid red image
         const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
@@ -159,7 +159,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Supports debug mode, including tracing and warnings', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const blur = new FimOpGaussianBlur(fim);
 
         fim.engineOptions.debugMode = true;
@@ -183,7 +183,7 @@ export function fimTestSuiteCanvas(
     });
 
     it('Enforces memory limits', async () => {
-      await usingAsync(factory(TestSizes.largeWide), async fim => {
+      await usingAsync(factory(), async fim => {
         // 128 * 128 * 4 is just enough memory for the four squares test PNG
         fim.engineOptions.maxCanvasMemory = 128 * 128 * 4 + 10;
 

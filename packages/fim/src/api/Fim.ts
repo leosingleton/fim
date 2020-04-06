@@ -20,9 +20,6 @@ export type Fim = FimBase<FimImage, FimShader>;
 
 /** Templated version of the `Fim` interface which supports specific implementations of image and shader classes */
 export interface FimBase<TImage extends FimImage, TShader extends FimShader> extends FimObject {
-  /** Maximum dimensions of any image */
-  readonly maxImageDimensions: FimDimensions;
-
   /**
    * Options for the FIM execution engine
    *

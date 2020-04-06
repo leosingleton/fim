@@ -6,12 +6,12 @@ import { expectErrorAsync } from '../common/Async';
 import { midpoint } from '../common/Globals';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimColor, FimDimensions, FimError, FimOpGaussianBlur, FimTextureSampling } from '@leosingleton/fim';
+import { Fim, FimColor, FimError, FimOpGaussianBlur, FimTextureSampling } from '@leosingleton/fim';
 
 /** FimOpGaussianBlur unit tests */
 export function fimTestSuiteOpGaussianBlur(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FimOpGaussianBlur - ${description}`, () => {
 
@@ -41,14 +41,14 @@ export function fimTestSuiteOpGaussianBlur(
 }
 
 async function testGaussianBlur(
-  factory: (maxImageDimensions: FimDimensions) => Fim,
+  factory: () => Fim,
   fast: boolean,
   inputSampling: FimTextureSampling,
   outputSampling: FimTextureSampling,
   sigma: number,
   kernelSize?: number
 ): Promise<void> {
-  await usingAsync(factory(TestSizes.mediumTall), async fim => {
+  await usingAsync(factory(), async fim => {
     const blur = new FimOpGaussianBlur(fim, fast);
 
     // Create a solid blue image of a specific shade

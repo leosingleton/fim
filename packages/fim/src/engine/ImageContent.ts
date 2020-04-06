@@ -7,10 +7,10 @@ import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
+import { EngineImage } from '../engine/EngineImage';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
-import { EngineImage } from '../internal';
 
 /**
  * Base class for any object containing the image contents
@@ -86,15 +86,17 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     downscaleValues.push(maxOptionsSize / maxDim);
 
     // Check whether the image dimensions are larger than the parent FIM instance
-    if (!options.allowOversized && (dim.w > root.maxImageDimensions.w || dim.h > root.maxImageDimensions.h)) {
-      downscaleValues.push(root.maxImageDimensions.w / dim.w);
-      downscaleValues.push(root.maxImageDimensions.h / dim.h);
+    if (!options.allowOversized && (dim.w > engineOptions.maxImageDimensions.w ||
+        dim.h > engineOptions.maxImageDimensions.h)) {
+      downscaleValues.push(engineOptions.maxImageDimensions.w / dim.w);
+      downscaleValues.push(engineOptions.maxImageDimensions.h / dim.h);
 
       // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
       // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
       // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
       if (!parentImage.autoDownscaleWarningLogged) {
-        root.writeWarning(parentImage, `Auto-downscale ${me.handle}: ${dim} > max (${root.maxImageDimensions})`);
+        root.writeWarning(parentImage,
+          `Auto-downscale ${me.handle}: ${dim} > max (${engineOptions.maxImageDimensions})`);
         parentImage.autoDownscaleWarningLogged = true;
       }
     }

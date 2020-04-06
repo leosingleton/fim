@@ -4,16 +4,14 @@
 
 import { FimNode } from '../api/FimNode';
 import { NodeEngineFim } from '../engine/NodeEngineFim';
-import { FimDimensions } from '@leosingleton/fim';
 
+/** Factory methods for instantiating the FIM library in Node.js */
 export namespace FimNodeFactory {
   /**
    * Creates an instance of the FimNode interface
-   * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
-   *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  export function create(maxImageDimensions?: FimDimensions, name?: string): FimNode {
-    return new NodeEngineFim(maxImageDimensions, name);
+  export function create(name?: string): FimNode {
+    return new NodeEngineFim(name);
   }
 }
