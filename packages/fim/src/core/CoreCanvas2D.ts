@@ -19,13 +19,13 @@ import { DisposableSet, IDisposable, makeDisposable, using, usingAsync } from '@
 /** Wrapper around the HTML canvas and canvas-like objects */
 export abstract class CoreCanvas2D extends CoreCanvas {
   /**
-   * @param imageLoader `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
+   * @param imageLoaderAsync `CoreImageLoader` implementation for reading and writing to and from PNG and JPEG formats
    * @param dimensions Canvas dimensions
    * @param canvasOptions Canvas options
    * @param handle Handle of the image that owns this canvas. Used only for debugging.
    * @param engineOptions Options for the FIM execution engine
    */
-  protected constructor(private readonly imageLoader: CoreImageLoader, dimensions: FimDimensions,
+  protected constructor(private readonly imageLoaderAsync: CoreImageLoader, dimensions: FimDimensions,
       canvasOptions: CoreCanvasOptions, handle: string, engineOptions?: FimEngineOptions) {
     super(dimensions, canvasOptions, handle, engineOptions);
   }
@@ -202,7 +202,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param pngFile PNG file, as a Uint8Array
    */
   public loadFromPngAsync(pngFile: Uint8Array): Promise<void> {
-    return this.imageLoader(pngFile, CoreMimeType.PNG, image => this.loadFromImage(image));
+    return this.imageLoaderAsync(pngFile, CoreMimeType.PNG, async image => this.loadFromImage(image));
   }
 
   /**
@@ -210,7 +210,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param jpegFile JPEG file, as a Uint8Array
    */
   public loadFromJpegAsync(jpegFile: Uint8Array): Promise<void> {
-    return this.imageLoader(jpegFile, CoreMimeType.JPEG, image => this.loadFromImage(image));
+    return this.imageLoaderAsync(jpegFile, CoreMimeType.JPEG, async image => this.loadFromImage(image));
   }
 
   /**

@@ -119,7 +119,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
    * @returns `this.imageContent`
    */
-  public allocateContent(dimensions?: FimDimensions): TContent {
+  public async allocateContentAsync(dimensions?: FimDimensions): Promise<TContent> {
     const me = this;
     const parentImage = me.parentImage;
     const root = parentImage.rootObject;
@@ -140,7 +140,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
 
     // Create the underlying canvas or texture
     const options = me.getOptions();
-    const content = me.imageContent = me.allocateContentInternal(dd.scaledDimensions, options);
+    const content = me.imageContent = await me.allocateContentInternalAsync(dd.scaledDimensions, options);
     me.downscale = dd.downscale;
 
     // Record the object creation
@@ -155,7 +155,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    * @param options Object creation options
    * @returns New `TContent`
    */
-  protected abstract allocateContentInternal(dimensions: FimDimensions, options: TOptions): TContent;
+  protected abstract allocateContentInternalAsync(dimensions: FimDimensions, options: TOptions): Promise<TContent>;
 
   /**
    * Ensures `imageContent` is current and contains the current image data. This function should be called before
@@ -202,7 +202,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
       // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
       // optimization).
-      me.allocateContent(dimensions);
+      await me.allocateContentAsync(dimensions);
     } else {
       // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
       // and throw an exception if the current image is uninitialized.
@@ -243,7 +243,8 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
     return {};
   }
 
-  protected allocateContentInternal(dimensions: FimDimensions, options: CoreCanvasOptions): CoreCanvas2D {
+  protected async allocateContentInternalAsync(dimensions: FimDimensions, options: CoreCanvasOptions):
+      Promise<CoreCanvas2D> {
     const root = this.parentImage.rootObject;
     root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
     return root.createCoreCanvas2D(dimensions, options, this.handle);
@@ -259,11 +260,12 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
 
     if (contentFillColor.isCurrent) {
       // Copy the fill color to the canvas to make it current
-      me.allocateContent().fillSolid(contentFillColor.imageContent);
+      const content = await me.allocateContentAsync();
+      content.fillSolid(contentFillColor.imageContent);
     } else if (contentTexture.isCurrent) {
       // First, get the WebGL canvas. The getWebGLCanvas() call will allocate or resize it if necessary.
       const srcTexture = contentTexture.imageContent;
-      const glCanvas = root.getWebGLCanvas();
+      const glCanvas = await root.getWebGLCanvas(srcTexture.dim);
 
       // Calculate the coordinates to use on the WebGL canvas
       const glCanvasDim = srcTexture.dim.fitInside(glCanvas.dim).toFloor();
@@ -273,7 +275,8 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
       glCanvas.copyFrom(srcTexture, undefined, glCanvasCoords);
 
       // Copy the WebGL canvas to a 2D canvas
-      await me.allocateContent(glCanvasDim).copyFromAsync(glCanvas, glCanvasCoords);
+      const content = await me.allocateContentAsync(glCanvasDim);
+      await content.copyFromAsync(glCanvas, glCanvasCoords);
 
       optimizer.recordImageRead(parentImage, ImageType.Texture);
     }
@@ -319,10 +322,11 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     return dd;
   }
 
-  protected allocateContentInternal(dimensions: FimDimensions, options: CoreTextureOptions): CoreTexture {
+  protected async allocateContentInternalAsync(dimensions: FimDimensions, options: CoreTextureOptions):
+      Promise<CoreTexture> {
     const me = this;
     const root = me.parentImage.rootObject;
-    const glCanvas = root.getWebGLCanvas();
+    const glCanvas = await root.getWebGLCanvas(dimensions);
     root.optimizer.reserveGLMemory(dimensions.getArea() * options.bpp * 0.5);
     return glCanvas.createCoreTexture(dimensions, options, me.handle);
   }
@@ -337,11 +341,13 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
 
     if (contentFillColor.isCurrent) {
       // Fill texture with solid color
-      me.allocateContent().fillSolid(contentFillColor.imageContent);
+      const content = await me.allocateContentAsync();
+      content.fillSolid(contentFillColor.imageContent);
     } else if (contentCanvas.isCurrent) {
       // Copy canvas to texture
       const srcImage = contentCanvas.imageContent;
-      await me.allocateContent(srcImage.dim).copyFromAsync(srcImage);
+      const content = await me.allocateContentAsync(srcImage.dim);
+      await content.copyFromAsync(srcImage);
       optimizer.recordImageRead(parentImage, ImageType.Canvas);
     }
 

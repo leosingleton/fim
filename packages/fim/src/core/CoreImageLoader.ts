@@ -9,7 +9,7 @@ import { ImageSource } from './types/ImageSource';
  * Loads a file's contents onto an `ImageSource` instance which can then be loaded onto a canvas
  * @param file Image file, as a Uint8Array
  * @param type Mime type of the image file to load
- * @param callback Callback to execute once the image contents are loaded
+ * @param callbackAsync Callback to execute once the image contents are loaded
  */
-export type CoreImageLoader = (file: Uint8Array, type: CoreMimeType, callback: (image: ImageSource) => void)
-  => Promise<void>;
+export type CoreImageLoader = (file: Uint8Array, type: CoreMimeType,
+  callbackAsync: (image: ImageSource) => Promise<void>) => Promise<void>;
