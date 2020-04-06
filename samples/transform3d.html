@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <title>3D Image transformation using WebGL</title>
+    <script src="samples.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <div id="errors" style="white-space: pre; background-color: #f99; padding: 8pt; display: none"></div>
+    <canvas id="output"></canvas>
+    <script>
+$(async () => {
+  // Initialize the global FIM instance
+  const fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
+
+  // Load the sample image
+  const url = 'https://www.leosingleton.com/sample-images/jellyfish.jpg';
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
+
+  // Create the brightness and contrast operation
+  const copy = new FimOpCopy(fim);
+
+  // Create the output image
+  const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
+
+  // Get and scale the output canvas
+  const canvas = $('#output').get(0);
+  canvas.width = outputImage.dim.w;
+  canvas.height = outputImage.dim.h;
+
+  // Start the animation loop
+  requestAnimationFrame(renderOneFrame);
+
+  async function renderOneFrame() {
+    try {
+      // Adjust canvas dimensions to support high DPR displays
+      enableHighDprCanvas(canvas, outputImage.dim);
+
+      // Rotate X-axis 360 degrees every 5 seconds, Y-axis every 12 seconds, and Z-axis every 60 seconds
+      const angleX = getAnimationValue(5000, 0, Math.PI * 2);
+      const angleY = getAnimationValue(12000, 0, Math.PI * 2);
+      const angleZ = getAnimationValue(60000, 0, Math.PI * 2);
+
+      // Calculate the vertex transformation matrix. Note that the operations are applied in reverse order due to the
+      // way matrix multiplication works. Translate, then rotate, then scale.
+      const matrix = new FimTransform3D();
+      matrix.rescale(inputImage.dim.w, inputImage.dim.h, inputImage.dim.w);
+      matrix.rotateX(angleX);
+      matrix.rotateY(angleY);
+      matrix.rotateZ(angleZ);
+      matrix.rescale(1 / inputImage.dim.w, 1 / inputImage.dim.h, 1 / inputImage.dim.w);
+
+      measureFrameStart();
+
+      // Clear any existing image on the WebGL canvas
+      await outputImage.fillSolidAsync('#000');
+
+      // Apply the copy operation with transformation matrix
+      await outputImage.executeAsync(copy.$(inputImage, matrix));
+
+      // Copy the result to the screen
+      await outputImage.exportToCanvasAsync(canvas);
+
+      measureFrameStop();
+
+      // Write additional details to the screen
+      renderDetails(fim, canvas);
+    } catch (err) {
+      UnhandledError.reportError(err);
+    }
+
+    // Render the next frame of the animation loop
+    requestAnimationFrame(renderOneFrame);
+  }
+});
+    </script>
+  </body>
+</html>
