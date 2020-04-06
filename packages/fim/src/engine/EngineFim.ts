@@ -149,18 +149,76 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     }
   }
 
-  /** Returns the WebGL canvas for running shaders. Creates the canvas on first use. */
-  public getWebGLCanvas(): CoreCanvasWebGL {
+  /**
+   * Returns the WebGL canvas for running shaders. Allocates the canvas on first use. Resizes the canvas if it is
+   * smaller than desired.
+   *
+   * _WARNING_: This function may dispose the `glCanvas` property in order to resize an existing WebGL canvas. It should
+   * only be called at the entry point to a FIM engine operation and not in the middle where state has already been
+   * stored in the WebGL context.
+   *
+   * @param dimensions Requested canvas dimensions. Note that the returned canvas may be larger than requested if it
+   *    is already oversized for previous requests. Also note that the returned canvas may be smaller than requested
+   *    if its size is limited by the WebGL capabilities or by the FIM engine options.
+   */
+  public async allocateWebGLCanvasAsync(dimensions: FimDimensions): Promise<CoreCanvasWebGL> {
     const me = this;
 
-    // The WebGL canvas is created on first use and may be disposed prematurely via releaseResources(). If it is already
-    // allocated, simply return it.
-    if (me.glCanvas) {
-      return me.glCanvas;
+    // If the WebGL canvas is already allocated, check whether it is the desired size. If so, simply return the existing
+    // canvas.
+    let glCanvas = me.glCanvas;
+    if (glCanvas && glCanvas.dim.containsDimensions(dimensions)) {
+      return glCanvas;
     }
 
-    // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. First, read the device capabilities
-    // to ensure we do not exceed the GPU's capabilities
+    // Calculate the desired WebGL canvas size
+    dimensions = me.calculateWebGLCanvasDimensions(dimensions);
+
+    if (glCanvas) {
+      // Check the dimensions of the current WebGL canvas again. Even though it may be smaller than requested, it may
+      // already be as large as possible due to WebGL capabilities or FIM engine options.
+      if (glCanvas.dim.containsDimensions(dimensions)) {
+        return glCanvas;
+      }
+
+      // If we get here, the existing WebGL canvas is too small and needs to be resized. First, backup all WebGL
+      // textures to 2D canvases so they do not get lost. Then, dispose all WebGL resources.
+      await EngineFimBase.recursiveBackupAsync(me);
+      me.releaseResources(FimReleaseResourcesFlags.WebGL);
+    }
+
+    // Create a new WebGL canvas
+    me.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
+    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(), `${me.handle}/WebGLCanvas`);
+
+    // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
+    // get recreated again on first use.
+    glCanvas.registerContextLostHandler(() => this.onContextLost());
+    glCanvas.registerContextRestoredHandler(() => this.onContextRestored());
+
+    // Record the WebGL canvas creation
+    me.resources.recordCreate(me, glCanvas);
+
+    return glCanvas;
+  }
+
+  /**
+   * Calculates the desired size of the WebGL canvas
+   * @param dimensions Requested canvas dimensions. Note that the returned dimensions may be larger than requested if
+   *    the WebGL canvas is already oversized for previous requests. Also note that the returned dimensions may be
+   *    smaller than requested if its size is limited by the WebGL capabilities or by the FIM engine options.
+   * @returns Desired canvas dimensions
+   */
+  private calculateWebGLCanvasDimensions(dimensions: FimDimensions): FimDimensions {
+    const me = this;
+
+    // Ensure the requested WebGL canvas dimensions are sufficent for not only this request, but also previous ones too
+    if (me.glCanvas) {
+      dimensions = FimDimensions.fromMax(me.glCanvas.dim, dimensions);
+    }
+
+    // Mobile and older GPUs may have limits as low as 2048x2048 for render buffers. First, read the device
+    // capabilities to ensure we do not exceed the GPU's capabilities
     const caps = me.capabilities;
     let maxDimension = caps.glMaxRenderBufferSize;
 
@@ -179,20 +237,38 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Create the WebGL canvas. If the requested dimensions exceed the maximum we calculated, automatically downscale
     // the requested resolution.
-    const glDimensions = me.engineOptions.maxImageDimensions.fitInsideSquare(maxDimension).toFloor();
-    me.optimizer.reserveCanvasMemory(glDimensions.getArea() * 4);
-    const glCanvas = me.glCanvas = me.createCoreCanvasWebGL(glDimensions, me.getGLCanvasOptions(),
-      `${me.handle}/WebGLCanvas`);
+    const maxDimensions = FimDimensions.fromSquareDimension(maxDimension);
+    const maxImageDimensions = FimDimensions.fromMin(maxDimensions, me.engineOptions.maxImageDimensions);
+    return dimensions.fitInside(maxImageDimensions).toFloor();
+  }
 
-    // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
-    // get recreated again on first use.
-    glCanvas.registerContextLostHandler(() => this.onContextLost());
-    glCanvas.registerContextRestoredHandler(() => this.onContextRestored());
+  /**
+   * Recursively calls `backupAsync()` on an object and all of its children
+   * @param object Root object
+   */
+  private static async recursiveBackupAsync(object: EngineObject): Promise<void> {
+    if (object instanceof EngineImage) {
+      await object.backupAsync();
+    }
 
-    // Record the WebGL canvas creation
-    me.resources.recordCreate(me, glCanvas);
+    // Recurse for all children
+    for (const child of object.childObjects) {
+       await EngineFimBase.recursiveBackupAsync(child);
+    }
+  }
 
-    return glCanvas;
+  /**
+   * Returns the WebGL canvas for running shaders. Throws an exception if one has not already been created by calling
+   * `allocateWebGLCanvasAsync()`.
+   */
+  public getWebGLCanvas(): CoreCanvasWebGL {
+    if (!this.glCanvas) {
+      // If we get here, there's a bug in the EngineFim implementation. allocateWebGLCanvasAsync() should always be
+      // called at any entry point that could lead here.
+      FimError.throwOnUnreachableCode();
+    }
+
+    return this.glCanvas;
   }
 
   /** Calculates and returns the `CoreCanvasOptions` for creating a new WebGL canvas */

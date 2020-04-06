@@ -359,6 +359,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       return shaderOrOperation.executeAsync(me, destCoords);
     }
 
+    // Ensure the WebGL canvas is large enough to handle this image. This function call will resize it if needed.
+    await root.allocateWebGLCanvasAsync(me.dim);
+
     // Handle defaults and validate coordinates
     destCoords = destCoords ?? FimRect.fromDimensions(me.dim);
     destCoords.validateIn(me);
