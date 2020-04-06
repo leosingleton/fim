@@ -19,7 +19,7 @@ import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
-import { CoreFileReader } from '../core/CoreFileReader';
+import { CoreFileReader, fileToName } from '../core/CoreFileReader';
 import { CoreImageLoader } from '../core/CoreImageLoader';
 import { CoreMimeType } from '../core/CoreMimeType';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -300,13 +300,13 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   public async createImageFromPngFileAsync(pngUrlOrPath: string, options?: FimImageOptions, name?: string,
       parent?: FimObject): Promise<TEngineImage> {
     const pngFile = await this.fileReader(pngUrlOrPath);
-    return this.createImageFromPngAsync(pngFile, options, name, parent);
+    return this.createImageFromPngAsync(pngFile, options, name ?? fileToName(pngUrlOrPath), parent);
   }
 
   public async createImageFromJpegFileAsync(jpegUrlOrPath: string, options?: FimImageOptions, name?: string,
       parent?: FimObject): Promise<TEngineImage> {
     const jpegFile = await this.fileReader(jpegUrlOrPath);
-    return this.createImageFromJpegAsync(jpegFile, options, name, parent);
+    return this.createImageFromJpegAsync(jpegFile, options, name ?? fileToName(jpegUrlOrPath), parent);
   }
 
   public createGLShader(fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string, parent?: FimObject):
