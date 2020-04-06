@@ -33,11 +33,11 @@ export function fimTestSuiteCreateDispose(
 
     it('Creates and disposes images', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const img1 = fim.createImage();
+        const img1 = fim.createImage(TestSizes.smallWide);
         await img1.fillSolidAsync(TestColors.red);
         img1.dispose();
 
-        const img2 = fim.createImage();
+        const img2 = fim.createImage(TestSizes.smallWide);
         img2.dispose();
       });
     });
@@ -58,7 +58,7 @@ export function fimTestSuiteCreateDispose(
 
       using(factory(TestSizes.smallWide), fim => {
         shader = fim.createGLShader(fillConstShader);
-        image = fim.createImage();
+        image = fim.createImage(TestSizes.smallWide);
       });
 
       // The shader and image are automatically disposed by the parent FIM instance. Calling dispose() again on these

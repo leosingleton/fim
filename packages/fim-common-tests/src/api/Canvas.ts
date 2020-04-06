@@ -19,7 +19,7 @@ export function fimTestSuiteCanvas(
 
     it('Supports fillSolid() and getPixel()', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
@@ -27,7 +27,7 @@ export function fimTestSuiteCanvas(
 
     it('Supports loading pixels from array data', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.green);
         await image.loadPixelDataAsync(pixelData);
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.green);
@@ -36,7 +36,7 @@ export function fimTestSuiteCanvas(
 
     it('Supports loading pixels from array data with rescale', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.mediumTall, TestColors.blue);
         await image.loadPixelDataAsync(pixelData, TestSizes.mediumTall);
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
@@ -46,7 +46,7 @@ export function fimTestSuiteCanvas(
     it('Supports loading pixels from array data (ImageBitmap disabled)', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         fim.engineOptions.disableImageBitmap = true;
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.green);
         await image.loadPixelDataAsync(pixelData);
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.green);
@@ -56,7 +56,7 @@ export function fimTestSuiteCanvas(
     it('Supports loading pixels from array data with rescale (ImageBitmap disabled)', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         fim.engineOptions.disableImageBitmap = true;
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.mediumTall, TestColors.blue);
         await image.loadPixelDataAsync(pixelData, TestSizes.mediumTall);
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
@@ -65,11 +65,11 @@ export function fimTestSuiteCanvas(
 
     it('Copies from one image to another', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image1 = fim.createImage();
+        const image1 = fim.createImage(TestSizes.smallWide);
         const pixelData = TestImages.solidPixelData(TestSizes.smallWide, TestColors.red);
         await image1.loadPixelDataAsync(pixelData);
 
-        const image2 = fim.createImage();
+        const image2 = fim.createImage(TestSizes.smallWide);
         await image2.copyFromAsync(image1);
         expect(await image2.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
@@ -77,10 +77,10 @@ export function fimTestSuiteCanvas(
 
     it('Copies from a solid fill to an image', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image1 = fim.createImage();
+        const image1 = fim.createImage(TestSizes.smallWide);
         await image1.fillSolidAsync(TestColors.red);
 
-        const image2 = fim.createImage();
+        const image2 = fim.createImage(TestSizes.smallWide);
         await image2.copyFromAsync(image1);
         expect(await image2.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
@@ -90,7 +90,7 @@ export function fimTestSuiteCanvas(
       await usingAsync(factory(TestSizes.mediumTall), async fim => {
         const png = TestImages.fourSquaresPng();
         const image1 = await fim.createImageFromPngAsync(png);
-        const image2 = fim.createImage();
+        const image2 = fim.createImage(TestSizes.mediumTall);
 
         // Scale image1 (128x128) to medium size (480x640)
         await image2.copyFromAsync(image1);
@@ -118,15 +118,15 @@ export function fimTestSuiteCanvas(
 
     it('copyFrom() doesn\'t allow an uninitialized source image', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image1 = fim.createImage();
-        const image2 = fim.createImage();
+        const image1 = fim.createImage(TestSizes.smallWide);
+        const image2 = fim.createImage(TestSizes.smallWide);
         (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
       });
     });
 
     it('copyFrom() doesn\'t allow copying itself', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         (await expectErrorAsync(image.copyFromAsync(image))).toBeInstanceOf(FimError);
       });
@@ -135,8 +135,8 @@ export function fimTestSuiteCanvas(
     it('copyFrom() doesn\'t allow copying from another FIM instance', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim1 => {
         await usingAsync(factory(TestSizes.smallWide), async fim2 => {
-          const image1 = fim1.createImage();
-          const image2 = fim2.createImage();
+          const image1 = fim1.createImage(TestSizes.smallWide);
+          const image2 = fim2.createImage(TestSizes.smallWide);
           await image2.fillSolidAsync(TestColors.red);
           (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
         });
@@ -146,7 +146,7 @@ export function fimTestSuiteCanvas(
     it('Exports to raw pixel data', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a solid red image
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
 
         // Export to RGBA pixel data
@@ -194,7 +194,7 @@ export function fimTestSuiteCanvas(
 
         // Allocate a large canvas and copy the test pattern to it. This will throw an OutOfMemory FimError as it
         // exceeds the limit set in engineOptions.
-        const largeImage = fim.createImage();
+        const largeImage = fim.createImage(TestSizes.largeWide);
         (await expectErrorAsync(largeImage.copyFromAsync(smallImage))).toBeInstanceOf(FimError);
       });
     });

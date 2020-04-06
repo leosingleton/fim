@@ -91,7 +91,7 @@ export function fimTestSuiteWebGLContextLost(
       await usingAsync(factory(TestSizes.smallWide), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         expect(image.hasImage()).toBeFalsy();
 
         // Execute the shader to fill the destination texture with red
@@ -120,7 +120,7 @@ export function fimTestSuiteWebGLContextLost(
 
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         expect(image.hasImage()).toBeFalsy();
 
         // Execute the shader to fill the destination texture with red

@@ -30,7 +30,7 @@ export function fimTestSuiteDownscaled(
         await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
-        const mediumImage = fim.createImage();
+        const mediumImage = fim.createImage(TestSizes.mediumSquare);
         await mediumImage.copyFromAsync(smallImage);
 
         // The memory backing the medium image should actually be the same size as the small one
@@ -48,7 +48,7 @@ export function fimTestSuiteDownscaled(
         const smallImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the top-right corner of the small image to a medium image
-        const mediumImage = fim.createImage();
+        const mediumImage = fim.createImage(TestSizes.mediumSquare);
         const srcCoords = FimRect.fromXYWidthHeight(64, 0, 64, 64);
         await mediumImage.copyFromAsync(smallImage, srcCoords);
 
@@ -67,7 +67,7 @@ export function fimTestSuiteDownscaled(
     it('Preserves dimensions when loading from a smaller image', async () => {
       await usingAsync(factory(TestSizes.mediumSquare), async fim => {
         // Create a medium 640x640 image
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.mediumSquare);
 
         // Load a 128x128 PNG onto the 640x640 image with "rescale"
         await image.loadFromPngAsync(TestImages.fourSquaresPng(), true);
@@ -86,7 +86,7 @@ export function fimTestSuiteDownscaled(
         const invert = new FimOpInvert(fim);
 
         // Create a medium 640x640 image
-        const image1 = fim.createImage();
+        const image1 = fim.createImage(TestSizes.mediumSquare);
 
         // Load a 128x128 PNG onto the 640x640 image with "rescale"
         await image1.loadFromPngAsync(TestImages.fourSquaresPng(), true);
@@ -96,7 +96,7 @@ export function fimTestSuiteDownscaled(
         expect(ImageInternals.getCanvas(image1).dim).toEqual(TestSizes.smallSquare);
 
         // Perform an invert as a WebGL operation
-        const image2 = fim.createImage();
+        const image2 = fim.createImage(TestSizes.mediumSquare);
         await image2.executeAsync(invert.$(image1));
 
         // The input WebGL texture remained 128x128, but the output texture was the requested dimensions

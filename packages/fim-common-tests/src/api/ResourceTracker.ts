@@ -17,7 +17,7 @@ export function fimTestSuiteResourceTracker(
     it('Tracks canvas resources', async () => {
       const fim = factory(TestSizes.smallSquare);
       await usingAsync(fim, async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallSquare);
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 

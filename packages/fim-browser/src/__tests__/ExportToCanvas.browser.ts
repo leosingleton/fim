@@ -52,7 +52,7 @@ describe('Exports to Canvas', () => {
   it('exportToCanvasAsync()', async () => {
     await usingAsync(FimBrowserFactory.create(TestSizes.mediumSquare), async fim => {
       // Create a FIM image and fill it with blue
-      const image = fim.createImage();
+      const image = fim.createImage(TestSizes.mediumSquare);
       await image.fillSolidAsync(TestColors.blue);
 
       // Create a 100x100 canvas and fill with red

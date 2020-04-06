@@ -16,7 +16,7 @@ export function fimTestSuiteImage(
 
     it('Computes effective image options', () => {
       using(factory(TestSizes.smallWide), fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         const options = image.getEffectiveImageOptions();
         expect(options.allowOversized).toEqual(defaultImageOptions.allowOversized);
         expect(options.autoBackup).toEqual(defaultImageOptions.autoBackup);

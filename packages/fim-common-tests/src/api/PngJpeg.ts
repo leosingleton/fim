@@ -17,7 +17,7 @@ export function fimTestSuitePngJpeg(
 
     it('Imports from PNG', async () => {
       await usingAsync(factory(TestSizes.smallSquare), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallSquare);
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 
@@ -27,7 +27,7 @@ export function fimTestSuitePngJpeg(
 
     it('Imports from JPEG', async () => {
       await usingAsync(factory(TestSizes.smallSquare), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallSquare);
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg);
 
@@ -37,7 +37,7 @@ export function fimTestSuitePngJpeg(
 
     it('Imports from PNG with rescale', async () => {
       await usingAsync(factory(TestSizes.mediumTall), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.mediumTall);
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png, true);
 
@@ -47,7 +47,7 @@ export function fimTestSuitePngJpeg(
 
     it('Imports from JPEG with rescale', async () => {
       await usingAsync(factory(TestSizes.mediumTall), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.mediumTall);
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg, true);
 
@@ -57,7 +57,7 @@ export function fimTestSuitePngJpeg(
 
     it('Exports to PNG', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         const png = await image.exportToPngAsync();
 
@@ -71,7 +71,7 @@ export function fimTestSuitePngJpeg(
 
     it('Exports to JPEG', async () => {
       await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         const jpeg = await image.exportToJpegAsync();
 

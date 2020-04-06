@@ -280,10 +280,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     return this.resources.metrics;
   }
 
-  public createImage(dimensions?: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject):
+  public createImage(dimensions: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject):
       TEngineImage {
     this.ensureNotDisposed();
-    return this.createEngineImage(parent ?? this, dimensions ?? this.maxImageDimensions, options ?? {}, name);
+    return this.createEngineImage(parent ?? this, dimensions, options ?? {}, name);
   }
 
   public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):
