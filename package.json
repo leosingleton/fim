@@ -38,6 +38,7 @@
     "lerna": "latest",
     "ts-jest": "latest",
     "ts-loader": "latest",
+    "ts-node": "latest",
     "typescript": "latest",
     "webpack": "latest",
     "webpack-cli": "latest",
@@ -46,7 +47,7 @@
   "scripts": {
     "bootstrap": "npx lerna bootstrap",
     "build": "npm run build:packages && npm run build:samples",
-    "build:packages": "node ./scripts/build.js",
+    "build:packages": "npx ts-node ./scripts/build.ts",
     "build:samples": "npx webpack --config=webpack.samples.js",
     "clean": "rm -rf ./build ./packages/*/build",
     "lint": "npx eslint . --ext js,ts",
