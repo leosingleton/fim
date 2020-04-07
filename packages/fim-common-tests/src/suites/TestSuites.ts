@@ -12,6 +12,7 @@ import { fimTestSuiteOversized } from '../api/Oversized';
 import { fimTestSuitePngJpeg } from '../api/PngJpeg';
 import { fimTestSuiteResourceTracker } from '../api/ResourceTracker';
 import { fimTestSuiteWebGL } from '../api/WebGL';
+import { fimTestSuiteWebGLAutoscale } from '../api/WebGLAutoscale';
 import { fimTestSuiteWebGLContextLost } from '../api/WebGLContextLost';
 import { fimTestSuiteWebGLTransform } from '../api/WebGLTransform';
 import { coreCanvas2DTestSuiteCanvas } from '../core/CoreCanvas2D/Canvas';
@@ -48,6 +49,7 @@ export namespace TestSuites {
     fimTestSuiteCanvas(description, factory);
     fimTestSuitePngJpeg(description, factory);
     fimTestSuiteWebGL(description, factory);
+    fimTestSuiteWebGLAutoscale(description, factory);
     fimTestSuiteWebGLTransform(description, factory);
     fimTestSuiteWebGLContextLost(description, factory);
     fimTestSuiteOversized(description, factory);
