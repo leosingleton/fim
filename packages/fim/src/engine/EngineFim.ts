@@ -96,12 +96,8 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     engineOptions.maxGLTextureSize = capabilities.glMaxTextureSize;
 
     // Set the maximum image dimensions to the specified value. If unspecified, default to the WebGL capabilities.
-    //const maxDimension = Math.min(capabilities.glMaxRenderBufferSize, capabilities.glMaxTextureSize);
-    //engineOptions.maxImageDimensions = FimDimensions.fromSquareDimension(maxDimension);
-
-    // TODO: Enable the two lines of code above once we have auto-resizing of the WebGL canvas. For now, it's just too
-    // slow to execute every single unit test at the GPU's maximum resolution, so we hardcode the limit to 640x480 here.
-    engineOptions.maxImageDimensions = FimDimensions.fromWidthHeight(640, 480);
+    const maxDimension = Math.min(capabilities.glMaxRenderBufferSize, capabilities.glMaxTextureSize);
+    engineOptions.maxImageDimensions = FimDimensions.fromSquareDimension(maxDimension);
   }
 
   public readonly engineOptions: FimEngineOptions;
