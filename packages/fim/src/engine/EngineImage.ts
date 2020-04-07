@@ -6,7 +6,8 @@ import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
 import { CanvasImageContent, ImageContent, TextureImageContent } from './ImageContent';
-import { ImageType } from './optimizer/ImageType';
+import { ImageFormat } from './optimizer/ImageFormat';
+import { OperationType } from './optimizer/OperationType';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
@@ -224,7 +225,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const color = me.contentCanvas.imageContent.getPixel(scaledPoint);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageType.Canvas);
+    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
 
     return color;
@@ -247,7 +248,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.recordImageWrite(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
   }
 
@@ -267,7 +268,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.recordImageWrite(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
   }
 
@@ -337,8 +338,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(destContentCanvas, true);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(srcImage, ImageType.Canvas);
-    optimizer.recordImageWrite(me, ImageType.Canvas);
+    optimizer.recordImageRead(srcImage, ImageFormat.Canvas, OperationType.Explicit);
+    optimizer.recordImageWrite(me, ImageFormat.Canvas, OperationType.Explicit);
     optimizer.releaseResources();
   }
 
@@ -393,7 +394,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     me.markCurrent(contentTexture, true);
     optimizer.recordShaderUsage(shaderOrOperation);
-    optimizer.recordImageWrite(me, ImageType.Texture);
+    optimizer.recordImageWrite(me, ImageFormat.Texture, OperationType.Explicit);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.
@@ -426,7 +427,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageType.Canvas);
+    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
 
     return pixelData;
@@ -457,7 +458,6 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords, destCoords);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageType.Canvas);
     optimizer.releaseResources();
   }
 
@@ -478,7 +478,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageType.Canvas);
+    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
 
     return png;
@@ -501,7 +501,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageType.Canvas);
+    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
 
     return jpeg;

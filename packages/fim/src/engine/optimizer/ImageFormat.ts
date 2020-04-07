@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 /** Enum for `OptimizerBase.recordImageRead()` and `OptimizerBase.recordImageWrite()` */
-export const enum ImageType {
+export const enum ImageFormat {
   /** 2D canvas was read or written to */
   Canvas,
 
