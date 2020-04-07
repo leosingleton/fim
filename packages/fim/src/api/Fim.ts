@@ -83,8 +83,8 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * @param name Optional name specified when creating the object to help with debugging
    * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
-  createImageWithFill(dimensions: FimDimensions, color: FimColor | string, options?: FimImageOptions, name?: string,
-    parent?: FimObject): TImage;
+  createImageWithFillAsync(dimensions: FimDimensions, color: FimColor | string, options?: FimImageOptions,
+    name?: string, parent?: FimObject): Promise<TImage>;
 
   /**
    * Creates a new image from a PNG file

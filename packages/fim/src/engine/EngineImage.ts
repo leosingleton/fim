@@ -196,15 +196,6 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   }
 
   public async fillSolidAsync(color: FimColor | string): Promise<void> {
-    this.fillSolid(color);
-  }
-
-  /**
-   * Internal implementation of `fillSolidAsync()`. The implementation is not actually async, but the interface is for
-   * consistency with all of the other FIM APIs.
-   * @param color Fill color
-   */
-  public fillSolid(color: FimColor | string): void {
     const me = this;
     me.ensureNotDisposed();
 

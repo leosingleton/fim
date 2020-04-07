@@ -49,7 +49,7 @@ export function fimTestSuitePngJpeg(
 
     it('Exports to PNG', async () => {
       await usingAsync(factory(), async fim => {
-        const image = fim.createImageWithFill(TestSizes.smallWide, TestColors.red);
+        const image = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
         const png = await image.exportToPngAsync();
 
         // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
@@ -62,7 +62,7 @@ export function fimTestSuitePngJpeg(
 
     it('Exports to JPEG', async () => {
       await usingAsync(factory(), async fim => {
-        const image = fim.createImageWithFill(TestSizes.smallWide, TestColors.red);
+        const image = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
         const jpeg = await image.exportToJpegAsync();
 
         // JPEG magic number is FF D8 FF

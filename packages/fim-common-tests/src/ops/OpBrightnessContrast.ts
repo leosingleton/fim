@@ -19,7 +19,7 @@ export function fimTestSuiteOpBrightnessContrast(
       await usingAsync(factory(), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
-        const input = fim.createImageWithFill(TestSizes.smallWide, TestColors.grey);
+        const input = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.grey);
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(brightnessContrast.$(input, 0.5, 0.0));
@@ -32,7 +32,7 @@ export function fimTestSuiteOpBrightnessContrast(
       await usingAsync(factory(), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
-        const input = fim.createImageWithFill(TestSizes.smallWide, '#d33');
+        const input = await fim.createImageWithFillAsync(TestSizes.smallWide, '#d33');
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(brightnessContrast.$(input, 0.0, 0.5));

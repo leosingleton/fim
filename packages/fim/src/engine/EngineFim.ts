@@ -360,12 +360,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     return this.createEngineImage(parent ?? this, dimensions, options ?? {}, name);
   }
 
-  public createImageWithFill(dimensions: FimDimensions, color: FimColor | string, options?: FimImageOptions,
-      name?: string, parent?: FimObject): TEngineImage {
+  public async createImageWithFillAsync(dimensions: FimDimensions, color: FimColor | string, options?: FimImageOptions,
+      name?: string, parent?: FimObject): Promise<TEngineImage> {
     this.ensureNotDisposed();
 
     const image = this.createEngineImage(parent ?? this, dimensions, options ?? {}, name);
-    image.fillSolid(color);
+    await image.fillSolidAsync(color);
     return image;
   }
 
