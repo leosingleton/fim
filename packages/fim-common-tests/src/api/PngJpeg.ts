@@ -6,18 +6,18 @@ import { TestColors } from '../common/TestColors';
 import { TestImages } from '../common/TestImages';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim } from '@leosingleton/fim';
 
 /** FIM test cases around PNG and JPEG encoding/decoding */
 export function fimTestSuitePngJpeg(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM PNG/JPEG - ${description}`, () => {
 
     it('Imports from PNG', async () => {
-      await usingAsync(factory(TestSizes.smallSquare), async fim => {
-        const image = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const image = fim.createImage(TestSizes.smallSquare);
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 
@@ -26,8 +26,8 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Imports from JPEG', async () => {
-      await usingAsync(factory(TestSizes.smallSquare), async fim => {
-        const image = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const image = fim.createImage(TestSizes.smallSquare);
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg);
 
@@ -36,8 +36,8 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Imports from PNG with rescale', async () => {
-      await usingAsync(factory(TestSizes.mediumTall), async fim => {
-        const image = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const image = fim.createImage(TestSizes.mediumTall);
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png, true);
 
@@ -46,8 +46,8 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Imports from JPEG with rescale', async () => {
-      await usingAsync(factory(TestSizes.mediumTall), async fim => {
-        const image = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const image = fim.createImage(TestSizes.mediumTall);
         const jpeg = TestImages.fourSquaresJpeg();
         await image.loadFromJpegAsync(jpeg, true);
 
@@ -56,8 +56,8 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Exports to PNG', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         const png = await image.exportToPngAsync();
 
@@ -70,8 +70,8 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Exports to JPEG', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const image = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.red);
         const jpeg = await image.exportToJpegAsync();
 
@@ -83,7 +83,7 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Creates from PNG', async () => {
-      await usingAsync(factory(TestSizes.mediumTall), async fim => {
+      await usingAsync(factory(), async fim => {
         const png = TestImages.fourSquaresPng();
         const image = await fim.createImageFromPngAsync(png);
 
@@ -93,7 +93,7 @@ export function fimTestSuitePngJpeg(
     });
 
     it('Creates from JPEG', async () => {
-      await usingAsync(factory(TestSizes.mediumTall), async fim => {
+      await usingAsync(factory(), async fim => {
         const jpeg = TestImages.fourSquaresJpeg();
         const image = await fim.createImageFromJpegAsync(jpeg);
 

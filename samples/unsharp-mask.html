@@ -15,19 +15,20 @@
     <script>
 $(async () => {
   // Initialize the global FIM instance
-  const fim = FimBrowserFactory.create(FimDimensions.fromWidthHeight(1920, 1080));
+  const fim = FimBrowserFactory.create();
 
   // Load the sample image
   const url = 'https://www.leosingleton.com/sample-images/carmel.jpg';
   const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
+  const dimensions = inputImage.dim;
 
   // Create the unsharp mask operation
   const unsharpMask = new FimOpUnsharpMask(fim, true);
 
   // Create the output image
-  const outputImage = fim.createImage({}, inputImage.dim, 'outputImage');
+  const outputImage = fim.createImage(dimensions, {}, 'outputImage');
 
-  // Get and scale the output canvas
+  // Get the output canvas
   const canvas = $('#output').get(0);
 
   // Start the animation loop
@@ -36,7 +37,7 @@ $(async () => {
   async function renderOneFrame() {
     try {
       // Adjust canvas dimensions to support high DPR displays
-      enableHighDprCanvas(canvas, outputImage.dim);
+      enableHighDprCanvas(canvas, dimensions);
 
       // Cycle back and forth every 3 seconds
       const amount = getAnimationValue(3000, 0, 5);

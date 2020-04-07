@@ -6,23 +6,23 @@ import { midpoint } from '../common/Globals';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpBrightnessContrast } from '@leosingleton/fim';
+import { Fim, FimOpBrightnessContrast } from '@leosingleton/fim';
 
 /** FimOpBrightnessContrast unit tests */
 export function fimTestSuiteOpBrightnessContrast(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FimOpBrightnessContrast - ${description}`, () => {
 
     it('Increases Brightness', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
-        const input = fim.createImage();
+        const input = fim.createImage(TestSizes.smallWide);
         await input.fillSolidAsync(TestColors.grey);
 
-        const outputImage = fim.createImage();
+        const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(brightnessContrast.$(input, 0.5, 0.0));
 
         expect(await outputImage.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.white);
@@ -30,13 +30,13 @@ export function fimTestSuiteOpBrightnessContrast(
     });
 
     it('Increases Contrast', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const brightnessContrast = new FimOpBrightnessContrast(fim);
 
-        const input = fim.createImage();
+        const input = fim.createImage(TestSizes.smallWide);
         await input.fillSolidAsync('#d33');
 
-        const outputImage = fim.createImage();
+        const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(brightnessContrast.$(input, 0.0, 0.5));
 
         expect(await outputImage.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);

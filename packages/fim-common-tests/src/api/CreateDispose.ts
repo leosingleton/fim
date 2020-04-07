@@ -6,17 +6,17 @@ import { fillConstShader, fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimImage, FimShader } from '@leosingleton/fim';
+import { Fim, FimImage, FimShader } from '@leosingleton/fim';
 
 /** Create/dispose tests for FIM */
 export function fimTestSuiteCreateDispose(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const fim = factory(TestSizes.smallWide);
+      const fim = factory();
       fim.dispose();
 
       // Double-dispose throws an exception
@@ -24,7 +24,7 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Handles multiple releaseAllResources() calls', () => {
-      using(factory(TestSizes.smallWide), fim => {
+      using(factory(), fim => {
         fim.releaseAllResources();
         fim.releaseAllResources();
         fim.releaseAllResources();
@@ -32,18 +32,18 @@ export function fimTestSuiteCreateDispose(
     });
 
     it('Creates and disposes images', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
-        const img1 = fim.createImage();
+      await usingAsync(factory(), async fim => {
+        const img1 = fim.createImage(TestSizes.smallWide);
         await img1.fillSolidAsync(TestColors.red);
         img1.dispose();
 
-        const img2 = fim.createImage();
+        const img2 = fim.createImage(TestSizes.smallWide);
         img2.dispose();
       });
     });
 
     it('Creates and disposes shaders', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const shader1 = fim.createGLShader(fillConstShader);
         shader1.dispose();
 
@@ -56,9 +56,9 @@ export function fimTestSuiteCreateDispose(
       let shader: FimShader;
       let image: FimImage;
 
-      using(factory(TestSizes.smallWide), fim => {
+      using(factory(), fim => {
         shader = fim.createGLShader(fillConstShader);
-        image = fim.createImage();
+        image = fim.createImage(TestSizes.smallWide);
       });
 
       // The shader and image are automatically disposed by the parent FIM instance. Calling dispose() again on these

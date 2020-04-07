@@ -3,12 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { NodeEngineFim } from '../NodeEngineFim';
-import { FimDimensions, FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { FimReleaseResourcesFlags } from '@leosingleton/fim';
 
 describe('NodeEngineFim', () => {
 
   it('Creates, releases, and disposes', () => {
-    const eng = new NodeEngineFim(FimDimensions.fromWidthHeight(100, 100));
+    const eng = new NodeEngineFim();
     eng.releaseResources(FimReleaseResourcesFlags.All);
     eng.dispose();
   });

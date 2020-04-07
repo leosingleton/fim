@@ -10,9 +10,9 @@ import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } fro
 
 /** Wrapper around the HTML DOM canvas */
 export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
-  public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, dimensions, canvasOptions, handle, engineOptions);
 
     // Create a hidden canvas
     const canvas = CoreBrowserDomCanvas2D.canvasPool.getCanvas();
@@ -43,9 +43,9 @@ export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected createCanvas2D(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreBrowserDomCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreBrowserDomCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
   protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {

@@ -15,16 +15,16 @@ import { TestSuites } from '@leosingleton/fim-common-tests';
 const showTracing = false;
 const showWarnings = false;
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled (debug mode)', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.debugMode = true;
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.debugMode = true;
   fim.engineOptions.disableOffscreenCanvas = true;
   fim.engineOptions.showTracing = showTracing;
@@ -32,15 +32,15 @@ TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled (debug mode)', (
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas enabled', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
   return fim;
 });
 
-TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', (maxImageDimensions) => {
-  const fim = FimBrowserFactory.create(maxImageDimensions);
+TestSuites.fim('FimBrowserFactory with OffscreenCanvas disabled', () => {
+  const fim = FimBrowserFactory.create();
   fim.engineOptions.disableOffscreenCanvas = true;
   fim.engineOptions.showTracing = showTracing;
   fim.engineOptions.showWarnings = showWarnings;
@@ -54,15 +54,15 @@ engineOptions.showTracing = showTracing;
 engineOptions.showWarnings = showWarnings;
 
 TestSuites.coreCanvas2D('CoreBrowserDomCanvas2D',
-  (canvasOptions, dimensions) => new CoreBrowserDomCanvas2D(canvasOptions, dimensions, 'UnitTest', engineOptions));
+  (dimensions, canvasOptions) => new CoreBrowserDomCanvas2D(dimensions, canvasOptions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvasWebGL('CoreBrowserDomCanvasWebGL',
-  (canvasOptions, dimensions) => new CoreBrowserDomCanvasWebGL(canvasOptions, dimensions, 'UnitTest', engineOptions));
+  (dimensions, canvasOptions) => new CoreBrowserDomCanvasWebGL(dimensions, canvasOptions, 'UnitTest', engineOptions));
 
 TestSuites.coreCanvas2D('CoreBrowserOffscreenCanvas2D',
-  (canvasOptions, dimensions) => new CoreBrowserOffscreenCanvas2D(canvasOptions, dimensions, 'UnitTest',
+  (dimensions, canvasOptions) => new CoreBrowserOffscreenCanvas2D(dimensions, canvasOptions, 'UnitTest',
     engineOptions));
 
 TestSuites.coreCanvasWebGL('CoreBrowserOffscreenCanvasWebGL',
-  (canvasOptions, dimensions) => new CoreBrowserOffscreenCanvasWebGL(canvasOptions, dimensions, 'UnitTest',
+  (dimensions, canvasOptions) => new CoreBrowserOffscreenCanvasWebGL(dimensions, canvasOptions, 'UnitTest',
     engineOptions));

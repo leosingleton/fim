@@ -13,7 +13,7 @@ const sampleJpeg = resolve(__dirname, 'sample-images/four-squares.jpg');
 describe('Loads from PNG and JPEG files', () => {
 
   it('createImageFromPngFileAsync()', async () => {
-    await usingAsync(FimNodeFactory.create(TestSizes.smallSquare), async fim => {
+    await usingAsync(FimNodeFactory.create(), async fim => {
       // Load the four squares test pattern by URL
       const image = await fim.createImageFromPngFileAsync(samplePng);
 
@@ -23,7 +23,7 @@ describe('Loads from PNG and JPEG files', () => {
   });
 
   it('createImageFromJpegFileAsync()', async () => {
-    await usingAsync(FimNodeFactory.create(TestSizes.smallSquare), async fim => {
+    await usingAsync(FimNodeFactory.create(), async fim => {
       // Load the four squares test pattern by URL
       const image = await fim.createImageFromJpegFileAsync(sampleJpeg);
 
@@ -33,9 +33,9 @@ describe('Loads from PNG and JPEG files', () => {
   });
 
   it('loadFromPngFileAsync()', async () => {
-    await usingAsync(FimNodeFactory.create(TestSizes.smallSquare), async fim => {
+    await usingAsync(FimNodeFactory.create(), async fim => {
       // Load the four squares test pattern by URL
-      const image = fim.createImage();
+      const image = fim.createImage(TestSizes.smallSquare);
       await image.loadFromPngFileAsync(samplePng);
 
       // Validate the test pattern
@@ -44,9 +44,9 @@ describe('Loads from PNG and JPEG files', () => {
   });
 
   it('loadFromJpegFileAsync()', async () => {
-    await usingAsync(FimNodeFactory.create(TestSizes.smallSquare), async fim => {
+    await usingAsync(FimNodeFactory.create(), async fim => {
       // Load the four squares test pattern by URL
-      const image = fim.createImage();
+      const image = fim.createImage(TestSizes.smallSquare);
       await image.loadFromJpegFileAsync(sampleJpeg);
 
       // Validate the test pattern

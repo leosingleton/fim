@@ -7,20 +7,20 @@ import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions, FimOpCopy, FimTransform2D, FimTransform3D, FimTwoTriangles } from '@leosingleton/fim';
+import { Fim, FimOpCopy, FimTransform2D, FimTransform3D, FimTwoTriangles } from '@leosingleton/fim';
 
 /** WebGL tests for FIM with vertex transformation*/
 export function fimTestSuiteWebGLTransform(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM WebGL Transform - ${description}`, () => {
 
     it('Executes a shader with vertex positions and texture coords', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.black);
 
         // Execute the shader
@@ -36,10 +36,10 @@ export function fimTestSuiteWebGLTransform(
     });
 
     it('Executes a shader with a vertex matrix', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallWide);
         await image.fillSolidAsync(TestColors.black);
 
         // Execute the shader
@@ -55,13 +55,13 @@ export function fimTestSuiteWebGLTransform(
     });
 
     it('Preserves background with vertex matrices', async () => {
-      await usingAsync(factory(TestSizes.smallWide), async fim => {
+      await usingAsync(factory(), async fim => {
         const copy = new FimOpCopy(fim);
 
-        const red = fim.createImage();
+        const red = fim.createImage(TestSizes.smallWide);
         await red.fillSolidAsync(TestColors.red);
 
-        const output = fim.createImage();
+        const output = fim.createImage(TestSizes.smallWide);
         await output.fillSolidAsync(TestColors.blue);
 
         // Copy red, shifted down and to the right 50%

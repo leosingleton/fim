@@ -12,9 +12,9 @@ import { Canvas, createCanvas } from 'canvas';
 
 /** Wrapper around the Node.js canvas library */
 export class CoreNodeCanvas2D extends CoreCanvas2D {
-  public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(loadFromFileAsync, canvasOptions, dimensions, handle, engineOptions);
+    super(loadFromFileAsync, dimensions, canvasOptions, handle, engineOptions);
 
     // Create the canvas using node-canvas
     this.canvasElement = createCanvas(dimensions.w, dimensions.h);
@@ -37,9 +37,9 @@ export class CoreNodeCanvas2D extends CoreCanvas2D {
     return this.canvasElement.getContext('2d');
   }
 
-  protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected createCanvas2D(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreNodeCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreNodeCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
   protected async exportToFileAsync(type: CoreMimeType, quality?: number): Promise<Uint8Array> {

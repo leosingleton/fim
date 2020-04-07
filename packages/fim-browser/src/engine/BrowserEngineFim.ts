@@ -8,7 +8,7 @@ import { CoreBrowserDomCanvas2D } from '../core/CoreBrowserDomCanvas2D';
 import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
-import { fileReader } from '../core/FileReader';
+import { fileReaderAsync } from '../core/FileReader';
 import { loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
@@ -19,17 +19,15 @@ import { GlslShader } from 'webpack-glsl-minify';
 export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineShader> implements FimBrowser {
   /**
    * Constructor
-   * @param maxImageDimensions Maximum dimensions of any image. If unspecified, defaults to the maximum image size
-   *    supported by the WebGL capabilities of the browser and GPU.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(maxImageDimensions?: FimDimensions, name?: string) {
-    super(fileReader, loadFromFileAsync, maxImageDimensions, name);
+  public constructor(name?: string) {
+    super(fileReaderAsync, loadFromFileAsync, name);
   }
 
-  protected createEngineImage(parent: FimObject, options: FimImageOptions, dimensions: FimDimensions, name?: string):
+  protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
       BrowserEngineImage {
-    return new BrowserEngineImage(parent, options, dimensions, name);
+    return new BrowserEngineImage(parent, dimensions, options, name);
   }
 
   protected createEngineGLShader(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader,
@@ -37,19 +35,19 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     return new EngineShader(parent, fragmentShader, vertexShader, name);
   }
 
-  public createCoreCanvas2D(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvas2D {
+  public createCoreCanvas2D(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string): CoreCanvas2D {
     if (!this.engineOptions.disableOffscreenCanvas) {
-      return new CoreBrowserOffscreenCanvas2D(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserOffscreenCanvas2D(dimensions, options, handle, this.engineOptions);
     } else {
-      return new CoreBrowserDomCanvas2D(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvas2D(dimensions, options, handle, this.engineOptions);
     }
   }
 
-  public createCoreCanvasWebGL(options: CoreCanvasOptions, dimensions: FimDimensions, handle: string): CoreCanvasWebGL {
+  public createCoreCanvasWebGL(dimensions: FimDimensions, options: CoreCanvasOptions, handle: string): CoreCanvasWebGL {
     if (!this.engineOptions.disableOffscreenCanvas) {
-      return new CoreBrowserOffscreenCanvasWebGL(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserOffscreenCanvasWebGL(dimensions, options, handle, this.engineOptions);
     } else {
-      return new CoreBrowserDomCanvasWebGL(options, dimensions, handle, this.engineOptions);
+      return new CoreBrowserDomCanvasWebGL(dimensions, options, handle, this.engineOptions);
     }
   }
 }

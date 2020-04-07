@@ -31,13 +31,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   /**
    * Constructor
    * @param parent Parent object
+   * @param dimensions Image dimensions
    * @param options Optional image options to override the parent FIM's defaults
-   * @param dimensions Optional image dimensions. Defaults to `maxImageDimensions` of the parent FIM object.
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(parent: FimObject, options?: FimImageOptions, dimensions?: FimDimensions, name?: string) {
+  public constructor(parent: FimObject, dimensions: FimDimensions, options?: FimImageOptions, name?: string) {
     super(EngineObjectType.Image, name, parent);
-    this.dim = dimensions ?? this.rootObject.maxImageDimensions;
+    this.dim = dimensions;
     this.imageOptions = deepCopy(options) ?? {};
 
     const root = this.rootObject;
@@ -282,7 +282,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   private async loadFromFileAsync(file: Uint8Array, type: CoreMimeType, allowRescale: boolean): Promise<void> {
     const me = this;
 
-    return me.rootObject.imageLoader(file, type, image => {
+    return me.rootObject.imageLoaderAsync(file, type, image => {
       // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
       // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
       const imageDimensions = FimDimensions.fromObject(image);
@@ -295,12 +295,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
   }
 
   public async loadFromPngFileAsync(pngUrl: string, allowRescale?: boolean): Promise<void> {
-    const pngFile = await this.rootObject.fileReader(pngUrl);
+    const pngFile = await this.rootObject.fileReaderAsync(pngUrl);
     return this.loadFromPngAsync(pngFile, allowRescale);
   }
 
   public async loadFromJpegFileAsync(jpegUrl: string, allowRescale?: boolean): Promise<void> {
-    const jpegFile = await this.rootObject.fileReader(jpegUrl);
+    const jpegFile = await this.rootObject.fileReaderAsync(jpegUrl);
     return this.loadFromPngAsync(jpegFile, allowRescale);
   }
 
@@ -359,6 +359,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       return shaderOrOperation.executeAsync(me, destCoords);
     }
 
+    // Ensure the WebGL canvas is large enough to handle this image. This function call will resize it if needed.
+    await root.allocateWebGLCanvasAsync(me.dim);
+
     // Handle defaults and validate coordinates
     destCoords = destCoords ?? FimRect.fromDimensions(me.dim);
     destCoords.validateIn(me);
@@ -367,15 +370,15 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // populated based on the destination coordinates.
     await contentTexture.allocateOrPopulateContentAsync(destCoords, shaderOrOperation.hasNonDefaultVertices());
 
+    const glCanvas = root.getWebGLCanvas();
     const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
-      const glCanvas = root.getWebGLCanvas();
-      const outputTexture = glCanvas.createCoreTexture(contentTexture.getOptions(), contentTexture.imageContent.dim);
+      const outputTexture = glCanvas.createCoreTexture(contentTexture.imageContent.dim, contentTexture.getOptions());
       try {
         root.resources.recordCreate(me, outputTexture);
-        await shaderOrOperation.executeAsync(outputTexture, scaledDestCoords);
+        await shaderOrOperation.executeAsync(glCanvas, outputTexture, scaledDestCoords);
       } catch (err) {
         root.resources.recordDispose(me, outputTexture);
         outputTexture.dispose();
@@ -385,7 +388,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       contentTexture.imageContent = outputTexture;
     } else {
       // Normal case: we can write to the normal WebGL texture as it is not an input to the shader.
-      await shaderOrOperation.executeAsync(contentTexture.imageContent, scaledDestCoords);
+      await shaderOrOperation.executeAsync(glCanvas, contentTexture.imageContent, scaledDestCoords);
     }
 
     me.markCurrent(contentTexture, true);
@@ -523,7 +526,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    const temp = root.createCoreCanvas2D(me.contentCanvas.getOptions(), srcCoords.dim, `${me.handle}/RescaleHelper`);
+    const temp = root.createCoreCanvas2D(srcCoords.dim, me.contentCanvas.getOptions(), `${me.handle}/RescaleHelper`);
     try {
       root.resources.recordCreate(me, temp);
 

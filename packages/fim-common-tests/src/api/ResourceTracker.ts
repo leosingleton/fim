@@ -5,19 +5,19 @@
 import { TestImages } from '../common/TestImages';
 import { TestSizes } from '../common/TestSizes';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim } from '@leosingleton/fim';
 
 /** FIM test cases around resource tracking */
 export function fimTestSuiteResourceTracker(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM Resource Tracker - ${description}`, () => {
 
     it('Tracks canvas resources', async () => {
-      const fim = factory(TestSizes.smallSquare);
+      const fim = factory();
       await usingAsync(fim, async fim => {
-        const image = fim.createImage();
+        const image = fim.createImage(TestSizes.smallSquare);
         const png = TestImages.fourSquaresPng();
         await image.loadFromPngAsync(png);
 

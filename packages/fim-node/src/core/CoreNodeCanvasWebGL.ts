@@ -11,9 +11,9 @@ import createContext from 'gl';
 
 /** Wrapper around the headless-gl WebGL library */
 export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
-  public constructor(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
-    super(canvasOptions, dimensions, handle, engineOptions);
+    super(dimensions, canvasOptions, handle, engineOptions);
 
     // Create the canvas using headless-gl
     this.glContext = createContext(dimensions.w, dimensions.h);
@@ -40,14 +40,14 @@ export class CoreNodeCanvasWebGL extends CoreCanvasWebGL {
     return this.glContext;
   }
 
-  protected createCanvas2D(canvasOptions: CoreCanvasOptions, dimensions: FimDimensions, handle: string,
+  protected createCanvas2D(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions: FimEngineOptions): CoreCanvas2D {
-    return new CoreNodeCanvas2D(canvasOptions, dimensions, handle, engineOptions);
+    return new CoreNodeCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
-  protected createCoreTextureInternal(parent: CoreCanvasWebGL, options: CoreTextureOptions, dimensions: FimDimensions,
+  protected createCoreTextureInternal(parent: CoreCanvasWebGL, dimensions: FimDimensions, options: CoreTextureOptions,
       handle: string): CoreNodeTexture {
-    return new CoreNodeTexture(parent, options, dimensions, handle);
+    return new CoreNodeTexture(parent, dimensions, options, handle);
   }
 
   protected addCanvasEventListener(_type: string, _listener: EventListenerObject, _options: boolean): void {

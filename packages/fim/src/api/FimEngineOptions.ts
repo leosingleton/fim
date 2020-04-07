@@ -3,11 +3,18 @@
 // See LICENSE in the project root for license information.
 
 import { FimExecutionStrategy } from './FimExecutionStrategy';
+import { FimDimensions } from '../primitives/FimDimensions';
 
 /** Options for the FIM execution engine */
 export interface FimEngineOptions {
   /** Execution strategy (space vs. time) */
   executionStrategy: FimExecutionStrategy;
+
+  /**
+   * Maximum dimensions of any image. Defaults to the maximum image size supported by the WebGL capabilities of the
+   * browser and GPU.
+   */
+  maxImageDimensions: FimDimensions;
 
   /** Maximum canvas memory to use, in bytes. 0 for no limit. */
   maxCanvasMemory: number;
@@ -65,6 +72,7 @@ export interface FimEngineOptions {
  */
 export const defaultEngineOptions: FimEngineOptions = {
   executionStrategy: FimExecutionStrategy.MaximizeSpeed,
+  maxImageDimensions: FimDimensions.fromSquareDimension(1),
   maxCanvasMemory: 0,
   maxGLMemory: 0,
   shaderInstanceLimit: 4,

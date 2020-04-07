@@ -3,12 +3,12 @@
 // See LICENSE in the project root for license information.
 
 import { BrowserEngineFim } from '../BrowserEngineFim';
-import { FimDimensions, FimReleaseResourcesFlags } from '@leosingleton/fim';
+import { FimReleaseResourcesFlags } from '@leosingleton/fim';
 
 describe('BrowserEngineFim', () => {
 
   it('Creates, releases, and disposes', () => {
-    const eng = new BrowserEngineFim(FimDimensions.fromWidthHeight(100, 100));
+    const eng = new BrowserEngineFim();
     eng.releaseResources(FimReleaseResourcesFlags.All);
     eng.dispose();
   });

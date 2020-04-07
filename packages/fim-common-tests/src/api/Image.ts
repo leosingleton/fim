@@ -4,19 +4,19 @@
 
 import { TestSizes } from '../common/TestSizes';
 import { using } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim } from '@leosingleton/fim';
 import { defaultImageOptions } from '@leosingleton/fim/internals';
 
 /** Image tests for FIM */
 export function fimTestSuiteImage(
   description: string,
-  factory: (maxImageDimensions: FimDimensions) => Fim
+  factory: () => Fim
 ): void {
   describe(`FIM Image - ${description}`, () => {
 
     it('Computes effective image options', () => {
-      using(factory(TestSizes.smallWide), fim => {
-        const image = fim.createImage();
+      using(factory(), fim => {
+        const image = fim.createImage(TestSizes.smallWide);
         const options = image.getEffectiveImageOptions();
         expect(options.allowOversized).toEqual(defaultImageOptions.allowOversized);
         expect(options.autoBackup).toEqual(defaultImageOptions.autoBackup);

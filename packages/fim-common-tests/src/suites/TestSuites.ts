@@ -12,6 +12,7 @@ import { fimTestSuiteOversized } from '../api/Oversized';
 import { fimTestSuitePngJpeg } from '../api/PngJpeg';
 import { fimTestSuiteResourceTracker } from '../api/ResourceTracker';
 import { fimTestSuiteWebGL } from '../api/WebGL';
+import { fimTestSuiteWebGLAutoscale } from '../api/WebGLAutoscale';
 import { fimTestSuiteWebGLContextLost } from '../api/WebGLContextLost';
 import { fimTestSuiteWebGLTransform } from '../api/WebGLTransform';
 import { coreCanvas2DTestSuiteCanvas } from '../core/CoreCanvas2D/Canvas';
@@ -40,7 +41,7 @@ export namespace TestSuites {
    */
   export function fim(
     description: string,
-    factory: (maxImageDimensions: FimDimensions) => Fim
+    factory: () => Fim
   ): void {
     // api/ tests
     fimTestSuiteCreateDispose(description, factory);
@@ -48,6 +49,7 @@ export namespace TestSuites {
     fimTestSuiteCanvas(description, factory);
     fimTestSuitePngJpeg(description, factory);
     fimTestSuiteWebGL(description, factory);
+    fimTestSuiteWebGLAutoscale(description, factory);
     fimTestSuiteWebGLTransform(description, factory);
     fimTestSuiteWebGLContextLost(description, factory);
     fimTestSuiteOversized(description, factory);
@@ -70,7 +72,7 @@ export namespace TestSuites {
    */
   export function coreCanvas2D(
     description: string,
-    factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
+    factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvas2D
   ): void {
     coreCanvas2DTestSuiteCreateDispose(description, factory);
     coreCanvas2DTestSuiteCanvas(description, factory);
@@ -84,7 +86,7 @@ export namespace TestSuites {
    */
   export function coreCanvasWebGL(
     description: string,
-    factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+    factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
   ): void {
     coreCanvasWebGLTestSuiteCreateDispose(description, factory);
     coreCanvasWebGLTestSuiteCapabilities(description, factory);

@@ -14,12 +14,12 @@ import { CoreCanvasOptions, CoreCanvasWebGL, CoreShader } from '@leosingleton/fi
 /** CoreCanvasWebGL test cases for shaders */
 export function coreCanvasWebGLTestSuiteShader(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvasWebGL
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvasWebGL
 ): void {
   describe(`CoreCanvasWebGL Shader - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const shader = canvas.createCoreShader(fillConstShader);
         shader.dispose();
       });
@@ -28,7 +28,7 @@ export function coreCanvasWebGLTestSuiteShader(
     it('Disposes automatically', () => {
       let shader: CoreShader;
 
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         shader = canvas.createCoreShader(fillConstShader);
       });
 
@@ -37,7 +37,7 @@ export function coreCanvasWebGLTestSuiteShader(
     });
 
     it('Executes a simple fill shader', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const shader = canvas.createCoreShader(fillUniformShader);
 
         // Fill the output with the color red
@@ -52,9 +52,9 @@ export function coreCanvasWebGLTestSuiteShader(
     });
 
     it('Executes a simple fill shader with a constant, outputting to a texture', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const shader = canvas.createCoreShader(fillConstShader);
-        const texture = canvas.createCoreTexture(textureOptions);
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
 
         // Fill the texture with the color green
         shader.setConstants({
@@ -71,9 +71,9 @@ export function coreCanvasWebGLTestSuiteShader(
     });
 
     it('Executes a simple fill shader with a uniform, outputting to a texture', () => {
-      using(factory(canvasOptions, TestSizes.smallWide), canvas => {
+      using(factory(TestSizes.smallWide, canvasOptions), canvas => {
         const shader = canvas.createCoreShader(fillUniformShader);
-        const texture = canvas.createCoreTexture(textureOptions);
+        const texture = canvas.createCoreTexture(TestSizes.smallWide, textureOptions);
 
         // Fill the texture with the color green
         shader.setUniform('uColor', [0, 1, 0, 1]);

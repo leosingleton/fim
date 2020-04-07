@@ -10,12 +10,12 @@ import { CoreCanvas2D, CoreCanvasOptions } from '@leosingleton/fim/internals';
 /** CoreCanvas2D tests around create/dispose */
 export function coreCanvas2DTestSuiteCreateDispose(
   description: string,
-  factory: (canvasOptions: CoreCanvasOptions, dimensions: FimDimensions) => CoreCanvas2D
+  factory: (dimensions: FimDimensions, canvasOptions: CoreCanvasOptions) => CoreCanvas2D
 ): void {
   describe(`CoreCanvas2D Create/Dispose - ${description}`, () => {
 
     it('Creates and disposes', () => {
-      const canvas = factory(canvasOptions, TestSizes.smallWide);
+      const canvas = factory(TestSizes.smallWide, canvasOptions);
       canvas.dispose();
       expect(() => canvas.dispose()).toThrow(); // Double dispose throws exception
     });
