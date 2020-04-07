@@ -160,6 +160,7 @@ export function fimTestSuiteCanvas(
 
     it('Supports debug mode, including tracing and warnings', async () => {
       await usingAsync(factory(), async fim => {
+        fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
         const blur = new FimOpGaussianBlur(fim);
 
         fim.engineOptions.debugMode = true;
