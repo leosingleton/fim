@@ -2,12 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ImageType } from './ImageType';
+import { ImageFormat } from './ImageFormat';
 import { memoryToString } from './Logging';
 import { EngineFim } from '../EngineFim';
 import { EngineImage } from '../EngineImage';
 import { EngineShader } from '../EngineShader';
 import { FimError, FimErrorCode } from '../../primitives/FimError';
+import { OperationType } from './OperationType';
 
 /**
  * Base class for implementing optimizations. Performs basic logging of events, which derived classes should call
@@ -36,19 +37,21 @@ export abstract class OptimizerBase {
   /**
    * Notification when an `EngineImage` instance is read from
    * @param image `EngineImage` instance
-   * @param type Type of core object involved, canvas or texture
+   * @param format Format of the image contents, canvas or texture
+   * @param type Type of operation that triggered the activity
    */
-  public recordImageRead(image: EngineImage, type: ImageType): void {
-    this.writeTrace('Read', image, type);
+  public recordImageRead(image: EngineImage, format: ImageFormat, type: OperationType): void {
+    this.writeTrace('Read', image, format, type);
   }
 
   /**
    * Notification when an `EngineImage` instance is written to
    * @param image `EngineImage` instance
-   * @param type Type of core object involved, canvas or texture
+   * @param format Format of the image contents, canvas or texture
+   * @param type Type of operation that triggered the activity
    */
-  public recordImageWrite(image: EngineImage, type: ImageType): void {
-    this.writeTrace('Write', image, type);
+  public recordImageWrite(image: EngineImage, format: ImageFormat, type: OperationType): void {
+    this.writeTrace('Write', image, format, type);
   }
 
   /**
@@ -87,14 +90,24 @@ export abstract class OptimizerBase {
    * Internal helper used by `recordXYZ()` to write trace messages
    * @param event String describing the event, i.e. 'Create'
    * @param object Object instance involved in the event
-   * @param type For read/write operations, specifies the type of core object involved, canvas or texture
+   * @param format For read/write operations, specifies the format of the image contents, canvas or texture
+   * @param type For read/write operations, specifies the type of operation that triggered the activity
    */
-  private writeTrace(event: string, object: EngineImage | EngineShader, type?: ImageType): void {
+  private writeTrace(event: string, object: EngineImage | EngineShader, format?: ImageFormat, type?: OperationType):
+      void {
     if (this.fim.engineOptions.showTracing) {
-      if (type === ImageType.Canvas) {
+      if (format === ImageFormat.Canvas) {
         event += ' Canvas';
-      } else if (type === ImageType.Texture) {
+      } else if (format === ImageFormat.Texture) {
         event += ' Texture';
+      }
+
+      if (type === OperationType.Explicit) {
+        event += ' Explicit';
+      } else if (type === OperationType.ImportExport) {
+        event += ' ImportExport';
+      } else if (type === OperationType.InternalConversion) {
+        event += ' Conversion';
       }
 
       this.fim.writeTrace(object, event);

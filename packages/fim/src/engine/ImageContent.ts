@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ImageType } from './optimizer/ImageType';
+import { ImageFormat } from './optimizer/ImageFormat';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
@@ -11,6 +11,7 @@ import { EngineImage } from '../engine/EngineImage';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
+import { OperationType } from './optimizer/OperationType';
 
 /**
  * Base class for any object containing the image contents
@@ -275,10 +276,10 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
       // Copy the WebGL canvas to a 2D canvas
       await me.allocateContent(glCanvasDim).copyFromAsync(glCanvas, glCanvasCoords);
 
-      optimizer.recordImageRead(parentImage, ImageType.Texture);
+      optimizer.recordImageRead(parentImage, ImageFormat.Texture, OperationType.InternalConversion);
     }
 
-    optimizer.recordImageWrite(parentImage, ImageType.Canvas);
+    optimizer.recordImageWrite(parentImage, ImageFormat.Canvas, OperationType.InternalConversion);
   }
 }
 
@@ -342,10 +343,10 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
       // Copy canvas to texture
       const srcImage = contentCanvas.imageContent;
       await me.allocateContent(srcImage.dim).copyFromAsync(srcImage);
-      optimizer.recordImageRead(parentImage, ImageType.Canvas);
+      optimizer.recordImageRead(parentImage, ImageFormat.Canvas, OperationType.InternalConversion);
     }
 
-    optimizer.recordImageWrite(parentImage, ImageType.Texture);
+    optimizer.recordImageWrite(parentImage, ImageFormat.Texture, OperationType.InternalConversion);
   }
 }
 
