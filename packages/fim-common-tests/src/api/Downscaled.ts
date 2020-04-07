@@ -83,7 +83,6 @@ export function fimTestSuiteDownscaled(
 
     it('Preserves dimensions when transfering to a WebGL texture and back', async () => {
       await usingAsync(factory(), async fim => {
-        fim.engineOptions.maxImageDimensions = TestSizes.mediumSquare;
         const invert = new FimOpInvert(fim);
 
         // Create a medium 640x640 image
@@ -131,8 +130,6 @@ export function fimTestSuiteDownscaled(
 
     it('Upscales dimensions when copying and preserveDownscaledDimensions=false', async () => {
       await usingAsync(factory(), async fim => {
-        fim.engineOptions.maxImageDimensions = TestSizes.mediumSquare;
-
         // Create a small image
         const smallImage = fim.createImage(TestSizes.smallSquare);
         await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
@@ -152,8 +149,6 @@ export function fimTestSuiteDownscaled(
 
     it('Upscales dimensions when loading from a smaller image and preserveDownscaledDimensions=false', async () => {
       await usingAsync(factory(), async fim => {
-        fim.engineOptions.maxImageDimensions = TestSizes.mediumSquare;
-
         // Create a medium 640x640 image
         const image = fim.createImage(TestSizes.mediumSquare, { preserveDownscaledDimensions: false });
 
