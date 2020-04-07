@@ -87,8 +87,7 @@ export function fimTestSuiteOversized(
         fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
 
         // 128x128 PNG is larger than the 128x32 small FIM instance
-        const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png);
+        const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Y-axis to get downscaled from 128 to 32 pixels
         const eff = image.getEffectiveImageOptions();
@@ -112,8 +111,7 @@ export function fimTestSuiteOversized(
         fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
 
         // 128x128 JPEG is larger than the 128x32 small FIM instance
-        const jpeg = TestImages.fourSquaresJpeg();
-        const image = await fim.createImageFromJpegAsync(jpeg);
+        const image = await fim.createImageFromJpegAsync(TestImages.fourSquaresJpeg());
 
         // Y-axis to get downscaled from 128 to 32 pixels
         const eff = image.getEffectiveImageOptions();
@@ -136,8 +134,7 @@ export function fimTestSuiteOversized(
       // This is copy-and-paste code from the unit test in Canvas.ts, except this time we run it with the parent FIM
       // instance set to small, so all images get transparently downscaled.
       await usingAsync(factory(), async fim => {
-        const png = TestImages.fourSquaresPng();
-        const image1 = await fim.createImageFromPngAsync(png);
+        const image1 = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
         const image2 = fim.createImage(TestSizes.mediumTall);
 
         // Scale image1 (128x128) to medium size (480x640)
@@ -169,8 +166,7 @@ export function fimTestSuiteOversized(
         fim.engineOptions.maxImageDimensions = TestSizes.smallWide;
 
         // Load a 128x128 PNG with a FIM instance of 128x32
-        const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png);
+        const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // The CoreCanvas2D backing image should have been downscaled to 32x32
         expect(ImageInternals.hasCanvas(image)).toBeTruthy();
@@ -185,8 +181,7 @@ export function fimTestSuiteOversized(
         const invert = new FimOpInvert(fim);
 
         // Load a 128x128 PNG with a FIM instance of 128x32
-        const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png);
+        const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Run an invert operation to use a CoreTexture
         await image.executeAsync(invert.$(image));
@@ -201,8 +196,8 @@ export function fimTestSuiteOversized(
     it('Handles WebGL with downscale', async () => {
       await usingAsync(factory(), async fim => {
         // Create FIM resources
-        const png = TestImages.fourSquaresPng();
-        const inputImage = await fim.createImageFromPngAsync(png, { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
+        const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng(),
+          { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
         const outputImage = fim.createImage(TestSizes.smallSquare);
         const unsharpMask = new FimOpUnsharpMask(fim, true);
 

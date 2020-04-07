@@ -32,13 +32,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * Constructor
    * @param parent Parent object
    * @param dimensions Image dimensions
-   * @param options Optional image options to override the parent FIM's defaults
+   * @param options Image options to override the parent FIM's defaults
    * @param name An optional name specified when creating the object to help with debugging
    */
-  public constructor(parent: FimObject, dimensions: FimDimensions, options?: FimImageOptions, name?: string) {
+  public constructor(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string) {
     super(EngineObjectType.Image, name, parent);
     this.dim = dimensions;
-    this.imageOptions = deepCopy(options) ?? {};
+    this.imageOptions = deepCopy(options);
 
     const root = this.rootObject;
     root.optimizer.recordImageCreate(this);

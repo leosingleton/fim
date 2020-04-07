@@ -19,8 +19,7 @@ export function fimTestSuiteBackup(
         const invert = new FimOpInvert(fim);
 
         // Load an image
-        const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png);
+        const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Backup is a no-op when there is no WebGL texture
         await image.backupAsync();
@@ -44,8 +43,7 @@ export function fimTestSuiteBackup(
         const invert = new FimOpInvert(fim);
 
         // Load an image and enable auto-backup
-        const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png, { autoBackup: true });
+        const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng(), { autoBackup: true });
         expect(ImageInternals.hasCanvas(image)).toBeTruthy();
         expect(ImageInternals.hasTexture(image)).toBeFalsy();
 

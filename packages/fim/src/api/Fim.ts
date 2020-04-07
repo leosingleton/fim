@@ -9,6 +9,7 @@ import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
 import { FimResourceMetrics, FimResourceUsage } from './FimResourceUsage';
 import { FimShader } from './FimShader';
+import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { GlslShader } from 'webpack-glsl-minify';
 
@@ -73,6 +74,17 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
    */
   createImage(dimensions: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject): TImage;
+
+  /**
+   * Creates a new image and initializes its contents with a solid fill color
+   * @param dimensions Image dimensions
+   * @param color Fill color
+   * @param options Optional overrides to the image options from the parent Fim object
+   * @param name Optional name specified when creating the object to help with debugging
+   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
+   */
+  createImageWithFillAsync(dimensions: FimDimensions, color: FimColor | string, options?: FimImageOptions,
+    name?: string, parent?: FimObject): Promise<TImage>;
 
   /**
    * Creates a new image from a PNG file

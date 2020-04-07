@@ -52,8 +52,7 @@ describe('Exports to Canvas', () => {
   it('exportToCanvasAsync()', async () => {
     await usingAsync(FimBrowserFactory.create(), async fim => {
       // Create a FIM image and fill it with blue
-      const image = fim.createImage(TestSizes.mediumSquare);
-      await image.fillSolidAsync(TestColors.blue);
+      const image = await fim.createImageWithFillAsync(TestSizes.mediumSquare, TestColors.blue);
 
       // Create a 100x100 canvas and fill with red
       const canvas = createCanvasAndFill(FimDimensions.fromSquareDimension(100), TestColors.red);
@@ -78,8 +77,7 @@ describe('Exports to Canvas', () => {
       const dim = FimDimensions.fromWidthHeight(302, 298);
 
       // Create a FIM image and fill it with blue
-      const image = fim.createImage(dim);
-      await image.fillSolidAsync(TestColors.blue);
+      const image = await fim.createImageWithFillAsync(dim, TestColors.blue);
 
       // Create an oversized canvas and fill with red
       const canvas = createCanvasAndFill(dim, TestColors.red);

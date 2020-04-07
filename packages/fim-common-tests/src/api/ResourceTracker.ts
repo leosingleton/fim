@@ -18,8 +18,7 @@ export function fimTestSuiteResourceTracker(
       const fim = factory();
       await usingAsync(fim, async fim => {
         const image = fim.createImage(TestSizes.smallSquare);
-        const png = TestImages.fourSquaresPng();
-        await image.loadFromPngAsync(png);
+        await image.loadFromPngAsync(TestImages.fourSquaresPng());
 
         // Check summary metrics
         const rm = fim.getResourceMetrics();
