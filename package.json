@@ -47,7 +47,7 @@
   "scripts": {
     "bootstrap": "npx lerna bootstrap",
     "build": "npm run build:packages && npm run build:samples",
-    "build:packages": "npx ts-node ./scripts/build.ts",
+    "build:packages": "npx ts-node --project scripts/tsconfig.json ./scripts/build.ts",
     "build:samples": "npx webpack --config=webpack.samples.js",
     "clean": "rm -rf ./build ./packages/*/build",
     "lint": "npx eslint . --ext js,ts",

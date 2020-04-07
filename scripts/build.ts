@@ -4,9 +4,10 @@
 
 'use strict';
 
-const path = require('path');
-const cp = require('child_process');
-const glob = require('glob');
+import path from 'path';
+import cp from 'child_process';
+import glob from 'glob';
+//import webpack from 'webpack';
 
 /** NPM packages, in build order */
 const packages = [
