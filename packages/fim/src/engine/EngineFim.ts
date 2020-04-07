@@ -23,6 +23,7 @@ import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
 import { CoreFileReader, fileToName } from '../core/CoreFileReader';
 import { CoreImageLoader } from '../core/CoreImageLoader';
 import { CoreMimeType } from '../core/CoreMimeType';
+import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { deepCopy } from '@leosingleton/commonlibs';
@@ -357,6 +358,15 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
       TEngineImage {
     this.ensureNotDisposed();
     return this.createEngineImage(parent ?? this, dimensions, options ?? {}, name);
+  }
+
+  public createImageWithFill(dimensions: FimDimensions, color: FimColor | string, options?: FimImageOptions,
+      name?: string, parent?: FimObject): TEngineImage {
+    this.ensureNotDisposed();
+
+    const image = this.createEngineImage(parent ?? this, dimensions, options ?? {}, name);
+    image.fillSolid(color);
+    return image;
   }
 
   public createImageFromPngAsync(pngFile: Uint8Array, options?: FimImageOptions, name?: string, parent?: FimObject):

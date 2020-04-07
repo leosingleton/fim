@@ -26,8 +26,7 @@ export function fimTestSuiteDownscaled(
     it('Preserves input dimensions when copying', async () => {
       await usingAsync(factory(), async fim => {
         // Create a small image
-        const smallImage = fim.createImage(TestSizes.smallSquare);
-        await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
+        const smallImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
         const mediumImage = fim.createImage(TestSizes.mediumSquare);
@@ -131,8 +130,7 @@ export function fimTestSuiteDownscaled(
     it('Upscales dimensions when copying and preserveDownscaledDimensions=false', async () => {
       await usingAsync(factory(), async fim => {
         // Create a small image
-        const smallImage = fim.createImage(TestSizes.smallSquare);
-        await smallImage.loadFromPngAsync(TestImages.fourSquaresPng());
+        const smallImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Copy the small image to a medium image
         const mediumImage = fim.createImage(TestSizes.mediumSquare, { preserveDownscaledDimensions: false });

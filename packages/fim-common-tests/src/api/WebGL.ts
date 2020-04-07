@@ -74,8 +74,7 @@ export function fimTestSuiteWebGL(
     it('Executes a shader with an image parameter', async () => {
       await usingAsync(factory(), async fim => {
         // Load the four squares sample on to an image
-        const srcImage = fim.createImage(TestSizes.smallSquare);
-        await srcImage.loadFromPngAsync(TestImages.fourSquaresPng());
+        const srcImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
 
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(copyShader);

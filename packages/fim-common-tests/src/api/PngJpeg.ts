@@ -18,9 +18,7 @@ export function fimTestSuitePngJpeg(
     it('Imports from PNG', async () => {
       await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.smallSquare);
-        const png = TestImages.fourSquaresPng();
-        await image.loadFromPngAsync(png);
-
+        await image.loadFromPngAsync(TestImages.fourSquaresPng());
         await TestImages.expectFourSquaresPngAsync(image);
       });
     });
@@ -28,9 +26,7 @@ export function fimTestSuitePngJpeg(
     it('Imports from JPEG', async () => {
       await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.smallSquare);
-        const jpeg = TestImages.fourSquaresJpeg();
-        await image.loadFromJpegAsync(jpeg);
-
+        await image.loadFromJpegAsync(TestImages.fourSquaresJpeg());
         await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
@@ -38,9 +34,7 @@ export function fimTestSuitePngJpeg(
     it('Imports from PNG with rescale', async () => {
       await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.mediumTall);
-        const png = TestImages.fourSquaresPng();
-        await image.loadFromPngAsync(png, true);
-
+        await image.loadFromPngAsync(TestImages.fourSquaresPng(), true);
         await TestImages.expectFourSquaresPngAsync(image);
       });
     });
@@ -48,17 +42,14 @@ export function fimTestSuitePngJpeg(
     it('Imports from JPEG with rescale', async () => {
       await usingAsync(factory(), async fim => {
         const image = fim.createImage(TestSizes.mediumTall);
-        const jpeg = TestImages.fourSquaresJpeg();
-        await image.loadFromJpegAsync(jpeg, true);
-
+        await image.loadFromJpegAsync(TestImages.fourSquaresJpeg(), true);
         await TestImages.expectFourSquaresJpegAsync(image);
       });
     });
 
     it('Exports to PNG', async () => {
       await usingAsync(factory(), async fim => {
-        const image = fim.createImage(TestSizes.smallWide);
-        await image.fillSolidAsync(TestColors.red);
+        const image = fim.createImageWithFill(TestSizes.smallWide, TestColors.red);
         const png = await image.exportToPngAsync();
 
         // PNG magic number is 89 50 4E 47 (ASCII for .PNG)
@@ -71,8 +62,7 @@ export function fimTestSuitePngJpeg(
 
     it('Exports to JPEG', async () => {
       await usingAsync(factory(), async fim => {
-        const image = fim.createImage(TestSizes.smallWide);
-        await image.fillSolidAsync(TestColors.red);
+        const image = fim.createImageWithFill(TestSizes.smallWide, TestColors.red);
         const jpeg = await image.exportToJpegAsync();
 
         // JPEG magic number is FF D8 FF
@@ -84,9 +74,7 @@ export function fimTestSuitePngJpeg(
 
     it('Creates from PNG', async () => {
       await usingAsync(factory(), async fim => {
-        const png = TestImages.fourSquaresPng();
-        const image = await fim.createImageFromPngAsync(png);
-
+        const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
         expect(image.dim).toEqual(TestSizes.smallSquare);
         await TestImages.expectFourSquaresPngAsync(image);
       });
@@ -94,9 +82,7 @@ export function fimTestSuitePngJpeg(
 
     it('Creates from JPEG', async () => {
       await usingAsync(factory(), async fim => {
-        const jpeg = TestImages.fourSquaresJpeg();
-        const image = await fim.createImageFromJpegAsync(jpeg);
-
+        const image = await fim.createImageFromJpegAsync(TestImages.fourSquaresJpeg());
         expect(image.dim).toEqual(TestSizes.smallSquare);
         await TestImages.expectFourSquaresJpegAsync(image);
       });

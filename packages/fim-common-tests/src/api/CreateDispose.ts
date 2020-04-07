@@ -33,8 +33,7 @@ export function fimTestSuiteCreateDispose(
 
     it('Creates and disposes images', async () => {
       await usingAsync(factory(), async fim => {
-        const img1 = fim.createImage(TestSizes.smallWide);
-        await img1.fillSolidAsync(TestColors.red);
+        const img1 = fim.createImageWithFill(TestSizes.smallWide, TestColors.red);
         img1.dispose();
 
         const img2 = fim.createImage(TestSizes.smallWide);
