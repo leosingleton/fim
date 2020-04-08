@@ -21,6 +21,5 @@
     "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",
-  "types": "build/index.d.ts",
-  "browser": "build/umd/fim-browser.min.js"
+  "types": "build/index.d.ts"
 }

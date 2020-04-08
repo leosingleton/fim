@@ -37,7 +37,7 @@ module.exports = (env, argv) => {
     ],
     output: {
       path: path.resolve(__dirname, 'build'),
-      filename: prod ? 'umd/fim-samples.min.js' : 'umd/fim-samples.js',
+      filename: prod ? 'index.min.js' : 'index.js',
       libraryTarget: 'umd'
     }
   };

@@ -4,7 +4,6 @@
 
 'use strict';
 
-import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
 import glob from 'glob';
@@ -25,11 +24,23 @@ for (const pkg of packages) {
     const cwd = path.resolve(packagesDir, pkg);
     console.log(cwd);
 
+    // Read the NPM package configuration
+    const config = require(path.resolve(cwd, 'package.json'));
+
+    // Compile and minify .glsl files to JavaScript
     minifyGlsl(cwd);
-    compileCommonJS(cwd);
-    compileUMD(cwd);
+
+    // If package.json contains a "main" entry, compile a CommonJS library with tsc
+    if (config.main) {
+      compileCommonJS(cwd);
+    }
+
+    // If package.json contains a "browser" entry, compile a UMD library with Webpack
+    if (config.browser) {
+      compileUMD(cwd);
+    }
   } catch (err) {
-    console.log(err.stdout);
+    process.stdout.write(err.stdout);
     process.exit(-1);
   }
 }
@@ -42,8 +53,7 @@ function minifyGlsl(cwd: string): void {
   const srcDir = path.resolve(cwd, 'src');
   const files = glob.sync('**/*.glsl', { cwd: srcDir });
   for (const file of files) {
-    const stdout = cp.execSync(`npx webpack-glsl-minify ${file} -o ../build --stripVersion`, { cwd: srcDir });
-    process.stdout.write(stdout);
+    execSyncWrapper(`npx webpack-glsl-minify ${file} -o ../build --stripVersion`, srcDir);
   }
 }
 
@@ -52,8 +62,7 @@ function minifyGlsl(cwd: string): void {
  * @param cwd Current working directory
  */
 function compileCommonJS(cwd: string): void {
-  const stdout = cp.execSync('npx tsc', { cwd });
-  process.stdout.write(stdout);
+  execSyncWrapper('npx tsc', cwd);
 }
 
 /**
@@ -61,13 +70,17 @@ function compileCommonJS(cwd: string): void {
  * @param cwd Current working directory
  */
 function compileUMD(cwd: string): void {
-  // Check whether a Webpack configuration file exists. If not, skip this step.
-  if (!fs.existsSync(path.resolve(cwd, 'webpack.config.js'))) {
-    console.log(`Skipping UMD bundle for ${path.basename(cwd)} as there is no webpack.config.js`);
-    return;
-  }
-
   // Build both minified and non-minified versions
-  const stdout = cp.execSync('npx webpack --mode=development && npx webpack --mode=production', { cwd });
+  execSyncWrapper('npx webpack --mode=development', cwd);
+  execSyncWrapper('npx webpack --mode=production', cwd);
+}
+
+/**
+ * Wrapper around `child_process.execSync()`
+ * @param command Command to execute
+ * @param cwd Current working directory
+ */
+function execSyncWrapper(command: string, cwd: string): void {
+  const stdout = cp.execSync(command, { cwd });
   process.stdout.write(stdout);
 }
