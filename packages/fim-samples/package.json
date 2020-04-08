@@ -11,7 +11,9 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
-    "@types/jquery": "latest"
+    "@types/jquery": "latest",
+    "copy-webpack-plugin": "latest",
+    "webpack": "latest"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
@@ -21,5 +23,6 @@
     "tslib": "latest"
   },
   "main": "build/index.js",
-  "types": "build/index.d.ts"
+  "types": "build/index.d.ts",
+  "browser": "build/umd/fim-samples.min.js"
 }

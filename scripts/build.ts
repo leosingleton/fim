@@ -4,6 +4,7 @@
 
 'use strict';
 
+import fs from 'fs';
 import path from 'path';
 import cp from 'child_process';
 import glob from 'glob';
@@ -13,7 +14,8 @@ const packages = [
   'fim',
   'fim-common-tests',
   'fim-browser',
-  'fim-node'
+  'fim-node',
+  'fim-samples'
 ];
 
 const packagesDir = path.resolve(__dirname, '../packages');
@@ -23,11 +25,9 @@ for (const pkg of packages) {
     const cwd = path.resolve(packagesDir, pkg);
     console.log(cwd);
 
-    // Find and minify .glsl files
     minifyGlsl(cwd);
-
-    // Compile TypeScript
     compileCommonJS(cwd);
+    compileUMD(cwd);
   } catch (err) {
     console.log(err.stdout);
     process.exit(-1);
@@ -53,5 +53,21 @@ function minifyGlsl(cwd: string): void {
  */
 function compileCommonJS(cwd: string): void {
   const stdout = cp.execSync('npx tsc', { cwd });
+  process.stdout.write(stdout);
+}
+
+/**
+ * Compiles a package using Webpack and generates UMD output
+ * @param cwd Current working directory
+ */
+function compileUMD(cwd: string): void {
+  // Check whether a Webpack configuration file exists. If not, skip this step.
+  if (!fs.existsSync(path.resolve(cwd, 'webpack.config.js'))) {
+    console.log(`Skipping UMD bundle for ${path.basename(cwd)} as there is no webpack.config.js`);
+    return;
+  }
+
+  // Build both minified and non-minified versions
+  const stdout = cp.execSync('npx webpack --mode=development && npx webpack --mode=production', { cwd });
   process.stdout.write(stdout);
 }

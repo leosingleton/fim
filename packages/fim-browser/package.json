@@ -11,7 +11,8 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
-    "@leosingleton/fim-common-tests": "^2.0.0-alpha"
+    "@leosingleton/fim-common-tests": "^2.0.0-alpha",
+    "webpack": "latest"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
@@ -20,5 +21,6 @@
     "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",
-  "types": "build/index.d.ts"
+  "types": "build/index.d.ts",
+  "browser": "build/umd/fim-browser.min.js"
 }
