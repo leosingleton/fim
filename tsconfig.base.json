@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2017", "dom"],
+
+    "declaration": true,
+    "sourceMap": true,
+
+    "noImplicitAny": true,
+    "noImplicitReturns": true
+  },
+
+  // This configuration is only a base for other config files. Derived files must override the "exclude" property.
+  "exclude": ["**"]
+}
