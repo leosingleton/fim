@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /* The fim-node package requires the esModuleInterop flag, so enable it for Jest */
+    "esModuleInterop": true
+  }
+}
