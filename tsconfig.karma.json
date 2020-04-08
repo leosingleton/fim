@@ -1,10 +1,4 @@
 {
   "extends": "./tsconfig.base.json",
-
-  // Include all files that aren't part of the normal TypeScript build to keep eslint happy...
-  "include": [
-    "**/__tests__/**/*.ts",
-    "*.js"
-  ],
   "exclude": ["./scripts/*", "./packages/fim-node/*"]
 }

@@ -3,7 +3,6 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "build",
-    "importHelpers": true,
 
     /* Required for headless-gl */
     "esModuleInterop": true
