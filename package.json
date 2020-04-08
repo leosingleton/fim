@@ -46,9 +46,10 @@
   },
   "scripts": {
     "bootstrap": "npx lerna bootstrap",
-    "build": "npx ts-node --project scripts/tsconfig.json ./scripts/build.ts",
+    "build": "npx ts-node --project scripts/tsconfig.json ./scripts/build.ts && npm run size",
     "clean": "rm -rf ./build ./packages/*/build",
     "lint": "npx eslint . --ext js,ts",
+    "size": "ls -l packages/fim-samples/build/*.js",
     "test": "npm run test:node && npm run test:browser",
     "test:browser": "npx webpack --config=webpack.karma.js && npx karma start",
     "test:browser:debug": "npx webpack --config=webpack.karma.js && npx karma start --single-run=false --browsers Chrome",
