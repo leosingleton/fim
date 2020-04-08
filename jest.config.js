@@ -27,5 +27,10 @@ module.exports = {
     // Redirect the compiled NPM package back to the original TypeScript source for accurate code coverage
     '^@leosingleton/fim$': '<rootDir>/packages/fim/src/index.ts',
     '^@leosingleton/fim/internals$': '<rootDir>/packages/fim/src/internal/index.ts'
+  },
+  globals: {
+    'ts-jest': {
+      tsConfig: 'tsconfig.jest.json'
+    }
   }
 };

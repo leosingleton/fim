@@ -1,8 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "build",
-    "importHelpers": true
-  }
+
+    /* Required for headless-gl */
+    "esModuleInterop": true
+  },
+  "exclude": ["**/__tests__/*", "**/build/*"]
 }
