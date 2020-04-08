@@ -22,15 +22,12 @@ for (const pkg of packages) {
   try {
     const cwd = path.resolve(packagesDir, pkg);
     console.log(cwd);
-    let stdout = '';
 
     // Find and minify .glsl files
-    stdout += minifyGlsl(cwd);
+    minifyGlsl(cwd);
 
     // Compile TypeScript
-    stdout += compileCommonJS(cwd);
-
-    console.log(stdout);
+    compileCommonJS(cwd);
   } catch (err) {
     console.log(err.stdout);
     process.exit(-1);
@@ -40,25 +37,21 @@ for (const pkg of packages) {
 /**
  * Minifies all .glsl files with the webpack-glsl-minfy compiler
  * @param cwd Current working directory
- * @return Contents of stdout
  */
-function minifyGlsl(cwd: string): string {
-  let stdout = '';
-
+function minifyGlsl(cwd: string): void {
   const srcDir = path.resolve(cwd, 'src');
   const files = glob.sync('**/*.glsl', { cwd: srcDir });
   for (const file of files) {
-    stdout += cp.execSync(`npx webpack-glsl-minify ${file} -o ../build --stripVersion`, { cwd: srcDir });
+    const stdout = cp.execSync(`npx webpack-glsl-minify ${file} -o ../build --stripVersion`, { cwd: srcDir });
+    process.stdout.write(stdout);
   }
-
-  return stdout;
 }
 
 /**
  * Compiles a package using tsc and generates CommonJS output
  * @param cwd Current working directory
- * @return Contents of stdout
  */
-function compileCommonJS(cwd: string): string {
-  return cp.execSync('npx tsc', { cwd }).toString();
+function compileCommonJS(cwd: string): void {
+  const stdout = cp.execSync('npx tsc', { cwd });
+  process.stdout.write(stdout);
 }
