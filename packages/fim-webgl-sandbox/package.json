@@ -1,36 +1,35 @@
 {
   "name": "@leosingleton/fim-webgl-sandbox",
-  "version": "0.1.3",
+  "version": "2.0.0-alpha",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "WebGL Sandbox",
-  "homepage": "https://github.com/leosingleton/fim-webgl-sandbox",
+  "homepage": "https://fim.leosingleton.com",
   "license": "MIT",
   "private": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/leosingleton/fim-webgl-sandbox.git"
+    "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
-    "@types/bootstrap": "^4.3.1",
-    "@types/file-saver": "^2.0.1",
-    "@types/jquery": "^3.3.31",
-    "@types/node": "^12.12.21",
-    "copy-webpack-plugin": "^5.1.1",
-    "ts-loader": "^6.2.1",
-    "typescript": "^3.7.4",
-    "webpack": "^4.41.4",
-    "webpack-cli": "^3.3.10"
+    "@types/bootstrap": "latest",
+    "@types/file-saver": "latest",
+    "@types/jquery": "latest",
+    "@types/node": "latest",
+    "copy-webpack-plugin": "latest",
+    "ts-loader": "latest",
+    "typescript": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.3.2-alpha",
-    "@leosingleton/fim": "^1.3.3-alpha",
-    "bootstrap": "^4.4.1",
-    "file-saver": "^2.0.2",
-    "jquery": "^3.4.1",
-    "webpack-glsl-minify": "^1.1.2"
+    "@leosingleton/commonlibs": "latest",
+    "@leosingleton/fim": "^2.0.0-alpha",
+    "@leosingleton/fim-browser": "^2.0.0-alpha",
+    "bootstrap": "latest",
+    "file-saver": "latest",
+    "jquery": "latest",
+    "webpack-glsl-minify": "latest"
   },
-  "scripts": {
-    "build": "webpack --mode=development",
-    "build:production": "webpack --mode=production"
-  }
+  "browser": "build/index.js",
+  "types": "build/index.d.ts"
 }
