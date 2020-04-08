@@ -41,7 +41,7 @@ export class Shader {
 
   public async compile(): Promise<void> {
     // Use webpack-glsl-minify to parse the source code
-    let minify = new GlslMinify({
+    const minify = new GlslMinify({
       preserveDefines: true,
       preserveUniforms: true,
       preserveVariables: true
@@ -49,8 +49,8 @@ export class Shader {
     this.shader = await minify.execute(this.sourceCode);
 
     // Populate any @const values with some value to keep the WebGL compiler happy
-    for (let cname in this.shader.consts) {
-      let c = this.shader.consts[cname] as FimGLVariableDefinition;
+    for (const cname in this.shader.consts) {
+      const c = this.shader.consts[cname] as FimGLVariableDefinition;
       if (!c.variableValue) {
         switch (c.variableType) {
           case 'int':
@@ -66,7 +66,7 @@ export class Shader {
           case 'uvec2':
             c.variableValue = [0, 0];
             break;
-          
+
           case 'vec3':
           case 'bvec3':
           case 'ivec3':
@@ -135,18 +135,18 @@ export class Shader {
     localStorage.setItem(`shader_${this.id}_source`, this.sourceCode);
 
     // Save constant and uniform values
-    for (let vname in this.values) {
-      let value = this.values[vname];
+    for (const vname in this.values) {
+      const value = this.values[vname];
       localStorage.setItem(`shader_${this.id}_${vname}`, value);
     }
-    for (let uname in this.linearFiltering) {
-      let value = this.linearFiltering[uname];
+    for (const uname in this.linearFiltering) {
+      const value = this.linearFiltering[uname];
       localStorage.setItem(`shader_${this.id}_${uname}_linear`, value.toString());
     }
   }
 
   public deleteFromLocalStorage(): void {
-    for (let key in localStorage) {
+    for (const key in localStorage) {
       if (key.indexOf(`shader_${this.id}_`) === 0) {
         localStorage.removeItem(key);
       }
@@ -166,20 +166,20 @@ export class Shader {
   public linearFiltering: { [id: string]: boolean };
 
   public static async createFromFile(file: File): Promise<Shader> {
-    let shader = await this.createFromFileHelper(file);
+    const shader = await this.createFromFileHelper(file);
     await shader.compile();
     return shader;
   }
 
   private static createFromFileHelper(file: File): Promise<Shader> {
     return new Promise((resolve, reject) => {
-      let fr = new FileReader();
+      const fr = new FileReader();
       fr.readAsText(file);
 
       // On success, create a Shader and return it via the Promise
       fr.onload = () => {
-        let source = fr.result as string;
-        let shader = new Shader(file.name, source);
+        const source = fr.result as string;
+        const shader = new Shader(file.name, source);
         resolve(shader);
       };
 
@@ -191,27 +191,27 @@ export class Shader {
   }
 
   public static async createFromLocalStorage(id: number): Promise<Shader> {
-    let name = localStorage.getItem(`shader_${id}_name`);
-    let source = localStorage.getItem(`shader_${id}_source`);
+    const name = localStorage.getItem(`shader_${id}_name`);
+    const source = localStorage.getItem(`shader_${id}_source`);
 
     // Create the shader
-    let shader = new Shader(name, source, id);
+    const shader = new Shader(name, source, id);
     await shader.compile();
 
     // Load constant values
-    for (let cname in shader.shader.consts) {
-      let cid = `const-${cname}`;
-      let value = localStorage.getItem(`shader_${id}_${cid}`);
+    for (const cname in shader.shader.consts) {
+      const cid = `const-${cname}`;
+      const value = localStorage.getItem(`shader_${id}_${cid}`);
       shader.values[cid] = value || '';
     }
 
     // Load uniform values
-    for (let uname in shader.shader.uniforms) {
-      let uid = `uniform-${uname}`;
-      let value = localStorage.getItem(`shader_${id}_${uid}`);
+    for (const uname in shader.shader.uniforms) {
+      const uid = `uniform-${uname}`;
+      const value = localStorage.getItem(`shader_${id}_${uid}`);
       shader.values[uid] = value || '';
 
-      let linear = localStorage.getItem(`shader_${id}_${uid}_linear`);
+      const linear = localStorage.getItem(`shader_${id}_${uid}_linear`);
       shader.linearFiltering[uid] = (linear === 'true');
     }
 
@@ -219,14 +219,14 @@ export class Shader {
   }
 
   public static async createAllFromLocalStorage(): Promise<Shader[]> {
-    let shaders: Shader[] = [];
+    const shaders: Shader[] = [];
 
     for (let n = 0; n < localStorage.length; n++) {
-      let key = localStorage.key(n);
-      let parts = key.split('_');
+      const key = localStorage.key(n);
+      const parts = key.split('_');
       if (parts.length === 3 && parts[0] === 'shader' && parts[2] === 'name') {
         // We found a shader
-        let id = Number.parseInt(parts[1]);
+        const id = Number.parseInt(parts[1]);
         shaders.push(await this.createFromLocalStorage(id));
       }
     }

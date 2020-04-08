@@ -6,8 +6,8 @@ import { FimGLCanvas, FimGLProgram, FimGLTexture } from '@leosingleton/fim';
 
 /** GL program to create a greyscale image from one color channel */
 export class SelectChannelProgram extends FimGLProgram {
-  constructor(canvas: FimGLCanvas) {
-    let fragmentShader = require('./glsl/SelectChannel.glsl');
+  public constructor(canvas: FimGLCanvas) {
+    const fragmentShader = require('./glsl/SelectChannel.glsl');
     super(canvas, fragmentShader);
     this.compileProgram();
   }

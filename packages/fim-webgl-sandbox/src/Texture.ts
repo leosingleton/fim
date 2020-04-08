@@ -18,7 +18,7 @@ export class Texture {
   public isRenaming = false;
 
   public static async createFromFile(file: File): Promise<Texture> {
-    let canvas = await fim.createFromImageBlobAsync(file);
+    const canvas = await fim.createFromImageBlobAsync(file);
     return new Texture(file.name, canvas);
   }
 

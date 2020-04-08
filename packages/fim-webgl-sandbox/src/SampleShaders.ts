@@ -5,7 +5,7 @@
 import { Shader } from './Shader';
 
 export async function createSampleShaders(): Promise<Shader[]> {
-  let sample1 = new Shader('Sample 1: RGB Gradient',
+  const sample1 = new Shader('Sample 1: RGB Gradient',
 `#version 100
 precision mediump float;
 
@@ -24,7 +24,7 @@ void main()
 }`);
   await sample1.compile();
 
-  let sample2 = new Shader('Sample 2: Invert',
+  const sample2 = new Shader('Sample 2: Invert',
 `#version 100
 precision mediump float;
 
@@ -45,7 +45,7 @@ void main()
 }`);
   await sample2.compile();
 
-  let sample3 = new Shader('Sample 3: Gaussian Blur',
+  const sample3 = new Shader('Sample 3: Gaussian Blur',
 `#version 100
 precision mediump float;
 
