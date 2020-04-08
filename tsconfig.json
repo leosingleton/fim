@@ -6,8 +6,7 @@
     "declaration": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
-    "sourceMap": true,
-    "esModuleInterop": true
+    "sourceMap": true
   },
   "exclude": ["**/__tests__/*", "**/build/*"]
 }
