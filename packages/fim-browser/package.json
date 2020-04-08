@@ -11,8 +11,7 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
-    "@leosingleton/fim-common-tests": "^2.0.0-alpha",
-    "webpack": "latest"
+    "@leosingleton/fim-common-tests": "^2.0.0-alpha"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
