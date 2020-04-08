@@ -7,5 +7,6 @@
 
     /* Required for headless-gl */
     "esModuleInterop": true
-  }
+  },
+  "exclude": ["**/__tests__/*", "**/build/*"]
 }

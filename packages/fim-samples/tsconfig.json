@@ -4,5 +4,5 @@
     "rootDir": "src",
     "outDir": "build"
   },
-  "exclude": ["**/__tests__/*", "**/build/*", "internals.*"]
+  "exclude": ["**/__tests__/*", "**/build/*"]
 }

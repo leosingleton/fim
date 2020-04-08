@@ -10,5 +10,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": true
   },
-  "exclude": ["**/__tests__/*", "**/build/*"]
+
+  // This configuration is only a base for other config files. Derived files must override the "exclude" property.
+  "exclude": ["**"]
 }
