@@ -28,7 +28,12 @@ module.exports = (env, argv) => {
       new CopyWebpackPlugin([
         {
           from: '../../samples',
-          to: './'
+          to: './samples',
+
+          // When building locally, transform the CDN-hosted paths to local paths
+          transform(content, _path) {
+            return content.toString().replace(/https.+fim-samples\/build/, '..');
+          }
         }
       ]),
       new webpack.ProvidePlugin({
