@@ -3,15 +3,22 @@
 // See LICENSE in the project root for license information.
 
 import { Stopwatch } from '@leosingleton/commonlibs';
-import { FimBrowserFactory } from '@leosingleton/fim-browser';
+import { FimBrowser, FimBrowserFactory } from '@leosingleton/fim-browser';
 import $ from 'jquery';
 import { OpSelectChannel } from './OpSelectChannel';
 
 /** Global FIM library instance */
-export const fim = FimBrowserFactory.create();
+export let fim: FimBrowser;
 
 /** Global instance of the OpSelectChannel shader */
-export const opSelectChannel = new OpSelectChannel(fim);
+export let opSelectChannel: OpSelectChannel;
+
+// Initialize the global objects on the document ready event
+$(() => {
+  fim = FimBrowserFactory.create();
+  opSelectChannel = new OpSelectChannel(fim);
+});
+
 
 /** Performance testing results */
 export interface IPerformanceResults {

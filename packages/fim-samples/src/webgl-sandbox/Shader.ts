@@ -51,7 +51,7 @@ export class Shader {
       // Populate any @const values with some value to keep the WebGL compiler happy
       const consts = this.shader.consts;
       for (const cname in consts) {
-        shader.setConstant(consts[cname].variableName, 1);
+        shader.setConstant(cname, 1);
       }
 
       await shader.compileAsync();
