@@ -2,7 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "build"
+    "outDir": "build",
+
+    // Suppress TypeScript type declarations as these JS bundles are consumed directly by the HTML UI
+    "declaration": false
   },
-  "exclude": ["**/__tests__/*", "**/build/*"]
+  "exclude": ["**/__tests__/*", "**/build/*", "./src/sandbox/**"]
 }

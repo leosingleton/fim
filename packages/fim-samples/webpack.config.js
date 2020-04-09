@@ -10,12 +10,12 @@ module.exports = (env, argv) => {
   const prod = argv.mode === 'production';
 
   return [
-    buildWebpackConfig('samples', prod, false, false),
-    buildWebpackConfig('sandbox', prod, true, true)
+    buildWebpackConfig('samples', prod, false),
+    //buildWebpackConfig('sandbox', prod, true)
   ];
 };
 
-function buildWebpackConfig(project, prod, includeBootstrap, includeJQuery) {
+function buildWebpackConfig(project, prod, includeBootstrap) {
   const copyConfig = [
     {
       context: `../../${project}`,
@@ -37,12 +37,6 @@ function buildWebpackConfig(project, prod, includeBootstrap, includeJQuery) {
     });
   }
 
-  const provideConfig = {};
-
-  if (!includeJQuery) {
-    provideConfig.$ = 'jquery';
-  }
-
   return {
     entry: `./src/${project}/index.ts`,
     devtool: 'source-map',
@@ -51,7 +45,7 @@ function buildWebpackConfig(project, prod, includeBootstrap, includeJQuery) {
         {
           test: /\.tsx?$/,
           use: 'ts-loader',
-          exclude: /node_modules/
+          exclude: [ /node_modules/, /src\/sandbox/ ]
         },
         {
           test: /\.glsl$/,
@@ -60,11 +54,13 @@ function buildWebpackConfig(project, prod, includeBootstrap, includeJQuery) {
       ]
     },
     resolve: {
-      extensions: [ '.glsl', '.ts' ]
+      extensions: [ '.glsl', '.js', '.ts' ]
     },
     plugins: [
       new CopyWebpackPlugin(copyConfig),
-      new webpack.ProvidePlugin(provideConfig)
+      new webpack.ProvidePlugin({
+        $: 'jquery'
+      })
     ],
     output: {
       path: path.resolve(__dirname, 'build'),
