@@ -3,3 +3,5 @@
 // See LICENSE in the project root for license information.
 
 export * from './Editor';
+
+import '../analytics';

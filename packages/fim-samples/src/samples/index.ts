@@ -7,3 +7,5 @@ export * from '@leosingleton/fim';
 export * from '@leosingleton/fim-browser';
 
 export * from './Common';
+
+import '../analytics';
