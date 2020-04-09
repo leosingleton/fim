@@ -2,9 +2,9 @@
 <html>
   <head>
     <title>WebGL Sandbox - Create, test, and debug WebGL fragment shaders</title>
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@leosingleton/fim-samples/build/webgl-sandbox/assets/css/bootstrap.min.css" rel="stylesheet" />
     <link href="assets/css/sandbox.css" rel="stylesheet" />
-    <script src="assets/js/sandbox.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@leosingleton/fim-samples/build/webgl-sandbox.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Create, test, and debug WebGL fragment shaders with an in-browser HTML5 application. Upload images to build and apply image filters." />
     <meta name="keywords" content="WebGL,GLSL,JavaScript,OpenGL,shader,fragment,2D,image,filter,digital,photo,GPU,Shadertoy,sandbox,FIM,JPEG,PNG,HTML5" />
@@ -24,11 +24,11 @@
           <table class="table">
             <thead class="thead-dark">
               <tr>
-                <th>Shader (<a href="#" class="whitelink" onclick="Sandbox.Editor.addShader()">Create</a>
+                <th>Shader (<a href="#" class="whitelink" onclick="Editor.addShader()">Create</a>
                   |
                   <a href="#"><label for="shader-upload" class="whitelink">Import</label><input type="file"
                     id="shader-upload" style="display:none" accept="text/plain" multiple
-                    onchange="Sandbox.Editor.uploadShaders(this.files)" /></a>)
+                    onchange="Editor.uploadShaders(this.files)" /></a>)
                 </th>
                 <th>Actions</th>
               </tr>
@@ -45,7 +45,7 @@
                   <th>Texture
                     (<a href="#"><label for="texture-upload" class="whitelink">Import</label><input type="file"
                       id="texture-upload" style="display:none" accept="image/*" multiple
-                      onchange="Sandbox.Editor.uploadTextures(this.files)" /></a>)
+                      onchange="Editor.uploadTextures(this.files)" /></a>)
                   </th>
                   <th>Dimensions</th>
                   <th>Actions</th>
@@ -83,7 +83,7 @@
             </div>
 
             <div class="modal-footer">
-              <button type="button" id="add-shader-ok" class="btn btn-primary btn-lg" onclick="Sandbox.Editor.addShaderOk()">Create</button>
+              <button type="button" id="add-shader-ok" class="btn btn-primary btn-lg" onclick="Editor.addShaderOk()">Create</button>
             </div>           
           </div>
         </div>
@@ -124,9 +124,9 @@
 
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary btn-lg"
-                onclick="Sandbox.Editor.executePerformanceTest()">Run Performance Test</button>
+                onclick="Editor.executePerformanceTest()">Run Performance Test</button>
               <button type="button" class="btn btn-primary btn-lg"
-                onclick="Sandbox.Editor.executeShaderOk()">Execute</button>
+                onclick="Editor.executeShaderOk()">Execute</button>
             </div>           
           </div>
         </div>
@@ -157,7 +157,7 @@
       <div class="footer-copyright text-center py-3">&copy; 2016-2019
         <a href="https://www.leosingleton.com/">Leo C. Singleton IV</a>
         &nbsp;|&nbsp;
-        <a href="https://github.com/leosingleton/fim-webgl-sandbox">GitHub</a>
+        <a href="https://github.com/leosingleton/fim">GitHub</a>
       </div>
     </div>
 

@@ -24,7 +24,7 @@ function buildWebpackConfig(project, prod, includeBootstrap) {
 
       // When building locally, transform the CDN-hosted paths to local paths
       transform(content, _path) {
-        return content.toString().replace(/https.+fim-samples\/build/, '..');
+        return content.toString().replace(/https.+fim-samples\/build/g, '..');
       }
     }
   ];
