@@ -23,4 +23,17 @@ export interface FimBrowserImage extends FimImage {
    *    canvas.
    */
   exportToCanvasAsync(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): Promise<void>;
+
+  /**
+   * Exports the image contents to a PNG `Blob`
+   * @returns Compressed PNG file as a `Blob`
+   */
+  exportToPngBlobAsync(): Promise<Blob>;
+
+  /**
+   * Exports the image contents to a JPEG `Blob`
+   * @param quality Optional compression quality (0.0 to 1.0)
+   * @returns Compressed JPEG file as a `Blob`
+   */
+  exportToJpegBlobAsync(quality?: number): Promise<Blob>;
 }

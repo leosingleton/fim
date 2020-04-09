@@ -6,7 +6,7 @@ import { FimBrowserImage } from '../api/FimBrowserImage';
 import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
 import { loadFromBlobAsync } from '../core/ImageLoader';
 import { FimDimensions, FimError, FimRect } from '@leosingleton/fim';
-import { CoreCanvas2D, EngineImage } from '@leosingleton/fim/internals';
+import { CoreCanvas2D, CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
 
 /** Implementation of `EngineImage` for web browsers */
 export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
@@ -29,5 +29,15 @@ export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
     return this.exportToCanvasHelperAsync(async (srcImage: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => {
       (srcImage as CoreBrowserCanvas2D).exportToCanvas(canvas, srcCoords, destCoords);
     }, srcCoords, destCoords);
+  }
+
+  public exportToPngBlobAsync(): Promise<Blob> {
+    return this.exportToInternalAsync(srcCanvas =>
+      (srcCanvas as CoreBrowserCanvas2D).convertToBlobAsync(CoreMimeType.PNG));
+  }
+
+  public exportToJpegBlobAsync(quality?: number): Promise<Blob> {
+    return this.exportToInternalAsync(srcCanvas =>
+      (srcCanvas as CoreBrowserCanvas2D).convertToBlobAsync(CoreMimeType.JPEG, quality));
   }
 }

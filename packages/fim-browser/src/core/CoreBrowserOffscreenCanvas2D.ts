@@ -42,7 +42,7 @@ export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
     return new CoreBrowserOffscreenCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
-  protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
+  public convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
     return this.canvasElement.convertToBlob({ type, quality });
   }
 }

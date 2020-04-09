@@ -16,6 +16,7 @@ export { FimOperationShader } from './api/FimOperationShader';
 export { FimReleaseResourcesFlags } from './api/FimReleaseResourcesFlags';
 export { FimResourceMetrics, FimResourceUsage } from './api/FimResourceUsage';
 export { FimShader } from './api/FimShader';
+export { FimValue } from './api/FimValue';
 export { FimGaussianKernel } from './math/FimGaussianKernel';
 export { FimTransform2D } from './math/FimTransform2D';
 export { FimTransform3D } from './math/FimTransform3D';
