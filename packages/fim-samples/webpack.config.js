@@ -10,12 +10,39 @@ module.exports = (env, argv) => {
   const prod = argv.mode === 'production';
 
   return [
-    buildWebpackConfig('samples', prod),
-    buildWebpackConfig('sandbox', prod)
+    buildWebpackConfig('samples', prod, false, false),
+    buildWebpackConfig('sandbox', prod, true, true)
   ];
 };
 
-function buildWebpackConfig(project, prod) {
+function buildWebpackConfig(project, prod, includeBootstrap, includeJQuery) {
+  const copyConfig = [
+    {
+      context: `../../${project}`,
+      from: '**',
+      to: project,
+
+      // When building locally, transform the CDN-hosted paths to local paths
+      transform(content, _path) {
+        return content.toString().replace(/https.+fim-samples\/build/, '..');
+      }
+    }
+  ];
+
+  if (includeBootstrap) {
+    copyConfig.push({
+      context: 'node_modules/bootstrap/dist/css/',
+      from: 'bootstrap.min.css',
+      to: `${project}/assets/css/`
+    });
+  }
+
+  const provideConfig = {};
+
+  if (!includeJQuery) {
+    provideConfig.$ = 'jquery';
+  }
+
   return {
     entry: `./src/${project}/index.ts`,
     devtool: 'source-map',
@@ -36,18 +63,8 @@ function buildWebpackConfig(project, prod) {
       extensions: [ '.glsl', '.ts' ]
     },
     plugins: [
-      new CopyWebpackPlugin([ {
-        from: `../../${project}`,
-        to: `./${project}`,
-
-        // When building locally, transform the CDN-hosted paths to local paths
-        transform(content, _path) {
-          return content.toString().replace(/https.+fim-samples\/build/, '..');
-        }
-      } ]),
-      new webpack.ProvidePlugin({
-        $: 'jquery'
-      })
+      new CopyWebpackPlugin(copyConfig),
+      new webpack.ProvidePlugin(provideConfig)
     ],
     output: {
       path: path.resolve(__dirname, 'build'),
