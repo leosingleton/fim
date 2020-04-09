@@ -49,4 +49,11 @@ export interface FimShader extends FimObject {
    *    which draws two triangles covering the entire texture or canvas.
    */
   applyVertexMatrix(vertexMatrix?: FimTransform2D | FimTransform3D | number[]): void;
+
+  /**
+   * Compiles and links the shaders with the current constant values. Calling this function is not necessary as the
+   * shaders are automatically compiled on first use. However doing so may be useful as any compilation errors will get
+   * thrown here.
+   */
+  compileAsync(): Promise<void>;
 }

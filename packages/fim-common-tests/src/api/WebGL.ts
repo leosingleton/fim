@@ -196,5 +196,23 @@ export function fimTestSuiteWebGL(
       });
     });
 
+    it('Allows a shader to be explicitly compiled', async () => {
+      await usingAsync(factory(), async fim => {
+        // Create a shader and explicitly compile it
+        const shader = fim.createGLShader(fillUniformShader);
+        await shader.compileAsync();
+
+        // Now, create an image and use the shader. Doing so will create a new WebGL canvas and cause the shader to get
+        // recompiled.
+        shader.setUniform('uColor', TestColors.red.toVector());
+        const image = fim.createImage(TestSizes.smallWide);
+        await image.executeAsync(shader);
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
+
+        // Call compile again. This is a no-op as the compiled version is cached.
+        await shader.compileAsync();
+      });
+    });
+
   });
 }
