@@ -14,7 +14,16 @@ export function loadFromFileAsync(file: Uint8Array, type: CoreMimeType, callback
     Promise<void> {
   // Create a Blob holding the binary data and load it onto an HTMLImageElement
   const blob = new Blob([file], { type });
+  return loadFromBlobAsync(blob, callback);
+}
 
+/**
+ * Loads an image blob's contents onto an `ImageSource` instance which can then be loaded onto a canvas
+ * @param blob, Image file, as a `Blob`
+ * @param type Mime type of the image file to load
+ * @param callback Callback to execute once the image contents are loaded
+ */
+export function loadFromBlobAsync(blob: Blob, callback: (image: ImageSource) => void): Promise<void> {
   return new Promise((resolve, reject) => {
     const url = (URL || webkitURL).createObjectURL(blob);
     const img = new Image();
