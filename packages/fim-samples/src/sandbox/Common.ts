@@ -5,9 +5,13 @@
 import { Stopwatch } from '@leosingleton/commonlibs';
 import { FimBrowserFactory } from '@leosingleton/fim-browser';
 import $ from 'jquery';
+import { OpSelectChannel } from './OpSelectChannel';
 
 /** Global FIM library instance */
 export const fim = FimBrowserFactory.create();
+
+/** Global instance of the OpSelectChannel shader */
+export const opSelectChannel = new OpSelectChannel(fim);
 
 /** Performance testing results */
 export interface IPerformanceResults {

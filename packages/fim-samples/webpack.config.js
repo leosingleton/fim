@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
 
   return [
     buildWebpackConfig('samples', prod, false),
-    //buildWebpackConfig('sandbox', prod, true)
+    buildWebpackConfig('sandbox', prod, true)
   ];
 };
 
@@ -45,7 +45,7 @@ function buildWebpackConfig(project, prod, includeBootstrap) {
         {
           test: /\.tsx?$/,
           use: 'ts-loader',
-          exclude: [ /node_modules/, /src\/sandbox/ ]
+          exclude: /node_modules/
         },
         {
           test: /\.glsl$/,

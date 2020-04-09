@@ -2,18 +2,17 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { IPerformanceResults, perfTest, fim } from './Common';
-import { Program } from './Program';
+import { IPerformanceResults, fim, opSelectChannel, perfTestAsync } from './Common';
 import { createSampleShaders } from './SampleShaders';
-import { SelectChannelProgram } from './SelectChannel';
 import { Shader } from './Shader';
 import { Texture } from './Texture';
-import { DisposableSet } from '@leosingleton/commonlibs';
-import { FimCanvas, FimGLTextureOptions, FimGLTextureFlags } from '@leosingleton/fim';
+import { DisposableSet, usingAsync } from '@leosingleton/commonlibs';
+import { FimDimensions, FimImageOptions, FimTextureSampling } from '@leosingleton/fim';
+import { FimBrowserImage } from '@leosingleton/fim-browser';
 import { saveAs } from 'file-saver';
 import { GlslVariable } from 'webpack-glsl-minify';
 import $ from 'jquery';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap';
 
 $(async () => {
   // Load previous shaders from local storage on startup
@@ -79,7 +78,7 @@ export namespace Editor {
   /** Handler for the OK button in the execute shader dialog */
   export async function executeShaderOk(): Promise<void> {
     try {
-      const canvas = await runCurrentShader() as FimCanvas;
+      const canvas = await runCurrentShader() as FimBrowserImage;
       currentShader.executionCount++;
 
       const textureName = $('#execute-shader-name').val().toString();
@@ -95,15 +94,17 @@ export namespace Editor {
   }
 
   export async function uploadShaders(files: FileList): Promise<void> {
-    for (const file of files) {
-      shaders.push(await Shader.createFromFile(file));
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let i = 0; i < files.length; i++) {
+      shaders.push(await Shader.createFromFile(files[i]));
     }
     refreshShaderList();
   }
 
   export async function uploadTextures(files: FileList): Promise<void> {
-    for (const file of files) {
-      textures.push(await Texture.createFromFile(file));
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
+    for (let i = 0; i < files.length; i++) {
+      textures.push(await Texture.createFromFile(files[i]));
     }
     refreshTextureList();
   }
@@ -170,7 +171,8 @@ function onExecuteShader(shader: Shader): void {
       // sampler2D uniforms are special: We show a drop-down of textures instead
       const select = $('<select class="form-control"/>').attr('id', id).appendTo(group);
       for (const texture of textures) {
-        const name = `${texture.name} (${texture.canvas.w} x ${texture.canvas.h})`;
+        const dim = texture.image.dim;
+        const name = `${texture.name} (${dim.w} x ${dim.h})`;
         select.append($('<option/>').attr('value', texture.id).text(name));
       }
 
@@ -193,22 +195,25 @@ function onExecuteShader(shader: Shader): void {
 }
 
 /** Handles the OK button on the execute shader dialog */
-function runCurrentShader(performanceTest = false): FimCanvas | IPerformanceResults {
+async function runCurrentShader(performanceTest = false): Promise<FimBrowserImage | IPerformanceResults> {
   const s = currentShader.shader;
-  let result: FimCanvas | IPerformanceResults;
+  let result: FimBrowserImage | IPerformanceResults;
 
   const width = $('#execute-shader-width').val() as number;
   const height = $('#execute-shader-height').val() as number;
 
-  DisposableSet.using(disposable => {
-    const gl = disposable.addDisposable(fim.createGLCanvas(width, height));
-    const program = disposable.addDisposable(new Program(gl, s));
+  await DisposableSet.usingAsync(async disposable => {
+    const program = fim.createGLShader(s);
+    const destImage = fim.createImage(FimDimensions.fromWidthHeight(width, height));
+    if (performanceTest) {
+      disposable.addDisposable(destImage);
+    }
 
     for (const cname in s.consts) {
       const id = `#const-${cname}`;
       // eslint-disable-next-line no-eval
       const value = eval($(id).val().toString());
-      program.setConst(cname, value);
+      program.setConstant(cname, value);
     }
 
     for (const uname in s.uniforms) {
@@ -219,23 +224,23 @@ function runCurrentShader(performanceTest = false): FimCanvas | IPerformanceResu
       if (u.variableType.indexOf('sampler') === -1) {
         program.setUniform(uname, value);
       } else {
-        const canvas = textures.find(v => v.id === value).canvas;
+        const image = textures.find(v => v.id === value).image;
         const linear = $(`#linear-${u.variableName}`).prop('checked') as boolean;
-        const options: FimGLTextureOptions = linear ? { textureFlags: FimGLTextureFlags.LinearSampling } : {};
-        const inputTexture = disposable.addDisposable(gl.createTexture(canvas.w, canvas.h, options));
-        inputTexture.copyFrom(canvas);
+        const options: FimImageOptions = { sampling: linear ? FimTextureSampling.Linear : FimTextureSampling.Nearest };
+        const inputTexture = disposable.addDisposable(fim.createImage(image.dim, options));
+        await inputTexture.copyFromAsync(image);
         program.setUniform(uname, inputTexture);
       }
     }
 
     // Recompile the shader as the @const values may have changed
-    program.compileProgram();
+    await program.compileAsync();
 
     if (performanceTest) {
-      result = perfTest(currentShader.name, () => program.execute());
+      result = await perfTestAsync(currentShader.name, () => destImage.executeAsync(program));
     } else {
-      program.execute();
-      result = gl.duplicateCanvas();
+      await destImage.executeAsync(program);
+      result = destImage;
     }
   });
 
@@ -301,7 +306,8 @@ function refreshTextureList(): void {
     }
 
     // Dimensions column
-    row.append($('<td/>').html(`${texture.canvas.w}&nbsp;x&nbsp;${texture.canvas.h}`));
+    const dim = texture.image.dim;
+    row.append($('<td/>').html(`${dim.w}&nbsp;x&nbsp;${dim.h}`));
 
     const actions = $('<td/>').appendTo(row);
     actions.append($('<a href="#">View</a>').click(() => onViewTexture(texture)));
@@ -331,18 +337,18 @@ function onRenameTexture(texture: Texture): void {
 /** Called when the edit box to rename a texture loses focus. Performs the actual rename. */
 function onRenameTextureDone(texture: Texture): void {
   const name = $('#rename-texture').val().toString();
-  const newTexture = new Texture(name, texture.canvas);
+  const newTexture = new Texture(name, texture.image);
   textures = textures.filter(t => t !== texture);
   textures.push(newTexture);
   refreshTextureList();
 }
 
 function onViewTexture(texture: Texture): Promise<void> {
-  return onViewCanvas(texture.canvas);
+  return onViewImage(texture.image);
 }
 
-async function onViewCanvas(canvas: FimCanvas): Promise<void> {
-  const blob = await canvas.toPngBlob();
+async function onViewImage(image: FimBrowserImage): Promise<void> {
+  const blob = await image.exportToPngBlobAsync();
 
   const fr = new FileReader();
   fr.readAsDataURL(blob);
@@ -355,21 +361,11 @@ async function onViewCanvas(canvas: FimCanvas): Promise<void> {
   };
 }
 
-function onViewTextureChannel(texture: Texture, channel: 'R' | 'G' | 'B' | 'A'): Promise<void> {
-  let result: Promise<void>;
-  DisposableSet.using(disposable => {
-    const oldCanvas = texture.canvas;
-    const gl = disposable.addDisposable(fim.createGLCanvas(oldCanvas.w, oldCanvas.h));
-    const tex = disposable.addDisposable(gl.createTextureFrom(oldCanvas));
-    const p = disposable.addDisposable(new SelectChannelProgram(gl));
-    p.setInputs(tex, channel);
-    p.execute();
-
-    const newCanvas = disposable.addDisposable(gl.duplicateCanvas());
-    result = onViewCanvas(newCanvas);
+async function onViewTextureChannel(texture: Texture, channel: 'R' | 'G' | 'B' | 'A'): Promise<void> {
+  await usingAsync(fim.createImage(texture.image.dim), async singleChannel => {
+    await singleChannel.executeAsync(opSelectChannel.$(texture.image, channel));
+    await onViewImage(singleChannel);
   });
-
-  return result;
 }
 
 /** Handler for the Download button */
@@ -378,12 +374,12 @@ async function onDownloadTexture(texture: Texture): Promise<void> {
   const filename = texture.name.replace(/[^\w]/g, '_') + '.png';
 
   // Save the output
-  const blob = await texture.canvas.toPngBlob();
+  const blob = await texture.image.exportToPngBlobAsync();
   saveAs(blob, filename);
 }
 
 function onDeleteTexture(texture: Texture): void {
-  texture.canvas.dispose();
+  texture.image.dispose();
   textures = textures.filter(t => t !== texture);
   refreshTextureList();
 }

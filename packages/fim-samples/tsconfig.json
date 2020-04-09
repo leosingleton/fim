@@ -5,7 +5,10 @@
     "outDir": "build",
 
     // Suppress TypeScript type declarations as these JS bundles are consumed directly by the HTML UI
-    "declaration": false
+    "declaration": false,
+
+    // Support jQuery
+    "esModuleInterop": true
   },
-  "exclude": ["**/__tests__/*", "**/build/*", "./src/sandbox/**"]
+  "exclude": ["**/__tests__/*", "**/build/*"]
 }

@@ -3,9 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { fim } from './Common';
-import { Program } from './Program';
-import { deepCopy, using } from '@leosingleton/commonlibs';
-import { FimGLVariableDefinition } from '@leosingleton/fim/build/dist/gl/FimGLShader';
+import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 import { GlslMinify } from 'webpack-glsl-minify/build/minify.js';
 
@@ -48,85 +46,15 @@ export class Shader {
     });
     this.shader = await minify.execute(this.sourceCode);
 
-    // Populate any @const values with some value to keep the WebGL compiler happy
-    for (const cname in this.shader.consts) {
-      const c = this.shader.consts[cname] as FimGLVariableDefinition;
-      if (!c.variableValue) {
-        switch (c.variableType) {
-          case 'int':
-          case 'uint':
-          case 'float':
-          case 'double':
-            c.variableValue = 1;
-            break;
-
-          case 'vec2':
-          case 'bvec2':
-          case 'ivec2':
-          case 'uvec2':
-            c.variableValue = [0, 0];
-            break;
-
-          case 'vec3':
-          case 'bvec3':
-          case 'ivec3':
-          case 'uvec3':
-            c.variableValue = [0, 0, 0];
-            break;
-
-          case 'vec4':
-          case 'bvec4':
-          case 'ivec4':
-          case 'uvec4':
-            c.variableValue = [0, 0, 0, 0];
-            break;
-
-          case 'bool':
-            c.variableValue = true;
-            break;
-
-          case 'mat2':
-          case 'mat2x2':
-            c.variableValue = [0, 0, 0, 0];
-            break;
-
-          case 'mat2x3':
-          case 'mat3x2':
-            c.variableValue = [0, 0, 0, 0, 0, 0];
-            break;
-
-          case 'mat2x4':
-          case 'mat4x2':
-            c.variableValue = [0, 0, 0, 0, 0, 0, 0, 0];
-            break;
-
-          case 'mat3':
-          case 'mat3x3':
-            c.variableValue = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-            break;
-
-          case 'mat3x4':
-          case 'mat4x3':
-            c.variableValue = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            break;
-
-          case 'mat4':
-          case 'mat4x4':
-            c.variableValue = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-            break;
-
-          default:
-            c.variableValue = [1];
-            break;
-        }
-      }
-    }
-
     // Try to compile the shader
-    using(fim.createGLCanvas(100, 100), gl => {
-      using(new Program(gl, this.shader), program => {
-        program.compileProgram();
-      });
+    await usingAsync(fim.createGLShader(this.shader), async shader => {
+      // Populate any @const values with some value to keep the WebGL compiler happy
+      const consts = this.shader.consts;
+      for (const cname in consts) {
+        shader.setConstant(consts[cname].variableName, 1);
+      }
+
+      await shader.compileAsync();
     });
   }
 
