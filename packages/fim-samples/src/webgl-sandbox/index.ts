@@ -5,3 +5,4 @@
 export * from './Editor';
 
 import '../analytics';
+import '../errors';

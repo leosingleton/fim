@@ -9,3 +9,4 @@ export * from '@leosingleton/fim-browser';
 export * from './Common';
 
 import '../analytics';
+import '../errors';
