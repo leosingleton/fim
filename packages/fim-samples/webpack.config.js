@@ -11,7 +11,7 @@ module.exports = (env, argv) => {
 
   return [
     buildWebpackConfig('samples', prod, false),
-    buildWebpackConfig('sandbox', prod, true)
+    buildWebpackConfig('webgl-sandbox', prod, true)
   ];
 };
 
