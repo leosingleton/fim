@@ -10,12 +10,12 @@ module.exports = (env, argv) => {
   const prod = argv.mode === 'production';
 
   return [
-    buildWebpackConfig('samples', prod, false),
-    buildWebpackConfig('webgl-sandbox', prod, true)
+    buildWebpackConfig('samples', prod),
+    buildWebpackConfig('webgl-sandbox', prod)
   ];
 };
 
-function buildWebpackConfig(project, prod, includeBootstrap) {
+function buildWebpackConfig(project, prod) {
   const copyConfig = [
     {
       context: `../../${project}`,
@@ -28,14 +28,6 @@ function buildWebpackConfig(project, prod, includeBootstrap) {
       }
     }
   ];
-
-  if (includeBootstrap) {
-    copyConfig.push({
-      context: 'node_modules/bootstrap/dist/css/',
-      from: 'bootstrap.min.css',
-      to: `${project}/assets/css/`
-    });
-  }
 
   return {
     entry: `./src/${project}/index.ts`,
