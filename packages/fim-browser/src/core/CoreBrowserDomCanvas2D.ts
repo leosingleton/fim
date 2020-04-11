@@ -48,7 +48,7 @@ export class CoreBrowserDomCanvas2D extends CoreBrowserCanvas2D {
     return new CoreBrowserDomCanvas2D(dimensions, canvasOptions, handle, engineOptions);
   }
 
-  protected convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
+  public convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob> {
     return new Promise<Blob>(resolve => {
       this.canvasElement.toBlob(blob => resolve(blob), type, quality);
     });

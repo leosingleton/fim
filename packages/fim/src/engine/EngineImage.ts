@@ -406,31 +406,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     optimizer.releaseResources();
   }
 
-  public async exportToPixelDataAsync(srcCoords?: FimRect): Promise<Uint8ClampedArray> {
-    const me = this;
-    const optimizer = me.rootObject.optimizer;
-    me.ensureNotDisposed();
-
-    // Handle defaults and validate coordinates
-    srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
-    srcCoords.validateIn(me);
-
-    await me.contentCanvas.populateContentAsync();
-    let pixelData: Uint8ClampedArray;
-    if (me.contentCanvas.downscale === 1) {
-      // Fast case: No rescale required
-      pixelData = await me.contentCanvas.imageContent.exportToPixelData(srcCoords);
-    } else {
-      // Slow case: Use a temporary 2D canvas
-      pixelData = await me.exportToRescaleHelperAsync(srcCoords,
-        async scaledCanvas => scaledCanvas.exportToPixelData());
-    }
-
-    // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
-    optimizer.releaseResources();
-
-    return pixelData;
+  public exportToPixelDataAsync(srcCoords?: FimRect): Promise<Uint8ClampedArray> {
+    return this.exportToInternalAsync(async srcCanvas => srcCanvas.exportToPixelData(srcCoords));
   }
 
   /**
@@ -461,50 +438,39 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     optimizer.releaseResources();
   }
 
-  public async exportToPngAsync(): Promise<Uint8Array> {
-    const me = this;
-    const optimizer = me.rootObject.optimizer;
-    me.ensureNotDisposed();
-
-    await me.contentCanvas.populateContentAsync();
-    let png: Uint8Array;
-    if (me.contentCanvas.downscale === 1) {
-      // Fast case: No rescale required
-      png = await me.contentCanvas.imageContent.exportToPngAsync();
-    } else {
-      // Slow case: Use a temporary 2D canvas
-      png = await me.exportToRescaleHelperAsync(FimRect.fromDimensions(me.dim),
-        async scaledCanvas => scaledCanvas.exportToPngAsync());
-    }
-
-    // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
-    optimizer.releaseResources();
-
-    return png;
+  public exportToPngAsync(): Promise<Uint8Array> {
+    return this.exportToInternalAsync(srcCanvas => srcCanvas.exportToPngAsync());
   }
 
-  public async exportToJpegAsync(quality = 0.95): Promise<Uint8Array> {
+  public exportToJpegAsync(quality = 0.95): Promise<Uint8Array> {
+    return this.exportToInternalAsync(srcCanvas => srcCanvas.exportToJpegAsync(quality));
+  }
+
+  /**
+   * Internal implementation of `exportToPngAsync()` and `exportToJpegAsync()`
+   * @param exportLambda Asynchronous lambda to execute to perform the `CoreCanvas2D` to PNG/JPEG conversion
+   * @returns Return value from `exportLambda`
+   */
+  protected async exportToInternalAsync<T>(exportLambda: (srcCanvas: CoreCanvas2D) => Promise<T>): Promise<T> {
     const me = this;
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
 
     await me.contentCanvas.populateContentAsync();
-    let jpeg: Uint8Array;
+    let result: T;
     if (me.contentCanvas.downscale === 1) {
       // Fast case: No rescale required
-      jpeg = await me.contentCanvas.imageContent.exportToJpegAsync(quality);
+      result = await exportLambda(me.contentCanvas.imageContent);
     } else {
       // Slow case: Use a temporary 2D canvas
-      jpeg = await me.exportToRescaleHelperAsync(FimRect.fromDimensions(me.dim),
-        async scaledCanvas => scaledCanvas.exportToJpegAsync(quality));
+      result = await me.exportToRescaleHelperAsync(FimRect.fromDimensions(me.dim), exportLambda);
     }
 
     // Let the optimizer release unneeded resources
     optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
     optimizer.releaseResources();
 
-    return jpeg;
+    return result;
   }
 
   /**

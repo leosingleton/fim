@@ -19,7 +19,7 @@ export abstract class CoreBrowserCanvas2D extends CoreCanvas2D {
    * @param quality Optional compression quality (0.0 to 1.0)
    * @returns `Blob`
    */
-  protected abstract convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob>;
+  public abstract convertToBlobAsync(type: CoreMimeType, quality?: number): Promise<Blob>;
 
   /**
    * Exports the canvas contents to another canvas

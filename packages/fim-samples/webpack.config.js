@@ -9,8 +9,28 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = (env, argv) => {
   const prod = argv.mode === 'production';
 
+  return [
+    buildWebpackConfig('samples', prod),
+    buildWebpackConfig('webgl-sandbox', prod)
+  ];
+};
+
+function buildWebpackConfig(project, prod) {
+  const copyConfig = [
+    {
+      context: `../../${project}`,
+      from: '**',
+      to: project,
+
+      // When building locally, transform the CDN-hosted paths to local paths
+      transform(content, _path) {
+        return content.toString().replace(/https.+fim-samples\/build/g, '..');
+      }
+    }
+  ];
+
   return {
-    entry: './src/index.ts',
+    entry: `./src/${project}/index.ts`,
     devtool: 'source-map',
     module: {
       rules: [
@@ -18,32 +38,26 @@ module.exports = (env, argv) => {
           test: /\.tsx?$/,
           use: 'ts-loader',
           exclude: /node_modules/
+        },
+        {
+          test: /\.glsl$/,
+          use: 'webpack-glsl-minify'
         }
       ]
     },
     resolve: {
-      extensions: [ '.js', '.ts' ]
+      extensions: [ '.glsl', '.js', '.ts' ]
     },
     plugins: [
-      new CopyWebpackPlugin([
-        {
-          from: '../../samples',
-          to: './samples',
-
-          // When building locally, transform the CDN-hosted paths to local paths
-          transform(content, _path) {
-            return content.toString().replace(/https.+fim-samples\/build/, '..');
-          }
-        }
-      ]),
+      new CopyWebpackPlugin(copyConfig),
       new webpack.ProvidePlugin({
         $: 'jquery'
       })
     ],
     output: {
       path: path.resolve(__dirname, 'build'),
-      filename: prod ? 'index.min.js' : 'index.js',
+      filename: project + (prod ? '.min.js' : '.js'),
       libraryTarget: 'umd'
     }
   };
-};
+}

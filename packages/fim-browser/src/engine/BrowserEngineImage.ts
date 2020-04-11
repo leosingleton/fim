@@ -4,14 +4,40 @@
 
 import { FimBrowserImage } from '../api/FimBrowserImage';
 import { CoreBrowserCanvas2D } from '../core/CoreBrowserCanvas2D';
-import { FimRect } from '@leosingleton/fim';
-import { CoreCanvas2D, EngineImage } from '@leosingleton/fim/internals';
+import { loadFromBlobAsync } from '../core/ImageLoader';
+import { FimDimensions, FimError, FimRect } from '@leosingleton/fim';
+import { CoreCanvas2D, CoreMimeType, EngineImage } from '@leosingleton/fim/internals';
 
 /** Implementation of `EngineImage` for web browsers */
 export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
+  public loadFromBlobAsync(blob: Blob, allowRescale?: boolean): Promise<void> {
+    const me = this;
+
+    return loadFromBlobAsync(blob, image => {
+      // If allowRescale is disabled, explicitly check the dimensions here. We can't pass allowRescale parameter down
+      // to CoreCanvas2D.loadFromImage, because it may be a different set of dimensions due to auto-downscaling.
+      const imageDimensions = FimDimensions.fromObject(image);
+      if (!allowRescale && !imageDimensions.equals(me.dim)) {
+        FimError.throwOnInvalidDimensions(me.dim, imageDimensions);
+      }
+
+      me.loadFromImage(image);
+    });
+  }
+
   public exportToCanvasAsync(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     return this.exportToCanvasHelperAsync(async (srcImage: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => {
       (srcImage as CoreBrowserCanvas2D).exportToCanvas(canvas, srcCoords, destCoords);
     }, srcCoords, destCoords);
+  }
+
+  public exportToPngBlobAsync(): Promise<Blob> {
+    return this.exportToInternalAsync(srcCanvas =>
+      (srcCanvas as CoreBrowserCanvas2D).convertToBlobAsync(CoreMimeType.PNG));
+  }
+
+  public exportToJpegBlobAsync(quality?: number): Promise<Blob> {
+    return this.exportToInternalAsync(srcCanvas =>
+      (srcCanvas as CoreBrowserCanvas2D).convertToBlobAsync(CoreMimeType.JPEG, quality));
   }
 }

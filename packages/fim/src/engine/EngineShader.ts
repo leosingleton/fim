@@ -15,6 +15,7 @@ import { CoreTexture } from '../core/CoreTexture';
 import { CoreValue } from '../core/CoreValue';
 import { FimTransform2D } from '../math/FimTransform2D';
 import { FimTransform3D } from '../math/FimTransform3D';
+import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
 import { LruQueue } from '@leosingleton/commonlibs';
@@ -149,16 +150,22 @@ export class EngineShader extends EngineObject implements FimShader {
   /** Set on a call to `setVertices()` or `applyVertexMatrix()` */
   private verticesSet = false;
 
+  public async compileAsync(): Promise<void> {
+    // This may be the very first call that uses WebGL. If so, we need to create a WebGL canvas. So call "allocate"
+    // instead of "get". If it is the first call, a temporary 1x1 canvas will be created. Otherwise, any existing canvas
+    // will simply be reused.
+    const glCanvas = await this.rootObject.allocateWebGLCanvasAsync(FimDimensions.fromSquareDimension(1));
+
+    this.compileProgram(glCanvas);
+  }
+
   /**
-   * Executes a program. Callers must first set the constant and uniform values before calling this method.
+   * Internal implementation of `compileAsync()`
    * @param glCanvas The `CoreCanvasWebGL` instance
-   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to `glCanvas`.
-   * @param destCoords If set, renders the output to the specified destination coordinates using WebGL's viewport and
-   *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
-   *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
+   * @returns `CoreShader` object on a successful compile or cached copy of the shader if it was already compiled with
+   *    the same constant values.
    */
-  public async executeAsync(glCanvas: CoreCanvasWebGL, outputTexture?: CoreTexture, destCoords?: FimRect):
-      Promise<void> {
+  private compileProgram(glCanvas: CoreCanvasWebGL): CoreShader {
     const me = this;
     const root = me.rootObject;
     me.ensureNotDisposedAndHasContext();
@@ -193,6 +200,22 @@ export class EngineShader extends EngineObject implements FimShader {
       // If the shader is already allocated, simply update its position in the LRU queue
       me.constantValuesLru.enqueue(cv);
     }
+
+    return shader;
+  }
+
+  /**
+   * Executes a program. Callers must first set the constant and uniform values before calling this method.
+   * @param glCanvas The `CoreCanvasWebGL` instance
+   * @param outputTexture Destination texture to render to. If unspecified, the output is rendered to `glCanvas`.
+   * @param destCoords If set, renders the output to the specified destination coordinates using WebGL's viewport and
+   *    scissor operations. By default, the destination is the full texture or canvas. Note that the coordinates use
+   *    the top-left as the origin, to be consistent with 2D canvases, despite WebGL typically using bottom-left.
+   */
+  public async executeAsync(glCanvas: CoreCanvasWebGL, outputTexture?: CoreTexture, destCoords?: FimRect):
+      Promise<void> {
+    const me = this;
+    const shader = me.compileProgram(glCanvas);
 
     // Transform the uniform values from FimUniformValue to CoreValue. The types are the same except for textures.
     const uniformValues: { [name: string]: CoreValue } = {};

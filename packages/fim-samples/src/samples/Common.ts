@@ -2,7 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { DocumentReady, Stopwatch, UnhandledError } from '@leosingleton/commonlibs';
+import { Stopwatch } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 
 /** Stopwatch used to track elapsed time from page load. Used for animation and FPS calculations. */
@@ -115,16 +115,3 @@ export function renderDetails(fim: Fim, canvas: HTMLCanvasElement, message?: str
 
   ctx.restore();
 }
-
-// Unhandled Exception Handling
-UnhandledError.registerHandler(async (ue: UnhandledError) => {
-  // Block until we can show the error
-  await DocumentReady.waitUntilReady();
-
-  // Append the error to <div id="errors">
-  const div = $('#errors');
-  if (div) {
-    div.text(div.text() + '\n\n' + ue.toString());
-    div.show(); // Unhide if display: none
-  }
-});

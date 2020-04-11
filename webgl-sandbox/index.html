@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebGL Sandbox - Create, test, and debug WebGL fragment shaders</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous" rel="stylesheet" />
+    <link href="sandbox.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@leosingleton/fim-samples/build/webgl-sandbox.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Create, test, and debug WebGL fragment shaders with an in-browser HTML5 application. Upload images to build and apply image filters." />
+    <meta name="keywords" content="WebGL,GLSL,JavaScript,OpenGL,shader,fragment,2D,image,filter,digital,photo,GPU,Shadertoy,sandbox,FIM,JPEG,PNG,HTML5" />
+    <meta name="author" content="Leo C. Singleton IV" />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>WebGL Sandbox</h1>
+        <h5>Create, test, and debug WebGL fragment shaders</h5>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <!-- Shaders Table -->
+          <table class="table">
+            <thead class="thead-dark">
+              <tr>
+                <th>Shader (<a href="#" class="whitelink" onclick="Editor.addShader()">Create</a>
+                  |
+                  <a href="#"><label for="shader-upload" class="whitelink">Import</label><input type="file"
+                    id="shader-upload" style="display:none" accept="text/plain" multiple
+                    onchange="Editor.uploadShaders(this.files)" /></a>)
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shaders"></tbody>
+          </table>
+        </div>
+
+        <div class="col-lg-6">
+          <!-- Textures Table -->
+          <table class="table">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Texture
+                    (<a href="#"><label for="texture-upload" class="whitelink">Import</label><input type="file"
+                      id="texture-upload" style="display:none" accept="image/*" multiple
+                      onchange="Editor.uploadTextures(this.files)" /></a>)
+                  </th>
+                  <th>Dimensions</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+            <tbody id="textures"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Shader dialog box -->
+      <div class="modal fade" tabindex="-1" id="add-shader">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 id="add-shader-title" className="modal-title">Add Shader</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <label for="add-shader-name" class="control-label">Name</label>
+                  <input id="add-shader-name" type="text" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="add-shader-source" class="control-label">GLSL Source Code</label>
+                  <textarea id="add-shader-source" rows="15" cols="80" class="form-control"
+                    style="font-family: monospace"></textarea>
+                </div>
+              </form>
+              <div id="add-shader-errors" class="error-box"></div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" id="add-shader-ok" class="btn btn-primary btn-lg" onclick="Editor.addShaderOk()">Create</button>
+            </div>           
+          </div>
+        </div>
+      </div>
+
+      <!-- Execute Shader dialog box -->
+      <div class="modal fade" tabindex="-1" id="execute-shader">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 className="modal-title">Execute Shader</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <label for="execute-shader-name" class="control-label">Output Texture Name</label>
+                  <input id="execute-shader-name" type="text" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="execute-shader-width" class="control-label">Output Width (Pixels)</label>
+                  <input id="execute-shader-width" type="number" class="form-control" value="512" />
+                </div>
+                <div class="form-group">
+                  <label for="execute-shader-height" class="control-label">Output Height (Pixels)</label>
+                  <input id="execute-shader-height" type="number" class="form-control" value="512" />
+                </div>
+              </form>
+            </div>
+
+            <div class="modal-body">
+              <form id="execute-shader-form"></form>
+              <div id="execute-shader-errors" class="error-box"></div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-lg"
+                onclick="Editor.executePerformanceTest()">Run Performance Test</button>
+              <button type="button" class="btn btn-primary btn-lg"
+                onclick="Editor.executeShaderOk()">Execute</button>
+            </div>           
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Results dialog box -->
+      <div class="modal fade" tabindex="-1" id="performance-results">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 className="modal-title">Performance Results</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+
+            <div id="performance-results-body" class="modal-body" style="white-space: pre-line"></div>
+  
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary btn-lg" data-dismiss="modal">Close</button>
+            </div>           
+          </div>
+        </div>
+      </div>
+  
+      <div id="errors" class="error-box"></div>
+
+      <div class="footer-copyright text-center py-3">&copy; 2016-2020
+        <a href="https://www.leosingleton.com/">Leo C. Singleton IV</a>
+        &nbsp;|&nbsp;
+        <a href="https://github.com/leosingleton/fim">GitHub</a>
+      </div>
+    </div>
+  </body>
+</html>

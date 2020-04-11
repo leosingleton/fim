@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.base.json",
-  "exclude": ["./scripts/*", "./packages/fim-node/*"]
+  "exclude": ["./scripts/*", "./packages/fim-node/*", "./packages/fim-samples/*"]
 }

@@ -9,7 +9,7 @@ import { CoreBrowserDomCanvasWebGL } from '../core/CoreBrowserDomCanvasWebGL';
 import { CoreBrowserOffscreenCanvas2D } from '../core/CoreBrowserOffscreenCanvas2D';
 import { CoreBrowserOffscreenCanvasWebGL } from '../core/CoreBrowserOffscreenCanvasWebGL';
 import { fileReaderAsync } from '../core/FileReader';
-import { loadFromFileAsync } from '../core/ImageLoader';
+import { loadFromBlobAsync, loadFromFileAsync } from '../core/ImageLoader';
 import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
@@ -49,5 +49,19 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     } else {
       return new CoreBrowserDomCanvasWebGL(dimensions, options, handle, this.engineOptions);
     }
+  }
+
+  public async createImageFromBlobAsync(blob: Blob, options?: FimImageOptions, name?: string, parent?: FimObject):
+      Promise<BrowserEngineImage> {
+    const me = this;
+    me.ensureNotDisposed();
+
+    let result: BrowserEngineImage;
+    await loadFromBlobAsync(blob, image => {
+      result = me.createEngineImage(parent ?? this, FimDimensions.fromObject(image), options ?? {}, name);
+      result.loadFromImage(image);
+    });
+
+    return result;
   }
 }
