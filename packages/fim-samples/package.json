@@ -25,9 +25,7 @@
     "@leosingleton/commonlibs": "latest",
     "@leosingleton/fim": "^2.0.0-alpha",
     "@leosingleton/fim-browser": "^2.0.0-alpha",
-    "bootstrap": "latest",
     "file-saver": "latest",
-    "jquery": "latest",
     "tslib": "latest",
     "webpack-glsl-minify": "latest"
   },

@@ -2,10 +2,9 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { OpSelectChannel } from './OpSelectChannel';
 import { Stopwatch } from '@leosingleton/commonlibs';
 import { FimBrowser, FimBrowserFactory } from '@leosingleton/fim-browser';
-import $ from 'jquery';
-import { OpSelectChannel } from './OpSelectChannel';
 
 /** Global FIM library instance */
 export let fim: FimBrowser;
