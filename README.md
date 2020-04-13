@@ -5,7 +5,7 @@
 
 ## Samples
 - [Unsharp Mask](https://fim.leosingleton.com/samples/unsharp-mask.html)
-- [Gaussian Blur](https://fim.leosingleton.com/samples/brightness-contrast.html)
+- [Gaussian Blur](https://fim.leosingleton.com/samples/gaussian-blur.html)
 - [Brightness/Contrast Adjustments](https://fim.leosingleton.com/samples/brightness-contrast.html)
 - [2D Transformations](https://fim.leosingleton.com/samples/transform2d.html)
 - [3D Transformations](https://fim.leosingleton.com/samples/transform3d.html)
