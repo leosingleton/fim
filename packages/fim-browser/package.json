@@ -20,5 +20,6 @@
     "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",
-  "types": "build/index.d.ts"
+  "types": "build/index.d.ts",
+  "gitHead": "1c3ff717706725432efe4bada31352907b50bb16"
 }

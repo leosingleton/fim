@@ -30,5 +30,6 @@
     "webpack-glsl-minify": "latest"
   },
   "browser": "build/samples.js",
-  "types": "build/samples.d.ts"
+  "types": "build/samples.d.ts",
+  "gitHead": "1c3ff717706725432efe4bada31352907b50bb16"
 }
