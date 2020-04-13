@@ -11,6 +11,7 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
+    "@types/bootstrap": "latest",
     "@types/jasmine": "latest",
     "@types/jquery": "latest",
     "@types/node": "latest",

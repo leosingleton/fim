@@ -11,8 +11,6 @@ import { FimDimensions, FimImageOptions, FimTextureSampling } from '@leosingleto
 import { FimBrowserImage } from '@leosingleton/fim-browser';
 import { saveAs } from 'file-saver';
 import { GlslVariable } from 'webpack-glsl-minify';
-import $ from 'jquery';
-import 'bootstrap';
 
 $(async () => {
   // Load previous shaders from local storage on startup

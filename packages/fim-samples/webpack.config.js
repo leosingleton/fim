@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
@@ -49,11 +48,12 @@ function buildWebpackConfig(project, prod) {
       extensions: [ '.glsl', '.js', '.ts' ]
     },
     plugins: [
-      new CopyWebpackPlugin(copyConfig),
-      new webpack.ProvidePlugin({
-        $: 'jquery'
-      })
+      new CopyWebpackPlugin(copyConfig)
     ],
+    externals: {
+      //bootstrap: 'bootstrap',
+      jquery: '$'
+    },
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: project + (prod ? '.min.js' : '.js'),
