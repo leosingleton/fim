@@ -1,6 +1,6 @@
 {
   "name": "@leosingleton/fim-common-tests",
-  "version": "2.0.1-alpha.0",
+  "version": "2.1.0",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "Fast Image Manipulation Library for JavaScript",
   "homepage": "https://github.com/leosingleton/fim",
@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
-    "@leosingleton/fim": "^2.0.1-alpha.0",
+    "@leosingleton/fim": "^2.1.0",
     "tslib": "latest",
     "webpack-glsl-minify": "latest"
   },
