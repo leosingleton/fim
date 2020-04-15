@@ -17,11 +17,11 @@ export abstract class FimOperationShader extends FimOperation {
   /**
    * Constructor
    * @param parent Parent object
+   * @param name Shader name, for debugging
    * @param fragmentShader Fragment shader, created using webpack-glsl-minify
    * @param vertexShader Optional vertex shader, created using webpack-glsl-minify
-   * @param name Optional shader name, for debugging
    */
-  protected constructor(parent: FimObject, fragmentShader: GlslShader, vertexShader?: GlslShader, name?: string) {
+  protected constructor(parent: FimObject, name: string, fragmentShader: GlslShader, vertexShader?: GlslShader) {
     super(parent, name);
     this.shader = this.rootObject.createGLShader(fragmentShader, vertexShader, name, this);
   }

@@ -14,7 +14,7 @@ export class FimOpDarker extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Darker.glsl.js');
-    super(parent, source, undefined, 'Darker');
+    super(parent, 'Darker', source);
   }
 
   /**

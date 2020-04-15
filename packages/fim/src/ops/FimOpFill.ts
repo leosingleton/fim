@@ -14,7 +14,7 @@ export class FimOpFill extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/core/glsl/fill.glsl.js');
-    super(parent, source, undefined, 'Fill');
+    super(parent, 'Fill', source);
   }
 
   /**

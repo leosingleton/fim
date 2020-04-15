@@ -20,7 +20,7 @@ export class FimOpMatrix1D extends FimOperationShader {
   public constructor(parent: FimObject, fast = false) {
     const source = fast ? require('../../build/ops/glsl/Matrix1DFast.glsl.js') :
       require('../../build/ops/glsl/Matrix1D.glsl.js');
-    super(parent, source, undefined, 'Matrix1D');
+    super(parent, 'Matrix1D', source);
     this.fast = fast;
   }
 
