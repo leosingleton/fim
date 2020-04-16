@@ -273,9 +273,11 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
    * @param destCoords Destination coordinates to render to. If unspecified, the output is stretched to fit the entire
    *    canvas.
+   * @param allowOversizedDest With the default value of `false`, an exception is thrown if `destCoords` is outside the
+   *    boundaries of `canvas`. If `true`, the bounds are not checked, allowing the image to be cropped when exporting.
    */
   protected exportToCanvasHelper(context: RenderingContext2D, dimensions: FimDimensions, srcCoords?: FimRect,
-      destCoords?: FimRect): void {
+      destCoords?: FimRect, allowOversizedDest = false): void {
     const me = this;
     me.ensureNotDisposedAndHasImage();
 
@@ -283,7 +285,9 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     srcCoords = srcCoords ?? FimRect.fromDimensions(me.dim);
     destCoords = destCoords ?? FimRect.fromDimensions(dimensions);
     srcCoords.validateIn(me);
-    destCoords.validateInDimensions(dimensions);
+    if (!allowOversizedDest) {
+      destCoords.validateInDimensions(dimensions);
+    }
 
     // copy is slightly faster than source-over
     const op = (destCoords.dim.equals(me.dim)) ? 'copy' : 'source-over';

@@ -25,9 +25,10 @@ export class BrowserEngineImage extends EngineImage implements FimBrowserImage {
     });
   }
 
-  public exportToCanvasAsync(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+  public exportToCanvasAsync(canvas: HTMLCanvasElement, srcCoords?: FimRect, destCoords?: FimRect,
+      allowOversizedDest?: boolean): Promise<void> {
     return this.exportToCanvasHelperAsync(async (srcImage: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => {
-      (srcImage as CoreBrowserCanvas2D).exportToCanvas(canvas, srcCoords, destCoords);
+      (srcImage as CoreBrowserCanvas2D).exportToCanvas(canvas, srcCoords, destCoords, allowOversizedDest);
     }, srcCoords, destCoords);
   }
 
