@@ -85,7 +85,6 @@ export abstract class CoreCanvas2D extends CoreCanvas {
 
     // Set image smoothing in most common browsers. Still an experimental feature, so TypeScript doesn't seem to
     // support it well...
-    // @nomangle imageSmoothingEnabled mozImageSmoothingEnabled webkitImageSmoothingEnabled msImageSmoothingEnabled
     const ctxAny = ctx as any;
     ctx.imageSmoothingEnabled = imageSmoothingEnabled;
     ctxAny.mozImageSmoothingEnabled = imageSmoothingEnabled;

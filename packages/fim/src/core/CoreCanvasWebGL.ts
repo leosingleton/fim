@@ -108,8 +108,6 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const gl = me.getContext(false);
     const extension = gl.getExtension('WEBGL_lose_context');
     if (extension) {
-      // Terser's name mangling doesn't recognize loseContext
-      // @nomangle loseContext
       extension.loseContext();
     }
 
