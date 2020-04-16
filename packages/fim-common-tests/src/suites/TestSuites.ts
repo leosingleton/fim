@@ -11,6 +11,7 @@ import { fimTestSuiteOperation } from '../api/Operation';
 import { fimTestSuiteOversized } from '../api/Oversized';
 import { fimTestSuitePngJpeg } from '../api/PngJpeg';
 import { fimTestSuiteResourceTracker } from '../api/ResourceTracker';
+import { fimTestSuiteSameRoot } from '../api/SameRoot';
 import { fimTestSuiteWebGL } from '../api/WebGL';
 import { fimTestSuiteWebGLAutoscale } from '../api/WebGLAutoscale';
 import { fimTestSuiteWebGLContextLost } from '../api/WebGLContextLost';
@@ -52,6 +53,7 @@ export namespace TestSuites {
     fimTestSuiteWebGLAutoscale(description, factory);
     fimTestSuiteWebGLTransform(description, factory);
     fimTestSuiteWebGLContextLost(description, factory);
+    fimTestSuiteSameRoot(description, factory);
     fimTestSuiteOversized(description, factory);
     fimTestSuiteDownscaled(description, factory);
     fimTestSuiteBackup(description, factory);

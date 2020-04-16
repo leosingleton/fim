@@ -5,7 +5,7 @@
 import { Fim } from './Fim';
 import { FimObject } from './FimObject';
 import { FimReleaseResourcesFlags } from './FimReleaseResourcesFlags';
-import { FimError } from '../primitives/FimError';
+import { FimError, FimErrorCode } from '../primitives/FimError';
 
 /** Base class for FIM objects. Implements the parent-child tree structure defined in the `FimObject` interface. */
 export abstract class FimObjectImpl implements FimObject {
@@ -131,6 +131,13 @@ export abstract class FimObjectImpl implements FimObject {
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
       FimError.throwOnObjectDisposed(this.handle);
+    }
+  }
+
+  /** Throws an exception if the specified object has a different root FIM instance from this object */
+  protected ensureSameRoot(child: FimObject): void {
+    if (this.rootObject !== child.rootObject) {
+      throw new FimError(FimErrorCode.InvalidParameter, `${this.handle} and ${child.handle} have different root`);
     }
   }
 }

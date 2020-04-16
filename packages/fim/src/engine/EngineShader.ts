@@ -225,6 +225,7 @@ export class EngineShader extends EngineObject implements FimShader {
       if (type.indexOf('sampler') !== -1) {
         // value is an EngineImage instance
         const image = value as EngineImage;
+        me.ensureSameRoot(image);
         const texture = await image.populateContentTextureAsync();
         uniformValues[name] = texture;
       } else {

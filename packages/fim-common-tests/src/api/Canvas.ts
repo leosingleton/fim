@@ -128,16 +128,6 @@ export function fimTestSuiteCanvas(
       });
     });
 
-    it('copyFrom() doesn\'t allow copying from another FIM instance', async () => {
-      await usingAsync(factory(), async fim1 => {
-        await usingAsync(factory(), async fim2 => {
-          const image1 = fim1.createImage(TestSizes.smallWide);
-          const image2 = await fim2.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
-          (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
-        });
-      });
-    });
-
     it('Exports to raw pixel data', async () => {
       await usingAsync(factory(), async fim => {
         // Create a solid red image
