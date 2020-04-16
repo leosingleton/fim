@@ -410,14 +410,12 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    * Helper function to implement a platform-specific `exportToCanvasAsync()` function which copies this image's
    * contents to a canvas
    * @param exportLambda Lambda function to export the contents of `srcCanvas` to the output canvas, based on the
-   *    populated and scaled `srcCoords` and `destCoords` parameters
+   *    populated and scaled `scaledSrcCoords` parameter
    * @param srcCoords Source coordinates to export, in pixels. If unspecified, the full image is exported.
-   * @param destCoords Destination coordinates to render to. If unspecified, the output is stretched to fit the entire
-   *    canvas.
    */
   protected async exportToCanvasHelperAsync(
-      exportLambda: (srcCanvas: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => Promise<void>,
-      srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
+      exportLambda: (srcCanvas: CoreCanvas2D, scaledSrcCoords: FimRect) => Promise<void>, srcCoords?: FimRect):
+      Promise<void> {
     const me = this;
     const optimizer = me.rootObject.optimizer;
     me.ensureNotDisposed();
@@ -428,7 +426,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     await me.contentCanvas.populateContentAsync();
     const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.downscale).toFloor();
-    await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords, destCoords);
+    await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords);
 
     // Let the optimizer release unneeded resources
     optimizer.releaseResources();

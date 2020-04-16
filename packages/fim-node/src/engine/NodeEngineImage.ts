@@ -12,8 +12,8 @@ import { Canvas } from 'canvas';
 export class NodeEngineImage extends EngineImage implements FimNodeImage {
   public exportToCanvasAsync(canvas: Canvas, srcCoords?: FimRect, destCoords?: FimRect, allowOversizedDest?: boolean):
       Promise<void> {
-    return this.exportToCanvasHelperAsync(async (srcImage: CoreCanvas2D, srcCoords: FimRect, destCoords: FimRect) => {
-      (srcImage as CoreNodeCanvas2D).exportToCanvas(canvas, srcCoords, destCoords, allowOversizedDest);
-    }, srcCoords, destCoords);
+    return this.exportToCanvasHelperAsync(async (srcImage: CoreCanvas2D, scaledSrcCoords: FimRect) => {
+      (srcImage as CoreNodeCanvas2D).exportToCanvas(canvas, scaledSrcCoords, destCoords, allowOversizedDest);
+    }, srcCoords);
   }
 }
