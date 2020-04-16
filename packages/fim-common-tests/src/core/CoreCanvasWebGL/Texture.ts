@@ -83,7 +83,7 @@ export function coreCanvasWebGLTestSuiteTexture(
     });
 
     it('Supports all combinations of channels, bits per pixel, and flags', async () => {
-      await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
+      await usingAsync(factory(TestSizes.mediumTall, canvasOptions), async canvas => {
         const caps = canvas.detectCapabilities();
 
         // Create a 2D grey canvas
@@ -101,26 +101,22 @@ export function coreCanvasWebGLTestSuiteTexture(
                 continue;
               }
               if (isReadOnly && bpp > FimBitsPerPixel.BPP8) {
-                continue; // glReadOnly only supports 8 BPP
+                continue; // isReadOnly only supports 8 BPP
               }
 
               // Create a texture with the requested image options
-              const texture = canvas.createCoreTexture(TestSizes.mediumTall, {
-                bpp,
-                isReadOnly,
-                sampling
-              });
+              const texture = canvas.createCoreTexture(TestSizes.mediumTall, { bpp, isReadOnly, sampling });
 
               // Copy the 2D grey canvas to the texture
               await texture.copyFromAsync(temp);
 
               // Clear the WebGL canvas
               canvas.fillSolid(TestColors.black);
-              expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.black);
+              expect(canvas.getPixel(midpoint(TestSizes.mediumTall))).toEqual(TestColors.black);
 
               // Render the texture to the WebGL canvas
               canvas.copyFrom(texture);
-              expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.grey);
+              expect(canvas.getPixel(midpoint(TestSizes.mediumTall))).toEqual(TestColors.grey);
             }
           }
         }

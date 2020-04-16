@@ -15,6 +15,7 @@ import { fimTestSuiteSameRoot } from '../api/SameRoot';
 import { fimTestSuiteWebGL } from '../api/WebGL';
 import { fimTestSuiteWebGLAutoscale } from '../api/WebGLAutoscale';
 import { fimTestSuiteWebGLContextLost } from '../api/WebGLContextLost';
+import { fimTestSuiteWebGLOptions } from '../api/WebGLOptions';
 import { fimTestSuiteWebGLTransform } from '../api/WebGLTransform';
 import { coreCanvas2DTestSuiteCanvas } from '../core/CoreCanvas2D/Canvas';
 import { coreCanvas2DTestSuiteCreateDispose } from '../core/CoreCanvas2D/CreateDispose';
@@ -53,6 +54,7 @@ export namespace TestSuites {
     fimTestSuiteWebGLAutoscale(description, factory);
     fimTestSuiteWebGLTransform(description, factory);
     fimTestSuiteWebGLContextLost(description, factory);
+    fimTestSuiteWebGLOptions(description, factory);
     fimTestSuiteSameRoot(description, factory);
     fimTestSuiteOversized(description, factory);
     fimTestSuiteDownscaled(description, factory);

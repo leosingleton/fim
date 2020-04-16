@@ -7,9 +7,6 @@ import { loadFromFileAsync } from './ImageLoader';
 import { FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreMimeType, RenderingContext2D } from '@leosingleton/fim/internals';
 
-// uglify-js is not yet aware of OffscreenCanvas and name mangles it
-// @nomangle OffscreenCanvas convertToBlob
-
 /** Wrapper around the browser's OffscreenCanvas */
 export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,

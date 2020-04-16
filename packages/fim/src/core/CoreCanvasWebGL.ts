@@ -108,8 +108,6 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const gl = me.getContext(false);
     const extension = gl.getExtension('WEBGL_lose_context');
     if (extension) {
-      // Terser's name mangling doesn't recognize loseContext
-      // @nomangle loseContext
       extension.loseContext();
     }
 
@@ -579,7 +577,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     if (!me.shaderCopy) {
       const shader = require('../../build/core/glsl/copy.glsl.js');
-      me.shaderCopy = me.createCoreShader(shader, undefined,`${me.handle}/CopyShader`);
+      me.shaderCopy = me.createCoreShader(shader, undefined, `${me.handle}/CopyShader`);
     }
 
     return me.shaderCopy;

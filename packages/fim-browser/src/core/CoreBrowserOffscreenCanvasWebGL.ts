@@ -8,9 +8,6 @@ import { FimColor, FimDimensions, FimEngineOptions } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, CoreTextureOptions,
   RenderingContextWebGL } from '@leosingleton/fim/internals';
 
-// uglify-js is not yet aware of OffscreenCanvas and name mangles it
-// @nomangle OffscreenCanvas convertToBlob
-
 /** Wrapper around the browser's OffscreenCanvas */
 export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
   public constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,

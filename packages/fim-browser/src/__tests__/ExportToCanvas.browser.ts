@@ -4,8 +4,8 @@
 
 import { FimBrowserFactory } from '../factory/FimBrowserFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
-import { FimColor, FimDimensions, FimRect } from '@leosingleton/fim';
-import { TestColors, TestSizes } from '@leosingleton/fim-common-tests';
+import { FimColor, FimDimensions, FimError, FimRect } from '@leosingleton/fim';
+import { TestColors, TestImages, TestSizes, expectErrorAsync } from '@leosingleton/fim-common-tests';
 
 /**
  * Helper function to create a canvas
@@ -91,6 +91,47 @@ describe('Exports to Canvas', () => {
         expect(getPixel(context, 0, dim.h - 1)).toEqual(TestColors.blue);
         expect(getPixel(context, dim.w - 1, 0)).toEqual(TestColors.blue);
         expect(getPixel(context, dim.w - 1, dim.h - 1)).toEqual(TestColors.blue);
+      } finally {
+        disposeCanvas(canvas);
+      }
+    });
+  });
+
+  it('exportToCanvasAsync() with allowOversizedDest', async () => {
+    await usingAsync(FimBrowserFactory.create(), async fim => {
+      // Load the four squares test pattern (128x128)
+      const image = await fim.createImageFromPngAsync(TestImages.fourSquaresPng());
+
+      // Create a canvas
+      const canvas = createCanvasAndFill(TestSizes.smallSquare, TestColors.white);
+      try {
+        // Copy the FIM image to the canvas. Set the destCoords such that the image is cropped to the top-right (green)
+        const destCoords = FimRect.fromXYWidthHeight(-128, 0, 256, 256);
+        await image.exportToCanvasAsync(canvas, undefined, destCoords, true);
+
+        // Check a few pixels of the canvas
+        const context = canvas.getContext('2d');
+        expect(getPixel(context, 1, 1)).toEqual(TestColors.green);
+        expect(getPixel(context, 1, 126)).toEqual(TestColors.green);
+        expect(getPixel(context, 126, 1)).toEqual(TestColors.green);
+        expect(getPixel(context, 126, 126)).toEqual(TestColors.green);
+      } finally {
+        disposeCanvas(canvas);
+      }
+    });
+  });
+
+  it('exportToCanvasAsync() fails without allowOversizedDest', async () => {
+    await usingAsync(FimBrowserFactory.create(), async fim => {
+      // Create a test image
+      const image = await fim.createImageWithFillAsync(TestSizes.smallTall, TestColors.blue);
+
+      // Create a canvas
+      const canvas = createCanvasAndFill(TestSizes.smallTall, TestColors.yellow);
+      try {
+        // Try destCoords that exceed the canvas (32x128). We expect a FimError.
+        const destCoords = FimRect.fromXYWidthHeight(0, 0, 33, 33);
+        (await expectErrorAsync(image.exportToCanvasAsync(canvas, undefined, destCoords))).toBeInstanceOf(FimError);
       } finally {
         disposeCanvas(canvas);
       }
