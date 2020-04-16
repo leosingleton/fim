@@ -579,7 +579,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
     if (!me.shaderCopy) {
       const shader = require('../../build/core/glsl/copy.glsl.js');
-      me.shaderCopy = me.createCoreShader(shader, undefined,`${me.handle}/CopyShader`);
+      me.shaderCopy = me.createCoreShader(shader, undefined, `${me.handle}/CopyShader`);
     }
 
     return me.shaderCopy;
