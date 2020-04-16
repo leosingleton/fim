@@ -12,7 +12,7 @@ export class OpSelectChannel extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const fragmentShader = require('./glsl/SelectChannel.glsl');
-    super(parent, fragmentShader, undefined, 'SelectChannel');
+    super(parent, 'SelectChannel', fragmentShader);
   }
 
   /**

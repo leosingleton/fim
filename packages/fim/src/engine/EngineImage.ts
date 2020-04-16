@@ -318,9 +318,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Ensure srcImage belongs to the same EngineFim instance
-    if (me.parentObject !== srcImage.parentObject) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.handle} copyFrom wrong FIM`);
-    }
+    me.ensureSameRoot(srcImage);
 
     // Handle defaults and validate coordinates
     srcCoords = srcCoords ?? FimRect.fromDimensions(srcImage.dim);
@@ -351,9 +349,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.ensureNotDisposed();
 
     // Ensure shader belongs to the same EngineFim instance
-    if (me.rootObject !== shaderOrOperation.rootObject) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${shaderOrOperation.handle} execute on wrong FIM`);
-    }
+    me.ensureSameRoot(shaderOrOperation);
 
     // Handle operations separately from shaders
     if (shaderOrOperation instanceof FimOperation) {

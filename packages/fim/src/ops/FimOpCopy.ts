@@ -16,7 +16,7 @@ export class FimOpCopy extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/core/glsl/copy.glsl.js');
-    super(parent, source, undefined, 'Copy');
+    super(parent, 'Copy', source);
   }
 
   /**

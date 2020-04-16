@@ -20,7 +20,7 @@ export class FimOpDownscale extends FimOperationShader {
    */
   public constructor(parent: FimObject) {
     const source = require('../../build/ops/glsl/Downscale.glsl.js');
-    super(parent, source, undefined, 'Downscale');
+    super(parent, 'Downscale', source);
   }
 
   /**
@@ -90,7 +90,7 @@ export class FimOpDownscale extends FimOperationShader {
     // Fast path: Execute a one-pass
     // Calculate the pixels to sample
     const c = FimOpDownscale.calculateSamplePixels(xRatio, yRatio);
-    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputDimensions.w, inputDimensions.h);
+    const pixelArray = FimOpDownscale.scaleSamplePixels(c.pixelCount, c.pixels, inputDimensions);
 
     // Set the constants and uniforms for the shader
     this.shader.setConstants({
@@ -201,19 +201,18 @@ export class FimOpDownscale extends FimOperationShader {
    * Scales the X- and Y-offsets in the sample pixels array to 0 to 1 values to be used as uniforms.
    * @param pixelCount Number of pixels in the pixels array (pixels.length / 3)
    * @param pixels An array of 3 elements per pixel: X-offset, Y-offst, and weight. The offsets are in pixels.
-   * @param width Width of the input image, in pixels
-   * @param height Height of the input image, in pixels
+   * @param dimensions Dimensions of the input image, in pixels
    * @returns New pixels array where the X- and Y-offsets have been scale to 0 to 1 values based on the input image
    *    dimensions
    */
-  public static scaleSamplePixels(pixelCount: number, pixels: number[], width: number, height: number): number[] {
+  public static scaleSamplePixels(pixelCount: number, pixels: number[], dimensions: FimDimensions): number[] {
     const scaledPixels: number[] = [];
     for (let n = 0; n < pixelCount; n++) {
       const x = pixels[n * 3];
       const y = pixels[n * 3 + 1];
       const z = pixels[n * 3 + 2];
-      scaledPixels.push(x / width);
-      scaledPixels.push(y / height);
+      scaledPixels.push(x / dimensions.w);
+      scaledPixels.push(y / dimensions.h);
       scaledPixels.push(z);
     }
     return scaledPixels;
