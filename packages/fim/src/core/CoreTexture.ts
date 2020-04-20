@@ -153,7 +153,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
   public fillSolid(color: FimColor | string): void {
     const me = this;
     me.ensureNotDisposed();
-    const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    const c = FimColor.fromColorOrString(color);
     const parent = me.parentCanvas;
     const gl = parent.getContext();
     const destinationFramebuffer = me.getFramebuffer();

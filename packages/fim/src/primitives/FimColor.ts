@@ -37,10 +37,7 @@ export class FimColor {
    * @returns True if equal; otherwise false
    */
   public equals(color: FimColor | string): boolean {
-    if (typeof(color) === 'string') {
-      color = FimColor.fromString(color);
-    }
-
+    color = FimColor.fromColorOrString(color);
     return (this.r === color.r) && (this.g === color.g) && (this.b === color.b) && (this.a === color.a);
   }
 
@@ -50,10 +47,7 @@ export class FimColor {
    * @returns A value ranging from 0.0 (if equal) to 1.0 (if completely different)
    */
   public distance(color: FimColor | string): number {
-    if (typeof(color) === 'string') {
-      color = FimColor.fromString(color);
-    }
-
+    color = FimColor.fromColorOrString(color);
     return (Math.abs(this.r - color.r) + Math.abs(this.g - color.g) + Math.abs(this.b - color.b)) / (255 * 3);
   }
 
@@ -156,5 +150,21 @@ export class FimColor {
       default:
         FimError.throwOnInvalidParameter(color);
     }
+  }
+
+  /**
+   * Returns a `FimColor` from a parameter that may be either a color or a string
+   * @param color `FimColor` or `string`
+   */
+  public static fromColorOrString(color: FimColor | string): FimColor {
+    return (typeof(color) !== 'string') ? color : FimColor.fromString(color);
+  }
+
+  /**
+   * Returns a `string` from a parameter that may be either a color or a string
+   * @param color `FimColor` or `string`
+   */
+  public static makeString(color: FimColor | string): string {
+    return (typeof(color) === 'string') ? color : color.string;
   }
 }

@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loseContextAsync, restoreContextAsync } from '../common/ContextLost';
 import { midpoint } from '../common/Globals';
 import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
@@ -22,7 +21,7 @@ async function loseFimContextAsync(fim: Fim): Promise<void> {
   const engine = fim as EngineFim;
   const canvas = await engine.allocateWebGLCanvasAsync(onePixel);
 
-  return loseContextAsync(canvas);
+  return canvas.loseContextAsync();
 }
 
 /**
@@ -34,7 +33,7 @@ async function restoreFimContextAsync(fim: Fim): Promise<void> {
   const engine = fim as EngineFim;
   const canvas = await engine.allocateWebGLCanvasAsync(onePixel);
 
-  return restoreContextAsync(canvas);
+  return canvas.restoreContextAsync();
 }
 
 /** WebGL Context Lost tests for FIM */
@@ -116,9 +115,9 @@ export function fimTestSuiteWebGLContextLost(
       });
     });
 
-    it('fillColorOnContextLost works', async () => {
+    it('defaultFillColor works on context loss', async () => {
       await usingAsync(factory(), async fim => {
-        fim.defaultImageOptions.fillColorOnContextLost = TestColors.blue;
+        fim.defaultImageOptions.defaultFillColor = TestColors.blue;
 
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
@@ -134,9 +133,9 @@ export function fimTestSuiteWebGLContextLost(
         await loseFimContextAsync(fim);
         await restoreFimContextAsync(fim);
 
-        // Because fillColorOnContextLost was set, the image should now be blue
-        expect(image.hasImage()).toBeTruthy();
+        // Because fillColorOnContextLost was set, the image should be blue as soon as we read it
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
+        expect(image.hasImage()).toBeTruthy();
       });
     });
 

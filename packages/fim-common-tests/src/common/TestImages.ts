@@ -174,9 +174,7 @@ export namespace TestImages {
    */
   export function solidPixelData(dimensions: FimDimensions, color: FimColor | string): Uint8ClampedArray {
     // Ensure color is a FimColor object
-    if (!(color instanceof FimColor)) {
-      color = FimColor.fromString(color);
-    }
+    color = FimColor.fromColorOrString(color);
 
     const result = new Uint8ClampedArray(dimensions.getArea() * 4);
     for (let y = 0; y < dimensions.h; y++) {

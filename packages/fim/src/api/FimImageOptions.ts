@@ -38,12 +38,10 @@ export interface FimImageOptions {
   allowOversized?: boolean;
 
   /**
-   * By default, when the WebGL context is lost, and `backup` was not enabled, an image may lose its contents, in
-   * which case `FimImage.hasImage` gets set to `false` and the image may no longer be used as input until its contents
-   * are reinitialized. However, setting `fillColorOnContextLost` changes the behavior and automatically reinitializes
-   * the image to the specified fill color.
+   * Automatically populates the image with the specified fill color whenever there are no image contents. This can
+   * occur on first use, or also when the WebGL context is lost and there is no backup to a non-WebGL image storage.
    */
-  fillColorOnContextLost?: FimColor;
+  defaultFillColor?: FimColor | string;
 
   /**
    * Creates a WebGL texture that is read-only. According to WebGL docs, this is a hint that may offer some performance
@@ -89,7 +87,7 @@ export const defaultImageOptions: FimImageOptions = {
   sampling: FimTextureSampling.Linear,
   autoBackup: false,
   allowOversized: false,
-  fillColorOnContextLost: undefined,
+  defaultFillColor: undefined,
   glReadOnly: false,
   preserveDownscaledDimensions: true,
   downscale: 1,
@@ -111,7 +109,7 @@ export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptio
     sampling: child.sampling ?? parent.sampling,
     autoBackup: child.autoBackup ?? parent.autoBackup,
     allowOversized: child.allowOversized ?? parent.allowOversized,
-    fillColorOnContextLost: child.fillColorOnContextLost ?? parent.fillColorOnContextLost,
+    defaultFillColor: child.defaultFillColor ?? parent.defaultFillColor,
     glReadOnly: child.glReadOnly ?? parent.glReadOnly,
     preserveDownscaledDimensions: child.preserveDownscaledDimensions ?? parent.preserveDownscaledDimensions,
     downscale: child.downscale ?? parent.downscale,

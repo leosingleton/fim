@@ -19,6 +19,7 @@ import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
+import { AsyncManualResetEvent } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
@@ -172,6 +173,9 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     // If we were using any built-in fragment shaders, they got disposed in the step above
     me.shaderCopy = undefined;
     me.shaderFill = undefined;
+
+    // Wake up any calls to loseContextAsync()
+    me.contextLostEvent.setEvent();
   }
 
   /** Handler for the `webglcontextrestored` event */
@@ -190,6 +194,9 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     me.loadExtensions();
 
     me.contextRestoredHandlers.invokeCallbacks();
+
+    // Wake up any calls to restoreContextAsync()
+    me.contextRestoredEvent.setEvent();
   }
 
   /** Handler for the `webglcontextcreationerror` event */
@@ -205,6 +212,70 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
 
   /** Returns additional error details in case `getContext('webgl')` fails */
   private contextFailMessage: string;
+
+  /** Forces a WebGL context loss for test purposes */
+  public async loseContextAsync(): Promise<void> {
+    const me = this;
+
+    // Get the WebGL context. If the WebGL context is already lost, this is a no-op.
+    const gl = me.getContext(false);
+    if (!gl) {
+      return;
+    }
+
+    // Get the extension. We save it, as once the context is lost, gl.getExtension() seems to be unreliable.
+    const extension = gl.getExtension('WEBGL_lose_context');
+    if (extension) {
+      me.extensionLoseContext = extension;
+
+      // Simulate a context loss
+      extension.loseContext();
+    } else {
+      // Some implementations like headless-gl do not support the WEBGL_lose_context extension. The second-best way is
+      // to fake it by calling the events ourselves.
+      me.onContextLost();
+    }
+
+    // Wait for the handler to execute
+    return me.contextLostEvent.waitAsync();
+  }
+
+  /** Forces the WebGL context to be restored for test purposes */
+  public restoreContextAsync(): Promise<void> {
+    const me = this;
+
+    // Simulate the context being restored
+    if (me.extensionLoseContext) {
+      me.extensionLoseContext.restoreContext();
+      me.extensionLoseContext = undefined;
+    } else {
+      // Some implementations like headless-gl do not support the WEBGL_lose_context extension. The second-best way is
+      // to fake it by calling the events ourselves. The typecast to any allows us to call a private function.
+      me.onContextRestored();
+    }
+
+    // Wait for the handler to execute
+    return me.contextRestoredEvent.waitAsync();
+  }
+
+  /**
+   * We store the reference to the `WEBGL_lose_context` extension between calls to `loseContextAsync()` and
+   * `restoreContextAsync()`. Once the context is lost, gl.getExtension() seems to be unreliable.
+   */
+  private extensionLoseContext: WEBGL_lose_context;
+
+  /**
+   * Event to wake up calls to `loseContextAsync()` after delivering all context lost notifications. The WebGL extension
+   * to simulate context loss doesn't execute the handlers before resuming JavaScript execution. This event works around
+   * this.
+   */
+  private contextLostEvent = new AsyncManualResetEvent();
+
+  /**
+   * Event to wake up calls to `restoreContextAsync()`. `restoreContextAsync()` doesn't seem to have the same problem as
+   * `loseContextAsync()`, but we also wait on the handler for consistency.
+   */
+  private contextRestoredEvent = new AsyncManualResetEvent();
 
   /** Checks for any WebGL errors and throws a FimError if there are any */
   public throwWebGLErrors(): void {
@@ -465,7 +536,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
     me.ensureNotDisposed();
 
-    const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    const c = FimColor.fromColorOrString(color);
     const cVec = c.toVector();
 
     const gl = me.getContext();

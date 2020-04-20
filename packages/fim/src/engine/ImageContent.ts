@@ -8,6 +8,7 @@ import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { EngineImage } from '../engine/EngineImage';
+import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
@@ -167,8 +168,17 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     const parentImage = me.parentImage;
 
     if (!parentImage.hasImage()) {
-      FimError.throwOnImageUninitialized(parentImage.handle);
-    } else if (me.isCurrent) {
+      const defaultFillColor = parentImage.getImageOptions().defaultFillColor;
+      if (defaultFillColor) {
+        // Handle the image option to fill the image with a solid color whenever we have no image contents
+        parentImage.contentFillColor.imageContent = FimColor.fromColorOrString(defaultFillColor);
+        parentImage.markCurrent(parentImage.contentFillColor, true);
+      } else {
+        FimError.throwOnImageUninitialized(parentImage.handle);
+      }
+    }
+
+    if (me.isCurrent) {
       // If a canvas is already current, this function is a no-op
     } else {
       await me.populateContentInternalAsync();

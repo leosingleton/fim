@@ -22,7 +22,7 @@ export function fimTestSuiteSameRoot(
       await usingAsync(factory(), async fim1 => {
         await usingAsync(factory(), async fim2 => {
           const image1 = fim1.createImage(TestSizes.smallWide);
-          const image2 = await fim2.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
+          const image2 = fim2.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
           (await expectErrorAsync(image1.copyFromAsync(image2))).toBeInstanceOf(FimError);
         });
       });
@@ -42,7 +42,7 @@ export function fimTestSuiteSameRoot(
       await usingAsync(factory(), async fim1 => {
         await usingAsync(factory(), async fim2 => {
           const opCopy = new FimOpCopy(fim1);
-          const input = await fim2.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
+          const input = fim2.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
           const output = fim1.createImage(TestSizes.smallWide);
           (await expectErrorAsync(output.executeAsync(opCopy.$(input)))).toBeInstanceOf(FimError);
         });
@@ -53,7 +53,7 @@ export function fimTestSuiteSameRoot(
       await usingAsync(factory(), async fim => {
         // image2's parent is image1, not root
         const image1 = fim.createImage(TestSizes.smallWide);
-        const image2 = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red, {}, 'image2', image1);
+        const image2 = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red }, 'image2', image1);
         await image1.copyFromAsync(image2);
         expect(await image1.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);
       });
@@ -73,7 +73,7 @@ export function fimTestSuiteSameRoot(
       await usingAsync(factory(), async fim => {
         // output's parent is opCopy, not root
         const opCopy = new FimOpCopy(fim);
-        const input = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
+        const input = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
         const output = fim.createImage(TestSizes.smallWide, {}, 'output', opCopy);
         await output.executeAsync(opCopy.$(input));
         expect(await output.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.red);

@@ -97,7 +97,7 @@ export abstract class CoreCanvas2D extends CoreCanvas {
     me.ensureNotDisposed();
 
     // Force color to be a string
-    const colorString = (typeof(color) === 'string') ? color : color.string;
+    const colorString = FimColor.makeString(color);
 
     using(me.createDrawingContext(), ctx => {
       ctx.fillStyle = colorString;
