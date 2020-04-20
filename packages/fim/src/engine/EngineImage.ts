@@ -171,15 +171,6 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     if (flags & FimReleaseResourcesFlags.WebGLTexture) {
       me.contentTexture.releaseContent();
-
-      // Handle the image option to fill the image with a solid color if we lost the image contents
-      if (!me.hasImage()) {
-        const imageOptions = me.getImageOptions();
-        if (imageOptions.fillColorOnContextLost) {
-          me.contentFillColor.imageContent = imageOptions.fillColorOnContextLost;
-          me.markCurrent(me.contentFillColor, true);
-        }
-      }
     }
   }
 
@@ -201,7 +192,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.ensureNotDisposed();
 
     // Force color to be a FimColor
-    color = (typeof(color) !== 'string') ? color : FimColor.fromString(color);
+    color = FimColor.fromColorOrString(color);
 
     me.contentFillColor.imageContent = color;
     me.markCurrent(me.contentFillColor, true);

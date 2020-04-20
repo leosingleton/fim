@@ -22,7 +22,7 @@ export function fimTestSuiteImage(
         expect(options.autoBackup).toEqual(defaultImageOptions.autoBackup);
         // Skip BPP. It varies based on the GPU and WebGL capabilities.
         expect(options.downscale).toEqual(defaultImageOptions.downscale);
-        expect(options.fillColorOnContextLost).toEqual(defaultImageOptions.fillColorOnContextLost);
+        expect(options.defaultFillColor).toEqual(defaultImageOptions.defaultFillColor);
         expect(options.glDownscale).toEqual(defaultImageOptions.glDownscale);
         expect(options.glReadOnly).toEqual(defaultImageOptions.glReadOnly);
         expect(options.sampling).toEqual(defaultImageOptions.sampling);
