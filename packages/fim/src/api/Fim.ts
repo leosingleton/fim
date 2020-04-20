@@ -59,6 +59,19 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
    */
   registerContextRestoredHandler(handler: () => void): void;
 
+  /**
+   * Because FIM uses WebGL to perform image processing, WebGL resources may be lost at any time because GPU resources
+   * are finite and shared between all applications on the client computer. This function simulates this occurrence to
+   * ensure the client application handles it correctly.
+   * @param lossInterval Interval between context lost events, in milliseconds. Default = 10 seconds.
+   * @param restoreTime Amount of time after a context loss to simulate a context restored event, in milliseconds.
+   *    Default = 0.
+   */
+  enableContextLossSimulation(lossInterval?: number, restoreTime?: number): void;
+
+  /** Disables any context loss simulation enabled with `enableContextLossSimulation()` */
+  disableContextLossSimulation(): void;
+
   /** Returns metrics on the current resource usage of this FIM instance */
   getResourceMetrics(): FimResourceMetrics;
 

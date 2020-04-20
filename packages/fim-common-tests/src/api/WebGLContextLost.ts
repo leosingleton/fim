@@ -6,7 +6,7 @@ import { midpoint } from '../common/Globals';
 import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
 import { TestSizes } from '../common/TestSizes';
-import { usingAsync } from '@leosingleton/commonlibs';
+import { usingAsync, Task } from '@leosingleton/commonlibs';
 import { Fim, FimDimensions } from '@leosingleton/fim';
 import { EngineFim } from '@leosingleton/fim/internals';
 
@@ -133,9 +133,27 @@ export function fimTestSuiteWebGLContextLost(
         await loseFimContextAsync(fim);
         await restoreFimContextAsync(fim);
 
-        // Because fillColorOnContextLost was set, the image should be blue as soon as we read it
+        // Because defaultFillColor was set, the image should be blue as soon as we read it
         expect(await image.getPixelAsync(midpoint(TestSizes.smallWide))).toEqual(TestColors.blue);
         expect(image.hasImage()).toBeTruthy();
+      });
+    });
+
+    it('Runs context loss simulation', async () => {
+      await usingAsync(factory(), async fim => {
+        // Create an image and fill it using defaultFillColor
+        const image = fim.createImage(TestSizes.smallTall);
+        fim.defaultImageOptions.defaultFillColor = TestColors.magenta;
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallTall))).toEqual(TestColors.magenta);
+
+        // Enable the context loss simulation for a few seconds
+        fim.enableContextLossSimulation(500, 0);
+        await Task.delayAsync(2000);
+        fim.disableContextLossSimulation();
+        await Task.delayAsync(1000);
+
+        // The image should still be magenta
+        expect(await image.getPixelAsync(midpoint(TestSizes.smallTall))).toEqual(TestColors.magenta);
       });
     });
 
