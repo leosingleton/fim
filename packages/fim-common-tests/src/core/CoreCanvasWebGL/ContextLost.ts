@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loseContextAsync, restoreContextAsync } from '../../common/ContextLost';
 import { canvasOptions, textureOptions } from '../../common/CoreOptions';
 import { midpoint } from '../../common/Globals';
 import { TestColors } from '../../common/TestColors';
@@ -22,7 +21,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
       await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         // Simulate a context loss
         expect(canvas.isContextLost).toBeFalsy();
-        await loseContextAsync(canvas);
+        await canvas.loseContextAsync();
         expect(canvas.isContextLost).toBeTruthy();
 
         // Calls while context is lost will throw an exception
@@ -34,9 +33,9 @@ export function coreCanvasWebGLTestSuiteContextLost(
       await usingAsync(factory(TestSizes.smallWide, canvasOptions), async canvas => {
         // Simulate a context loss and immediate restore
         expect(canvas.isContextLost).toBeFalsy();
-        await loseContextAsync(canvas);
+        await canvas.loseContextAsync();
         expect(canvas.isContextLost).toBeTruthy();
-        await restoreContextAsync(canvas);
+        await canvas.restoreContextAsync();
         expect(canvas.isContextLost).toBeFalsy();
 
         // Calls after context is restored will succeed
@@ -63,7 +62,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
         expect(canvas.getPixel(midpoint(TestSizes.smallWide))).toEqual(TestColors.green);
 
         // Simulate a context loss
-        await loseContextAsync(canvas);
+        await canvas.loseContextAsync();
 
         // The image data on the canvas and texture have been invalidated
         expect(canvas.hasImage).toBeFalsy();
@@ -74,7 +73,7 @@ export function coreCanvasWebGLTestSuiteContextLost(
         expect(() => texture1.fillSolid(TestColors.red)).toThrow();
 
         // Restore the context
-        await restoreContextAsync(canvas);
+        await canvas.restoreContextAsync();
 
         // The previous texture has been disposed and cannot be reused
         expect(() => canvas.copyFrom(texture1)).toThrow();

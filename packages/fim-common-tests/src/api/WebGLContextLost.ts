@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { loseContextAsync, restoreContextAsync } from '../common/ContextLost';
 import { midpoint } from '../common/Globals';
 import { fillUniformShader } from '../common/Shaders';
 import { TestColors } from '../common/TestColors';
@@ -22,7 +21,7 @@ async function loseFimContextAsync(fim: Fim): Promise<void> {
   const engine = fim as EngineFim;
   const canvas = await engine.allocateWebGLCanvasAsync(onePixel);
 
-  return loseContextAsync(canvas);
+  return canvas.loseContextAsync();
 }
 
 /**
@@ -34,7 +33,7 @@ async function restoreFimContextAsync(fim: Fim): Promise<void> {
   const engine = fim as EngineFim;
   const canvas = await engine.allocateWebGLCanvasAsync(onePixel);
 
-  return restoreContextAsync(canvas);
+  return canvas.restoreContextAsync();
 }
 
 /** WebGL Context Lost tests for FIM */
