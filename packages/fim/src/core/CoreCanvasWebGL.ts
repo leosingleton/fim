@@ -465,7 +465,7 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
     const me = this;
     me.ensureNotDisposed();
 
-    const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+    const c = FimColor.fromColorOrString(color);
     const cVec = c.toVector();
 
     const gl = me.getContext();

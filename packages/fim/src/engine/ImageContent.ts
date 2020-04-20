@@ -168,10 +168,10 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     const parentImage = me.parentImage;
 
     if (!parentImage.hasImage()) {
-      const imageOptions = parentImage.getImageOptions();
-      if (imageOptions.defaultFillColor) {
+      const defaultFillColor = parentImage.getImageOptions().defaultFillColor;
+      if (defaultFillColor) {
         // Handle the image option to fill the image with a solid color whenever we have no image contents
-        parentImage.contentFillColor.imageContent = FimColor.fromColorOrString(imageOptions.defaultFillColor);
+        parentImage.contentFillColor.imageContent = FimColor.fromColorOrString(defaultFillColor);
         parentImage.markCurrent(parentImage.contentFillColor, true);
       } else {
         FimError.throwOnImageUninitialized(parentImage.handle);

@@ -159,4 +159,12 @@ export class FimColor {
   public static fromColorOrString(color: FimColor | string): FimColor {
     return (typeof(color) !== 'string') ? color : FimColor.fromString(color);
   }
+
+  /**
+   * Returns a `string` from a parameter that may be either a color or a string
+   * @param color `FimColor` or `string`
+   */
+  public static makeString(color: FimColor | string): string {
+    return (typeof(color) === 'string') ? color : color.string;
+  }
 }

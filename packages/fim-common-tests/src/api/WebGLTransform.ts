@@ -20,7 +20,7 @@ export function fimTestSuiteWebGLTransform(
       await usingAsync(factory(), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
-        const image = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.black);
+        const image = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.black });
 
         // Execute the shader
         shader.setUniforms({
@@ -38,7 +38,7 @@ export function fimTestSuiteWebGLTransform(
       await usingAsync(factory(), async fim => {
         // Create a WebGL shader and destination image
         const shader = fim.createGLShader(fillUniformShader);
-        const image = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.black);
+        const image = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.black });
 
         // Execute the shader
         shader.setUniforms({
@@ -56,8 +56,8 @@ export function fimTestSuiteWebGLTransform(
       await usingAsync(factory(), async fim => {
         const copy = new FimOpCopy(fim);
 
-        const red = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
-        const output = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.blue);
+        const red = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
+        const output = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.blue });
 
         // Copy red, shifted down and to the right 50%
         const matrix = new FimTransform2D();

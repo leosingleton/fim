@@ -21,8 +21,8 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const add = new FimOpAdd(fim);
 
-        const redImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
-        const greenImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.green);
+        const redImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
+        const greenImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.green });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(add.$(redImage, greenImage));
@@ -35,8 +35,8 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const alphaBlend = new FimOpAlphaBlend(fim);
 
-        const blackImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.black);
-        const whiteImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.white);
+        const blackImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.black });
+        const whiteImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.white });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(alphaBlend.$(blackImage, whiteImage, 0.5));
@@ -63,8 +63,8 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const darker = new FimOpDarker(fim);
 
-        const yellowImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.yellow);
-        const magentaImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.magenta);
+        const yellowImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.yellow });
+        const magentaImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.magenta });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(darker.$(yellowImage, magentaImage));
@@ -88,7 +88,7 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const invert = new FimOpInvert(fim);
 
-        const blueImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.blue);
+        const blueImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.blue });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(invert.$(blueImage));
@@ -101,7 +101,7 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const unsharpMask = new FimOpUnsharpMask(fim);
 
-        const redImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
+        const redImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(unsharpMask.$(redImage, 0.25, 5));
@@ -114,8 +114,8 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const lighter = new FimOpLighter(fim);
 
-        const redImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
-        const greenImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.green);
+        const redImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
+        const greenImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.green });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(lighter.$(redImage, greenImage));
@@ -128,8 +128,8 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const subtract = new FimOpSubtract(fim);
 
-        const magentaImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.magenta);
-        const blueImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.blue);
+        const magentaImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.magenta });
+        const blueImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.blue });
 
         const outputImage = fim.createImage(TestSizes.smallWide);
         await outputImage.executeAsync(subtract.$(magentaImage, blueImage));
@@ -142,8 +142,8 @@ export function fimTestSuiteOpBuiltin(
       await usingAsync(factory(), async fim => {
         const lighter = new FimOpLighter(fim);
 
-        const redImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.red);
-        const greenImage = await fim.createImageWithFillAsync(TestSizes.smallWide, TestColors.green);
+        const redImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.red });
+        const greenImage = fim.createImage(TestSizes.smallWide, { defaultFillColor: TestColors.green });
 
         await greenImage.executeAsync(lighter.$(redImage, greenImage));
 

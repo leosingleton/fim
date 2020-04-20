@@ -58,7 +58,7 @@ export class CoreBrowserOffscreenCanvasWebGL extends CoreCanvasWebGL {
     // Chrome has a bug where subsequent calls to clear() do not work with OffscreenCanvas. Workaround by using a WebGL
     // shader instead. See: https://bugs.chromium.org/p/chromium/issues/detail?id=989874
     if (this.workaroundChromeBug) {
-      const c = (color instanceof FimColor) ? color : FimColor.fromString(color);
+      const c = FimColor.fromColorOrString(color);
       const fill = this.getFillShader();
       fill.setUniforms({
         uColor: c.toVector()
