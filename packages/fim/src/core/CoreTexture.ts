@@ -75,30 +75,9 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
       parent.throwWebGLErrorsDebug();
 
-      // If the texture is not readonly, create a framebuffer to back this texture
-      if (!options.isReadOnly) {
-        // Allocate the texture
-        const format = gl.RGBA;
-        const depth = parent.getTextureDepthConstant(bpp);
-        gl.texImage2D(gl.TEXTURE_2D, 0, format, dimensions.w, dimensions.h, 0, format, depth, null);
-        parent.throwWebGLErrorsDebug();
-
-        // Create the framebuffer
-        this.fb = gl.createFramebuffer();
-        parent.throwWebGLErrorsDebug();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
-        parent.throwWebGLErrorsDebug();
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-        parent.throwWebGLErrorsDebug();
-
-        // Check the framebuffer status
-        parent.throwOnIncompleteFrameBufferStatus(gl.FRAMEBUFFER, JSON.stringify(options));
-      }
-
       this.texture = texture;
     } finally {
       gl.bindTexture(gl.TEXTURE_2D, null);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
   }
 
@@ -234,7 +213,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
    */
   protected abstract copyFromInternalAsync(srcCanvas: CoreCanvas): Promise<void>;
 
-  /** Returns the underlying WebGL framebuffer backing this texture */
+  /** Returns the underlying WebGL framebuffer backing this texture. Allocates the framebuffer on first use. */
   public getFramebuffer(): WebGLFramebuffer {
     const me = this;
     me.ensureNotDisposed();
@@ -242,6 +221,39 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
       // Cannot write to an input only texture
       FimError.throwOnImageReadonly(me.handle);
     }
+
+    if (!me.fb) {
+      // The is the first use. Allocate the framebuffer.
+      const parent = me.parentCanvas;
+      const gl = parent.getContext();
+      const texture = me.texture;
+
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      parent.throwWebGLErrorsDebug();
+
+      try {
+        // Allocate the texture
+        const format = gl.RGBA;
+        const depth = parent.getTextureDepthConstant(me.textureOptions.bpp);
+        gl.texImage2D(gl.TEXTURE_2D, 0, format, me.dim.w, me.dim.h, 0, format, depth, null);
+        parent.throwWebGLErrorsDebug();
+
+        // Create the framebuffer
+        this.fb = gl.createFramebuffer();
+        parent.throwWebGLErrorsDebug();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
+        parent.throwWebGLErrorsDebug();
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        parent.throwWebGLErrorsDebug();
+
+        // Check the framebuffer status
+        parent.throwOnIncompleteFrameBufferStatus(gl.FRAMEBUFFER, JSON.stringify(me.textureOptions));
+      } finally {
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
+    }
+
     return me.fb;
   }
 
