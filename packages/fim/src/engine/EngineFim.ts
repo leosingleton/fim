@@ -2,6 +2,7 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
+import { ContextLostSim } from './ContextLostSim';
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
@@ -192,6 +193,9 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     glCanvas.registerContextLostHandler(() => this.onContextLost());
     glCanvas.registerContextRestoredHandler(() => this.onContextRestored());
 
+    // Run any context loss simulation
+    me.contextLostSim.onCanvasWebGLCreated(glCanvas);
+
     // Record the WebGL canvas creation
     me.resources.recordCreate(me, glCanvas);
 
@@ -288,6 +292,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     if (((flags & FimReleaseResourcesFlags.WebGL) === FimReleaseResourcesFlags.WebGL) && me.glCanvas) {
       me.resources.recordDispose(me, me.glCanvas);
+      me.contextLostSim.onCanvasWebGLDisposed(me.glCanvas);
       me.glCanvas.dispose();
       me.glCanvas = undefined;
     }
@@ -344,6 +349,17 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   /** Context restored callbacks */
   private contextRestoredHandlers = new CoreCallbackCollection();
+
+  public enableContextLossSimulation(lossInterval?: number, restoreTime?: number): void {
+    this.contextLostSim.enableContextLossSimulation(lossInterval, restoreTime);
+  }
+
+  public disableContextLossSimulation(): void {
+    this.contextLostSim.disableContextLossSimulation();
+  }
+
+  /** The logic for simulating context loss is maintained in a separate class with 1:1 mapping to the engine. */
+  private contextLostSim = new ContextLostSim();
 
   public getResourceMetrics(): FimResourceMetrics {
     return this.resources.totals;
