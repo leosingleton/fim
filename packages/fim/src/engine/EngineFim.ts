@@ -59,6 +59,8 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     //  3. We discover GPU capabilities from the temporary WebGL canvas. The properties on the capabilities object are
     //      readonly, so we force copy them over with any typecasts.
     const capabilities: FimCapabilities = this.capabilities = {
+      userAgentString: this.getCapabilityUserAgent(),
+      estimatedMemory: this.getCapabilityMemory(),
       supportsOffscreenCanvas: (typeof OffscreenCanvas !== 'undefined'),
       supportsImageBitmap: (typeof createImageBitmap !== 'undefined'),
       glVersion: '',
@@ -417,6 +419,15 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     this.ensureNotDisposed();
     return this.createEngineGLShader(parent ?? this, fragmentShader, vertexShader, name);
   }
+
+  /** Derived classes must implement this method to return a user agent string or equivalent */
+  protected abstract getCapabilityUserAgent(): string;
+
+  /**
+   * Derived classes must implement this method to return the estimated device memory, in bytes. This method returns
+   * zero if unknown.
+   */
+  protected abstract getCapabilityMemory(): number;
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions,
