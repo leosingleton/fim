@@ -1,6 +1,6 @@
 {
   "name": "@leosingleton/fim-node",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "Fast Image Manipulation Library for JavaScript",
   "homepage": "https://github.com/leosingleton/fim",
@@ -11,13 +11,13 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "devDependencies": {
-    "@leosingleton/fim-common-tests": "^2.3.1",
+    "@leosingleton/fim-common-tests": "^2.3.2",
     "@types/gl": "latest",
     "@types/node": "latest"
   },
   "dependencies": {
     "@leosingleton/commonlibs": "latest",
-    "@leosingleton/fim": "^2.3.1",
+    "@leosingleton/fim": "^2.3.2",
     "canvas": "latest",
     "gl": "latest",
     "tslib": "latest",
