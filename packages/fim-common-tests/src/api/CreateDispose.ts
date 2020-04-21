@@ -66,5 +66,13 @@ export function fimTestSuiteCreateDispose(
       expect(() => image.dispose()).toThrow();
     });
 
+    it('Detects capabilities', () => {
+      using(factory(), fim => {
+        const caps = fim.capabilities;
+        expect(caps.userAgentString).toBeDefined();
+        expect(caps.estimatedMemory).toBeGreaterThan(0);
+      });
+    });
+
   });
 }

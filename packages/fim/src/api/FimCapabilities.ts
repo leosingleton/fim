@@ -10,6 +10,12 @@ export interface FimCapabilities extends FimBrowserCapabilities, FimWebGLCapabil
 
 /** Exposes the browser's capabilties */
 export interface FimBrowserCapabilities {
+  /** User Agent string or equivalent for Node.js */
+  readonly userAgentString: string;
+
+  /** Estimated memory of the device, in bytes. May report zero if unknown. */
+  readonly estimatedMemory: number;
+
   /** Whether the current browser supports offscreen canvases */
   readonly supportsOffscreenCanvas: boolean;
 

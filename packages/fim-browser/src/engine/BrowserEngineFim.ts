@@ -25,6 +25,20 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     super(fileReaderAsync, loadFromFileAsync, name);
   }
 
+  protected getCapabilityUserAgent(): string {
+    return navigator.userAgent;
+  }
+
+  protected getCapabilityMemory(): number {
+    // deviceMemory is experimental, but many browsers return the memory in GB, rounded down to a power of two
+    const memory = (navigator as any).deviceMemory;
+    if (memory) {
+      return memory * 1024 * 1024 * 1024;
+    } else {
+      return 0;
+    }
+  }
+
   protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(parent, dimensions, options, name);

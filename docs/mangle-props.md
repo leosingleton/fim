@@ -6,6 +6,7 @@ following built-in DOM properties must be explicitly disabled:
 - `HALF_FLOAT_OES`
 - `OffscreenCanvas`
 - `convertToBlob`
+- `deviceMemory`
 - `imageSmoothingEnabled`
 - `loseContext`
 - `restoreContext`

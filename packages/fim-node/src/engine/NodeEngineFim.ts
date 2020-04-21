@@ -12,6 +12,7 @@ import { FimDimensions, FimImageOptions, FimObject } from '@leosingleton/fim';
 import { CoreCanvas2D, CoreCanvasOptions, CoreCanvasWebGL, EngineFimBase,
   EngineShader } from '@leosingleton/fim/internals';
 import { GlslShader } from 'webpack-glsl-minify';
+import os from 'os';
 
 /** Implementation of `EngineFim` for Node.js */
 export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> implements FimNode {
@@ -21,6 +22,15 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
    */
   public constructor(name?: string) {
     super(fileReaderAsync, loadFromFileAsync, name);
+  }
+
+  protected getCapabilityUserAgent(): string {
+    // Create a user agent-like string for Node.js
+    return `${process.version} (${process.platform}; ${process.arch})`;
+  }
+
+  protected getCapabilityMemory(): number {
+    return os.totalmem();
   }
 
   protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
