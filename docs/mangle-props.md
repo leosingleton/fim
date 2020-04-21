@@ -8,3 +8,4 @@ following built-in DOM properties must be explicitly disabled:
 - `convertToBlob`
 - `imageSmoothingEnabled`
 - `loseContext`
+- `restoreContext`
