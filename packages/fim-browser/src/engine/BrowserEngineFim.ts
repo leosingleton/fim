@@ -30,7 +30,8 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
   }
 
   protected getCapabilityLogicalCpuCount(): number {
-    return navigator.hardwareConcurrency;
+    // Safari and some older browsers don't support hardwareConcurrency. For these, return zero.
+    return navigator.hardwareConcurrency ?? 0;
   }
 
   protected getCapabilityMemory(): number {
