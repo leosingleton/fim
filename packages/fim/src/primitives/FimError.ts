@@ -140,11 +140,11 @@ export class FimError extends Error {
   }
 
   /**
-   * Throws an ImageReadonly error
+   * Throws an ImageReadOnly error
    * @param handle Handle of the image that is readonly
    */
-  public static throwOnImageReadonly(handle: string): never {
-    throw new FimError(FimErrorCode.ImageReadonly, `${handle} readonly`);
+  public static throwOnImageReadOnly(handle: string): never {
+    throw new FimError(FimErrorCode.ImageReadOnly, `${handle} readonly`);
   }
 }
 
@@ -226,7 +226,7 @@ export const enum FimErrorCode {
   ImageUninitialized = 4300,
 
   /** FIM4301: Attempted to write from an image marked readonly */
-  ImageReadonly = 4301,
+  ImageReadOnly = 4301,
 
   /** FIM4400: A call to the `fetch()` API failed */
   FetchError = 4400,

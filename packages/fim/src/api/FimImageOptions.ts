@@ -40,7 +40,7 @@ export interface FimImageOptions {
    * capable of writing. By default (`false`), images are automatically downscaled to fit the GPU's renderbuffer.
    * However, if this value is set to `true`, then the image is downscaled to the GPU's maximum texture size instead.
    * Setting this value to `true` does make the image read-only for any WebGL shaders--attempting to use it as a
-   * destination image in a shader exectution will throw a `FimErrorCode.ImageReadonly` exception.
+   * destination image in a shader exectution will throw a `FimErrorCode.ImageReadOnly` exception.
    */
   oversizedReadOnly?: boolean;
 

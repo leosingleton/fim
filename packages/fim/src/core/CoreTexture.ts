@@ -251,7 +251,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
     me.ensureNotDisposed();
     if (me.textureOptions.isReadOnly) {
       // Cannot write to an input only texture
-      FimError.throwOnImageReadonly(me.handle);
+      FimError.throwOnImageReadOnly(me.handle);
     }
 
     if (!me.fb) {
