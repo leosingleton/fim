@@ -84,7 +84,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       // Calculate any options which would get applied on the next texture creation
       const dd = me.contentTexture.calculateDimensionsAndDownscale();
       textureDownscale = dd.downscale;
-      textureOptions = me.contentTexture.getOptions();
+      textureOptions = me.contentTexture.getDesiredOptions(true);
     }
     options = mergeImageOptions(options, {
       bpp: textureOptions.bpp,
@@ -356,14 +356,16 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // By default, we leave it up to allocateOrPopulateContentAsync to decide whether the output image needs to be
     // populated based on the destination coordinates.
-    await contentTexture.allocateOrPopulateContentAsync(destCoords, shaderOrOperation.hasNonDefaultVertices());
+    await contentTexture.allocateOrPopulateContentAsync(destCoords, shaderOrOperation.hasNonDefaultVertices(),
+      undefined, true);
 
     const glCanvas = root.getWebGLCanvas();
     const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
-      const outputTexture = glCanvas.createCoreTexture(contentTexture.imageContent.dim, contentTexture.getOptions());
+      const outputTexture = glCanvas.createCoreTexture(contentTexture.imageContent.dim,
+        contentTexture.getDesiredOptions(true));
       try {
         root.resources.recordCreate(me, outputTexture);
         await shaderOrOperation.executeAsync(glCanvas, outputTexture, scaledDestCoords);
@@ -477,7 +479,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // Slow case: Copy the desired portion of the image to a temporary 2D canvas while rescaling, then export the
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
-    const temp = root.createCoreCanvas2D(srcCoords.dim, me.contentCanvas.getOptions(), `${me.handle}/RescaleHelper`);
+    const temp = root.createCoreCanvas2D(srcCoords.dim, me.contentCanvas.getDesiredOptions(false),
+      `${me.handle}/RescaleHelper`);
     try {
       root.resources.recordCreate(me, temp);
 
