@@ -37,11 +37,10 @@ export function fimTestSuiteOversized(
       });
     });
 
-    it('Supports allowOversized image option', () => {
+    it('Supports oversizedReadOnly image option', () => {
       using(factory(), fim => {
-        fim.engineOptions.maxImageDimensions = TestSizes.smallSquare;
-
-        const image = fim.createImage(TestSizes.mediumTall, { allowOversized: true });
+        const dimensions = FimDimensions.fromSquareDimension(fim.capabilities.glMaxTextureSize);
+        const image = fim.createImage(dimensions, { oversizedReadOnly: true });
         const eff = image.getEffectiveImageOptions();
 
         // No downscale occurs
@@ -197,7 +196,7 @@ export function fimTestSuiteOversized(
       await usingAsync(factory(), async fim => {
         // Create FIM resources
         const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng(),
-          { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
+          { bpp: FimBitsPerPixel.BPP8, oversizedReadOnly: true });
         const outputImage = fim.createImage(TestSizes.smallSquare);
         const unsharpMask = new FimOpUnsharpMask(fim, true);
 

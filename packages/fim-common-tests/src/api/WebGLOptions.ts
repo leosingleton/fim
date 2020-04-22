@@ -23,7 +23,7 @@ export function fimTestSuiteWebGLOptions(
 
         // Create an image with the four squares test pattern
         const testPattern = await fim.createImageFromPngAsync(TestImages.fourSquaresPng(),
-          { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
+          { bpp: FimBitsPerPixel.BPP8, oversizedReadOnly: true });
 
         for (const autoBackup of [false, true]) {
           for (const bpp of [FimBitsPerPixel.BPP8, FimBitsPerPixel.BPP16, FimBitsPerPixel.BPP32]) {

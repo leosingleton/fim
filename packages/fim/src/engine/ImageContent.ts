@@ -78,34 +78,33 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     }
 
     // Check whether the image dimensions are larger than supported by WebGL
-    const maxGLSize = options.glReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
+    const maxGLSize = options.oversizedReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
     const maxDim = Math.max(dim.w, dim.h);
     downscaleValues.push(maxGLSize / maxDim);
 
     // Check whether the image dimensions are larger than enabled by the engine options
     const engineOptions = parentImage.getEngineOptions();
-    const maxOptionsSize = options.glReadOnly ? engineOptions.maxGLTextureSize : engineOptions.maxGLRenderBufferSize;
+    const maxOptionsSize = options.oversizedReadOnly ? engineOptions.maxGLTextureSize :
+      engineOptions.maxGLRenderBufferSize;
     downscaleValues.push(maxOptionsSize / maxDim);
 
     // Check whether the image dimensions are larger than the parent FIM instance
-    if (!options.allowOversized && (dim.w > engineOptions.maxImageDimensions.w ||
-        dim.h > engineOptions.maxImageDimensions.h)) {
+    if (dim.w > engineOptions.maxImageDimensions.w || dim.h > engineOptions.maxImageDimensions.h) {
       downscaleValues.push(engineOptions.maxImageDimensions.w / dim.w);
       downscaleValues.push(engineOptions.maxImageDimensions.h / dim.h);
-
-      // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
-      // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
-      // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
-      if (!parentImage.autoDownscaleWarningLogged) {
-        root.writeWarning(parentImage,
-          `Auto-downscale ${me.handle}: ${dim} > max (${engineOptions.maxImageDimensions})`);
-        parentImage.autoDownscaleWarningLogged = true;
-      }
     }
 
-    // Calculate the scale factor and new dimensions
+    // Calculate the downscale factor and new dimensions
     const downscale = Math.min(...downscaleValues);
     const scaledDimensions = dim.rescale(downscale).toFloor();
+
+    // Log a warning whenever an auto-downscale happens
+    if (downscale < options.downscale && !parentImage.autoDownscaleWarningLogged) {
+      root.writeWarning(parentImage,
+        `Auto-downscale ${me.handle}: ${options.downscale} => ${downscale} (${scaledDimensions})`);
+      parentImage.autoDownscaleWarningLogged = true;
+    }
+
     return { downscale, scaledDimensions };
   }
 
@@ -307,7 +306,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     const options = this.parentImage.getImageOptions();
     return {
       bpp: options.bpp,
-      isReadOnly: options.glReadOnly,
+      isReadOnly: options.oversizedReadOnly,
       sampling: options.sampling
     };
   }

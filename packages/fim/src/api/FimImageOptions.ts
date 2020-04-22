@@ -30,24 +30,19 @@ export interface FimImageOptions {
   autoBackup?: boolean;
 
   /**
-   * By default, images are automatically downscaled to the size of the FIM object, as it is assumed that they will be
-   * downscaled anyway shortly before output, and earlier downscaling results in better performance and lower memory
-   * consumption. However, there may be specific cases where this results in poorer image quality, such as cropping.
-   * Setting this value to true allows the image to be larger than the parent FIM instance.
-   */
-  allowOversized?: boolean;
-
-  /**
    * Automatically populates the image with the specified fill color whenever there are no image contents. This can
    * occur on first use, or also when the WebGL context is lost and there is no backup to a non-WebGL image storage.
    */
   defaultFillColor?: FimColor | string;
 
   /**
-   * Creates a WebGL texture that is read-only. According to WebGL docs, this is a hint that may offer some performance
-   * optimizations if the image is not going to be used to store the output of a WebGL shader.
+   * Many GPUs suppor larger texture sizes than renderbuffer sizes, meaning they can read larger images than they are
+   * capable of writing. By default (`false`), images are automatically downscaled to fit the GPU's renderbuffer.
+   * However, if this value is set to `true`, then the image is downscaled to the GPU's maximum texture size instead.
+   * Setting this value to `true` does make the image read-only for any WebGL shaders--attempting to use it as a
+   * destination image in a shader exectution will throw a `FimErrorCode.ImageReadonly` exception.
    */
-  glReadOnly?: boolean;
+  oversizedReadOnly?: boolean;
 
   /**
    * This optimization is enabled by default and reduces both WebGL and canvas memory consumption at minimal degredation
@@ -86,9 +81,8 @@ export const defaultImageOptions: FimImageOptions = {
   bpp: FimBitsPerPixel.BPP16,
   sampling: FimTextureSampling.Linear,
   autoBackup: false,
-  allowOversized: false,
   defaultFillColor: undefined,
-  glReadOnly: false,
+  oversizedReadOnly: false,
   preserveDownscaledDimensions: true,
   downscale: 1,
   glDownscale: 1,
@@ -108,9 +102,8 @@ export function mergeImageOptions(parent: FimImageOptions, child?: FimImageOptio
     bpp: child.bpp ?? parent.bpp,
     sampling: child.sampling ?? parent.sampling,
     autoBackup: child.autoBackup ?? parent.autoBackup,
-    allowOversized: child.allowOversized ?? parent.allowOversized,
     defaultFillColor: child.defaultFillColor ?? parent.defaultFillColor,
-    glReadOnly: child.glReadOnly ?? parent.glReadOnly,
+    oversizedReadOnly: child.oversizedReadOnly ?? parent.oversizedReadOnly,
     preserveDownscaledDimensions: child.preserveDownscaledDimensions ?? parent.preserveDownscaledDimensions,
     downscale: child.downscale ?? parent.downscale,
     glDownscale: child.glDownscale ?? parent.glDownscale

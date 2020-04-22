@@ -23,8 +23,7 @@ describe('FimImageOptions', () => {
       bpp: FimBitsPerPixel.BPP16,
       sampling: FimTextureSampling.Nearest,
       autoBackup: false,
-      allowOversized: true,
-      glReadOnly: true,
+      oversizedReadOnly: true,
       downscale: 1,
       glDownscale: 0.5,
     };
@@ -32,8 +31,7 @@ describe('FimImageOptions', () => {
       bpp: FimBitsPerPixel.BPP8,
       sampling: FimTextureSampling.Linear,
       autoBackup: true,
-      allowOversized: false,
-      glReadOnly: false,
+      oversizedReadOnly: false,
       downscale: 0,
       glDownscale: 0.1
     };
@@ -41,8 +39,7 @@ describe('FimImageOptions', () => {
     expect(options.bpp).toEqual(child.bpp);
     expect(options.sampling).toEqual(child.sampling);
     expect(options.autoBackup).toEqual(child.autoBackup);
-    expect(options.allowOversized).toEqual(child.allowOversized);
-    expect(options.glReadOnly).toEqual(child.glReadOnly);
+    expect(options.oversizedReadOnly).toEqual(child.oversizedReadOnly);
     expect(options.downscale).toEqual(child.downscale);
     expect(options.glDownscale).toEqual(child.glDownscale);
   });

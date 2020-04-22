@@ -19,7 +19,7 @@ $(async () => {
 
   // Load the sample image
   const url = 'https://www.leosingleton.com/sample-images/carmel.jpg';
-  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, oversizedReadOnly: true });
   const dimensions = inputImage.dim;
 
   // Create the Gaussian Blur operation
