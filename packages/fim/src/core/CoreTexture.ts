@@ -6,11 +6,13 @@ import { CoreCanvas } from './CoreCanvas';
 import { CoreCanvasWebGL } from './CoreCanvasWebGL';
 import { CoreTextureOptions } from './CoreTextureOptions';
 import { CoreWebGLObject } from './CoreWebGLObject';
+import { FimTransform2D } from '../math/FimTransform2D';
 import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensional } from '../primitives/FimDimensional';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
+import { FimRect } from '../primitives/FimRect';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
 import { deepCopy, usingAsync } from '@leosingleton/commonlibs';
 
@@ -179,7 +181,37 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
   }
 
   /**
-   * Copies contents from another canvas. Supports neither cropping nor rescaling.
+   * Copies contents from another texture. Supports neither cropping nor rescaling.
+   * @param srcTexture Source texture
+   * @param srcCoords Coordinates of source texture to copy from
+   * @param destCoords Coordinates of destination texture to copy to
+   */
+  public copyFromTexture(srcTexture: CoreTexture, srcCoords?: FimRect, destCoords?: FimRect): void {
+    const me = this;
+    me.ensureNotDisposed();
+
+    // Default parameters
+    srcCoords = (srcCoords ?? FimRect.fromDimensions(srcTexture.dim)).toFloor();
+    destCoords = (destCoords ?? FimRect.fromDimensions(me.dim)).toFloor();
+
+    srcCoords.validateIn(srcTexture);
+    destCoords.validateIn(me);
+
+    // Calculate the transformation matrix to achieve the requested srcCoords
+    const matrix = FimTransform2D.fromSrcCoords(srcCoords, srcTexture.dim);
+
+    const copyShader = me.parentCanvas.getCopyShader();
+    copyShader.setUniforms({
+      uInput: srcTexture
+    });
+    copyShader.applyVertexMatrix(matrix);
+    copyShader.execute(me, destCoords);
+
+    me.hasImage = true;
+  }
+
+  /**
+   * Copies contents from a canvas. Supports neither cropping nor rescaling.
    * @param srcCanvas Source canvas
    */
   public async copyFromAsync(srcCanvas: CoreCanvas): Promise<void> {
@@ -219,7 +251,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
     me.ensureNotDisposed();
     if (me.textureOptions.isReadOnly) {
       // Cannot write to an input only texture
-      FimError.throwOnImageReadonly(me.handle);
+      FimError.throwOnImageReadOnly(me.handle);
     }
 
     if (!me.fb) {

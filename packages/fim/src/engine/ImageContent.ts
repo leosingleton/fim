@@ -8,18 +8,20 @@ import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
 import { CoreTextureOptions } from '../core/CoreTextureOptions';
 import { EngineImage } from '../engine/EngineImage';
+import { FimBitsPerPixel } from '../primitives/FimBitsPerPixel';
 import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
 import { OperationType } from './optimizer/OperationType';
+import { deepEquals } from '@leosingleton/commonlibs';
 
 /**
  * Base class for any object containing the image contents
  * @template TContent Class containing the image contents
  */
 export class ImageContent<TContent> {
-  /** Object containing the image content. May be undefined if unallocated. */
+  /** Object containing the image content. May be `undefined` if unallocated. */
   public imageContent?: TContent;
 
   /** True if `imageContent` contains the latest image. False if it is out-of-date. */
@@ -52,8 +54,18 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   /** Unique string identifying the object */
   public readonly handle: string;
 
-  /** Returns the options for creating a new `TContent` instance */
-  public abstract getOptions(): TOptions;
+  /**
+   * Return the options of the current `imageContent` instance. Returns `undefined` if `imageContent` is also
+   * `undefined`.
+   */
+  public abstract getCurrentOptions(): TOptions;
+
+  /**
+   * Returns the options for creating a new `TContent` instance
+   * @param glWritable Set to `true` if the `imageContent` is to be used as the target of a WebGL shader. Ignored for
+   *    any non-WebGL texture implementations.
+   */
+  public abstract getDesiredOptions(glWritable: boolean): TOptions;
 
   /**
    * Calculates the dimensions and dowbscale factor for a 2D canvas or WebGL texture
@@ -78,34 +90,33 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     }
 
     // Check whether the image dimensions are larger than supported by WebGL
-    const maxGLSize = options.glReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
+    const maxGLSize = options.oversizedReadOnly ? caps.glMaxTextureSize : caps.glMaxRenderBufferSize;
     const maxDim = Math.max(dim.w, dim.h);
     downscaleValues.push(maxGLSize / maxDim);
 
     // Check whether the image dimensions are larger than enabled by the engine options
     const engineOptions = parentImage.getEngineOptions();
-    const maxOptionsSize = options.glReadOnly ? engineOptions.maxGLTextureSize : engineOptions.maxGLRenderBufferSize;
+    const maxOptionsSize = options.oversizedReadOnly ? engineOptions.maxGLTextureSize :
+      engineOptions.maxGLRenderBufferSize;
     downscaleValues.push(maxOptionsSize / maxDim);
 
     // Check whether the image dimensions are larger than the parent FIM instance
-    if (!options.allowOversized && (dim.w > engineOptions.maxImageDimensions.w ||
-        dim.h > engineOptions.maxImageDimensions.h)) {
+    if (dim.w > engineOptions.maxImageDimensions.w || dim.h > engineOptions.maxImageDimensions.h) {
       downscaleValues.push(engineOptions.maxImageDimensions.w / dim.w);
       downscaleValues.push(engineOptions.maxImageDimensions.h / dim.h);
-
-      // Log a warning when this happens. It is likely a bug in the calling code if the requested FimImage dimensions
-      // are larger than Fim.maxImageDimensions. If the caller truly wants this, they should consider setting
-      // FimImageOptions.allowOversized to prevent it from getting automatically downscaled.
-      if (!parentImage.autoDownscaleWarningLogged) {
-        root.writeWarning(parentImage,
-          `Auto-downscale ${me.handle}: ${dim} > max (${engineOptions.maxImageDimensions})`);
-        parentImage.autoDownscaleWarningLogged = true;
-      }
     }
 
-    // Calculate the scale factor and new dimensions
+    // Calculate the downscale factor and new dimensions
     const downscale = Math.min(...downscaleValues);
     const scaledDimensions = dim.rescale(downscale).toFloor();
+
+    // Log a warning whenever an auto-downscale happens
+    if (downscale < options.downscale && !parentImage.autoDownscaleWarningLogged) {
+      root.writeWarning(parentImage,
+        `Auto-downscale ${me.handle}: ${options.downscale} => ${downscale} (${scaledDimensions})`);
+      parentImage.autoDownscaleWarningLogged = true;
+    }
+
     return { downscale, scaledDimensions };
   }
 
@@ -119,20 +130,23 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    *
    * @param dimensions Requested dimensions of the canvas or texture. This value is used to support the
    *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
+   * @param glWritable Defaults to `false`. Must be set to `true` if the `imageContent` is to be used as the target of
+   *    a WebGL shader. Ignored for any non-WebGL texture implementations.
    * @returns `this.imageContent`
    */
-  public allocateContent(dimensions?: FimDimensions): TContent {
+  public allocateContent(dimensions?: FimDimensions, glWritable = false): TContent {
     const me = this;
     const parentImage = me.parentImage;
     const root = parentImage.rootObject;
 
-    // Calculate the desired dimensions and downscale ratio
+    // Calculate the desired dimensions, downscale ratio, and image options
     const dd = me.calculateDimensionsAndDownscale(dimensions);
+    const desiredOptions = me.getDesiredOptions(glWritable);
 
-    // If a canvas or texture is already allocated and of the correct size, this function is a no-op
-    // TODO: Detect changes in the imageOptions that could also cause the texture to be reallocated
+    // If a canvas or texture is already allocated and of the correct size and options, this function is a no-op
+    const currentOptions = me.getCurrentOptions();
     if (me.imageContent) {
-      if (me.downscale === dd.downscale) {
+      if (me.downscale === dd.downscale && deepEquals(currentOptions, desiredOptions)) {
         return me.imageContent;
       } else {
         // The canvas or texture is allocated but of the wrong size. Release the current one and reallocate it.
@@ -141,8 +155,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     }
 
     // Create the underlying canvas or texture
-    const options = me.getOptions();
-    const content = me.imageContent = me.allocateContentInternal(dd.scaledDimensions, options);
+    const content = me.imageContent = me.allocateContentInternal(dd.scaledDimensions, desiredOptions);
     me.downscale = dd.downscale;
 
     // Record the object creation
@@ -162,8 +175,10 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   /**
    * Ensures `imageContent` is current and contains the current image data. This function should be called before
    * reading from `imageContent`.
+   * @param glWritable Defaults to `false`. Must be set to `true` if the `imageContent` is to be used as the target of
+   *    a WebGL shader. Ignored for any non-WebGL texture implementations.
    */
-  public async populateContentAsync(): Promise<TContent> {
+  public async populateContentAsync(glWritable = false): Promise<TContent> {
     const me = this;
     const parentImage = me.parentImage;
 
@@ -179,7 +194,22 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     }
 
     if (me.isCurrent) {
-      // If a canvas is already current, this function is a no-op
+      // imageContent is already current. This function call is a no-op, unless the image options have changed.
+      const currentOptions = me.getCurrentOptions();
+      const desiredOptions = me.getDesiredOptions(glWritable);
+
+      if (!deepEquals(currentOptions, desiredOptions)) {
+        // Reallocate the image content with different options. Copy the previous image to the new image.
+        const newContent = await me.allocateContentInternal(me.imageContent.dim, desiredOptions);
+        try {
+          await this.copyContentInternalAsync(newContent, me.imageContent);
+          me.imageContent.dispose();
+          me.imageContent = newContent;
+        } catch (err) {
+          newContent.dispose();
+          throw err;
+        }
+      }
     } else {
       await me.populateContentInternalAsync();
       parentImage.markCurrent(this, false);
@@ -187,6 +217,14 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
 
     return me.imageContent;
   }
+
+  /**
+   * Derived classes must implement this method to copy `srcContent` to `destContent`. The implementation may assume
+   * that the two objects have the same dimensions, however they may have different image options.
+   * @param destContent Destination image content
+   * @param srcContent Source image content
+   */
+  protected abstract copyContentInternalAsync(destContent: TContent, srcContent: TContent): Promise<void>;
 
   /**
    * Derived classes must implement this method to populate `imageContent` with the current image data from another
@@ -203,9 +241,11 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    *    always call `populateContentAsync()`
    * @param dimensions Requested dimensions of the canvas or texture. This value is used to support the
    *    `imageOptions.preserveDownscaledDimensions` optimization and is ignored if this optimization is disabled.
+   * @param glWritable Defaults to `false`. Must be set to `true` if the `imageContent` is to be used as the target of
+   *    a WebGL shader. Ignored for any non-WebGL texture implementations.
    */
-  public async allocateOrPopulateContentAsync(destCoords: FimRect, forcePopulate = false, dimensions?: FimDimensions):
-      Promise<TContent> {
+  public async allocateOrPopulateContentAsync(destCoords: FimRect, forcePopulate = false, dimensions?: FimDimensions,
+      glWritable = false): Promise<TContent> {
     const me = this;
     const parentImage = me.parentImage;
 
@@ -213,11 +253,11 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
       // The destination is the full image. The current image contents will be erased, so use the opportunity to update
       // the image options or use a smaller canvas than is actually needed (the preserveDownscaledDimensions
       // optimization).
-      me.allocateContent(dimensions);
+      me.allocateContent(dimensions, glWritable);
     } else {
       // The destination is not the full image. Some of the current image is required. Ensure the canvas is populated,
       // and throw an exception if the current image is uninitialized.
-      await me.populateContentAsync();
+      await me.populateContentAsync(glWritable);
     }
 
     return me.imageContent;
@@ -249,7 +289,11 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
     super(parentImage, 'ContentCanvas');
   }
 
-  public getOptions(): CoreCanvasOptions {
+  public getCurrentOptions(): CoreCanvasOptions {
+    return this.imageContent?.canvasOptions;
+  }
+
+  public getDesiredOptions(_glWritable: boolean): CoreCanvasOptions {
     //const options = this.imageCollection.parentImage.getImageOptions();
     return {};
   }
@@ -258,6 +302,10 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
     const root = this.parentImage.rootObject;
     root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
     return root.createCoreCanvas2D(dimensions, options, this.handle);
+  }
+
+  protected copyContentInternalAsync(destContent: CoreCanvas2D, srcContent: CoreCanvas2D): Promise<void> {
+    return destContent.copyFromAsync(srcContent);
   }
 
   protected async populateContentInternalAsync(): Promise<void> {
@@ -303,11 +351,17 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     super(parentImage, 'ContentTexture');
   }
 
-  public getOptions(): CoreTextureOptions {
+  public getCurrentOptions(): CoreTextureOptions {
+    return this.imageContent?.textureOptions;
+  }
+
+  public getDesiredOptions(glWritable: boolean): CoreTextureOptions {
     const options = this.parentImage.getImageOptions();
     return {
-      bpp: options.bpp,
-      isReadOnly: options.glReadOnly,
+      // The only image source that supports higher than 8 BPP are WebGL shaders. So unless the texture is going to be
+      // used to store the output of a WebGL shader, force the color depth to 8 BPP.
+      bpp: glWritable ? options.bpp : FimBitsPerPixel.BPP8,
+      isReadOnly: !glWritable || options.oversizedReadOnly,
       sampling: options.sampling
     };
   }
@@ -338,6 +392,20 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     return glCanvas.createCoreTexture(dimensions, options, me.handle);
   }
 
+  public populateContentAsync(glWritable = false): Promise<CoreTexture> {
+    // We overload this method with a special case just for textures: If the texture is already allocated and writable,
+    // don't reallocate the texture to make it read-only.
+    if (!glWritable && this.imageContent) {
+      glWritable = !this.imageContent.textureOptions.isReadOnly;
+    }
+
+    return super.populateContentAsync(glWritable);
+  }
+
+  protected async copyContentInternalAsync(destContent: CoreTexture, srcContent: CoreTexture): Promise<void> {
+    return destContent.copyFromTexture(srcContent);
+  }
+
   protected async populateContentInternalAsync(): Promise<void> {
     const me = this;
     const parentImage = me.parentImage;
@@ -348,7 +416,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
 
     if (contentFillColor.isCurrent) {
       // Fill texture with solid color
-      me.allocateContent().fillSolid(contentFillColor.imageContent);
+      me.allocateContent(undefined, true).fillSolid(contentFillColor.imageContent);
     } else if (contentCanvas.isCurrent) {
       // Copy canvas to texture
       const srcImage = contentCanvas.imageContent;

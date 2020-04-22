@@ -19,7 +19,7 @@ $(async () => {
 
   // Load the sample image
   const url = 'https://www.leosingleton.com/sample-images/jellyfish.jpg';
-  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, bpp: 8, glReadOnly: true });
+  const inputImage = await fim.createImageFromJpegFileAsync(url, { autoBackup: true, oversizedReadOnly: true });
   const dimensions = inputImage.dim;
 
   // Create the brightness and contrast operation

@@ -9,7 +9,7 @@ import { TestImages } from '../common/TestImages';
 import { TestPatterns } from '../common/TestPatterns';
 import { TestSizes } from '../common/TestSizes';
 import { using, usingAsync } from '@leosingleton/commonlibs';
-import { Fim, FimBitsPerPixel, FimDimensions, FimOpInvert, FimOpUnsharpMask, FimRect } from '@leosingleton/fim';
+import { Fim, FimDimensions, FimOpInvert, FimOpUnsharpMask, FimRect } from '@leosingleton/fim';
 
 /**
  * FIM test cases around transparent downscaling of oversized images
@@ -37,11 +37,10 @@ export function fimTestSuiteOversized(
       });
     });
 
-    it('Supports allowOversized image option', () => {
+    it('Supports oversizedReadOnly image option', () => {
       using(factory(), fim => {
-        fim.engineOptions.maxImageDimensions = TestSizes.smallSquare;
-
-        const image = fim.createImage(TestSizes.mediumTall, { allowOversized: true });
+        const dimensions = FimDimensions.fromSquareDimension(fim.capabilities.glMaxTextureSize);
+        const image = fim.createImage(dimensions, { oversizedReadOnly: true });
         const eff = image.getEffectiveImageOptions();
 
         // No downscale occurs
@@ -196,8 +195,7 @@ export function fimTestSuiteOversized(
     it('Handles WebGL with downscale', async () => {
       await usingAsync(factory(), async fim => {
         // Create FIM resources
-        const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng(),
-          { bpp: FimBitsPerPixel.BPP8, glReadOnly: true });
+        const inputImage = await fim.createImageFromPngAsync(TestImages.fourSquaresPng(), { oversizedReadOnly: true });
         const outputImage = fim.createImage(TestSizes.smallSquare);
         const unsharpMask = new FimOpUnsharpMask(fim, true);
 

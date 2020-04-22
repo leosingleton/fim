@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 import { FimImage } from '../api/FimImage';
-import { FimImageOptions } from '../api/FimImageOptions';
 import { FimObject } from '../api/FimObject';
 import { FimOperationShader } from '../api/FimOperationShader';
 import { FimDimensions } from '../primitives/FimDimensions';
@@ -118,11 +117,8 @@ export class FimOpDownscale extends FimOperationShader {
     const me = this;
 
     // Create the temporary image
-    const options: FimImageOptions = {
-      allowOversized: true,
-      sampling: FimTextureSampling.Linear
-    };
-    return usingAsync(me.rootObject.createImage(nextDimensions, options, 'DownscaleTemp'), async temp => {
+    return usingAsync(me.rootObject.createImage(nextDimensions, inputImage.imageOptions, 'DownscaleTemp'),
+        async temp => {
       await me.executeInternalAsync(inputImage, temp);
       await me.executeInternalAsync(temp, outputImage, destCoords);
     });

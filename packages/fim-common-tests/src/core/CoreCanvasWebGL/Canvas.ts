@@ -128,6 +128,44 @@ export function coreCanvasWebGLTestSuiteCanvas(
       });
     });
 
+    it('Copies texture to texture', async () => {
+      await usingAsync(factory(TestSizes.smallSquare, canvasOptions), async canvas => {
+        // Load the four squares test image
+        const texture1 = await createFourSquaresTexture(canvas);
+
+        // Copy the texture to another
+        const texture2 = canvas.createCoreTexture(TestSizes.smallSquare, textureOptions);
+        texture2.copyFromTexture(texture1);
+
+        // Render the second texture to the WebGL canvas
+        canvas.copyFrom(texture2);
+
+        // Ensure the texture copied correctly
+        await TestImages.expectFourSquaresPngCanvasAsync(canvas);
+      });
+    });
+
+    it('Copies texture to texture with srcCoords', async () => {
+      await usingAsync(factory(TestSizes.smallSquare, canvasOptions), async canvas => {
+        // Load the four squares test image
+        const texture1 = await createFourSquaresTexture(canvas);
+
+        // Copy the texture to another
+        const texture2 = canvas.createCoreTexture(TestSizes.smallSquare, textureOptions);
+        texture2.copyFromTexture(texture1, FimRect.fromPoints(midpoint(TestSizes.smallSquare),
+          topRight(TestSizes.smallSquare)));
+
+        // Render the second texture to the WebGL canvas
+        canvas.copyFrom(texture2);
+
+        // Check a few pixels to ensure the texture rendered correctly
+        expect(canvas.getPixel(topLeft())).toEqual(TestColors.green);
+        expect(canvas.getPixel(topRight())).toEqual(TestColors.green);
+        expect(canvas.getPixel(bottomLeft())).toEqual(TestColors.green);
+        expect(canvas.getPixel(bottomRight())).toEqual(TestColors.green);
+      });
+    });
+
   });
 }
 
