@@ -35,6 +35,7 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     if (memory) {
       return memory * 1024 * 1024 * 1024;
     } else {
+      // Either the browser doesn't support it, or we are running in a development environment without HTTPS
       return 0;
     }
   }
