@@ -13,6 +13,9 @@ export interface FimBrowserCapabilities {
   /** User Agent string or equivalent for Node.js */
   readonly userAgentString: string;
 
+  /** Number of logical CPU cores for concurrent execution. May report zero if unknown. */
+  readonly logicalCpuCount: number;
+
   /** Estimated memory of the device, in bytes. May report zero if unknown. */
   readonly estimatedMemory: number;
 

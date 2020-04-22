@@ -70,6 +70,7 @@ export function fimTestSuiteCreateDispose(
       using(factory(), fim => {
         const caps = fim.capabilities;
         expect(caps.userAgentString).toBeDefined();
+        expect(caps.logicalCpuCount).toBeGreaterThan(0);
         expect(caps.estimatedMemory).toBeGreaterThan(0);
       });
     });

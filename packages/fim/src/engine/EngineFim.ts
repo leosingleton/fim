@@ -60,6 +60,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     //      readonly, so we force copy them over with any typecasts.
     const capabilities: FimCapabilities = this.capabilities = {
       userAgentString: this.getCapabilityUserAgent(),
+      logicalCpuCount: this.getCapabilityLogicalCpuCount(),
       estimatedMemory: this.getCapabilityMemory(),
       supportsOffscreenCanvas: (typeof OffscreenCanvas !== 'undefined'),
       supportsImageBitmap: (typeof createImageBitmap !== 'undefined'),
@@ -422,6 +423,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   /** Derived classes must implement this method to return a user agent string or equivalent */
   protected abstract getCapabilityUserAgent(): string;
+
+  /**
+   * Derived classes must implement this method to return the number of logical CPU cores. This method returns zero if
+   * unknown.
+   */
+  protected abstract getCapabilityLogicalCpuCount(): number;
 
   /**
    * Derived classes must implement this method to return the estimated device memory, in bytes. This method returns
