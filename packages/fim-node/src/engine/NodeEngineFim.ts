@@ -29,6 +29,10 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
     return `${process.version} (${process.platform}; ${process.arch})`;
   }
 
+  protected getCapabilityLogicalCpuCount(): number {
+    return os.cpus().length;
+  }
+
   protected getCapabilityMemory(): number {
     return os.totalmem();
   }

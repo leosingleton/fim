@@ -29,6 +29,10 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     return navigator.userAgent;
   }
 
+  protected getCapabilityLogicalCpuCount(): number {
+    return navigator.hardwareConcurrency;
+  }
+
   protected getCapabilityMemory(): number {
     // deviceMemory is experimental, but many browsers return the memory in GB, rounded down to a power of two
     const memory = (navigator as any).deviceMemory;
