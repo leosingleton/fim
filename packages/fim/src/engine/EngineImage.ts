@@ -25,7 +25,7 @@ import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
-import { deepCopy } from '@leosingleton/commonlibs';
+import { deepCopy, Stopwatch } from '@leosingleton/commonlibs';
 
 /** Internal implementation of the FimImage interface */
 export abstract class EngineImage extends EngineObject implements FimDimensional, FimImage {
@@ -361,6 +361,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     const glCanvas = root.getWebGLCanvas();
     const scaledDestCoords = destCoords.rescale(contentTexture.downscale);
+    let executionTime: number;
+    let pixelCount: number;
     if (shaderOrOperation.uniformsContainEngineImage(me)) {
       // Special case: We are using this image both as an input and and output. Using a single texture as both input and
       // output isn't supported by WebGL, but we work around this by creating a temporary WebGL texture.
@@ -368,7 +370,10 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
         contentTexture.getDesiredOptions(true));
       try {
         root.resources.recordCreate(me, outputTexture);
+        const stopwatch = Stopwatch.startNew();
         await shaderOrOperation.executeAsync(glCanvas, outputTexture, scaledDestCoords);
+        executionTime = stopwatch.getElapsedMilliseconds();
+        pixelCount = outputTexture.dim.getArea();
       } catch (err) {
         root.resources.recordDispose(me, outputTexture);
         outputTexture.dispose();
@@ -378,11 +383,14 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       contentTexture.imageContent = outputTexture;
     } else {
       // Normal case: we can write to the normal WebGL texture as it is not an input to the shader.
+      const stopwatch = Stopwatch.startNew();
       await shaderOrOperation.executeAsync(glCanvas, contentTexture.imageContent, scaledDestCoords);
+      executionTime = stopwatch.getElapsedMilliseconds();
+      pixelCount = contentTexture.imageContent.dim.getArea();
     }
 
     me.markCurrent(contentTexture, true);
-    optimizer.recordShaderUsage(shaderOrOperation);
+    optimizer.recordShaderUsage(shaderOrOperation, executionTime, pixelCount);
     optimizer.recordImageWrite(me, ImageFormat.Texture, OperationType.Explicit);
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets

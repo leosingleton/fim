@@ -75,10 +75,12 @@ export abstract class OptimizerBase {
   /**
    * Notification when an `EngineShader` instance is used for execution
    * @param image `EngineShader` instance
+   * @param executionTime Shader execution time, in milliseconds
+   * @param pixelCount Number of pixels in the destination texture
    */
-  public recordShaderUsage(shader: EngineShader): void {
+  public recordShaderUsage(shader: EngineShader, executionTime: number, pixelCount: number): void {
     this.writeTrace('Use', shader);
-    this.fim.executionStats.recordShaderUsage(shader);
+    this.fim.executionStats.recordShaderUsage(shader, executionTime, pixelCount);
   }
 
   /**

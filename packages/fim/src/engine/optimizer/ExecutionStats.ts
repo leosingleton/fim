@@ -60,7 +60,7 @@ export class ExecutionStats implements FimExecutionStats {
     }
   }
 
-  public recordShaderUsage(shader: EngineShader): void {
+  public recordShaderUsage(shader: EngineShader, executionTime: number, pixelCount: number): void {
     // Find the ShaderStats object. Create on first use.
     let shaderStats = this.shaderHandles[shader.objectHandle] as ShaderStats;
     if (!shaderStats) {
@@ -68,7 +68,13 @@ export class ExecutionStats implements FimExecutionStats {
     }
 
     shaderStats.executionCount++;
-    // TODO: Implement average time
+
+    shaderStats.totalExecutionTime += executionTime;
+    shaderStats.avgExecutionTime = shaderStats.totalExecutionTime / shaderStats.executionCount;
+
+    const mp = pixelCount / (1024 * 1024);
+    shaderStats.totalExecutionTimePMP += executionTime / mp;
+    shaderStats.avgExecutionTimePMP = shaderStats.totalExecutionTimePMP / shaderStats.executionCount;
   }
 }
 
@@ -96,4 +102,10 @@ export class ShaderStats implements FimShaderStats {
   public executionCount = 0;
   public avgExecutionTime: number;
   public avgExecutionTimePMP: number;
+
+  /** Total execution time, in milliseconds. Used internally to compute the `avgExecutionTime` */
+  public totalExecutionTime = 0;
+
+  /** Total execution time per million pixels, in milliseconds. Used internally to compute the `avgExecutionTime` */
+  public totalExecutionTimePMP = 0;
 }
