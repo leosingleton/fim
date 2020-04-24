@@ -42,6 +42,7 @@ export abstract class OptimizerBase {
    */
   public recordImageRead(image: EngineImage, format: ImageFormat, type: OperationType): void {
     this.writeTrace('Read', image, format, type);
+    this.fim.executionStats.recordImageRead(image, format, type);
   }
 
   /**
@@ -52,6 +53,7 @@ export abstract class OptimizerBase {
    */
   public recordImageWrite(image: EngineImage, format: ImageFormat, type: OperationType): void {
     this.writeTrace('Write', image, format, type);
+    this.fim.executionStats.recordImageWrite(image, format, type);
   }
 
   /**
@@ -76,6 +78,7 @@ export abstract class OptimizerBase {
    */
   public recordShaderUsage(shader: EngineShader): void {
     this.writeTrace('Use', shader);
+    this.fim.executionStats.recordShaderUsage(shader);
   }
 
   /**

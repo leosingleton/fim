@@ -7,6 +7,8 @@
 export { Fim, FimBase } from './api/Fim';
 export { FimCapabilities } from './api/FimCapabilities';
 export { FimEngineOptions } from './api/FimEngineOptions';
+export { FimExecutionStats, FimImageStats, FimImageStatsByResource, FimImageStatsByResourceAndOperation,
+  FimShaderStats } from './api/FimExecutionStats';
 export { FimExecutionStrategy } from './api/FimExecutionStrategy';
 export { FimImage } from './api/FimImage';
 export { FimImageOptions } from './api/FimImageOptions';

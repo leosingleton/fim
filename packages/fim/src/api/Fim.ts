@@ -4,6 +4,7 @@
 
 import { FimCapabilities } from './FimCapabilities';
 import { FimEngineOptions } from './FimEngineOptions';
+import { FimExecutionStats } from './FimExecutionStats';
 import { FimImage } from './FimImage';
 import { FimImageOptions } from './FimImageOptions';
 import { FimObject } from './FimObject';
@@ -77,6 +78,9 @@ export interface FimBase<TImage extends FimImage, TShader extends FimShader> ext
 
   /** Returns metrics on the current resource usage of this FIM instance, broken down by resource type */
   getResourceMetricsDetailed(): FimResourceUsage;
+
+  /** Returns statistics on the execution and performance of this FIM instance */
+  getExecutionStats(): FimExecutionStats;
 
   /**
    * Creates a new image
