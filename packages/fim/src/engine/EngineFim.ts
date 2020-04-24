@@ -80,7 +80,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
       glTextureDepthsNearest: []
     };
     const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromSquareDimension(1), {},
-      `${this.handle}/DetectCapabilities`);
+      `${this.objectHandle}/DetectCapabilities`);
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
       for (const prop in glCapabilities) {
@@ -145,7 +145,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
    */
   private writeMessageInternal(object: EngineObject, message: string, show: boolean): void {
     if (show) {
-      console.log(`${object.handle}: ${message}`);
+      console.log(`${object.objectHandle}: ${message}`);
     }
   }
 
@@ -189,7 +189,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Create a new WebGL canvas
     me.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
-    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(), `${me.handle}/WebGLCanvas`);
+    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(), `${me.objectHandle}/WebGLCanvas`);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
     // get recreated again on first use.

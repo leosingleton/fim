@@ -25,9 +25,9 @@ export abstract class FimObjectImpl implements FimObject {
       handle += `.${name.replace(/[./]/g, '_')}`;
     }
     if (parent) {
-      handle = `${parent.handle}/${handle}`;
+      handle = `${parent.objectHandle}/${handle}`;
     }
-    this.handle = handle;
+    this.objectHandle = handle;
 
     // Establish parent/child/root mappings
     this.rootObject = parent ? parent.rootObject : this as any as Fim;
@@ -67,7 +67,7 @@ export abstract class FimObjectImpl implements FimObject {
   }
 
   public readonly objectType: string;
-  public readonly handle: string;
+  public readonly objectHandle: string;
   public childObjects: FimObject[] = [];
   public parentObject: FimObject;
   public rootObject: Fim;
@@ -130,14 +130,15 @@ export abstract class FimObjectImpl implements FimObject {
   /** Throws an exception if the object is disposed */
   protected ensureNotDisposed(): void {
     if (this.isDisposed) {
-      FimError.throwOnObjectDisposed(this.handle);
+      FimError.throwOnObjectDisposed(this.objectHandle);
     }
   }
 
   /** Throws an exception if the specified object has a different root FIM instance from this object */
   protected ensureSameRoot(child: FimObject): void {
     if (this.rootObject !== child.rootObject) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${this.handle} and ${child.handle} have different root`);
+      throw new FimError(FimErrorCode.InvalidParameter,
+        `${this.objectHandle} and ${child.objectHandle} have different root`);
     }
   }
 }

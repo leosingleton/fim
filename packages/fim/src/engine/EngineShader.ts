@@ -176,7 +176,7 @@ export class EngineShader extends EngineObject implements FimShader {
     if (!shader) {
       // Create a new shader, set the constants, and compile it. We explicitly compile the program to catch any compiler
       // errors here before caching, rather than letting CoreShader automatically compile on first use.
-      shader = new CoreShader(glCanvas, me.handle, me.fragmentShader, me.vertexShader);
+      shader = new CoreShader(glCanvas, me.objectHandle, me.fragmentShader, me.vertexShader);
       shader.setConstants(me.constantValues);
       shader.compileProgram();
 

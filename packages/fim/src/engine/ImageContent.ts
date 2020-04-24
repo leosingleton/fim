@@ -48,11 +48,11 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
    */
   public constructor(protected readonly parentImage: EngineImage, name: string) {
     super();
-    this.handle = `${parentImage.handle}/${name}`;
+    this.objectHandle = `${parentImage.objectHandle}/${name}`;
   }
 
   /** Unique string identifying the object */
-  public readonly handle: string;
+  public readonly objectHandle: string;
 
   /**
    * Return the options of the current `imageContent` instance. Returns `undefined` if `imageContent` is also
@@ -113,7 +113,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     // Log a warning whenever an auto-downscale happens
     if (downscale < options.downscale && !parentImage.autoDownscaleWarningLogged) {
       root.writeWarning(parentImage,
-        `Auto-downscale ${me.handle}: ${options.downscale} => ${downscale} (${scaledDimensions})`);
+        `Auto-downscale ${me.objectHandle}: ${options.downscale} => ${downscale} (${scaledDimensions})`);
       parentImage.autoDownscaleWarningLogged = true;
     }
 
@@ -189,7 +189,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
         parentImage.contentFillColor.imageContent = FimColor.fromColorOrString(defaultFillColor);
         parentImage.markCurrent(parentImage.contentFillColor, true);
       } else {
-        FimError.throwOnImageUninitialized(parentImage.handle);
+        FimError.throwOnImageUninitialized(parentImage.objectHandle);
       }
     }
 
@@ -301,7 +301,7 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
   protected allocateContentInternal(dimensions: FimDimensions, options: CoreCanvasOptions): CoreCanvas2D {
     const root = this.parentImage.rootObject;
     root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
-    return root.createCoreCanvas2D(dimensions, options, this.handle);
+    return root.createCoreCanvas2D(dimensions, options, this.objectHandle);
   }
 
   protected copyContentInternalAsync(destContent: CoreCanvas2D, srcContent: CoreCanvas2D): Promise<void> {
@@ -389,7 +389,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     const root = me.parentImage.rootObject;
     const glCanvas = root.getWebGLCanvas();
     root.optimizer.reserveGLMemory(dimensions.getArea() * options.bpp * 0.5);
-    return glCanvas.createCoreTexture(dimensions, options, me.handle);
+    return glCanvas.createCoreTexture(dimensions, options, me.objectHandle);
   }
 
   public populateContentAsync(glWritable = false): Promise<CoreTexture> {

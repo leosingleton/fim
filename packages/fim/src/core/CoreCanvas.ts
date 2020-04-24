@@ -25,7 +25,7 @@ export abstract class CoreCanvas implements FimDimensional {
   protected constructor(dimensions: FimDimensions, canvasOptions: CoreCanvasOptions, handle: string,
       engineOptions?: FimEngineOptions) {
     this.dim = dimensions.toFloor();
-    this.handle = handle;
+    this.objectHandle = handle;
     this.canvasOptions = deepCopy(canvasOptions);
     this.engineOptions = engineOptions ?? deepCopy(defaultEngineOptions);
     this.hasImage = false;
@@ -35,7 +35,7 @@ export abstract class CoreCanvas implements FimDimensional {
   public readonly dim: FimDimensions;
 
   /** Handle of the image that owns this canvas. Used only for debugging. */
-  public readonly handle: string;
+  public readonly objectHandle: string;
 
   /** Canvas options */
   public readonly canvasOptions: CoreCanvasOptions;
@@ -57,7 +57,7 @@ export abstract class CoreCanvas implements FimDimensional {
   /** Throws an exception if the object is disposed */
   public ensureNotDisposed(): void {
     if (this.isDisposed) {
-      FimError.throwOnObjectDisposed(this.handle);
+      FimError.throwOnObjectDisposed(this.objectHandle);
     }
   }
 
@@ -74,7 +74,7 @@ export abstract class CoreCanvas implements FimDimensional {
   public ensureNotDisposedAndHasImage(): void {
     this.ensureNotDisposed();
     if (!this.hasImage) {
-      throw new FimError(FimErrorCode.ImageUninitialized, this.handle);
+      throw new FimError(FimErrorCode.ImageUninitialized, this.objectHandle);
     }
   }
 
@@ -86,7 +86,7 @@ export abstract class CoreCanvas implements FimDimensional {
    *    on the returned object.
    */
   public createTemporaryCanvas2D(dimensions?: FimDimensions, canvasOptions?: CoreCanvasOptions): CoreCanvas2D {
-    return this.createCanvas2D(dimensions ?? this.dim, canvasOptions ?? this.canvasOptions, `${this.handle}/Temp`,
+    return this.createCanvas2D(dimensions ?? this.dim, canvasOptions ?? this.canvasOptions, `${this.objectHandle}/Temp`,
       this.engineOptions);
   }
 

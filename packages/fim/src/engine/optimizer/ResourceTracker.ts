@@ -105,7 +105,7 @@ export class ResourceTracker {
     // Write the tracing message
     if (me.fim.engineOptions.showTracing) {
       const className = getClassName(coreObject);
-      let message = `${operation} ${className} ${coreObject.handle}`;
+      let message = `${operation} ${className} ${coreObject.objectHandle}`;
 
       if (dimensions && bpp) {
         message += ` ${dimensions}x${bpp} (${memoryToString(memory)})`;

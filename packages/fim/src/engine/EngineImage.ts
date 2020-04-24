@@ -305,7 +305,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
     // copyFrom() does not support copying from itself
     if (srcImage === this) {
-      throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.handle} !copyFrom self`);
+      throw new FimError(FimErrorCode.InvalidParameter, `${srcImage.objectHandle} !copyFrom self`);
     }
 
     // Ensure srcImage belongs to the same EngineFim instance
@@ -480,7 +480,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     // temporary canvas. Rescaling pixel data in JavaScript is slow and doesn't do as good of a job of image
     // smoothing.
     const temp = root.createCoreCanvas2D(srcCoords.dim, me.contentCanvas.getDesiredOptions(false),
-      `${me.handle}/RescaleHelper`);
+      `${me.objectHandle}/RescaleHelper`);
     try {
       root.resources.recordCreate(me, temp);
 

@@ -69,10 +69,10 @@ export class FimOpMatrix1D extends FimOperationShader {
     // Check effective image options and ensure linear filtering is enabled
     if (me.fast) {
       if (inputImage.getEffectiveImageOptions().sampling !== FimTextureSampling.Linear) {
-        FimError.throwOnInvalidParameter(`${inputImage.handle} not linear`);
+        FimError.throwOnInvalidParameter(`${inputImage.objectHandle} not linear`);
       }
       if (outputImage.getEffectiveImageOptions().sampling !== FimTextureSampling.Linear) {
-        FimError.throwOnInvalidParameter(`${outputImage.handle} not linear`);
+        FimError.throwOnInvalidParameter(`${outputImage.objectHandle} not linear`);
       }
     }
 
