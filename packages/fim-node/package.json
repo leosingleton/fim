@@ -10,18 +10,18 @@
     "type": "git",
     "url": "https://github.com/leosingleton/fim.git"
   },
+  "dependencies": {
+    "@leosingleton/commonlibs": "^1.7.0",
+    "@leosingleton/fim": "^2.4.0",
+    "canvas": "^2.6.1",
+    "gl": "^4.5.0",
+    "tslib": "^1.11.1",
+    "webpack-glsl-minify": "^1.4.0"
+  },
   "devDependencies": {
     "@leosingleton/fim-common-tests": "^2.4.0",
     "@types/gl": "latest",
     "@types/node": "latest"
-  },
-  "dependencies": {
-    "@leosingleton/commonlibs": "latest",
-    "@leosingleton/fim": "^2.4.0",
-    "canvas": "latest",
-    "gl": "latest",
-    "tslib": "latest",
-    "webpack-glsl-minify": "latest"
   },
   "main": "build/index.js",
   "types": "build/index.d.ts",

@@ -10,6 +10,14 @@
     "type": "git",
     "url": "https://github.com/leosingleton/fim.git"
   },
+  "dependencies": {
+    "@leosingleton/commonlibs": "^1.7.0",
+    "@leosingleton/fim": "^2.4.0",
+    "@leosingleton/fim-browser": "^2.4.0",
+    "file-saver": "^2.0.2",
+    "tslib": "^1.11.1",
+    "webpack-glsl-minify": "^1.4.0"
+  },
   "devDependencies": {
     "@types/bootstrap": "latest",
     "@types/file-saver": "latest",
@@ -20,14 +28,6 @@
     "typescript": "latest",
     "webpack": "latest",
     "webpack-cli": "latest"
-  },
-  "dependencies": {
-    "@leosingleton/commonlibs": "latest",
-    "@leosingleton/fim": "^2.4.0",
-    "@leosingleton/fim-browser": "^2.4.0",
-    "file-saver": "latest",
-    "tslib": "latest",
-    "webpack-glsl-minify": "latest"
   },
   "browser": "build/samples.js",
   "types": "build/samples.d.ts",
