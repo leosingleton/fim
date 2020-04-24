@@ -383,7 +383,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   }
 
   public getExecutionStats(): FimExecutionStats {
-    return this.executionStats;
+    return this.executionStats.clonePublicObject();
   }
 
   public createImage(dimensions: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject):

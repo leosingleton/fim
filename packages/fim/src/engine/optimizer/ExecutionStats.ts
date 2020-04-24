@@ -9,6 +9,7 @@ import { EngineShader } from '../EngineShader';
 import { FimExecutionStats, FimImageStats, FimImageStatsByResource, FimImageStatsByResourceAndOperation,
   FimShaderStats } from '../../api/FimExecutionStats';
 import { FimError } from '../../primitives/FimError';
+import { deepCopy } from '@leosingleton/commonlibs';
 
 /**
  * Implementation of the `FimExecutionStats` interface
@@ -67,14 +68,20 @@ export class ExecutionStats implements FimExecutionStats {
       shaderStats = this.shaderHandles[shader.objectHandle] = new ShaderStats();
     }
 
-    shaderStats.executionCount++;
+    shaderStats.recordExecution(executionTime, pixelCount);
+  }
 
-    shaderStats.totalExecutionTime += executionTime;
-    shaderStats.avgExecutionTime = shaderStats.totalExecutionTime / shaderStats.executionCount;
+  /** Makes a clone of this object containing only public properties */
+  public clonePublicObject(): FimExecutionStats {
+    const result = deepCopy(this);
 
-    const mp = pixelCount / (1024 * 1024);
-    shaderStats.totalExecutionTimePMP += executionTime / mp;
-    shaderStats.avgExecutionTimePMP = shaderStats.totalExecutionTimePMP / shaderStats.executionCount;
+    // Remove private properties
+    for (const handle in result.shaderHandles) {
+      delete result.shaderHandles[handle].totalExecutionTime;
+      delete result.shaderHandles[handle].totalMillionPixels;
+    }
+
+    return result;
   }
 }
 
@@ -106,6 +113,19 @@ export class ShaderStats implements FimShaderStats {
   /** Total execution time, in milliseconds. Used internally to compute the `avgExecutionTime` */
   public totalExecutionTime = 0;
 
-  /** Total execution time per million pixels, in milliseconds. Used internally to compute the `avgExecutionTime` */
-  public totalExecutionTimePMP = 0;
+  /** Total number of pixels rendered, in millions. Used internally to compute the `avgExecutionTimePMP` */
+  public totalMillionPixels = 0;
+
+  public recordExecution(executionTime: number, pixelCount: number): void {
+    const me = this;
+
+    // Increment counters
+    me.executionCount++;
+    me.totalExecutionTime += executionTime;
+    me.totalMillionPixels += pixelCount / (1024 * 1024);
+
+    // Recompute averages
+    me.avgExecutionTime = me.totalExecutionTime / me.executionCount;
+    me.avgExecutionTimePMP = me.totalExecutionTime / me.totalMillionPixels;
+  }
 }
