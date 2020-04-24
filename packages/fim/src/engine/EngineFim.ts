@@ -189,12 +189,13 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
     // Create a new WebGL canvas
     me.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
-    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(), `${me.objectHandle}/WebGLCanvas`);
+    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(),
+      `${me.objectHandle}/WebGLCanvas`);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
     // get recreated again on first use.
-    glCanvas.registerContextLostHandler(() => this.onContextLost());
-    glCanvas.registerContextRestoredHandler(() => this.onContextRestored());
+    glCanvas.registerContextLostHandler(() => me.onContextLost());
+    glCanvas.registerContextRestoredHandler(() => me.onContextRestored());
 
     // Run any context loss simulation
     me.contextLostSim.onCanvasWebGLCreated(glCanvas);
