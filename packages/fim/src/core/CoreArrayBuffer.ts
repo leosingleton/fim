@@ -16,13 +16,13 @@ export class CoreArrayBuffer {
    */
   public constructor(glCanvas: CoreCanvasWebGL, program: WebGLProgram, attributeName: string, size: number) {
     this.glCanvas = glCanvas;
-    this.size = size;
+    this.vectorSize = size;
 
     const gl = glCanvas.getContext();
     this.attributeLocation = gl.getAttribLocation(program, attributeName);
     glCanvas.throwWebGLErrorsDebug();
 
-    this.buffer = gl.createBuffer();
+    this.glBuffer = gl.createBuffer();
     glCanvas.throwWebGLErrorsDebug();
   }
 
@@ -33,9 +33,9 @@ export class CoreArrayBuffer {
     const gl = me.glCanvas.getContext(false);
 
     // Dispose the ArrayBuffer
-    if (me.buffer) {
-      gl.deleteBuffer(me.buffer);
-      me.buffer = undefined;
+    if (me.glBuffer) {
+      gl.deleteBuffer(me.glBuffer);
+      me.glBuffer = undefined;
     }
 
     // Ensure this object is no longer used
@@ -59,15 +59,16 @@ export class CoreArrayBuffer {
    * @param drawStatic Hint to WebGL: true = set once, false = set many times
    */
   public setValues(values: number[], drawStatic = false): void {
-    const glCanvas = this.glCanvas;
+    const me = this;
+    const glCanvas = me.glCanvas;
     const gl = glCanvas.getContext();
 
     // Ensure the array is the expected size
-    if (values.length % this.size !== 0) {
+    if (values.length % me.vectorSize !== 0) {
       FimError.throwOnInvalidParameter(values.length);
     }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, me.glBuffer);
     glCanvas.throwWebGLErrorsDebug();
 
     const usage = drawStatic ? gl.STATIC_DRAW : gl.DYNAMIC_DRAW;
@@ -76,24 +77,25 @@ export class CoreArrayBuffer {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-    this.arrayLength = values.length / this.size;
+    me.arrayLength = values.length / me.vectorSize;
   }
 
   /** Length of the array buffer, in number of vectors */
   public arrayLength: number;
 
   public bindArray(): void {
-    const glCanvas = this.glCanvas;
+    const me = this;
+    const glCanvas = me.glCanvas;
     const gl = glCanvas.getContext();
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, me.glBuffer);
     glCanvas.throwWebGLErrorsDebug();
 
-    const index = this.attributeLocation;
+    const index = me.attributeLocation;
     gl.enableVertexAttribArray(index);
     glCanvas.throwWebGLErrorsDebug();
 
-    gl.vertexAttribPointer(index, this.size, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(index, me.vectorSize, gl.FLOAT, false, 0, 0);
     glCanvas.throwWebGLErrorsDebug();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -109,7 +111,7 @@ export class CoreArrayBuffer {
   }
 
   private glCanvas: CoreCanvasWebGL;
-  private readonly size: number;
+  private readonly vectorSize: number;
   private readonly attributeLocation: number;
-  private buffer: WebGLBuffer;
+  private glBuffer: WebGLBuffer;
 }
