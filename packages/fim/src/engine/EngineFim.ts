@@ -17,7 +17,6 @@ import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimResourceUsage, FimResourceMetrics } from '../api/FimResourceUsage';
-import { CoreCallbackCollection } from '../core/CoreCallbackCollection';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../core/CoreCanvasWebGL';
@@ -26,7 +25,7 @@ import { CoreImageLoader } from '../core/CoreImageLoader';
 import { CoreMimeType } from '../core/CoreMimeType';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError, FimErrorCode } from '../primitives/FimError';
-import { deepCopy } from '@leosingleton/commonlibs';
+import { CallbackCollection, deepCopy } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Shorthand for `EngineFimBase` with the non-platform-specfic implementations of `TEngineImage` and `TEngineShader` */
@@ -348,10 +347,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   }
 
   /** Context lost callbacks */
-  private contextLostHandlers = new CoreCallbackCollection();
+  private contextLostHandlers = new CallbackCollection();
 
   /** Context restored callbacks */
-  private contextRestoredHandlers = new CoreCallbackCollection();
+  private contextRestoredHandlers = new CallbackCollection();
 
   public enableContextLossSimulation(lossInterval?: number, restoreTime?: number): void {
     this.contextLostSim.enableContextLossSimulation(lossInterval, restoreTime);

@@ -2,7 +2,6 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { CoreCallbackCollection } from './CoreCallbackCollection';
 import { CoreCanvas } from './CoreCanvas';
 import { CoreShader } from './CoreShader';
 import { CoreTexture } from './CoreTexture';
@@ -19,7 +18,7 @@ import { FimError, FimErrorCode } from '../primitives/FimError';
 import { FimPoint } from '../primitives/FimPoint';
 import { FimRect } from '../primitives/FimRect';
 import { FimTextureSampling } from '../primitives/FimTextureSampling';
-import { AsyncManualResetEvent } from '@leosingleton/commonlibs';
+import { AsyncManualResetEvent, CallbackCollection } from '@leosingleton/commonlibs';
 import { GlslShader } from 'webpack-glsl-minify';
 
 /** Wrapper around the HTML canvas and canvas-like objects */
@@ -205,10 +204,10 @@ export abstract class CoreCanvasWebGL extends CoreCanvas {
   }
 
   /** Context lost callbacks */
-  private contextLostHandlers = new CoreCallbackCollection();
+  private contextLostHandlers = new CallbackCollection();
 
   /** Context restored callbacks */
-  private contextRestoredHandlers = new CoreCallbackCollection();
+  private contextRestoredHandlers = new CallbackCollection();
 
   /** Returns additional error details in case `getContext('webgl')` fails */
   private contextFailMessage: string;

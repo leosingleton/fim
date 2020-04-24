@@ -10,7 +10,6 @@
 
 export { defaultEngineOptions } from '../api/FimEngineOptions';
 export { defaultImageOptions, mergeImageOptions } from '../api/FimImageOptions';
-export { CoreCallbackCollection } from '../core/CoreCallbackCollection';
 export { CoreCanvas } from '../core/CoreCanvas';
 export { CoreCanvas2D } from '../core/CoreCanvas2D';
 export { CoreCanvasOptions } from '../core/CoreCanvasOptions';
