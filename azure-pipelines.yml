@@ -14,6 +14,6 @@ jobs:
     timeoutInMinutes: 15
     cancelTimeoutInMinutes: 2
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'ubuntu-latest'
     steps:
       - template: azure-pipelines-steps.yml
