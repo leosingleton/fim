@@ -14,25 +14,25 @@ export interface FimExecutionStats {
 /** Execution stats for an image */
 export interface FimImageStats {
   /** 2D canvas resources, including `OffscreenCanvas` objects */
-  readonly canvas2D: FimImageStatsByResource;
+  readonly canvas2D?: FimImageStatsByResource;
 
   /** WebGL texture resources */
-  readonly glTexture: FimImageStatsByResource;
+  readonly glTexture?: FimImageStatsByResource;
 }
 
 /** Execution stats for one resource type of an image */
 export interface FimImageStatsByResource {
   /** The operation was performed as an explicit operation invoked by the FIM library's client */
-  readonly explicit: FimImageStatsByResourceAndOperation;
+  readonly explicit?: FimImageStatsByResourceAndOperation;
 
   /** The operation was performed as part of importing/exporting the image contents to/from a non-FIM format */
-  readonly importExport: FimImageStatsByResourceAndOperation;
+  readonly importExport?: FimImageStatsByResourceAndOperation;
 
   /**
    * The operation was performed transparently as part of converting the image contents between two different internal
    * formats
    */
-  readonly internalConversion: FimImageStatsByResourceAndOperation;
+  readonly internalConversion?: FimImageStatsByResourceAndOperation;
 }
 
 /** Execution stats for one resource type and operation type of an image */
