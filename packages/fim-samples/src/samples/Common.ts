@@ -70,10 +70,11 @@ export function measureFrameStop(): void {
  * @param showFPS If true, renders FPS details. This requires the sample app to call `measureFrameStart()` /
  *    `measureFrameStop()` to collect FPS metrics.
  * @param showResources If true, renders the resource metrics from FIM
+ * @param showExecutionStats If true, renders the execution stats from FIM
  * @param showCapabilities If true, renders the capabilities
  */
 export function renderDetails(fim: Fim, canvas: HTMLCanvasElement, message?: string, showFPS = true,
-    showResources = true, showCapabilities = true): void {
+    showResources = true, showExecutionStats = true, showCapabilities = true): void {
   message = message ?? '';
   message += `\nResolution: ${canvas.width}x${canvas.height}\n\n`;
 
@@ -94,6 +95,11 @@ export function renderDetails(fim: Fim, canvas: HTMLCanvasElement, message?: str
     message += `Resource Details = ${details}\n\n`;
   }
 
+  if (showExecutionStats) {
+    const stats = JSON.stringify(fim.getExecutionStats(), null, 4);
+    message += `Execution Stats = ${stats}\n\n`;
+  }
+
   if (showCapabilities) {
     const caps = JSON.stringify(fim.capabilities, null, 4);
     message += `Capabilities = ${caps}\n\n`;
@@ -107,10 +113,17 @@ export function renderDetails(fim: Fim, canvas: HTMLCanvasElement, message?: str
   ctx.font = '24px sans-serif';
 
   // Handle multi-line strings. fillText() ignores newlines and carriage returns.
+  let x = 48;
   let y = 48;
   for (const line of message.split('\n')) {
-    ctx.fillText(line, 48, y);
+    ctx.fillText(line, x, y);
     y += 24;
+
+    // Wrap the screen
+    if (y > canvas.height - 48) {
+      x += 640;
+      y = 48;
+    }
   }
 
   ctx.restore();

@@ -11,7 +11,7 @@ export interface FimObject {
   readonly objectType: string;
 
   /** Handle including the full path from parent to child objects */
-  readonly handle: string;
+  readonly objectHandle: string;
 
   /** Array of references to child objects */
   readonly childObjects: FimObject[];

@@ -7,12 +7,16 @@ import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
-import { OptimizerBase } from './optimizer/OptimizerBase';
-import { OptimizerNull } from './optimizer/OptimizerNull';
-import { ResourceTracker } from './optimizer/ResourceTracker';
+import { ModuleBase, ModuleCreateDispose, ModuleImageFormat } from './modules/ModuleBase';
+import { ModuleLogging } from './modules/ModuleLogging';
+import { ModuleOptimizer } from './modules/ModuleOptimizer';
+import { ModuleResource } from './modules/ModuleResource';
+import { ModuleStats } from './modules/ModuleStats';
+import { OptimizerNull } from './modules/optimizers/OptimizerNull';
 import { FimBase } from '../api/Fim';
 import { FimCapabilities } from '../api/FimCapabilities';
 import { FimEngineOptions, defaultEngineOptions } from '../api/FimEngineOptions';
+import { FimExecutionStats } from '../api/FimExecutionStats';
 import { FimImageOptions, defaultImageOptions } from '../api/FimImageOptions';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
@@ -43,8 +47,12 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   public constructor(public readonly fileReaderAsync: CoreFileReader, public readonly imageLoaderAsync: CoreImageLoader,
       name?: string) {
     super(EngineObjectType.Fim, name);
-    this.resources = new ResourceTracker(this);
+
+    // Initialize the engine modules
+    this.logging = new ModuleLogging(this);
     this.optimizer = new OptimizerNull(this);
+    this.resources = new ModuleResource(this);
+    this.stats = new ModuleStats(this);
 
     // Initialize options to library defaults. The properties are public, so API clients may change them after FIM
     // creation.
@@ -79,7 +87,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
       glTextureDepthsNearest: []
     };
     const tinyCanvas = this.createCoreCanvasWebGL(FimDimensions.fromSquareDimension(1), {},
-      `${this.handle}/DetectCapabilities`);
+      `${this.objectHandle}/DetectCapabilities`);
     try {
       const glCapabilities = tinyCanvas.detectCapabilities();
       for (const prop in glCapabilities) {
@@ -110,42 +118,32 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   // Force parentObject to be a more specific type
   public parentObject: never;
 
-  /** Resource tracking within `EngineFim` is contained in a separate object with 1:1 mapping for code readability */
-  public readonly resources: ResourceTracker;
+  //
+  // Some of the non-core functionality of `EngineFim` is contained in separate module classes listed below...
+  //
 
-  /** Memory optimization within `EngineFim` is contained in a separate object with 1:1 mapping for code readability */
-  public readonly optimizer: OptimizerBase;
+  /** Module that handles logging to the JavaScript console */
+  public readonly logging: ModuleLogging;
 
-  /**
-   * Writes a trace message to the console. This function is a no-op if tracing is disabled in the engine options.
-   * @param object Object handle to log for the message
-   * @param message Message to log
-   */
-  public writeTrace(object: EngineObject, message: string): void {
-    this.writeMessageInternal(object, message, this.engineOptions.showTracing);
-  }
+  /** Module that utomatically frees unneeded resources */
+  public readonly optimizer: ModuleOptimizer;
 
-  /**
-   * Writes a warning message to the console. This function is a no-op if warnings and tracing are disabled in the
-   * engine options.
-   * @param object Object handle to log for the message
-   * @param message Message to log
-   */
-  public writeWarning(object: EngineObject, message: string): void {
-    this.writeMessageInternal(object, `<WARNING> ${message}`, this.engineOptions.showTracing ||
-      this.engineOptions.showWarnings);
-  }
+  /** Module that tracks resource usage */
+  public readonly resources: ModuleResource;
+
+  /** Module that tracks execution stats */
+  public readonly stats: ModuleStats;
 
   /**
-   * Internal function to writes a message to the console
-   * @param object Object handle to log for the message
-   * @param message Message to log
-   * @param show Only writes if `show` is `true`. Otherwise this function is a no-op.
+   * Sends a notification to all FIM modules
+   * @param notification Lambda function to call the notification on the `ModuleBase` interface
    */
-  private writeMessageInternal(object: EngineObject, message: string, show: boolean): void {
-    if (show) {
-      console.log(`${object.handle}: ${message}`);
-    }
+  public notifyModules(notification: (module: ModuleBase) => void): void {
+    const me = this;
+    notification(me.logging);
+    notification(me.optimizer);
+    notification(me.resources);
+    notification(me.stats);
   }
 
   /**
@@ -187,19 +185,20 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     }
 
     // Create a new WebGL canvas
-    me.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
-    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(), `${me.handle}/WebGLCanvas`);
+    me.optimizer.reserveMemory(dimensions.getArea() * 4, ModuleImageFormat.Canvas);
+    glCanvas = me.glCanvas = me.createCoreCanvasWebGL(dimensions, me.getGLCanvasOptions(),
+      `${me.objectHandle}/WebGLCanvas`);
 
     // Register context lost handler and restored handlers. On context lost, we must free all textures and shaders. They
     // get recreated again on first use.
-    glCanvas.registerContextLostHandler(() => this.onContextLost());
-    glCanvas.registerContextRestoredHandler(() => this.onContextRestored());
+    glCanvas.registerContextLostHandler(() => me.onContextLost());
+    glCanvas.registerContextRestoredHandler(() => me.onContextRestored());
 
     // Run any context loss simulation
     me.contextLostSim.onCanvasWebGLCreated(glCanvas);
 
     // Record the WebGL canvas creation
-    me.resources.recordCreate(me, glCanvas);
+    me.notifyModules(module => module.onCoreObjectCreateDispose(me, glCanvas, ModuleCreateDispose.Create));
 
     return glCanvas;
   }
@@ -293,7 +292,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     const me = this;
 
     if (((flags & FimReleaseResourcesFlags.WebGL) === FimReleaseResourcesFlags.WebGL) && me.glCanvas) {
-      me.resources.recordDispose(me, me.glCanvas);
+      me.notifyModules(module => module.onCoreObjectCreateDispose(me, me.glCanvas, ModuleCreateDispose.Dispose));
       me.contextLostSim.onCanvasWebGLDisposed(me.glCanvas);
       me.glCanvas.dispose();
       me.glCanvas = undefined;
@@ -312,7 +311,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   private onContextLost(): void {
     const me = this;
     me.isContextLostValue = true;
-    me.writeWarning(me, 'WebGL context lost');
+    me.logging.writeWarning(me, 'WebGL context lost');
 
     // Release all shaders and textures
     me.releaseResources(FimReleaseResourcesFlags.WebGLShader | FimReleaseResourcesFlags.WebGLTexture);
@@ -323,7 +322,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
   private onContextRestored(): void {
     const me = this;
     me.isContextLostValue = false;
-    me.writeWarning(me, 'WebGL context restored');
+    me.logging.writeWarning(me, 'WebGL context restored');
 
     me.contextRestoredHandlers.invokeCallbacks();
   }
@@ -369,6 +368,10 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
 
   public getResourceMetricsDetailed(): FimResourceUsage {
     return this.resources.metrics;
+  }
+
+  public getExecutionStats(): FimExecutionStats {
+    return this.stats.createPublicObject();
   }
 
   public createImage(dimensions: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject):

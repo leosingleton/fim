@@ -251,7 +251,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
     me.ensureNotDisposed();
     if (me.textureOptions.isReadOnly) {
       // Cannot write to an input only texture
-      FimError.throwOnImageReadOnly(me.handle);
+      FimError.throwOnImageReadOnly(me.objectHandle);
     }
 
     if (!me.fb) {
@@ -299,7 +299,7 @@ export abstract class CoreTexture extends CoreWebGLObject implements FimDimensio
   public ensureNotDisposedAndHasImage(): void {
     this.ensureNotDisposed();
     if (!this.hasImage) {
-      throw new FimError(FimErrorCode.ImageUninitialized, this.handle);
+      throw new FimError(FimErrorCode.ImageUninitialized, this.objectHandle);
     }
   }
 

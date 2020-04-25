@@ -65,7 +65,7 @@ export class CoreShader extends CoreWebGLObject {
 
     // Ensure constants are not changed after the program is compiled
     if (me.program) {
-      throw new FimError(FimErrorCode.InvalidState, `${me.handle} is compiled`);
+      throw new FimError(FimErrorCode.InvalidState, `${me.objectHandle} is compiled`);
     }
 
     // Ensure the constant name is valid
@@ -142,7 +142,7 @@ export class CoreShader extends CoreWebGLObject {
       // Check for null or undefined
       // eslint-disable-next-line eqeqeq
       if (me.constValues[name] == null) {
-        throw new FimError(FimErrorCode.InvalidState, `${me.handle} ${name} not set`);
+        throw new FimError(FimErrorCode.InvalidState, `${me.objectHandle} ${name} not set`);
       }
     }
 
@@ -365,7 +365,7 @@ export class CoreShader extends CoreWebGLObject {
         // eslint-disable-next-line eqeqeq
         if (!state || value == undefined) { // == => null or undefined
           throw new FimError(FimErrorCode.InvalidState,
-            `${me.handle} ${uniform.variableType} ${name}=${value}`);
+            `${me.objectHandle} ${uniform.variableType} ${name}=${value}`);
         }
 
         if (uniform.variableType.indexOf('sampler') !== -1) {
@@ -375,7 +375,7 @@ export class CoreShader extends CoreWebGLObject {
           if (!t.hasImage) {
             // Throw our own error if the application tries to bind an empty texture to a texture unit. It's not going
             // to work, and WebGL returns a confusing non square power-of-two error if we allow the code to continue.
-            throw new FimError(FimErrorCode.ImageUninitialized, `${t.handle} => ${me.handle}`);
+            throw new FimError(FimErrorCode.ImageUninitialized, `${t.objectHandle} => ${me.objectHandle}`);
           }
 
           // Ensure the texture belongs to the same WebGL canvas
