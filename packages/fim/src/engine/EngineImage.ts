@@ -6,8 +6,8 @@ import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
 import { EngineShader } from './EngineShader';
 import { CanvasImageContent, ImageContent, TextureImageContent } from './ImageContent';
-import { ImageFormat } from './optimizer/ImageFormat';
-import { OperationType } from './optimizer/OperationType';
+import { ModuleCreateDispose, ModuleImageFormat, ModuleImageOperation,
+  ModuleOperationType } from './modules/ModuleBase';
 import { FimEngineOptions } from '../api/FimEngineOptions';
 import { FimImage } from '../api/FimImage';
 import { FimImageOptions, mergeImageOptions } from '../api/FimImageOptions';
@@ -42,11 +42,11 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     this.imageOptions = deepCopy(options);
 
     const root = this.rootObject;
-    root.optimizer.recordImageCreate(this);
+    root.optimizer.onEngineObjectCreateDispose(this, ModuleCreateDispose.Create);
   }
 
   public dispose(): void {
-    this.rootObject.optimizer.recordImageDispose(this);
+    this.rootObject.notifyModules(module => module.onEngineObjectCreateDispose(this, ModuleCreateDispose.Dispose));
     super.dispose();
   }
 
@@ -203,7 +203,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
   public async getPixelAsync(point: FimPoint): Promise<FimColor> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
+    const root = me.rootObject;
     me.ensureNotDisposed();
 
     // Optimization: if the image is a solid fill color, just return that color
@@ -216,15 +216,16 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const color = me.contentCanvas.imageContent.getPixel(scaledPoint);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
-    optimizer.releaseResources();
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Canvas, ModuleOperationType.ImportExport,
+      ModuleImageOperation.Read));
+    root.optimizer.releaseResources();
 
     return color;
   }
 
   public async loadPixelDataAsync(pixelData: Uint8ClampedArray, dimensions?: FimDimensions): Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
+    const root = me.rootObject;
     me.ensureNotDisposed();
 
     // Validate the array size matches the expected dimensions
@@ -239,8 +240,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageWrite(me, ImageFormat.Canvas, OperationType.ImportExport);
-    optimizer.releaseResources();
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Canvas, ModuleOperationType.ImportExport,
+      ModuleImageOperation.Write));
+    root.optimizer.releaseResources();
   }
 
   /**
@@ -251,7 +253,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    */
   public loadFromImage(image: ImageSource): void {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
+    const root = me.rootObject;
     me.ensureNotDisposed();
 
     me.contentCanvas.allocateContent(FimDimensions.fromObject(image));
@@ -259,8 +261,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(me.contentCanvas, true);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageWrite(me, ImageFormat.Canvas, OperationType.ImportExport);
-    optimizer.releaseResources();
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Canvas, ModuleOperationType.ImportExport,
+      ModuleImageOperation.Write));
+    root.optimizer.releaseResources();
   }
 
   public async loadFromPngAsync(pngFile: Uint8Array, allowRescale = false): Promise<void> {
@@ -298,7 +301,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
 
   public async copyFromAsync(srcImage: EngineImage, srcCoords?: FimRect, destCoords?: FimRect): Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
+    const root = me.rootObject;
     const srcContentCanvas = srcImage.contentCanvas;
     const destContentCanvas = me.contentCanvas;
     me.ensureNotDisposed();
@@ -327,15 +330,16 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     me.markCurrent(destContentCanvas, true);
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(srcImage, ImageFormat.Canvas, OperationType.Explicit);
-    optimizer.recordImageWrite(me, ImageFormat.Canvas, OperationType.Explicit);
-    optimizer.releaseResources();
+    root.notifyModules(module => module.onImageOperation(srcImage, ModuleImageFormat.Canvas,
+      ModuleOperationType.Explicit, ModuleImageOperation.Read));
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Canvas,
+      ModuleOperationType.Explicit, ModuleImageOperation.Write));
+    root.optimizer.releaseResources();
   }
 
   public async executeAsync(shaderOrOperation: EngineShader | FimOperation, destCoords?: FimRect): Promise<void> {
     const me = this;
     const root = me.rootObject;
-    const optimizer = root.optimizer;
     const contentTexture = me.contentTexture;
     me.ensureNotDisposed();
 
@@ -369,13 +373,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       const outputTexture = glCanvas.createCoreTexture(contentTexture.imageContent.dim,
         contentTexture.getDesiredOptions(true));
       try {
-        root.resources.recordCreate(me, outputTexture);
+        root.notifyModules(module => module.onCoreObjectCreateDispose(me, outputTexture, ModuleCreateDispose.Create));
         const stopwatch = Stopwatch.startNew();
         await shaderOrOperation.executeAsync(glCanvas, outputTexture, scaledDestCoords);
         executionTime = stopwatch.getElapsedMilliseconds();
         pixelCount = outputTexture.dim.getArea();
       } catch (err) {
-        root.resources.recordDispose(me, outputTexture);
+        root.notifyModules(module => module.onCoreObjectCreateDispose(me, outputTexture, ModuleCreateDispose.Dispose));
         outputTexture.dispose();
         throw err;
       }
@@ -390,8 +394,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     me.markCurrent(contentTexture, true);
-    optimizer.recordShaderUsage(shaderOrOperation, executionTime, pixelCount);
-    optimizer.recordImageWrite(me, ImageFormat.Texture, OperationType.Explicit);
+    root.notifyModules(module => module.onShaderExecution(shaderOrOperation, executionTime, pixelCount / 1000000));
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Texture, ModuleOperationType.Explicit,
+      ModuleImageOperation.Write));
 
     // If the backup image option is set, immediately back up the texture to a 2D canvas in case the WebGL context gets
     // lost.
@@ -400,7 +405,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
-    optimizer.releaseResources();
+    root.optimizer.releaseResources();
   }
 
   public exportToPixelDataAsync(srcCoords?: FimRect): Promise<Uint8ClampedArray> {
@@ -418,7 +423,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
       exportLambda: (srcCanvas: CoreCanvas2D, scaledSrcCoords: FimRect) => Promise<void>, srcCoords?: FimRect):
       Promise<void> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
+    const root = me.rootObject;
     me.ensureNotDisposed();
 
     // Handle defaults and validate coordinates
@@ -430,7 +435,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords);
 
     // Let the optimizer release unneeded resources
-    optimizer.releaseResources();
+    root.optimizer.releaseResources();
   }
 
   public exportToPngAsync(): Promise<Uint8Array> {
@@ -448,7 +453,7 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
    */
   protected async exportToInternalAsync<T>(exportLambda: (srcCanvas: CoreCanvas2D) => Promise<T>): Promise<T> {
     const me = this;
-    const optimizer = me.rootObject.optimizer;
+    const root = me.rootObject;
     me.ensureNotDisposed();
 
     await me.contentCanvas.populateContentAsync();
@@ -462,8 +467,9 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     }
 
     // Let the optimizer release unneeded resources
-    optimizer.recordImageRead(me, ImageFormat.Canvas, OperationType.ImportExport);
-    optimizer.releaseResources();
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Canvas, ModuleOperationType.ImportExport,
+      ModuleImageOperation.Read));
+    root.optimizer.releaseResources();
 
     return result;
   }
@@ -490,13 +496,13 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     const temp = root.createCoreCanvas2D(srcCoords.dim, me.contentCanvas.getDesiredOptions(false),
       `${me.objectHandle}/RescaleHelper`);
     try {
-      root.resources.recordCreate(me, temp);
+      root.notifyModules(module => module.onCoreObjectCreateDispose(me, temp, ModuleCreateDispose.Create));
 
       const scaledSrcCoords = srcCoords.rescale(me.contentCanvas.downscale);
       await temp.copyFromAsync(me.contentCanvas.imageContent, scaledSrcCoords);
       result = await exportLambda(temp);
     } finally {
-      root.resources.recordDispose(me, temp);
+      root.notifyModules(module => module.onCoreObjectCreateDispose(me, temp, ModuleCreateDispose.Dispose));
       temp.dispose();
     }
 

@@ -2,7 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ImageFormat } from './optimizer/ImageFormat';
+import { ModuleCreateDispose, ModuleImageFormat, ModuleImageOperation,
+  ModuleOperationType } from './modules/ModuleBase';
 import { CoreCanvas2D } from '../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../core/CoreCanvasOptions';
 import { CoreTexture } from '../core/CoreTexture';
@@ -13,7 +14,6 @@ import { FimColor } from '../primitives/FimColor';
 import { FimDimensions } from '../primitives/FimDimensions';
 import { FimError } from '../primitives/FimError';
 import { FimRect } from '../primitives/FimRect';
-import { OperationType } from './optimizer/OperationType';
 import { deepEquals } from '@leosingleton/commonlibs';
 
 /**
@@ -112,7 +112,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
 
     // Log a warning whenever an auto-downscale happens
     if (downscale < options.downscale && !parentImage.autoDownscaleWarningLogged) {
-      root.writeWarning(parentImage,
+      root.logging.writeWarning(parentImage,
         `Auto-downscale ${me.objectHandle}: ${options.downscale} => ${downscale} (${scaledDimensions})`);
       parentImage.autoDownscaleWarningLogged = true;
     }
@@ -159,7 +159,7 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
     me.downscale = dd.downscale;
 
     // Record the object creation
-    root.resources.recordCreate(parentImage, content);
+    root.notifyModules(module => module.onCoreObjectCreateDispose(parentImage, content, ModuleCreateDispose.Create));
 
     return content;
   }
@@ -266,11 +266,11 @@ export abstract class ImageContentCommon<TContent extends CoreTexture | CoreCanv
   /** Releases any resources used by `imageContent` */
   public releaseContent(): void {
     const me = this;
-    const resources = me.parentImage.rootObject.resources;
 
     if (me.imageContent) {
       // Record the object disposal
-      resources.recordDispose(me.parentImage, me.imageContent);
+      me.parentImage.rootObject.notifyModules(module => module.onCoreObjectCreateDispose(me.parentImage,
+        me.imageContent, ModuleCreateDispose.Dispose));
 
       me.imageContent.dispose();
       me.imageContent = undefined;
@@ -300,7 +300,7 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
 
   protected allocateContentInternal(dimensions: FimDimensions, options: CoreCanvasOptions): CoreCanvas2D {
     const root = this.parentImage.rootObject;
-    root.optimizer.reserveCanvasMemory(dimensions.getArea() * 4);
+    root.optimizer.reserveMemory(dimensions.getArea() * 4, ModuleImageFormat.Canvas);
     return root.createCoreCanvas2D(dimensions, options, this.objectHandle);
   }
 
@@ -312,7 +312,6 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
     const me = this;
     const parentImage = me.parentImage;
     const root = parentImage.rootObject;
-    const optimizer = root.optimizer;
     const contentFillColor = parentImage.contentFillColor;
     const contentTexture = parentImage.contentTexture;
 
@@ -334,10 +333,12 @@ export class CanvasImageContent extends ImageContentCommon<CoreCanvas2D, CoreCan
       // Copy the WebGL canvas to a 2D canvas
       await me.allocateContent(glCanvasDim).copyFromAsync(glCanvas, glCanvasCoords);
 
-      optimizer.recordImageRead(parentImage, ImageFormat.Texture, OperationType.InternalConversion);
+      root.notifyModules(module => module.onImageOperation(parentImage, ModuleImageFormat.Texture,
+        ModuleOperationType.InternalConversion, ModuleImageOperation.Read));
     }
 
-    optimizer.recordImageWrite(parentImage, ImageFormat.Canvas, OperationType.InternalConversion);
+    root.notifyModules(module => module.onImageOperation(parentImage, ModuleImageFormat.Canvas,
+      ModuleOperationType.InternalConversion, ModuleImageOperation.Write));
   }
 }
 
@@ -388,7 +389,7 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     const me = this;
     const root = me.parentImage.rootObject;
     const glCanvas = root.getWebGLCanvas();
-    root.optimizer.reserveGLMemory(dimensions.getArea() * options.bpp * 0.5);
+    root.optimizer.reserveMemory(dimensions.getArea() * options.bpp * 0.5, ModuleImageFormat.Texture);
     return glCanvas.createCoreTexture(dimensions, options, me.objectHandle);
   }
 
@@ -410,7 +411,6 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
     const me = this;
     const parentImage = me.parentImage;
     const root = parentImage.rootObject;
-    const optimizer = root.optimizer;
     const contentFillColor = parentImage.contentFillColor;
     const contentCanvas = parentImage.contentCanvas;
 
@@ -421,10 +421,12 @@ export class TextureImageContent extends ImageContentCommon<CoreTexture, CoreTex
       // Copy canvas to texture
       const srcImage = contentCanvas.imageContent;
       await me.allocateContent(srcImage.dim).copyFromAsync(srcImage);
-      optimizer.recordImageRead(parentImage, ImageFormat.Canvas, OperationType.InternalConversion);
+      root.notifyModules(module => module.onImageOperation(parentImage, ModuleImageFormat.Canvas,
+        ModuleOperationType.InternalConversion, ModuleImageOperation.Read));
     }
 
-    optimizer.recordImageWrite(parentImage, ImageFormat.Texture, OperationType.InternalConversion);
+    root.notifyModules(module => module.onImageOperation(parentImage, ModuleImageFormat.Texture,
+      ModuleOperationType.InternalConversion, ModuleImageOperation.Write));
   }
 }
 

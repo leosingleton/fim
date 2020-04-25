@@ -5,6 +5,7 @@
 import { EngineImage } from './EngineImage';
 import { EngineObject } from './EngineObject';
 import { EngineObjectType } from './EngineObjectType';
+import { ModuleCreateDispose } from './modules/ModuleBase';
 import { FimObject } from '../api/FimObject';
 import { FimReleaseResourcesFlags } from '../api/FimReleaseResourcesFlags';
 import { FimShader } from '../api/FimShader';
@@ -35,11 +36,11 @@ export class EngineShader extends EngineObject implements FimShader {
     this.fragmentShader = fragmentShader;
     this.vertexShader = vertexShader;
 
-    this.rootObject.optimizer.recordShaderCreate(this);
+    this.rootObject.notifyModules(module => module.onEngineObjectCreateDispose(this, ModuleCreateDispose.Create));
   }
 
   public dispose(): void {
-    this.rootObject.optimizer.recordShaderDispose(this);
+    this.rootObject.notifyModules(module => module.onEngineObjectCreateDispose(this, ModuleCreateDispose.Dispose));
     super.dispose();
   }
 
@@ -48,7 +49,8 @@ export class EngineShader extends EngineObject implements FimShader {
 
     if (flags & FimReleaseResourcesFlags.WebGLShader) {
       for (const hash in me.shaders) {
-        me.rootObject.resources.recordDispose(me, me.shaders[hash]);
+        me.rootObject.notifyModules(module => module.onCoreObjectCreateDispose(me, me.shaders[hash],
+          ModuleCreateDispose.Dispose));
         me.shaders[hash].dispose();
       }
       me.shaders = {};
@@ -181,7 +183,7 @@ export class EngineShader extends EngineObject implements FimShader {
       shader.compileProgram();
 
       // Record the shader creation
-      root.resources.recordCreate(me, shader);
+      root.notifyModules(module => module.onCoreObjectCreateDispose(me, shader, ModuleCreateDispose.Create));
 
       // Cache the shader for future calls
       me.shaders[cv] = shader;
@@ -192,7 +194,8 @@ export class EngineShader extends EngineObject implements FimShader {
         const lruCv = me.constantValuesLru.dequeue();
 
         // Dispose the shader
-        root.resources.recordDispose(me, me.shaders[lruCv]);
+        root.notifyModules(module => module.onCoreObjectCreateDispose(me, me.shaders[lruCv],
+          ModuleCreateDispose.Dispose));
         me.shaders[lruCv].dispose();
         delete me.shaders[lruCv];
       }

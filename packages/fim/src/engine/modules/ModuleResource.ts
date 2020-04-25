@@ -2,12 +2,13 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { getClassName, memoryToString } from './Logging';
-import { EngineFim } from '../EngineFim';
+import { ModuleBase, ModuleCoreObject, ModuleCreateDispose, ModuleImageFormat, ModuleImageOperation,
+  ModuleOperationType } from './ModuleBase';
+import { EngineImage } from '../EngineImage';
 import { EngineObject } from '../EngineObject';
-import { FimResourceMetrics, FimResourceUsage } from '../../api/FimResourceUsage';
+import { EngineShader } from '../EngineShader';
+import { FimResourceUsage, FimResourceMetrics } from '../../api/FimResourceUsage';
 import { CoreCanvas } from '../../core/CoreCanvas';
-import { CoreCanvas2D } from '../../core/CoreCanvas2D';
 import { CoreCanvasOptions } from '../../core/CoreCanvasOptions';
 import { CoreCanvasWebGL } from '../../core/CoreCanvasWebGL';
 import { CoreShader } from '../../core/CoreShader';
@@ -17,53 +18,22 @@ import { FimBitsPerPixel } from '../../primitives/FimBitsPerPixel';
 import { FimDimensions } from '../../primitives/FimDimensions';
 import { FimError } from '../../primitives/FimError';
 
-/** Class which belongs to each `EngineFim` instance dedicated to tracking resource utilization */
-export class ResourceTracker {
-  /**
-   * Constructor
-   * @param fim Parent FIM engine
-   */
-  public constructor(fim: EngineFim) {
-    this.fim = fim;
-  }
-
-  /** Parent FIM engine */
-  private readonly fim: EngineFim;
-
+/** Module to track resource usage */
+export class ModuleResource extends ModuleBase {
   /** Total metrics on the current resource usage of this FIM instance */
   public readonly totals = defaultResourceMetrics();
 
   /** Metrics on the current resource usage of this FIM instance, broken down by resource type */
   public readonly metrics = defaultResourceUsage();
 
-  /**
-   * Tracks the creation of a core object
-   * @param engineObject The engine object that performed the creation
-   * @param coreObject The object that was created
-   */
-  public recordCreate(engineObject: EngineObject, coreObject: CoreObject): void {
-    this.recordInternal('Create', 1, engineObject, coreObject);
+  public onEngineObjectCreateDispose(_object: EngineObject, _operation: ModuleCreateDispose): void {
+    // Not used by this module
   }
 
-  /**
-   * Tracks the disposal of a core object
-   * @param engineObject The engine object that performed the disposal
-   * @param coreObject The object that was disposed
-   */
-  public recordDispose(engineObject: EngineObject, coreObject: CoreObject): void {
-    this.recordInternal('Dispose', -1, engineObject, coreObject);
-  }
-
-  /**
-   * Internal implementation of `recordCreate()` and `recordDispose()`
-   * @param operation String identifying the operation, i.e. 'Create' or 'Dispose'
-   * @param multiplier 1 for create; -1 for dispose
-   * @param engineObject The engine object that performed the disposal
-   * @param coreObject The object that was disposed
-   */
-  private recordInternal(operation: string, multiplier: number, engineObject: EngineObject, coreObject: CoreObject):
-      void {
+  public onCoreObjectCreateDispose(parent: EngineObject, object: ModuleCoreObject,
+      operation: ModuleCreateDispose): void {
     const me = this;
+    const multiplier = (operation === ModuleCreateDispose.Create) ? 1 : -1;
 
     // Extract the properties and type of the core object
     let isWebGL = true;
@@ -72,23 +42,23 @@ export class ResourceTracker {
     let dimensions: FimDimensions;
     let bpp: FimBitsPerPixel;
     let memory = 0;
-    if (coreObject instanceof CoreCanvas) {
-      isWebGL = (coreObject instanceof CoreCanvasWebGL);
+    if (object instanceof CoreCanvas) {
+      isWebGL = (object instanceof CoreCanvasWebGL);
       metrics = isWebGL ? me.metrics.canvasWebGL : me.metrics.canvas2D;
-      options = coreObject.canvasOptions;
-      dimensions = coreObject.dim;
+      options = object.canvasOptions;
+      dimensions = object.dim;
       bpp = FimBitsPerPixel.BPP8;
       memory = dimensions.getArea() * 4 * multiplier;
-    } else if (coreObject instanceof CoreShader) {
+    } else if (object instanceof CoreShader) {
       metrics = me.metrics.glShader;
-    } else if (coreObject instanceof CoreTexture) {
+    } else if (object instanceof CoreTexture) {
       metrics = me.metrics.glTexture;
-      options = coreObject.textureOptions;
-      dimensions = coreObject.dim;
+      options = object.textureOptions;
+      dimensions = object.dim;
       bpp = (options as CoreTextureOptions).bpp;
       memory = dimensions.getArea() * bpp * 0.5 * multiplier;
     } else {
-      FimError.throwOnUnreachableCodeValue(coreObject);
+      FimError.throwOnUnreachableCodeValue(object);
     }
 
     // Update usage counters
@@ -103,12 +73,14 @@ export class ResourceTracker {
     }
 
     // Write the tracing message
+    //me.fim.logging.
+    /*
     if (me.fim.engineOptions.showTracing) {
-      const className = getClassName(coreObject);
-      let message = `${operation} ${className} ${coreObject.objectHandle}`;
+      const className = ResourceModule.getClassName(object);
+      let message = `${operation} ${className} ${object.objectHandle}`;
 
       if (dimensions && bpp) {
-        message += ` ${dimensions}x${bpp} (${memoryToString(memory)})`;
+        message += ` ${dimensions}x${bpp} (${ResourceModule.memoryToString(memory)})`;
       }
 
       if (options) {
@@ -116,12 +88,18 @@ export class ResourceTracker {
       }
 
       me.fim.writeTrace(engineObject, message);
-    }
+    }*/
+  }
+
+  public onImageOperation(_image: EngineImage, _format: ModuleImageFormat, _type: ModuleOperationType,
+      _operation: ModuleImageOperation): void {
+    // Not used by this module
+  }
+
+  public onShaderExecution(_shader: EngineShader, _executionTime: number, _megaPixels: number): void {
+    // Not used by this module
   }
 }
-
-/** Shorthand for the four core object types we track */
-type CoreObject = CoreCanvas2D | CoreCanvasWebGL | CoreShader | CoreTexture;
 
 /** Non-readonly version of `FimResourceUsage` */
 interface ResourceUsage extends FimResourceUsage {
