@@ -2,8 +2,8 @@
 // Copyright (c) Leo C. Singleton IV <leo@leosingleton.com>
 // See LICENSE in the project root for license information.
 
-import { ModuleBase, ModuleCoreObject, ModuleCreateDispose, ModuleImageFormat,
-  ModuleImageOperation, ModuleOperationType } from './ModuleBase';
+import { ModuleBase, ModuleCoreObject, ModuleCreateDispose, ModuleImageFormat, ModuleImageOperation,
+  ModuleOperationType } from './ModuleBase';
 import { EngineImage } from '../EngineImage';
 import { EngineObject } from '../EngineObject';
 import { EngineShader } from '../EngineShader';
@@ -124,10 +124,14 @@ class ImageStats {
   }
 
   public createPublicObject(): FimImageStats {
-    return {
-      canvas2D: this.canvas2D.createPublicObject(),
-      glTexture: this.glTexture.createPublicObject()
-    };
+    const canvas2D = this.canvas2D.createPublicObject();
+    const glTexture = this.glTexture.createPublicObject();
+
+    if (canvas2D || glTexture) {
+      return { canvas2D, glTexture };
+    } else {
+      return undefined;
+    }
   }
 
   /**
@@ -156,14 +160,12 @@ export class ImageStatsByResource {
   }
 
   public createPublicObject(): FimImageStatsByResource {
-    const me = this;
+    const explicit = this.explicit.createPublicObject();
+    const importExport = this.importExport.createPublicObject();
+    const internalConversion = this.internalConversion.createPublicObject();
 
-    if (me.explicit || me.importExport || me.internalConversion) {
-      return {
-        explicit: this.explicit.createPublicObject(),
-        importExport: this.importExport.createPublicObject(),
-        internalConversion: this.internalConversion.createPublicObject()
-      };
+    if (explicit || importExport || internalConversion) {
+      return { explicit, importExport, internalConversion };
     } else {
       return undefined;
     }
@@ -190,13 +192,11 @@ export class ImageStatsByResourceAndOperation {
   }
 
   public createPublicObject(): FimImageStatsByResourceAndOperation {
-    const me = this;
+    const readCount = this.readCount;
+    const writeCount = this.writeCount;
 
-    if (me.readCount || me.writeCount) {
-      return {
-        readCount: me.readCount,
-        writeCount: me.writeCount
-      };
+    if (readCount || writeCount) {
+      return { readCount, writeCount };
     } else {
       return undefined;
     }
@@ -228,6 +228,7 @@ class ShaderStats {
   public createPublicObject(): FimShaderStats {
     const me = this;
 
+    // We always return an object here, since shader stats are only created on the first shader execution
     return {
       executionCount: me.executionCount,
       avgExecutionTime: me.totalExecutionTime / me.executionCount,
