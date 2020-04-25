@@ -16,8 +16,31 @@ export class ModuleStats extends ModuleBase {
   public imageHandles: { [handle: string]: ImageStats } = {};
   public shaderHandles: { [handle: string]: ShaderStats } = {};
 
-  public onEngineObjectCreateDispose(_object: EngineObject, _operation: ModuleCreateDispose): void {
-    // Not used by this module
+  public onEngineObjectCreateDispose(object: EngineObject, operation: ModuleCreateDispose): void {
+    const me = this;
+    const handle = object.objectHandle;
+
+    // When an image or shader object is disposed, consolidate its stats under a single record representing all disposed
+    // objects
+    if (operation === ModuleCreateDispose.Dispose) {
+      if (object instanceof EngineImage) {
+        // Get the image's stats. Add them to the entry named 'disposed'.
+        const stats = me.findOrCreateImage(handle);
+        const disposed = me.findOrCreateImage('disposed');
+        disposed.addValues(stats);
+
+        // Delete the image's stats
+        delete me.imageHandles[handle];
+      } else if (object instanceof EngineShader) {
+        // Get the shader's stats. Add them to the entry named 'disposed'.
+        const stats = me.findOrCreateShader(handle);
+        const disposed = me.findOrCreateShader('disposed');
+        disposed.addValues(stats);
+
+        // Delete the shader's stats
+        delete me.shaderHandles[handle];
+      }
+    }
   }
 
   public onCoreObjectCreateDispose(_parent: EngineObject, _object: ModuleCoreObject,
@@ -27,23 +50,35 @@ export class ModuleStats extends ModuleBase {
 
   public onImageOperation(image: EngineImage, format: ModuleImageFormat, type: ModuleOperationType,
       operation: ModuleImageOperation): void {
-    // Find the ImageStats object. Create on first use.
-    let imageStats = this.imageHandles[image.objectHandle];
-    if (!imageStats) {
-      imageStats = this.imageHandles[image.objectHandle] = new ImageStats();
-    }
-
-    imageStats.recordOperation(format, type, operation);
+    this.findOrCreateImage(image.objectHandle).recordOperation(format, type, operation);
   }
 
   public onShaderExecution(shader: EngineShader, executionTime: number, megaPixels: number): void {
-    // Find the ShaderStats object. Create on first use.
-    let shaderStats = this.shaderHandles[shader.objectHandle] as ShaderStats;
-    if (!shaderStats) {
-      shaderStats = this.shaderHandles[shader.objectHandle] = new ShaderStats();
-    }
+    this.findOrCreateShader(shader.objectHandle).recordExecution(executionTime, megaPixels);
+  }
 
-    shaderStats.recordExecution(executionTime, megaPixels);
+  /**
+   * Finds or creates an `ImageStats` object for an image
+   * @param handle Image handle
+   */
+  private findOrCreateImage(handle: string): ImageStats {
+    let imageStats = this.imageHandles[handle];
+    if (!imageStats) {
+      imageStats = this.imageHandles[handle] = new ImageStats();
+    }
+    return imageStats;
+  }
+
+  /**
+   * Finds or creates a `ShaderStats` object for a shader
+   * @param handle Shader handle
+   */
+  private findOrCreateShader(handle: string): ShaderStats {
+    let shaderStats = this.shaderHandles[handle] as ShaderStats;
+    if (!shaderStats) {
+      shaderStats = this.shaderHandles[handle] = new ShaderStats();
+    }
+    return shaderStats;
   }
 
   /**
@@ -94,6 +129,15 @@ class ImageStats {
       glTexture: this.glTexture.createPublicObject()
     };
   }
+
+  /**
+   * Adds the values from another `ImageStats` object to this one
+   * @param stats Stats to add
+   */
+  public addValues(stats: ImageStats): void {
+    this.canvas2D.addValues(stats.canvas2D);
+    this.glTexture.addValues(stats.glTexture);
+  }
 }
 
 /** Internal implementation of the `FimImageStatsByResource` interface */
@@ -124,6 +168,12 @@ export class ImageStatsByResource {
       return undefined;
     }
   }
+
+  public addValues(stats: ImageStatsByResource): void {
+    this.explicit.addValues(stats.explicit);
+    this.importExport.addValues(stats.importExport);
+    this.internalConversion.addValues(stats.internalConversion);
+  }
 }
 
 /** Internal implementation of the `FimImageStatsByResourceAndOperation` interface */
@@ -150,6 +200,11 @@ export class ImageStatsByResourceAndOperation {
     } else {
       return undefined;
     }
+  }
+
+  public addValues(stats: ImageStatsByResourceAndOperation): void {
+    this.readCount += stats.readCount;
+    this.writeCount += stats.writeCount;
   }
 }
 
@@ -178,5 +233,15 @@ class ShaderStats {
       avgExecutionTime: me.totalExecutionTime / me.executionCount,
       avgExecutionTimePMP: me.totalExecutionTime / me.totalMegaPixels
     };
+  }
+
+  /**
+   * Adds the values from another `ShaderStats` object to this one
+   * @param stats Stats to add
+   */
+  public addValues(stats: ShaderStats): void {
+    this.executionCount += stats.executionCount;
+    this.totalExecutionTime += stats.totalExecutionTime;
+    this.totalMegaPixels += stats.totalMegaPixels;
   }
 }
