@@ -435,6 +435,8 @@ export abstract class EngineImage extends EngineObject implements FimDimensional
     await exportLambda(me.contentCanvas.imageContent, scaledSrcCoords);
 
     // Let the optimizer release unneeded resources
+    root.notifyModules(module => module.onImageOperation(me, ModuleImageFormat.Canvas, ModuleOperationType.ImportExport,
+      ModuleImageOperation.Read));
     root.optimizer.releaseResources();
   }
 
