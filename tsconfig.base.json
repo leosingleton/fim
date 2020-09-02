@@ -8,6 +8,10 @@
     "declaration": true,
     "sourceMap": true,
 
+    // @types/jest seems to get included by ts-jest, which conflicts with types in @types/jasmine.
+    // Explicitly enable type definitions to work around this problem...
+    "types": [ "bootstrap", "jasmine", "jquery", "node", "webpack" ],
+
     "noImplicitAny": true,
     "noImplicitReturns": true
   },
