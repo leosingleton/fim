@@ -11,10 +11,10 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.7.0",
+    "@leosingleton/commonlibs": "^1.10.1",
     "@leosingleton/fim": "^2.5.1",
-    "tslib": "^1.11.1",
-    "webpack-glsl-minify": "^1.4.0"
+    "tslib": "^2.0.1",
+    "webpack-glsl-minify": "^1.4.1"
   },
   "main": "build/index.js",
   "types": "build/index.d.ts"

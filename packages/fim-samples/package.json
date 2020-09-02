@@ -11,12 +11,12 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.7.0",
+    "@leosingleton/commonlibs": "^1.10.1",
     "@leosingleton/fim": "^2.5.1",
     "@leosingleton/fim-browser": "^2.5.1",
     "file-saver": "^2.0.2",
-    "tslib": "^1.11.1",
-    "webpack-glsl-minify": "^1.4.0"
+    "tslib": "^2.0.1",
+    "webpack-glsl-minify": "^1.4.1"
   },
   "devDependencies": {
     "@types/bootstrap": "latest",
