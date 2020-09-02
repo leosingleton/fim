@@ -7,7 +7,7 @@ const glob = require('glob');
 
 module.exports = {
   mode: 'development',
-  entry: glob.sync('./**/__tests__/**/*.@(browser|test).ts'),
+  entry: glob.sync('./**/__tests__/**/*.@(browser|test).ts', { ignore: './**/node_modules/**' }),
   devtool: 'inline-source-map',
   module: {
     rules: [
