@@ -15,18 +15,20 @@ module.exports = (env, argv) => {
 };
 
 function buildWebpackConfig(project, prod) {
-  const copyConfig = [
-    {
-      context: `../../${project}`,
-      from: '**',
-      to: project,
+  const copyConfig = {
+    patterns: [
+      {
+        context: `../../${project}`,
+        from: '**',
+        to: project,
 
-      // When building locally, transform the CDN-hosted paths to local paths
-      transform(content, _path) {
-        return content.toString().replace(/https.+fim-samples\/build/g, '..');
+        // When building locally, transform the CDN-hosted paths to local paths
+        transform(content, _path) {
+          return content.toString().replace(/https.+fim-samples\/build/g, '..');
+        }
       }
-    }
-  ];
+    ]
+  };
 
   return {
     entry: `./src/${project}/index.ts`,
