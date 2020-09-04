@@ -1,20 +1,66 @@
-name: Release
+name: CI
 
-on:
-  workflow_dispatch:
-    inputs:
-      build:
-        description: 'Build number'
-        required: true
+on: [push, pull_request]
 
 jobs:
-  release:
-    name: Release
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
-    - name: Download Build Artifact
-      uses: actions/download-artifact@v2
+    - name: Checkout
+      uses: actions/checkout@v1
+    
+    - name: Install Node 12.x
+      uses: actions/setup-node@v1
       with:
-        name: fim-${{github.event.inputs.build}}.zip
+        node-version: 12.x
+    
+    - name: Install mesa and xvfb
+      run: sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6
+
+    - name: Install NPM Packages
+      run: npm install
+
+    - name: Bootstrap NPM Packages
+      run: npm run bootstrap
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Compile
+      run: npm run build
+
+    - name: Execute Jest unit tests for Node support
+      run: npm run test:node:xvfb
+      continue-on-error: true
+
+    - name: Execute Karma unit tests for browser support
+      run: npm run test:browser
+      continue-on-error: true
+
+# From Azure Pipelines... Need GitHub Actions equivalent...
+#      - task: PublishTestResults@2
+#        inputs:
+#          testResultsFormat: 'JUnit'
+#          testResultsFiles: 'build/results-*.xml'
+#
+#      - task: PublishCodeCoverageResults@1
+#        inputs:
+#          codeCoverageTool: 'cobertura'
+#          summaryFileLocation: 'build/cobertura-coverage.xml'
+#          reportDirectory: 'build/'
+
+    - name: Publish Code Coverage
+      uses: codecov/codecov-action@v1
+      with:
+        file: build/cobertura-coverage.xml
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: fim-${{github.run_number}}.zip
+        path: |
+          **
+          !**/node_modules/**
