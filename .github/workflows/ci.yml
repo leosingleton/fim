@@ -1,0 +1,38 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    
+    - name: Install Node 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    
+    - name: Install mesa and xvfb
+      run: sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6
+
+    - name: Install NPM Packages
+      run: npm install
+
+    - name: Bootstrap NPM Packages
+      run: npm run bootstrap
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Compile
+      run: npm run build
+
+    - name: Execute Jest unit tests for Node support
+      run: npm run test:node:xvfb
+
+    - name: Execute Karma unit tests for browser support
+      run: npm run test:browser
+  
