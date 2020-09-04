@@ -48,6 +48,11 @@ jobs:
 #          summaryFileLocation: 'build/cobertura-coverage.xml'
 #          reportDirectory: 'build/'
 
+    - name: Publish Code Coverage
+      uses: codecov/codecov-action@v1
+      with:
+        file: build/cobertura-coverage.xml
+
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
