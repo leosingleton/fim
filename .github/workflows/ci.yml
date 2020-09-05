@@ -38,18 +38,6 @@ jobs:
     - name: Execute Karma unit tests for browser support
       run: npm run test:browser
 
-# From Azure Pipelines... Need GitHub Actions equivalent...
-#      - task: PublishTestResults@2
-#        inputs:
-#          testResultsFormat: 'JUnit'
-#          testResultsFiles: 'build/results-*.xml'
-#
-#      - task: PublishCodeCoverageResults@1
-#        inputs:
-#          codeCoverageTool: 'cobertura'
-#          summaryFileLocation: 'build/cobertura-coverage.xml'
-#          reportDirectory: 'build/'
-
     - name: Publish Code Coverage
       uses: codecov/codecov-action@v1
       with:
