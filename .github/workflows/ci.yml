@@ -34,11 +34,9 @@ jobs:
 
     - name: Execute Jest unit tests for Node support
       run: npm run test:node:xvfb
-      continue-on-error: true
 
     - name: Execute Karma unit tests for browser support
       run: npm run test:browser
-      continue-on-error: true
 
 # From Azure Pipelines... Need GitHub Actions equivalent...
 #      - task: PublishTestResults@2
