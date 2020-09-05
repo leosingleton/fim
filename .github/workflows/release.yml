@@ -2,6 +2,7 @@ name: Release
 
 on:
   repository_dispatch:
+    types: release
     inputs:
       build:
         description: Build number
@@ -17,4 +18,4 @@ jobs:
     - name: Download Build Artifact
       uses: actions/download-artifact@v2
       with:
-        name: fim-${{github.event.inputs.build}}.zip
+        name: fim-${{github.event.client_payload.build}}.zip
