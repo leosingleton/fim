@@ -1,5 +1,7 @@
 # FIM - Fast Image Manipulation Library for JavaScript
 
+![CI](https://github.com/leosingleton/fim/workflows/CI/badge.svg)
+[![codecov](https://codecov.io/gh/leosingleton/fim/branch/master/graph/badge.svg)](https://codecov.io/gh/leosingleton/fim)
 [![Build Status](https://dev.azure.com/leosingleton/fim/_apis/build/status/leosingleton.fim?branchName=master)](https://dev.azure.com/leosingleton/fim/_build/latest?definitionId=5&branchName=master)
 [![npm version](https://badge.fury.io/js/%40leosingleton%2Ffim.svg)](https://badge.fury.io/js/%40leosingleton%2Ffim)
 
