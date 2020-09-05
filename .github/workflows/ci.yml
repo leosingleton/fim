@@ -58,7 +58,7 @@ jobs:
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: fim-${{github.run_number}}.zip
+        name: fim-${{github.run_number}}
         path: |
           **
           !**/node_modules/**
