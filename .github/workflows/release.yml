@@ -4,7 +4,7 @@ on:
   repository_dispatch:
     inputs:
       build:
-        description: 'Build number'
+        description: Build number
         required: true
 
 jobs:
