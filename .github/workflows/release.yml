@@ -3,10 +3,6 @@ name: Release
 on:
   repository_dispatch:
     types: release
-    inputs:
-      build:
-        description: Build number
-        required: true
 
 jobs:
   release:
