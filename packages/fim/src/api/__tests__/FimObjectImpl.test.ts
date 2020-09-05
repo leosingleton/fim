@@ -24,7 +24,7 @@ describe('FimObjectImpl', () => {
   it('Releases resources', () => {
     const o = new MyObject('Handle');
     o.releaseResources(FimReleaseResourcesFlags.All);
-    expect(o.resources).toBeDefined(); // Intentional test failure
+    expect(o.resources).toBeUndefined();
   });
 
   it('Maintains parent/child relationships', () => {
