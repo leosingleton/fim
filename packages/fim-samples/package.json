@@ -19,9 +19,9 @@
     "webpack-glsl-minify": "^1.4.1"
   },
   "devDependencies": {
-    "@types/bootstrap": "latest",
+    "@types/bootstrap": "^4.5.1",
     "@types/file-saver": "latest",
-    "@types/jquery": "latest",
+    "@types/jquery": "^3.5.3",
     "@types/node": "latest",
     "copy-webpack-plugin": "latest",
     "ts-loader": "latest",
