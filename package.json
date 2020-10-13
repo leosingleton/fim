@@ -15,7 +15,7 @@
     "@types/jasmine": "latest",
     "@types/jquery": "latest",
     "@types/node": "latest",
-    "@types/webpack": "latest",
+    "@types/webpack": "^4.41.22",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "copy-webpack-plugin": "latest",
@@ -41,7 +41,7 @@
     "ts-loader": "latest",
     "ts-node": "latest",
     "typescript": "latest",
-    "webpack": "latest",
+    "webpack": "^4.44.2",
     "webpack-cli": "latest",
     "webpack-glsl-minify": "latest"
   },
