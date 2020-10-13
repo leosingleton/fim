@@ -10,7 +10,7 @@ The FIM library provides fast, 2D image manipulation in web browsers and Node.js
 
 FIM is released as three NPM packages. Install one of the three depending on the use case:
 
-- `npm i @leosingleton/fim-browser` - [fim-browser](https://www.npmjs.com/package/@leosingleton/fim-browser)` contains
+- `npm i @leosingleton/fim-browser` - [fim-browser](https://www.npmjs.com/package/@leosingleton/fim-browser) contains
   the in-browser implementation of FIM.
 - `npm i @leosingleton/fim-node` - [fim-node](https://www.npmjs.com/package/@leosingleton/fim-node) contains a Node.js
   implementation leveraging the [node-canvas](https://github.com/Automattic/node-canvas) and
@@ -41,14 +41,14 @@ much about the underlying representation.
 
 The primary method for creating images is `Fim.createImage()`:
 ```
-  /**
-   * Creates a new image
-   * @param dimensions Image dimensions
-   * @param options Optional overrides to the image options from the parent Fim object
-   * @param name Optional name specified when creating the object to help with debugging
-   * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
-   */
-  createImage(dimensions: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject): TImage;
+/**
+  * Creates a new image
+  * @param dimensions Image dimensions
+  * @param options Optional overrides to the image options from the parent Fim object
+  * @param name Optional name specified when creating the object to help with debugging
+  * @param parent Optional parent object. If unspecified, defaults to the root FIM instance.
+  */
+createImage(dimensions: FimDimensions, options?: FimImageOptions, name?: string, parent?: FimObject): TImage;
 ```
 
 i.e. to create a 1920x1080 image:
