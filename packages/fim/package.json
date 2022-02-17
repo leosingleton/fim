@@ -15,6 +15,9 @@
     "tslib": "^2.0.1",
     "webpack-glsl-minify": "^1.4.1"
   },
+  "devDependencies": {
+    "@types/offscreencanvas": "^2019.6.4"
+  },
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "gitHead": "1c3ff717706725432efe4bada31352907b50bb16"

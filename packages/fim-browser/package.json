@@ -17,7 +17,8 @@
     "webpack-glsl-minify": "^1.4.1"
   },
   "devDependencies": {
-    "@leosingleton/fim-common-tests": "^2.5.3"
+    "@leosingleton/fim-common-tests": "^2.5.3",
+    "@types/offscreencanvas": "^2019.6.4"
   },
   "main": "build/index.js",
   "types": "build/index.d.ts",
