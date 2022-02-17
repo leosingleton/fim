@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@types/bootstrap": "latest",
+    "@types/glob": "^7.2.0",
     "@types/jasmine": "latest",
     "@types/jquery": "latest",
     "@types/node": "latest",
