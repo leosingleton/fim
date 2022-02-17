@@ -17,6 +17,9 @@ jobs:
       with:
         node-version: 16.x
     
+    - name: apt-get update
+      run: sudo apt-get -y update
+
     - name: Install mesa and xvfb
       run: sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6
 
