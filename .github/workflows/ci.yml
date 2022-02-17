@@ -21,7 +21,7 @@ jobs:
       run: sudo apt-get -y update
 
     - name: Install mesa and xvfb
-      run: sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6 libxi-dev
+      run: sudo apt-get -y install mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6 xserver-xorg-dev libxi-dev libxext-dev
 
     - name: Install NPM Packages
       run: npm install
