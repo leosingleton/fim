@@ -27,7 +27,10 @@ export class CoreBrowserOffscreenCanvas2D extends CoreBrowserCanvas2D {
   }
 
   public getImageSource(): CanvasImageSource {
-    return this.canvasElement;
+    // Forcing conversion from OffscreenCanvas to CanvasImageSource. Although TypeScript won't allow it, it previously
+    // worked and the Mozilla docs say it is supported:
+    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasImageSource
+    return this.canvasElement as unknown as CanvasImageSource;
   }
 
   protected createContext(): RenderingContext2D {
