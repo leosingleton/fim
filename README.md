@@ -155,5 +155,5 @@ are likely to get lost in this process. The FIM library provides four mechanisms
   filters.
 
 ## License
-Copyright (c) 2016-2020 [Leo C. Singleton IV](https://www.leosingleton.com/).
+Copyright (c) 2016-2022 [Leo C. Singleton IV](https://www.leosingleton.com/).
 This software is licensed under the MIT License.
