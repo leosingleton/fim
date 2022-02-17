@@ -16,6 +16,7 @@
     "@types/jasmine": "latest",
     "@types/jquery": "latest",
     "@types/node": "latest",
+    "@types/offscreencanvas": "2019.6.4",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
