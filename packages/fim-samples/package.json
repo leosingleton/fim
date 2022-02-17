@@ -1,6 +1,6 @@
 {
   "name": "@leosingleton/fim-samples",
-  "version": "2.5.3",
+  "version": "2.6.0",
   "author": "Leo C. Singleton IV <leo@leosingleton.com>",
   "description": "Fast Image Manipulation Library for JavaScript",
   "homepage": "https://github.com/leosingleton/fim",
@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@leosingleton/commonlibs": "^1.10.1",
-    "@leosingleton/fim": "^2.5.3",
-    "@leosingleton/fim-browser": "^2.5.3",
+    "@leosingleton/fim": "^2.6.0",
+    "@leosingleton/fim-browser": "^2.6.0",
     "file-saver": "^2.0.2",
     "tslib": "^2.0.1",
     "webpack-glsl-minify": "^1.4.1"
