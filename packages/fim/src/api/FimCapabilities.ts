@@ -24,6 +24,9 @@ export interface FimBrowserCapabilities {
 
   /** Whether the current browser supports ImageBitmap */
   readonly supportsImageBitmap: boolean;
+
+  /** Maximum single dimension of a canvas (width or height) */
+  readonly maxCanvasSize: number;
 }
 
 /** Exposes the GPU's capabilties */

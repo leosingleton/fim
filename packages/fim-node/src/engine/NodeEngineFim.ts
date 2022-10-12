@@ -37,6 +37,11 @@ export class NodeEngineFim extends EngineFimBase<NodeEngineImage, EngineShader> 
     return os.totalmem();
   }
 
+  protected getMaxCanvasSize(): number {
+    // https://github.com/Automattic/node-canvas/issues/1082
+    return 32767;
+  }
+
   protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
       NodeEngineImage {
     return new NodeEngineImage(parent, dimensions, options, name);

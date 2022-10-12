@@ -37,7 +37,7 @@ $(async () => {
   async function renderOneFrame() {
     try {
       // Adjust canvas dimensions to support high DPR displays
-      enableHighDprCanvas(canvas, dimensions);
+      enableHighDprCanvas(canvas, dimensions, fim.capabilities);
 
       // Rotate X-axis 360 degrees every 5 seconds, Y-axis every 12 seconds, and Z-axis every 60 seconds
       const angleX = getAnimationValue(5000, 0, Math.PI * 2);

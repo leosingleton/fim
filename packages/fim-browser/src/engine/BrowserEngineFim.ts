@@ -45,6 +45,42 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
     }
   }
 
+  protected getMaxCanvasSize(): number {
+    // https://github.com/jhildenbiddle/canvas-size has a lot of good data on browser capabilities. The checks below are
+    // a bit more conservative, as most of the limits are around total area, but FIM enforces automatic downscale based
+    // on a single dimension.
+
+    const uad = (navigator as any).userAgentData as NavigatorUAData;
+    if (uad) {
+      for (const brand of uad.brands) {
+        if (brand.brand.indexOf('Chrome') !== -1 || brand.brand.indexOf('Edge') !== -1) {
+          // Chrome for desktop and some Android devices support 16,384 x 16,384, but some Android devices have lower
+          // limits. 8,192 x 8,192 should be safe on mobile.
+          return uad.mobile ? 8192 : 16384;
+        }
+      }
+    }
+
+    const uas = navigator.userAgent;
+    if (uas.indexOf('Safari') !== -1 && uas.indexOf('Chrome') === -1) {
+      if (uas.indexOf('iPhone') !== -1 || uas.indexOf('iPad') !== -1) {
+        // iOS Safari notably limits canvases to 16 MB. Assume 4,096 x 4,096 is the safe dimensions.
+        return 4096;
+      } else {
+        // Safari on desktop supports 16,384 x 16,384.
+        return 16384;
+      }
+    }
+
+    // Firefox supports 11,180 x 11,180
+    if (uas.indexOf('Firefox') !== -1) {
+      return 11180;
+    }
+
+    // For older or unknown browsers, assume 4,096 x 4,096 is safe.
+    return 4096;
+  }
+
   protected createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions, name?: string):
       BrowserEngineImage {
     return new BrowserEngineImage(parent, dimensions, options, name);
@@ -84,4 +120,44 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
 
     return result;
   }
+}
+
+
+//
+// Type definitions for the experimental User-Agent Client Hints API
+// WICG Spec: https://wicg.github.io/ua-client-hints
+//
+
+// https://wicg.github.io/ua-client-hints/#dictdef-navigatoruabrandversion
+interface NavigatorUABrandVersion {
+  readonly brand: string;
+  readonly version: string;
+}
+
+// https://wicg.github.io/ua-client-hints/#dictdef-uadatavalues
+interface UADataValues {
+  readonly brands?: NavigatorUABrandVersion[];
+  readonly mobile?: boolean;
+  readonly platform?: string;
+  readonly architecture?: string;
+  readonly bitness?: string;
+  readonly model?: string;
+  readonly platformVersion?: string;
+  /** @deprecated in favour of fullVersionList */
+  readonly uaFullVersion?: string;
+  readonly fullVersionList?: NavigatorUABrandVersion[];
+  readonly wow64?: boolean;
+}
+
+// https://wicg.github.io/ua-client-hints/#dictdef-ualowentropyjson
+interface UALowEntropyJSON {
+  readonly brands: NavigatorUABrandVersion[];
+  readonly mobile: boolean;
+  readonly platform: string;
+}
+
+// https://wicg.github.io/ua-client-hints/#navigatoruadata
+interface NavigatorUAData extends UALowEntropyJSON {
+  getHighEntropyValues(hints: string[]): Promise<UADataValues>;
+  toJSON(): UALowEntropyJSON;
 }

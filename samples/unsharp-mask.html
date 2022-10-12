@@ -37,7 +37,7 @@ $(async () => {
   async function renderOneFrame() {
     try {
       // Adjust canvas dimensions to support high DPR displays
-      enableHighDprCanvas(canvas, dimensions);
+      enableHighDprCanvas(canvas, dimensions, fim.capabilities);
 
       // Cycle back and forth every 3 seconds
       const amount = getAnimationValue(3000, 0, 5);

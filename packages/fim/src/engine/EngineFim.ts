@@ -71,6 +71,7 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
       estimatedMemory: this.getCapabilityMemory(),
       supportsOffscreenCanvas: (typeof OffscreenCanvas !== 'undefined'),
       supportsImageBitmap: (typeof createImageBitmap !== 'undefined'),
+      maxCanvasSize: this.getMaxCanvasSize(),
       glVersion: '',
       glShadingLanguageVersion: '',
       glVendor: '',
@@ -107,7 +108,8 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
     engineOptions.maxGLTextureSize = capabilities.glMaxTextureSize;
 
     // Set the maximum image dimensions to the specified value. If unspecified, default to the WebGL capabilities.
-    const maxDimension = Math.min(capabilities.glMaxRenderBufferSize, capabilities.glMaxTextureSize);
+    const maxDimension = Math.min(capabilities.maxCanvasSize, capabilities.glMaxRenderBufferSize,
+      capabilities.glMaxTextureSize);
     engineOptions.maxImageDimensions = FimDimensions.fromSquareDimension(maxDimension);
   }
 
@@ -437,6 +439,9 @@ export abstract class EngineFimBase<TEngineImage extends EngineImage, TEngineSha
    * zero if unknown.
    */
   protected abstract getCapabilityMemory(): number;
+
+  /** Derived classes must implement this method to return the maximum single dimension of a canvas (width or height) */
+  protected abstract getMaxCanvasSize(): number;
 
   /** Derived classes must implement this method to call the TEngineImage constructor */
   protected abstract createEngineImage(parent: FimObject, dimensions: FimDimensions, options: FimImageOptions,
