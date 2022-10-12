@@ -39,7 +39,12 @@ export function fimTestSuiteOversized(
 
     it('Supports oversizedReadOnly image option', () => {
       using(factory(), fim => {
-        const dimensions = FimDimensions.fromSquareDimension(fim.capabilities.glMaxTextureSize);
+        // The oversizedReadOnly option has very limited use now that maxCanvasSize exists. It only works on platforms
+        // that support larger texture than render buffer size on their GPU, but allow large enough canvases to load
+        // the oversized texture--basically Chrome running on a limited Android device. This test case sets the flag,
+        // but won't really make use of the flag since it's running on desktop/server hardware.
+        const size = Math.min(fim.capabilities.glMaxTextureSize, fim.capabilities.maxCanvasSize);
+        const dimensions = FimDimensions.fromSquareDimension(size);
         const image = fim.createImage(dimensions, { oversizedReadOnly: true });
         const eff = image.getEffectiveImageOptions();
 

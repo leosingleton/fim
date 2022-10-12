@@ -11,12 +11,12 @@
     "url": "https://github.com/leosingleton/fim.git"
   },
   "dependencies": {
-    "@leosingleton/commonlibs": "^1.10.1",
-    "tslib": "^2.0.1",
-    "webpack-glsl-minify": "^1.4.1"
+    "@leosingleton/commonlibs": "^1.10.5",
+    "tslib": "^2.4.0",
+    "webpack-glsl-minify": "^1.5.0"
   },
   "devDependencies": {
-    "@types/offscreencanvas": "^2019.6.4"
+    "@types/offscreencanvas": "^2019.7.0"
   },
   "main": "build/index.js",
   "types": "build/index.d.ts",

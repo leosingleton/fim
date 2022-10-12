@@ -59,8 +59,11 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
    * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
    */
-  public createDrawingContext(imageSmoothingEnabled = false, operation = 'copy', alpha = 1):
-      RenderingContext2D & IDisposable {
+  public createDrawingContext(
+    imageSmoothingEnabled = false,
+    operation: GlobalCompositeOperation = 'copy',
+    alpha = 1
+  ): RenderingContext2D & IDisposable {
     this.ensureNotDisposed();
 
     const ctx = this.getContext();
@@ -77,8 +80,12 @@ export abstract class CoreCanvas2D extends CoreCanvas {
    * @param operation CanvasRenderingContext2D.globalCompositeOperation value, e.g. 'copy' or 'source-over'
    * @param alpha CanvasRenderingContext2D.alpha value, where 0 = transparent and 1 = opaque
    */
-  protected static initializeDrawingContext(ctx: RenderingContext2D, imageSmoothingEnabled = false, operation = 'copy',
-      alpha = 1): void {
+  protected static initializeDrawingContext(
+    ctx: RenderingContext2D,
+    imageSmoothingEnabled = false,
+    operation: GlobalCompositeOperation = 'copy',
+    alpha = 1
+  ): void {
     ctx.save();
     ctx.globalCompositeOperation = operation;
     ctx.globalAlpha = alpha;

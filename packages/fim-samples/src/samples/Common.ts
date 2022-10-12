@@ -3,7 +3,7 @@
 // See LICENSE in the project root for license information.
 
 import { Stopwatch } from '@leosingleton/commonlibs';
-import { Fim, FimDimensions } from '@leosingleton/fim';
+import { Fim, FimCapabilities, FimDimensions } from '@leosingleton/fim';
 
 /** Stopwatch used to track elapsed time from page load. Used for animation and FPS calculations. */
 const elapsedClock = Stopwatch.startNew();
@@ -37,8 +37,18 @@ export function getAnimationValue(period: number, minValue = 0, maxValue = 1, of
  * should be called regularly during the lifetime of the canvas, as the browser window could move to a different monitor
  * with a different DPR.
  * @param canvas Canvas to enable high DPR support on
+ * @param dimensions Dimensions for the canvas
+ * @param capabilities Client capabilities
  */
-export function enableHighDprCanvas(canvas: HTMLCanvasElement, dimensions: FimDimensions): void {
+export function enableHighDprCanvas(
+  canvas: HTMLCanvasElement,
+  dimensions: FimDimensions,
+  capabilities: FimCapabilities
+): void {
+  // To prevent crashes on Safari for iOS, or any other browsers with low maximum canvas dimensions, limit the canvas
+  // dimensions to the capabilities reported by FIM.
+  dimensions = dimensions.fitInsideSquare(capabilities.maxCanvasSize);
+
   const dpr = window.devicePixelRatio || 1;
   const expectedCssWidth = dimensions.w / dpr;
   const expectedCssHeight = dimensions.h / dpr;
