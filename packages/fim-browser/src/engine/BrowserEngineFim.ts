@@ -77,7 +77,15 @@ export class BrowserEngineFim extends EngineFimBase<BrowserEngineImage, EngineSh
       return 11180;
     }
 
+    // Some older versions of Chrome, including the HeadlessChrome used for unit testing, do not yet support the
+    // User-Agent Client Hints API used above.
+    if (uas.indexOf('Chrome') !== -1) {
+      return 16384;
+    }
+
     // For older or unknown browsers, assume 4,096 x 4,096 is safe.
+    this.logging.writeWarning(this,
+      `Unknown browser. Assuming 4096x4096 max canvas size. ${JSON.stringify(uad.toJSON())} ${uas}`);
     return 4096;
   }
 
