@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@leosingleton/fim-common-tests": "^2.6.1",
+    "@types/gl": "^6.0.5",
     "@types/node": "^18.8.4"
   },
   "main": "build/index.js",
