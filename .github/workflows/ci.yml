@@ -12,10 +12,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     
-    - name: Install Node 16.x
+    - name: Install Node 22.x
       uses: actions/setup-node@v1
       with:
-        node-version: 16.x
+        node-version: 22.x
     
     - name: apt-get update
       run: sudo apt-get -y update
@@ -47,7 +47,7 @@ jobs:
         file: build/cobertura-coverage.xml
 
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: fim-${{github.run_number}}
         path: |

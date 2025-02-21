@@ -6,7 +6,7 @@ import { FimNodeFactory } from '../factory/FimNodeFactory';
 import { usingAsync } from '@leosingleton/commonlibs';
 import { FimColor, FimDimensions, FimError, FimRect } from '@leosingleton/fim';
 import { TestColors, TestImages, TestSizes, expectErrorAsync } from '@leosingleton/fim-common-tests';
-import { Canvas, createCanvas } from 'canvas';
+import { Canvas, CanvasRenderingContext2D, createCanvas } from 'canvas';
 
 /**
  * Helper function to create a canvas
