@@ -47,7 +47,7 @@ jobs:
         file: build/cobertura-coverage.xml
 
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: fim-${{github.run_number}}
         path: |
