@@ -12,11 +12,13 @@ export interface RenderingContext2D extends Pick<CanvasRenderingContext2D,
   createImageData(imagedata: FimImageData): FimImageData;
   getImageData(sx: number, sy: number, sw: number, sh: number, settings?: ImageDataSettings): FimImageData;
   putImageData(imagedata: FimImageData, dx: number, dy: number): void;
-  putImageData(imagedata: FimImageData, dx: number, dy: number, dirtyX: number, dirtyY: number, dirtyWidth: number, dirtyHeight: number): void;
+  putImageData(imagedata: FimImageData, dx: number, dy: number, dirtyX: number, dirtyY: number, dirtyWidth: number,
+    dirtyHeight: number): void;
 
   drawImage(image: FimCanvasImageSource, dx: number, dy: number): void;
   drawImage(image: FimCanvasImageSource, dx: number, dy: number, dw: number, dh: number): void;
-  drawImage(image: FimCanvasImageSource, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void;
+  drawImage(image: FimCanvasImageSource, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number,
+    dw: number, dh: number): void;
 
   globalCompositeOperation: GlobalCompositeOperation | 'clear' | 'destination' | 'normal' | 'saturate';
 }
@@ -24,5 +26,5 @@ export interface RenderingContext2D extends Pick<CanvasRenderingContext2D,
 interface FimImageData extends Pick<ImageData, 'data'> {
 }
 
-interface FimCanvasImageSource {//extends Pick<CanvasImageSource, ''> {
+interface FimCanvasImageSource {
 }
